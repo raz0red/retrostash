@@ -176,7 +176,7 @@ static bool firmware_is_present(unsigned region)
 			bios_name_list[2] = NULL;
 			bios_sha1 = "96880D1CA92A016FF054BE5159BB06FE03CB4E14";
       }
-		
+
       else if (override_bios == 2)
       {
 			bios_name_list[0] = "ps1_rom.bin";
@@ -184,7 +184,7 @@ static bool firmware_is_present(unsigned region)
 			bios_name_list[2] = NULL;
 			bios_sha1 = "C40146361EB8CF670B19FDC9759190257803CAB7";
       }
-	   
+
       size_t i;
       for (i = 0; i < list_size; ++i)
       {
@@ -207,7 +207,7 @@ static bool firmware_is_present(unsigned region)
       }
 
       if (firmware_found)
-      {	
+      {
          char obtained_sha1[41];
          sha1_calculate(bios_path, obtained_sha1);
          if (strcmp(obtained_sha1, bios_sha1))
@@ -1494,6 +1494,13 @@ static const char *CalcDiscSCEx_BySYSTEMCNF(CDIF *c, unsigned *rr)
             if(!strncasecmp(bootpos, "cdrom:\\", 7))
             {
                bootpos += 7;
+#ifdef WRC
+               // TODO: Capture serial and make available
+               char serial[12] = "";
+               serial[11] = '\0';
+               strncpy(serial, bootpos, 11);
+               printf("### %s\n", serial);
+#endif
                if(!strncmp(bootpos + 7, "SLUS_007.65", 11) || !strncmp(bootpos + 7, "SLES_009.79", 11))
                {
                   is_monkey_hero = true;
@@ -1544,7 +1551,7 @@ static const char *CalcDiscSCEx_BySYSTEMCNF(CDIF *c, unsigned *rr)
       catch(...)
    {
    }
-       
+
 
 Breakout:
    if(fp)
@@ -3452,7 +3459,7 @@ static void check_variables(bool startup)
       }
       else
          psx_gpu_upscale_shift_hw = 0;
-      
+
       if (hw_renderer)
          psx_gpu_upscale_shift = 0;
       else

@@ -56,6 +56,10 @@ static void gfx_ctx_emscripten_get_canvas_size(int *width, int *height)
 {
    EmscriptenFullscreenChangeEvent fullscreen_status;
    bool  is_fullscreen = false;
+
+#ifdef WRC
+   EMSCRIPTEN_RESULT r = 0;
+#else
    EMSCRIPTEN_RESULT r = emscripten_get_fullscreen_status(&fullscreen_status);
 
    if (r == EMSCRIPTEN_RESULT_SUCCESS)
@@ -67,6 +71,7 @@ static void gfx_ctx_emscripten_get_canvas_size(int *width, int *height)
          *height = fullscreen_status.screenHeight;
       }
    }
+#endif
 
    if (!is_fullscreen)
    {
@@ -131,7 +136,7 @@ static void gfx_ctx_emscripten_swap_buffers(void *data)
 {
    emscripten_ctx_data_t *emscripten = (emscripten_ctx_data_t*)data;
 
-   /* doesn't really do anything in WebGL, but it might 
+   /* doesn't really do anything in WebGL, but it might
     * if we use WebGL workers in the future */
 #ifdef HAVE_EGL
    egl_swap_buffers(&emscripten->egl);
@@ -196,7 +201,7 @@ static void *gfx_ctx_emscripten_init(void *video_driver)
 
    /* TODO/FIXME - why is this conditional here - shouldn't these always
     * be grabbed? */
-   if (  emscripten->initial_width  == 0 || 
+   if (  emscripten->initial_width  == 0 ||
          emscripten->initial_height == 0)
       emscripten_get_canvas_element_size("#canvas",
          &emscripten->initial_width,

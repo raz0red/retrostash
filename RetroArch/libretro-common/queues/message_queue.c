@@ -22,6 +22,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+#ifdef WRC
+#include <stdio.h>
+#endif
 
 #include <boolean.h>
 #include <queues/message_queue.h>
@@ -120,6 +123,11 @@ void msg_queue_push(msg_queue_t *queue, const char *msg,
       char *title,
       enum message_queue_icon icon, enum message_queue_category category)
 {
+#ifdef WRC   
+   printf("%s\n", msg);
+   return;
+#endif
+
    size_t tmp_ptr = 0;
    struct queue_elem *new_elem = NULL;
 

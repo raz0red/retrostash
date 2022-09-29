@@ -1,5 +1,5 @@
 # TheLamer Notes
-It is basically impossible to pull out PGXP so this fork just assigns an unusable amount of cache and memory to it so it does not bloat up the resulting emscripten file. It is also removed from the menu options so it cannot be enabled. We also modify the code to not enable memory cache CD loading and use sync as the prior essentially triples the game memory consumption instead of just double. The game is run from a memfs anyway in the browser. 
+It is basically impossible to pull out PGXP so this fork just assigns an unusable amount of cache and memory to it so it does not bloat up the resulting emscripten file. It is also removed from the menu options so it cannot be enabled. We also modify the code to not enable memory cache CD loading and use sync as the prior essentially triples the game memory consumption instead of just double. The game is run from a memfs anyway in the browser.
 
 Because the purpose of this build is focusing on memory reduction to enable xbox Edge browser to load games this is also built with the frontend set to `MEMORY ?= 16777216` in `Makefile.emscripten`. This allows chd's with about 450 megs to boot.
 
@@ -7,8 +7,7 @@ Because the purpose of this build is focusing on memory reduction to enable xbox
 [![Build status](https://ci.appveyor.com/api/projects/status/qd1ew088woadbqhc/branch/master?svg=true)](https://ci.appveyor.com/project/bparker06/beetle-psx-libretro/branch/master)
 
 # Beetle PSX libretro
-
-Beetle PSX is a port/fork of Mednafen's PSX module to the libretro API. It can be compiled in C++98 mode, excluding the Vulkan renderer, which is written in C++11 for the time being. Beetle PSX currently runs on Linux, OSX and Windows.
+the libretro API. It can be compiled in C++98 mode, excluding the Vulkan renderer, which is written in C++11 for the time being. Beetle PSX currently runs on Linux, OSX and Windows.
 
 Notable additions in this fork are:
 * PBP and CHD file format support, developed by Zapeth;
@@ -18,6 +17,7 @@ Notable additions in this fork are:
 * PGXP perspective correct texturing and subpixel precision, developed by iCatButler;
 
 ## Building
+Beetle PSX is a port/fork of Mednafen's PSX module to 
 
 Beetle PSX can be built with `make`. To build with hardware renderer support, run `make HAVE_HW=1`. `make clean` is required when switching between HW and non-HW builds.
 

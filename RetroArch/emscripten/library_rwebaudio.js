@@ -17,7 +17,7 @@ var LibraryRWebAudio = {
       setStartTime: function() {
          if (RA.context.currentTime) {
             RA.startTime = window['performance']['now']() - RA.context.currentTime * 1000;
-            Module["resumeMainLoop"]();
+            //Module["resumeMainLoop"](); // wrc
          } else window['setTimeout'](RA.setStartTime, 0);
       },
 
@@ -79,6 +79,7 @@ var LibraryRWebAudio = {
    },
 
    RWebAudioInit: function(latency) {
+      RA.context = window.readyAudioContext; // wrc
       RA.numBuffers = ((latency * RA.context.sampleRate) / (1000 * RA.BUFFER_SIZE))|0;
       if (RA.numBuffers < 2) RA.numBuffers = 2;
 

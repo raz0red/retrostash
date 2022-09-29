@@ -72,6 +72,10 @@
 #include "../deps/rcheevos/include/rc_hash.h"
 #include "../deps/rcheevos/src/rcheevos/rc_libretro.h"
 
+#ifdef WRC
+#undef HAVE_GFX_WIDGETS
+#endif
+
 /* Define this macro to prevent cheevos from being deactivated when they trigger. */
 #undef CHEEVOS_DONT_DEACTIVATE
 
@@ -186,7 +190,7 @@ static int rcheevos_init_memory(rcheevos_locals_t* locals)
    mmap.descriptors = &descriptors[0];
    mmap.num_descriptors = mmaps->num_descriptors;
 
-   /* RetroArch wraps the retro_memory_descriptor's 
+   /* RetroArch wraps the retro_memory_descriptor's
     * in rarch_memory_descriptor_t's, pull them back out */
    for (i = 0; i < mmap.num_descriptors; ++i)
       memcpy(&descriptors[i], &mmaps->descriptors[i].core,
@@ -202,7 +206,7 @@ static int rcheevos_init_memory(rcheevos_locals_t* locals)
 
 uint8_t* rcheevos_patch_address(unsigned address)
 {
-   /* Memory map was not previously initialized 
+   /* Memory map was not previously initialized
     * (no achievements for this game?), try now */
    if (rcheevos_locals.memory.count == 0)
       rcheevos_init_memory(&rcheevos_locals);
@@ -220,7 +224,7 @@ static unsigned rcheevos_peek(unsigned address,
       switch (num_bytes)
       {
          case 4:
-            return (data[3] << 24) | (data[2] << 16) | 
+            return (data[3] << 24) | (data[2] << 16) |
                    (data[1] <<  8) | (data[0]);
          case 3:
             return (data[2] << 16) | (data[1] << 8) | (data[0]);
@@ -273,7 +277,7 @@ static void rcheevos_activate_achievements(void)
 static rcheevos_racheevo_t* rcheevos_find_cheevo(unsigned id)
 {
    rcheevos_racheevo_t* cheevo = rcheevos_locals.game.achievements;
-   rcheevos_racheevo_t* stop   = cheevo 
+   rcheevos_racheevo_t* stop   = cheevo
       + rcheevos_locals.game.achievement_count;
 
    for(; cheevo < stop; ++cheevo)
@@ -313,7 +317,7 @@ void rcheevos_award_achievement(rcheevos_locals_t* locals,
 #endif
    {
       char buffer[256];
-      snprintf(buffer, sizeof(buffer), "%s: %s", 
+      snprintf(buffer, sizeof(buffer), "%s: %s",
             msg_hash_to_str(MSG_ACHIEVEMENT_UNLOCKED), cheevo->title);
       runloop_msg_queue_push(buffer, 0, 2 * 60, false, NULL,
             MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
@@ -321,7 +325,7 @@ void rcheevos_award_achievement(rcheevos_locals_t* locals,
             MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
    }
 
-   /* Start the award task (unofficial achievement 
+   /* Start the award task (unofficial achievement
     * unlocks are not submitted). */
    if (!(cheevo->active & RCHEEVOS_ACTIVE_UNOFFICIAL))
       rcheevos_client_award_achievement(cheevo->id);
@@ -369,7 +373,7 @@ void rcheevos_award_achievement(rcheevos_locals_t* locals,
 static rcheevos_ralboard_t* rcheevos_find_lboard(unsigned id)
 {
    rcheevos_ralboard_t* lboard = rcheevos_locals.game.leaderboards;
-   rcheevos_ralboard_t* stop   = lboard 
+   rcheevos_ralboard_t* stop   = lboard
       + rcheevos_locals.game.leaderboard_count;
 
    for (; lboard < stop; ++lboard)
@@ -491,8 +495,8 @@ static void rcheevos_challenge_started(
       bool widgets_ready)
 {
    settings_t* settings = config_get_ptr();
-   if (     cheevo 
-         && widgets_ready 
+   if (     cheevo
+         && widgets_ready
          && settings->bools.cheevos_challenge_indicators)
       gfx_widgets_set_challenge_display(cheevo->id, cheevo->badge);
 }
@@ -539,7 +543,7 @@ void rcheevos_reset_game(bool widgets_ready)
 
    rc_runtime_reset(&rcheevos_locals.runtime);
 
-   /* Some cores reallocate memory on reset, 
+   /* Some cores reallocate memory on reset,
     * make sure we update our pointers */
    if (rcheevos_locals.memory.total_size > 0)
       rcheevos_init_memory(&rcheevos_locals);
@@ -605,7 +609,7 @@ bool rcheevos_unload(void)
       {
          CHEEVOS_FREE(rcheevos_locals.menuitems);
          rcheevos_locals.menuitems              = NULL;
-         rcheevos_locals.menuitem_capacity      = 
+         rcheevos_locals.menuitem_capacity      =
             rcheevos_locals.menuitem_count      = 0;
       }
 #endif
@@ -633,7 +637,7 @@ bool rcheevos_unload(void)
 
    rc_runtime_destroy(&rcheevos_locals.runtime);
 
-   /* If the config-level token has been cleared, 
+   /* If the config-level token has been cleared,
     * we need to re-login on loading the next game */
    if (!settings->arrays.cheevos_token[0])
       rcheevos_locals.token[0]                  = '\0';
@@ -645,7 +649,7 @@ bool rcheevos_unload(void)
 static void rcheevos_toggle_hardcore_achievements(
       rcheevos_locals_t *locals)
 {
-   const unsigned active_mask  = 
+   const unsigned active_mask  =
       RCHEEVOS_ACTIVE_SOFTCORE | RCHEEVOS_ACTIVE_HARDCORE | RCHEEVOS_ACTIVE_UNSUPPORTED;
    rcheevos_racheevo_t* cheevo = locals->game.achievements;
    rcheevos_racheevo_t* stop   = cheevo + locals->game.achievement_count;
@@ -710,7 +714,7 @@ static void rcheevos_activate_leaderboards(void)
 static void rcheevos_deactivate_leaderboards()
 {
    rcheevos_ralboard_t* lboard = rcheevos_locals.game.leaderboards;
-   rcheevos_ralboard_t* stop   = lboard + 
+   rcheevos_ralboard_t* stop   = lboard +
       rcheevos_locals.game.leaderboard_count;
 
    for (; lboard < stop; ++lboard)
@@ -888,8 +892,8 @@ void rcheevos_toggle_hardcore_paused(void)
 void rcheevos_hardcore_enabled_changed(void)
 {
    const settings_t* settings = config_get_ptr();
-   const bool enabled         = settings 
-      && settings->bools.cheevos_enable 
+   const bool enabled         = settings
+      && settings->bools.cheevos_enable
       && settings->bools.cheevos_hardcore_mode_enable;
 
    if (enabled != rcheevos_locals.hardcore_active)
@@ -904,16 +908,16 @@ void rcheevos_hardcore_enabled_changed(void)
 void rcheevos_validate_config_settings(void)
 {
    int i;
-   const rc_disallowed_setting_t 
+   const rc_disallowed_setting_t
       *disallowed_settings          = NULL;
    core_option_manager_t* coreopts  = NULL;
-   struct retro_system_info *system = 
+   struct retro_system_info *system =
       &runloop_state_get_ptr()->system.info;
 
    if (!system->library_name || !rcheevos_locals.hardcore_active)
       return;
 
-   if (!(disallowed_settings 
+   if (!(disallowed_settings
             = rc_libretro_get_disallowed_settings(system->library_name)))
       return;
 
@@ -1028,12 +1032,12 @@ static void rcheevos_validate_memrefs(rcheevos_locals_t* locals)
        * first call to retro_run. in that case, there will be a total_size
        * of memory reported by the core, but init will return false, as
        * all of the pointers were null. if we're still loading the game,
-       * just reset the memory count and we'll re-evaluate in 
+       * just reset the memory count and we'll re-evaluate in
        * rcheevos_test()
        */
       if (!locals->loaded)
       {
-         /* If no memory was exposed, report the error now 
+         /* If no memory was exposed, report the error now
           * instead of waiting */
          if (locals->memory.total_size != 0)
          {
@@ -1227,6 +1231,17 @@ static size_t rc_hash_handle_cd_read_sector(
    return cdfs_read_file(file, buffer, requested_bytes);
 }
 
+#ifdef WRC
+static uint32_t rc_absolute_sector_to_track_sector(void* track_handle, uint32_t sector)
+{
+  cdfs_file_t* file = (cdfs_file_t*)track_handle;
+  if (file)
+    return sector - file->first_sector;
+
+  return 0;
+}
+#endif
+
 static void rc_hash_handle_cd_close_track(void* track_handle)
 {
    cdfs_file_t* file = (cdfs_file_t*)track_handle;
@@ -1245,7 +1260,7 @@ static void rcheevos_show_game_placard()
    char msg[256];
    const settings_t* settings        = config_get_ptr();
    const rcheevos_racheevo_t* cheevo = rcheevos_locals.game.achievements;
-   const rcheevos_racheevo_t* end    = cheevo 
+   const rcheevos_racheevo_t* end    = cheevo
       + rcheevos_locals.game.achievement_count;
    int number_of_active              = 0;
    int number_of_unsupported         = 0;
@@ -1320,7 +1335,7 @@ static void rcheevos_fetch_badges_callback(void* userdata)
 
 static void rcheevos_fetch_badges(void)
 {
-   /* this function manages the 
+   /* this function manages the
     * RCHEEVOS_LOAD_STATE_FETCHING_BADGES state */
    rcheevos_client_fetch_badges(rcheevos_fetch_badges_callback, NULL);
 }
@@ -1426,7 +1441,7 @@ static void rcheevos_initialize_runtime_callback(void* userdata)
 
 static void rcheevos_fetch_game_data(void)
 {
-   if (     rcheevos_locals.load_info.state 
+   if (     rcheevos_locals.load_info.state
          == RCHEEVOS_LOAD_STATE_NETWORK_ERROR)
    {
       rcheevos_locals.game.hash = NULL;
@@ -1499,7 +1514,7 @@ struct rcheevos_identify_game_data
 
 static void rcheevos_identify_game_callback(void* userdata)
 {
-   struct rcheevos_identify_game_data* data = 
+   struct rcheevos_identify_game_data* data =
       (struct rcheevos_identify_game_data*)userdata;
 
    if (data)
@@ -1622,7 +1637,7 @@ void rcheevos_begin_load_state(enum rcheevos_load_state state)
    CHEEVOS_UNLOCK(rcheevos_locals.load_info.request_lock);
 }
 
-/* Decrement and return the outstanding requests counter. 
+/* Decrement and return the outstanding requests counter.
  * If non-zero, requests are still outstanding */
 int rcheevos_end_load_state(void)
 {
@@ -1643,16 +1658,39 @@ bool rcheevos_load_aborted(void)
    {
       /* Unload has been called */
       case RCHEEVOS_LOAD_STATE_ABORTED:
-      /* Unload quit waiting and ran to completion */      
+      /* Unload quit waiting and ran to completion */
       case RCHEEVOS_LOAD_STATE_NONE:
       /* Login/resolve hash failed after several attempts */
-      case RCHEEVOS_LOAD_STATE_NETWORK_ERROR: 
+      case RCHEEVOS_LOAD_STATE_NETWORK_ERROR:
          return true;
       default:
          break;
    }
    return false;
 }
+
+#ifdef WRC
+void rcheevos_file_reader_init() {
+   struct rc_hash_cdreader cdreader;
+   struct rc_hash_filereader filereader;
+
+   /* provide hooks for reading files */
+   memset(&filereader, 0, sizeof(filereader));
+   filereader.open = rc_hash_handle_file_open;
+   filereader.seek = rc_hash_handle_file_seek;
+   filereader.tell = rc_hash_handle_file_tell;
+   filereader.read = rc_hash_handle_file_read;
+   filereader.close = rc_hash_handle_file_close;
+   rc_hash_init_custom_filereader(&filereader);
+
+   memset(&cdreader, 0, sizeof(cdreader));
+   cdreader.open_track = rc_hash_handle_cd_open_track;
+   cdreader.read_sector = rc_hash_handle_cd_read_sector;
+   cdreader.close_track = rc_hash_handle_cd_close_track;
+   cdreader.absolute_sector_to_track_sector = rc_absolute_sector_to_track_sector;
+   rc_hash_init_custom_cdreader(&cdreader);
+}
+#endif
 
 bool rcheevos_load(const void *data)
 {
@@ -1661,7 +1699,7 @@ bool rcheevos_load(const void *data)
    const struct retro_game_info *info = (const struct retro_game_info*)
       data;
    settings_t *settings               = config_get_ptr();
-   bool cheevos_enable                = settings 
+   bool cheevos_enable                = settings
       && settings->bools.cheevos_enable;
 
    memset(&rcheevos_locals.load_info, 0,
@@ -1675,7 +1713,7 @@ bool rcheevos_load(const void *data)
 #endif
    rc_runtime_init(&rcheevos_locals.runtime);
 
-   /* If achievements are not enabled, or the core doesn't 
+   /* If achievements are not enabled, or the core doesn't
     * support achievements, disable hardcore and bail */
    if (!cheevos_enable || !rcheevos_locals.core_supports || !data)
    {
@@ -1714,7 +1752,7 @@ bool rcheevos_load(const void *data)
 
    rc_hash_init_error_message_callback(rcheevos_handle_log_message);
 
-#ifndef DEBUG 
+#ifndef DEBUG
    /* in DEBUG mode, always initialize the verbose message handler */
    if (settings->bools.cheevos_verbose_enable)
 #endif
@@ -1754,11 +1792,11 @@ bool rcheevos_load(const void *data)
 
     */
 
-   /* Identify the game and log the user in. 
+   /* Identify the game and log the user in.
     * These will run asynchronously. */
    if (!rcheevos_identify_game(info))
    {
-      /* No hashes could be generated for the game, 
+      /* No hashes could be generated for the game,
        * disable hardcore and bail */
       rcheevos_end_load_state();
       rcheevos_pause_hardcore();

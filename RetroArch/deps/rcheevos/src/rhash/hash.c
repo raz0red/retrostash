@@ -8,7 +8,11 @@
 #include <ctype.h>
 
 /* arbitrary limit to prevent allocating and hashing large files */
+#ifdef WRC
+#define MAX_BUFFER_SIZE 1024 * 1024 * 1024
+#else
 #define MAX_BUFFER_SIZE 64 * 1024 * 1024
+#endif
 
 const char* rc_path_get_filename(const char* path);
 
@@ -1287,7 +1291,7 @@ static int rc_hash_dreamcast(char hash[33], const char* path)
   return result;
 }
 
-static int rc_hash_find_playstation_executable(void* track_handle, const char* boot_key, const char* cdrom_prefix, 
+static int rc_hash_find_playstation_executable(void* track_handle, const char* boot_key, const char* cdrom_prefix,
                                                char exe_name[], unsigned exe_name_size, unsigned* exe_size)
 {
   uint8_t buffer[2048];

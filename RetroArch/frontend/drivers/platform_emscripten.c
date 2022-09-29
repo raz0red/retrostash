@@ -46,6 +46,9 @@
 #include "../../tasks/tasks_internal.h"
 #include "../../file_path_special.h"
 #include "../../paths.h"
+#ifdef WRC
+#include "../../deps/rcheevos/include/rc_hash.h"
+#endif
 
 void dummyErrnoCodes(void);
 void emscripten_mainloop(void);
@@ -69,6 +72,48 @@ void cmd_take_screenshot(void)
 {
    command_event(CMD_EVENT_TAKE_SCREENSHOT, NULL);
 }
+
+#ifdef WRC
+void cmd_audio_reinit(void) {
+   command_event(CMD_EVENT_AUDIO_REINIT, NULL);
+}
+
+void cmd_audio_stop(void) {
+   command_event(CMD_EVENT_AUDIO_STOP, NULL);
+}
+
+void cmd_audio_start(void) {
+   command_event(CMD_EVENT_AUDIO_START, NULL);
+}
+
+void cmd_pause(void) {
+   command_event(CMD_EVENT_PAUSE_TOGGLE, NULL);
+}
+
+void cmd_unpause(void) {
+   command_event(CMD_EVENT_UNPAUSE, NULL);
+}
+
+extern void rcheevos_file_reader_init();
+static bool rcheevos_init = false;
+
+extern int task_database_chd_get_serial(const char *name, char* serial);
+
+void hash_generate_from_file(int console_id, const char* path) {
+   if (!rcheevos_init) {
+      rcheevos_file_reader_init();
+      rcheevos_init = true;
+   }
+
+   char hash[33] = "";
+   int result = rc_hash_generate_from_file(hash, console_id, path);
+   printf("## result=%d, file=%s, hash=%s\n", result, path, hash);
+
+   char serial[33] = "";
+   task_database_chd_get_serial(path, serial);
+   printf("## serial=%s\n", serial);
+}
+#endif
 
 static void frontend_emscripten_get_env(int *argc, char *argv[],
       void *args, void *params_data)
@@ -164,7 +209,9 @@ int main(int argc, char *argv[])
 
    emscripten_set_canvas_element_size("#canvas", 800, 600);
    emscripten_set_element_css_size("#canvas", 800.0, 600.0);
+#ifndef WRC
    emscripten_set_main_loop(emscripten_mainloop, 0, 0);
+#endif
    rarch_main(argc, argv, NULL);
 
    return 0;
