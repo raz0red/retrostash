@@ -876,11 +876,18 @@ void FrontIO::Power(void)
    istatus = false;
 }
 
+#ifdef WRC_INPUT
+int currentInput = 0;
+#endif
 void FrontIO::UpdateInput(void)
 {
    int i;
-   for(i = 0; i < 8; i++)
+   for(i = 0; i < 8; i++) {
+#ifdef WRC_INPUT
+      currentInput = i;
+#endif
       Devices[i]->UpdateInput(DeviceData[i]);
+   }
 }
 
 void FrontIO::SetInput(unsigned int port, const char *type, void *ptr)
@@ -946,7 +953,7 @@ void FrontIO::LoadMemcard(unsigned int which, const char *path, bool force_load)
 
  if(DevicesMC[which]->GetNVSize())
  {
-    RFILE *mf = filestream_open(path, RETRO_VFS_FILE_ACCESS_READ, 
+    RFILE *mf = filestream_open(path, RETRO_VFS_FILE_ACCESS_READ,
           RETRO_VFS_FILE_ACCESS_HINT_NONE);
 
     if (!mf)
@@ -987,7 +994,7 @@ void FrontIO::SaveMemcard(unsigned int which, const char *path, bool force_save)
 
  if(DevicesMC[which]->GetNVSize() && (force_save || DevicesMC[which]->GetNVDirtyCount()))
  {
-    RFILE *mf = filestream_open(path, 
+    RFILE *mf = filestream_open(path,
           RETRO_VFS_FILE_ACCESS_WRITE,
           RETRO_VFS_FILE_ACCESS_HINT_NONE);
 

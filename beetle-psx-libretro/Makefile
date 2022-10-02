@@ -333,8 +333,8 @@ else ifeq ($(platform), emscripten)
    CFLAGS   += -O3 -DNDEBUG
    CXXFLAGS += -O3 -DNDEBUG
    # WRC
-   CFLAGS   += -DWRC
-   CXXFLAGS += -DWRC
+   CFLAGS   += -DWRC -DWRC_INPUT
+   CXXFLAGS += -DWRC -DWRC_INPUT
 
 # Raspberry Pi 4 in 64bit mode
 else ifeq ($(platform), rpi4_64)

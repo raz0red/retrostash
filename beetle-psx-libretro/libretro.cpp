@@ -52,6 +52,10 @@ retro_input_state_t dbg_input_state_cb = 0;
 #endif
 #endif /* HAVE_LIGHTREC */
 
+#ifdef WRC_INPUT
+#include "../../../../wrc.h"
+#endif
+
 //Fast Save States exclude string labels from variables in the savestate, and are at least 20% faster.
 extern bool FastSaveStates;
 const int DEFAULT_STATE_SIZE = 16 * 1024 * 1024;
@@ -1976,6 +1980,13 @@ static void InitCommon(std::vector<CDIF *> *_CDInterfaces, const bool EmulateMem
    GPU_Init(region == REGION_EU, sls, sle, psx_gpu_upscale_shift);
 
    PSX_CDC = new PS_CDC();
+
+#ifdef WRC_INPUT
+   if (wrc_options & OPT1) {
+      emulate_multitap[0] = true;
+   }
+#endif
+
    PSX_FIO = new FrontIO(emulate_memcard, emulate_multitap);
    PSX_FIO->SetAMCT(MDFN_GetSettingB("psx.input.analog_mode_ct"));
    for(unsigned i = 0; i < 2; i++)
@@ -5156,6 +5167,7 @@ void MDFND_DispMessage(
       enum retro_message_target target, enum retro_message_type type,
       const char *str)
 {
+#ifndef WRC
    if (libretro_msg_interface_version >= 1)
    {
       struct retro_message_ext msg = {
@@ -5178,6 +5190,9 @@ void MDFND_DispMessage(
       };
       environ_cb(RETRO_ENVIRONMENT_SET_MESSAGE, &msg);
    }
+#else
+   printf("## %s\n", str);
+#endif
 }
 
 void MDFN_DispMessage(

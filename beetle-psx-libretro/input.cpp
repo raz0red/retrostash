@@ -466,7 +466,11 @@ void input_init()
    {
       input_type[ i ] = RETRO_DEVICE_JOYPAD;
 
+#ifndef WRC_INPUT
       SetInput( i, "gamepad", (uint8*)&input_data[ i ] );
+#else
+      SetInput( i, (i < 4 ? "dualshock" : "gamepad"), (uint8*)&input_data[ i ] );
+#endif
    }
 }
 
@@ -1071,6 +1075,10 @@ void retro_set_controller_port_device( unsigned in_port, unsigned device )
       // Store input type
       input_type[ in_port ] = device;
 
+#ifdef WRC_INPUT
+      printf("## setting dualshock for: %d\n", in_port);
+      SetInput( in_port, "dualshock", (uint8*)&input_data[ in_port ] );
+#else
       switch ( device )
       {
 
@@ -1128,8 +1136,8 @@ void retro_set_controller_port_device( unsigned in_port, unsigned device )
             log_cb( RETRO_LOG_WARN, "Controller %u: Unsupported Device (%u)\n", (in_port+1), device );
             SetInput( in_port, "none", (uint8*)&input_data[ in_port ] );
             break;
-
       } // switch ( device )
+#endif
 
       // Clear rumble.
       if ( rumble.set_rumble_state )

@@ -312,7 +312,9 @@ input_driver_t *input_drivers[] = {
    &input_qnx,
 #endif
 #ifdef EMSCRIPTEN
+#ifndef WRC_INPUT
    &input_rwebinput,
+#endif
 #endif
 #ifdef DJGPP
    &input_dos,
@@ -414,7 +416,7 @@ static const input_device_driver_t *input_joypad_init_first(void *data)
 }
 
 bool input_driver_set_rumble(
-         unsigned port, unsigned joy_idx, 
+         unsigned port, unsigned joy_idx,
          enum retro_rumble_effect effect, uint16_t strength)
 {
    const input_device_driver_t  *primary_joypad;
@@ -429,7 +431,7 @@ bool input_driver_set_rumble(
 
    if (primary_joypad && primary_joypad->set_rumble)
       rumble_state = primary_joypad->set_rumble(joy_idx, effect, strength);
-   
+
    /* if sec_joypad exists, this set_rumble() return value will replace primary_joypad's return */
    if (sec_joypad     && sec_joypad->set_rumble)
       rumble_state = sec_joypad->set_rumble(joy_idx, effect, strength);
@@ -2494,8 +2496,8 @@ void joypad_driver_reinit(void *data, const char *joypad_driver_name)
 }
 
 /**
- * Retrieves the sensor state associated with the provided port and ID. 
- * 
+ * Retrieves the sensor state associated with the provided port and ID.
+ *
  * @param port
  * @param id    Sensor ID
  *
@@ -2511,7 +2513,7 @@ float input_get_sensor_state(unsigned port, unsigned id)
 
 /**
  * Sets the rumble state. Used by RETRO_ENVIRONMENT_GET_RUMBLE_INTERFACE.
- * 
+ *
  * @param port      User number.
  * @param effect    Rumble effect.
  * @param strength  Strength of rumble effect.
@@ -2525,7 +2527,7 @@ bool input_set_rumble_state(unsigned port,
    unsigned joy_idx                       = settings->uints.input_joypad_index[port];
    uint16_t scaled_strength               = strength;
 
-   /* If gain setting is not suported, do software gain control */ 
+   /* If gain setting is not suported, do software gain control */
    if (input_driver_st.primary_joypad)
    {
       if (!input_driver_st.primary_joypad->set_rumble_gain)
@@ -2557,7 +2559,7 @@ bool input_set_rumble_gain(unsigned gain)
 
 uint64_t input_driver_get_capabilities(void)
 {
-   if (  !input_driver_st.current_driver || 
+   if (  !input_driver_st.current_driver ||
          !input_driver_st.current_driver->get_capabilities)
       return 0;
    return input_driver_st.current_driver->get_capabilities(input_driver_st.current_data);
@@ -2647,7 +2649,7 @@ bool video_driver_init_input(
    /* This should never really happen as tmp (driver.input) is always
     * found before this in find_driver_input(), or we have aborted
     * in a similar fashion anyways. */
-   if (  !input_driver_st.current_driver || 
+   if (  !input_driver_st.current_driver ||
          !(new_data = input_driver_init_wrap(
                input_driver_st.current_driver,
                settings->arrays.input_joypad_driver)))
@@ -2657,7 +2659,7 @@ bool video_driver_init_input(
    }
 
    input_driver_st.current_data = new_data;
-   
+
    return true;
 }
 
@@ -3108,7 +3110,7 @@ void input_driver_init_command(
    if (input_stdin_cmd_enable)
    {
       input_driver_state_t *input_st = &input_driver_st;
-      bool grab_stdin                = 
+      bool grab_stdin                =
          input_st->current_driver->grab_stdin &&
          input_st->current_driver->grab_stdin(input_st->current_data);
       if (grab_stdin)
@@ -4025,8 +4027,8 @@ void input_driver_poll(void)
       return;
    }
 
-   /* This rarch_joypad_info_t struct contains the device index + autoconfig binds for the 
-    * controller to be queried, and also (for unknown reasons) the analog axis threshold 
+   /* This rarch_joypad_info_t struct contains the device index + autoconfig binds for the
+    * controller to be queried, and also (for unknown reasons) the analog axis threshold
     * when mapping analog stick to dpad input. */
    for (i = 0; i < max_users; i++)
    {
@@ -5038,7 +5040,7 @@ int16_t input_state_internal(unsigned port, unsigned device,
 int16_t input_driver_state_wrapper(unsigned port, unsigned device,
       unsigned idx, unsigned id)
 {
-   input_driver_state_t 
+   input_driver_state_t
       *input_st                = &input_driver_st;
    int16_t result              = 0;
 #ifdef HAVE_BSV_MOVIE
@@ -5578,9 +5580,9 @@ void input_keyboard_event(bool down, unsigned code,
 {
    static bool deferred_wait_keys;
    runloop_state_t *runloop_st   = runloop_state_get_ptr();
-   retro_keyboard_event_t 
+   retro_keyboard_event_t
 	   *key_event            = &runloop_st->key_event;
-   input_driver_state_t 
+   input_driver_state_t
       *input_st                  = &input_driver_st;
    access_state_t *access_st     = access_state_get_ptr();
 #ifdef HAVE_ACCESSIBILITY
@@ -5746,7 +5748,7 @@ void input_keyboard_event(bool down, unsigned code,
          input_mapper_t *handle      = &input_st->mapper;
          struct retro_keybind hotkey = input_config_binds[0][RARCH_ENABLE_HOTKEY];
          bool hotkey_pressed         =
-                  (input_st->input_hotkey_block_counter > 0) 
+                  (input_st->input_hotkey_block_counter > 0)
                || (hotkey.key == code);
 
          if (!(MAPPER_GET_KEY(handle, code)) &&

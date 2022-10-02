@@ -272,10 +272,12 @@ static void gfx_ctx_emscripten_input_driver(void *data,
       const char *name,
       input_driver_t **input, void **input_data)
 {
+#ifndef WRC_INPUT
    void *rwebinput = input_driver_init_wrap(&input_rwebinput, name);
 
    *input      = rwebinput ? &input_rwebinput : NULL;
    *input_data = rwebinput;
+#endif
 }
 
 static bool gfx_ctx_emscripten_has_focus(void *data) { return g_egl_inited; }

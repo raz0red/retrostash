@@ -6,10 +6,18 @@
 #define SOUND_FREQUENCY 44100
 
 /* NTSC content on NTSC clock, PAL content on PAL clock. */
+#ifndef WRC
 #define FPS_NTSC_INTERLACED    59.940
 #define FPS_NTSC_NONINTERLACED 59.826
 #define FPS_PAL_INTERLACED     50.000
 #define FPS_PAL_NONINTERLACED  49.761
+#else
+#define FPS_NTSC_INTERLACED    60
+#define FPS_NTSC_NONINTERLACED 60
+#define FPS_PAL_INTERLACED     50
+#define FPS_PAL_NONINTERLACED  50
+#endif
+
 
 /* Note: It is possible for the PlayStation GPU to output NTSC
  * on PAL GPU clock and vice versa, but this is unsupported in
@@ -160,7 +168,7 @@ void rsx_intf_fill_rect(uint32_t color,
 
 void rsx_intf_copy_rect(uint16_t src_x, uint16_t src_y,
                         uint16_t dst_x, uint16_t dst_y,
-                        uint16_t w, uint16_t h, 
+                        uint16_t w, uint16_t h,
                         uint32_t mask_test, uint32_t set_mask);
 
 enum rsx_renderer_type rsx_intf_is_type(void);

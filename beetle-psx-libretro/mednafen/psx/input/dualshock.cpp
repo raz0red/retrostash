@@ -22,6 +22,11 @@
 #include "../../mednafen.h"
 #include "../../mednafen-endian.h"
 
+#ifdef WRC_INPUT
+#include "../../../../wrc.h"
+#include <emscripten.h>
+#endif
+
 /*
    TODO:
 	If we ever call Update() more than once per video frame(IE 50/60Hz), we'll need to add debounce logic to the analog mode button evaluation code.
@@ -159,7 +164,7 @@ void InputDevice_DualShock::SetAMCT(bool enabled)
 
    MDFN_DispMessage(2, RETRO_LOG_INFO,
          RETRO_MESSAGE_TARGET_OSD, RETRO_MESSAGE_TYPE_NOTIFICATION_ALT,
-         "%s: Analog toggle is %s, sticks are %s",
+         "%s: (b) Analog toggle is %s, sticks are %s",
          gp_name.c_str(), amct_enabled ? "ENABLED" : "DISABLED", analog_mode ? "ON" : "OFF");
 }
 
@@ -186,7 +191,7 @@ void InputDevice_DualShock::CheckManualAnaModeChange(void)
          }
          else
             combo_anatoggle_counter = -1;
-      }  
+      }
       else
       {
          combo_anatoggle_counter = -1;
@@ -296,8 +301,44 @@ int InputDevice_DualShock::StateAction(StateMem* sm, int load, int data_only, co
    return(ret);
 }
 
+#ifdef WRC_INPUT
+extern int currentInput;
+#endif
+
 void InputDevice_DualShock::UpdateInput(const void *data)
 {
+#ifdef WRC_INPUT
+   //printf("## %d %d\n", currentInput, wrc_input_state[currentInput]);
+   unsigned int state = wrc_input_state[currentInput];
+
+   buttons[0] = 0;
+   buttons[1] = 0;
+
+   if (state & INP_SELECT) buttons[0] |= (1);
+   if (state & INP_LTHUMB) buttons[0] |= (1 << 1);
+   if (state & INP_RTHUMB) buttons[0] |= (1 << 2);
+   if (state & INP_START) buttons[0] |= (1 << 3);
+   if (state & INP_UP) buttons[0] |= (1 << 4);
+   if (state & INP_RIGHT) buttons[0] |= (1 << 5);
+   if (state & INP_DOWN) buttons[0] |= (1 << 6);
+   if (state & INP_LEFT) buttons[0] |= (1 << 7);
+   if (state & INP_LTRIG) buttons[1] |= 1;
+   if (state & INP_RTRIG) buttons[1] |= (1 << 1);
+   if (state & INP_LBUMP) buttons[1] |= (1 << 2);
+   if (state & INP_RBUMP) buttons[1] |= (1 << 3);
+   if (state & INP_Y) buttons[1] |= (1 << 4);
+   if (state & INP_B) buttons[1] |= (1 << 5);
+   if (state & INP_A) buttons[1] |= (1 << 6);
+   if (state & INP_X) buttons[1] |= (1 << 7);
+
+
+   axes[0][0] = (wrc_input_state_analog[currentInput][2] * 127) + 128;
+   axes[0][1] = (wrc_input_state_analog[currentInput][3] * 127) + 128;
+   axes[1][0] = (wrc_input_state_analog[currentInput][0] * 127) + 128;
+   axes[1][1] = (wrc_input_state_analog[currentInput][1] * 127) + 128;
+
+   analog_mode = (wrc_options & OPT2);
+#else
    uint8 *d8 = (uint8 *)data;
    uint8* const rumb_dp = &d8[3 + 16];
 
@@ -349,18 +390,21 @@ void InputDevice_DualShock::UpdateInput(const void *data)
       //MDFN_en16lsb(rumb_dp, sneaky_weaky << 0);
       MDFN_en32lsb<false>(&d8[4 + 32 + 0], sneaky_weaky << 0);
    }
+#endif
 
-   //printf("%d %d %d %d\n", axes[0][0], axes[0][1], axes[1][0], axes[1][1]);
+   // printf("%d %d %d %d\n", axes[0][0], axes[0][1], axes[1][0], axes[1][1]);
 
    //
    //
    //
+#ifndef WRC_INPUT
    CheckManualAnaModeChange();
+#endif
 
    if(am_prev_info != analog_mode || aml_prev_info != analog_mode_locked)
       MDFN_DispMessage(2, RETRO_LOG_INFO,
             RETRO_MESSAGE_TARGET_OSD, RETRO_MESSAGE_TYPE_NOTIFICATION_ALT,
-            "%s: Analog toggle is %s, sticks are %s",
+            "%s: (a) Analog toggle is %s, sticks are %s",
             gp_name.c_str(), amct_enabled ? "ENABLED" : "DISABLED", analog_mode ? "ON" : "OFF");
 
    aml_prev_info = analog_mode_locked;
@@ -382,7 +426,9 @@ void InputDevice_DualShock::SetDTR(bool new_dtr)
    }
    else if(old_dtr && !dtr)
    {
+#ifndef WRC_INPUT
       CheckManualAnaModeChange();
+#endif
       //if(bitpos || transmit_count)
       // printf("[PAD] Abort communication!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
    }
@@ -701,12 +747,22 @@ bool InputDevice_DualShock::Clock(bool TxD, int32 &dsr_pulse_delay)
             {
                case 0x00:
                   analog_mode = false;
-                  //fprintf(stderr, "Analog mode disabled\n");
+#ifdef WRC_INPUT
+                  printf("### Analog mode disabled\n");
+                  EM_ASM({
+                     window.emulator.setAnalogMode($0);
+                  }, analog_mode);
+#endif
                   break;
 
                case 0x01:
                   analog_mode = true;
-                  //fprintf(stderr, "Analog mode enabled\n");
+#ifdef WRC_INPUT
+                  printf("### Analog mode enabled\n");
+                  EM_ASM({
+                     window.emulator.setAnalogMode($0);
+                  }, analog_mode);
+#endif
                   break;
             }
             break;
@@ -1019,7 +1075,7 @@ bool InputDevice_DualShock::Clock(bool TxD, int32 &dsr_pulse_delay)
                else
                   command_phase = -1;
 
-               rumble_magic[index] = receive_buffer;	 
+               rumble_magic[index] = receive_buffer;
             }
             break;
 

@@ -48,6 +48,8 @@
 #include "../../paths.h"
 #ifdef WRC
 #include "../../deps/rcheevos/include/rc_hash.h"
+#include "../../../wrc.h"
+#include "../../driver.h"
 #endif
 
 void dummyErrnoCodes(void);
@@ -94,6 +96,13 @@ void cmd_unpause(void) {
    command_event(CMD_EVENT_UNPAUSE, NULL);
 }
 
+void wrc_enable_bilinear_filter(int enable) {
+   printf("## wrc_enable_bilinear_filter: %d\n", enable);
+   settings_t *settings = config_get_ptr();
+   settings->bools.video_smooth = (enable == 1);
+   video_driver_reinit(DRIVER_VIDEO_MASK);
+}
+
 extern void rcheevos_file_reader_init();
 static bool rcheevos_init = false;
 
@@ -113,6 +122,23 @@ void hash_generate_from_file(int console_id, const char* path) {
    task_database_chd_get_serial(path, serial);
    printf("## serial=%s\n", serial);
 }
+
+unsigned int wrc_options = {0};
+unsigned int wrc_input_state[GAMEPAD_COUNT] = {0};
+float wrc_input_state_analog[GAMEPAD_COUNT][4] = {0};
+
+void wrc_set_input(int index, unsigned int state, float alx, float aly, float arx, float ary) {
+   wrc_input_state_analog[index][0] = alx;
+   wrc_input_state_analog[index][1] = aly;
+   wrc_input_state_analog[index][2] = arx;
+   wrc_input_state_analog[index][3] = ary;
+   wrc_input_state[index] = state;
+}
+
+void wrc_set_options(int opts) {
+   wrc_options = opts;
+}
+
 #endif
 
 static void frontend_emscripten_get_env(int *argc, char *argv[],
