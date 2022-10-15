@@ -125,6 +125,7 @@ unsigned psx_gpu_overclock_shift = 0;
 // display_internal_framerate is true.
 #define INTERNAL_FPS_SAMPLE_PERIOD 64
 
+
 static int psx_skipbios;
 static int override_bios;
 
@@ -2381,8 +2382,14 @@ static int LoadCD(std::vector<CDIF *> *_CDInterfaces)
 {
    InitCommon(_CDInterfaces);
 
+#ifdef WRC
+   if (wrc_options & OPT5) {
+      BIOSROM->WriteU32(0x6990, 0);
+   }
+#else
    if (psx_skipbios == 1)
    BIOSROM->WriteU32(0x6990, 0);
+#endif
 
    EmulatedPSX.GameType = GMT_CDROM;
 
@@ -3271,6 +3278,15 @@ static void check_variables(bool startup)
          psx_skipbios = 0;
    }
 
+#ifdef WRC
+   if (wrc_options & OPT3) {
+      override_bios = 1;
+   } else if (wrc_options & OPT4) {
+      override_bios = 2;
+   } else {
+      override_bios = 0;
+   }
+#else
    var.key = BEETLE_OPT(override_bios);
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
    {
@@ -3287,6 +3303,7 @@ static void check_variables(bool startup)
          override_bios = 2;
       }
    }
+#endif
 
    var.key = BEETLE_OPT(widescreen_hack);
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
