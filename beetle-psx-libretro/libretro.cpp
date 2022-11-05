@@ -160,6 +160,10 @@ enum
    REGION_EU = 2,
 };
 
+#ifdef WRC
+extern "C" void em_cmd_savefiles() {}
+#endif
+
 static bool firmware_is_present(unsigned region)
 {
    static const size_t list_size = 10;

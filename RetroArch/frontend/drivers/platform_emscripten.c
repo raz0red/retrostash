@@ -54,9 +54,11 @@
 
 void dummyErrnoCodes(void);
 void emscripten_mainloop(void);
+extern void em_cmd_savefiles();
 
 void cmd_savefiles(void)
 {
+   em_cmd_savefiles();
    command_event(CMD_EVENT_SAVE_FILES, NULL);
 }
 

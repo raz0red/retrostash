@@ -101,6 +101,10 @@ STATIC_ASSERT(z80_overflow,
               Z80_MAX_CYCLES <= UINT_MAX >> (Z80_OVERCLOCK_SHIFT + 1));
 #endif
 
+#ifdef WRC
+#include "../../../../wrc.h"
+#endif
+
 t_config config;
 
 sms_ntsc_t *sms_ntsc = NULL;
@@ -367,9 +371,9 @@ int load_archive(char *filename, unsigned char *buffer, int maxsize, char *exten
     {
       return 0;
     }
-  
+
     /* Mega CD BIOS are required files */
-    if (!strcmp(filename,CD_BIOS_US) || !strcmp(filename,CD_BIOS_EU) || !strcmp(filename,CD_BIOS_JP)) 
+    if (!strcmp(filename,CD_BIOS_US) || !strcmp(filename,CD_BIOS_EU) || !strcmp(filename,CD_BIOS_JP))
     {
        if (log_cb)
           log_cb(RETRO_LOG_ERROR, "Unable to open CD BIOS: %s.\n", filename);
@@ -428,12 +432,34 @@ static void osd_input_update_internal_bitmasks(void)
    unsigned int temp;
    int16_t ret = input_state_cb(player, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_MASK);
 
+#ifdef WRC
+   // printf("## input 0 = %d\n", wrc_input_state[0]);
+#endif
+
    for (i = 0; i < MAX_INPUTS; i++)
    {
+#ifdef WRC
+      unsigned int wrc_state = 0;
+      if (i == 0) {
+         wrc_state = wrc_input_state[0];
+      } else if (i == 4) {
+         wrc_state = wrc_input_state[1];
+      }
+#endif
       temp = 0;
       switch (input.dev[i])
       {
          case DEVICE_PAD6B:
+#ifdef WRC
+            if (wrc_state & INP_SELECT)
+               temp |= INPUT_MODE;
+            if (wrc_state & INP_LBUMP)
+               temp |= INPUT_X;
+            if (wrc_state & INP_Y)
+               temp |= INPUT_Y;
+            if (wrc_state & INP_RBUMP)
+               temp |= INPUT_Z;
+#else
             if (ret & (1 << RETRO_DEVICE_ID_JOYPAD_L))
                temp |= INPUT_X;
             if (ret & (1 << RETRO_DEVICE_ID_JOYPAD_X))
@@ -442,12 +468,34 @@ static void osd_input_update_internal_bitmasks(void)
                temp |= INPUT_Z;
             if (ret & (1 << RETRO_DEVICE_ID_JOYPAD_SELECT))
                temp |= INPUT_MODE;
+#endif
 
          case DEVICE_PAD3B:
+#ifdef WRC
+            if (wrc_state & INP_X)
+               temp |= INPUT_A;
+#else
             if (ret & (1 << RETRO_DEVICE_ID_JOYPAD_Y))
                temp |= INPUT_A;
+#endif
 
          case DEVICE_PAD2B:
+#ifdef WRC
+            if (wrc_state & INP_START)
+               temp |= INPUT_START;
+            if (wrc_state & INP_UP)
+               temp |= INPUT_UP;
+            if (wrc_state & INP_DOWN)
+               temp |= INPUT_DOWN;
+            if (wrc_state & INP_LEFT)
+               temp |= INPUT_LEFT;
+            if (wrc_state & INP_RIGHT)
+               temp |= INPUT_RIGHT;
+            if (wrc_state & INP_A)
+               temp |= INPUT_B;
+            if (wrc_state & INP_B)
+               temp |= INPUT_C;
+#else
             if (ret & (1 << RETRO_DEVICE_ID_JOYPAD_B))
                temp |= INPUT_B;
             if (ret & (1 << RETRO_DEVICE_ID_JOYPAD_A))
@@ -462,6 +510,7 @@ static void osd_input_update_internal_bitmasks(void)
                temp |= INPUT_LEFT;
             if (ret & (1 << RETRO_DEVICE_ID_JOYPAD_RIGHT))
                temp |= INPUT_RIGHT;
+#endif
 
             player++;
             ret = input_state_cb(player, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_MASK);
@@ -538,7 +587,7 @@ static void osd_input_update_internal_bitmasks(void)
                   temp |= INPUT_C;
                if (input_state_cb(player, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_START))
                   temp |= INPUT_START;
-            }     
+            }
 
             player++;
             ret = input_state_cb(player, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_MASK);
@@ -630,7 +679,7 @@ static void osd_input_update_internal_bitmasks(void)
                int ry = input.analog[i][1] = input_state_cb(player, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y);
                if (abs(rx) > abs(ry))
                   input.analog[i+1][0] = (rx + 0x8000) >> 8;
-               else 
+               else
                   input.analog[i+1][0] = (0x7fff - ry) >> 8;
                input.analog[i][0] = (input_state_cb(player, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X) + 0x8000) >> 8;
                input.analog[i][1] = (input_state_cb(player, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y) + 0x8000) >> 8;
@@ -852,7 +901,7 @@ static void osd_input_update_internal(void)
                int ry = input.analog[i][1] = input_state_cb(player, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y);
                if (abs(rx) > abs(ry))
                   input.analog[i+1][0] = (rx + 0x8000) >> 8;
-               else 
+               else
                   input.analog[i+1][0] = (0x7fff - ry) >> 8;
                input.analog[i][0] = (input_state_cb(player, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X) + 0x8000) >> 8;
                input.analog[i][1] = (input_state_cb(player, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y) + 0x8000) >> 8;
@@ -903,7 +952,7 @@ static void draw_cursor(int16_t x, int16_t y, uint16_t color)
 {
    int i;
 
-   /* crosshair center position */   
+   /* crosshair center position */
    uint16_t *ptr = (uint16_t *)bitmap.data + ((bitmap.viewport.y + y) * bitmap.width) + x + bitmap.viewport.x;
 
    /* default crosshair dimension */
@@ -941,7 +990,7 @@ static void init_bitmap(void)
 static void config_default(void)
 {
    int i;
-   
+
    /* sound options */
    config.psg_preamp     = 150;
    config.fm_preamp      = 100;
@@ -956,7 +1005,7 @@ static void config_default(void)
    config.lg             = 100;
    config.mg             = 100;
    config.hg             = 100;
-   config.ym2612         = YM2612_DISCRETE; 
+   config.ym2612         = YM2612_DISCRETE;
    config.ym2413         = 2; /* AUTO */
    config.mono           = 0; /* STEREO output */
 #ifdef USE_PER_SOUND_CHANNELS_CONFIG
@@ -1064,7 +1113,7 @@ static void bram_load(void)
       {
         int filesize = scd.cartridge.mask + 1;
         int done = 0;
-        
+
         /* Read into buffer (2k blocks) */
         while (filesize > CHUNKSIZE)
         {
@@ -1115,12 +1164,15 @@ static void bram_save(void)
         switch (region_code)
         {
           case REGION_JAPAN_NTSC:
+printf("## saving to: %s\n", CD_BRAM_JP);
             fp = filestream_open(CD_BRAM_JP, RETRO_VFS_FILE_ACCESS_WRITE, RETRO_VFS_FILE_ACCESS_HINT_NONE);
             break;
           case REGION_EUROPE:
+printf("## saving to: %s\n", CD_BRAM_EU);
             fp = filestream_open(CD_BRAM_EU, RETRO_VFS_FILE_ACCESS_WRITE, RETRO_VFS_FILE_ACCESS_HINT_NONE);
             break;
           case REGION_USA:
+printf("## saving to: %s\n", CD_BRAM_US);
             fp = filestream_open(CD_BRAM_US, RETRO_VFS_FILE_ACCESS_WRITE, RETRO_VFS_FILE_ACCESS_HINT_NONE);
             break;
           default:
@@ -1144,12 +1196,13 @@ static void bram_save(void)
       /* check if it is correctly formatted before saving */
       if (!memcmp(scd.cartridge.area + scd.cartridge.mask + 1 - 0x20, brm_format + 0x20, 0x20))
       {
+printf("## saving to: %s\n", CART_BRAM);
         fp = filestream_open(CART_BRAM, RETRO_VFS_FILE_ACCESS_WRITE, RETRO_VFS_FILE_ACCESS_HINT_NONE);
         if (fp != NULL)
         {
           int filesize = scd.cartridge.mask + 1;
           int done = 0;
-        
+
           /* Write to file (2k blocks) */
           while (filesize > CHUNKSIZE)
           {
@@ -1173,6 +1226,13 @@ static void bram_save(void)
       }
     }
 }
+
+#ifdef WRC
+void em_cmd_savefiles() {
+   if (system_hw == SYSTEM_MCD)
+      bram_save();
+}
+#endif
 
 static void extract_name(char *buf, const char *path, size_t size)
 {
@@ -1403,7 +1463,7 @@ static void check_variables(bool first_run)
       if (system_hw)
       {
         get_region(NULL);
-        
+
         if ((system_hw == SYSTEM_MCD) || ((system_hw & SYSTEM_SMS) && config.bios))
         {
           /* system with region BIOS should be reinitialized */
@@ -1411,7 +1471,7 @@ static void check_variables(bool first_run)
         }
         else
         {
-          static const uint16 vc_table[4][2] = 
+          static const uint16 vc_table[4][2] =
           {
             /* NTSC, PAL */
             {0xDA , 0xF2},  /* Mode 4 (192 lines) */
@@ -1422,7 +1482,7 @@ static void check_variables(bool first_run)
 
           /* framerate might have changed, reinitialize audio timings */
           audio_set_rate(44100, 0);
-          
+
           /* reinitialize I/O region register */
           if (system_hw == SYSTEM_MD)
           {
@@ -1439,7 +1499,7 @@ static void check_variables(bool first_run)
 
           /* reinitialize VDP timings */
           lines_per_frame = vdp_pal ? 313 : 262;
-     
+
           /* reinitialize NTSC/PAL mode in VDP status */
           if (system_hw & SYSTEM_MD)
           {
@@ -1542,7 +1602,7 @@ static void check_variables(bool first_run)
       }
     }
   }
-  
+
 #ifdef HAVE_OPLL_CORE
   var.key = "genesis_plus_gx_ym2413_core";
   environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var);
@@ -1571,7 +1631,7 @@ static void check_variables(bool first_run)
     if (var.value && !strcmp(var.value, "mono"))
       config.mono = 1;
     else if (!var.value || !strcmp(var.value, "stereo"))
-      config.mono = 0; 
+      config.mono = 0;
   }
 
 
@@ -1613,7 +1673,7 @@ static void check_variables(bool first_run)
     if (var.value && !strcmp(var.value, "low-pass"))
       config.filter = 1;
 
-#if HAVE_EQ 
+#if HAVE_EQ
     else if (var.value && !strcmp(var.value, "EQ"))
       config.filter = 2;
 #endif
@@ -1905,7 +1965,7 @@ static void check_variables(bool first_run)
            psg_config(0, config.psg_preamp, io_reg[6]);
      }
   }
-  
+
   var.key = md_fm_channel_volume_base_str;
   for (c = 0; c < 6; c++)
   {
@@ -1913,7 +1973,7 @@ static void check_variables(bool first_run)
     if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
       config.md_ch_volumes[c] = atoi(var.value);
   }
-  
+
   var.key = sms_fm_channel_volume_base_str;
   for (c = 0; c < 9; c++)
   {
@@ -2358,12 +2418,12 @@ static void RAMCheatUpdate(void)
  *
  * Apply ROM patches (this should be called each time banking is changed)
  *
- ****************************************************************************/ 
+ ****************************************************************************/
 void ROMCheatUpdate(void)
 {
   int index, cnt = maxROMcheats;
   uint8_t *ptr;
-  
+
   while (cnt)
   {
     /* get cheat index */
@@ -2419,7 +2479,7 @@ static void set_memory_maps()
 
 /****************************************************************************
  * Disk control interface
- ****************************************************************************/ 
+ ****************************************************************************/
 #define MAX_DISKS 4
 static int disk_index;
 static int disk_count;
@@ -2939,7 +2999,7 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
 
    old_system[0] = input.system[0];
    old_system[1] = input.system[1];
-   
+
    io_init();
    input_reset();
 }
@@ -2964,7 +3024,7 @@ bool get_fast_savestates(void)
 }
 
 bool retro_serialize(void *data, size_t size)
-{ 
+{
    fast_savestates = get_fast_savestates();
    if (size != STATE_SIZE)
       return FALSE;
@@ -3346,7 +3406,7 @@ bool retro_load_game_special(unsigned game_type, const struct retro_game_info *i
    return FALSE;
 }
 
-void retro_unload_game(void) 
+void retro_unload_game(void)
 {
 	/* Clear disk interface */
    int i;
@@ -3489,7 +3549,7 @@ extern int8 audio_hard_disable;
 
 extern void sound_update_fm_function_pointers(void);
 
-void retro_run(void) 
+void retro_run(void)
 {
    bool okay = false;
    int result = -1;
@@ -3592,7 +3652,7 @@ void retro_run(void)
       if (bitmap.viewport.changed & 8)
       {
         struct retro_system_av_info info;
-        bitmap.viewport.changed &= ~8; 
+        bitmap.viewport.changed &= ~8;
         retro_get_system_av_info(&info);
         environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &info);
       }
@@ -3624,7 +3684,7 @@ void retro_run(void)
          draw_cursor(input.analog[5][0], input.analog[5][1], 0xf800);
       }
    }
-   
+
    if ((config.left_border != 0) && (reg[0] & 0x20) && (bitmap.viewport.x == 0) && ((system_hw == SYSTEM_MARKIII) || (system_hw & SYSTEM_SMS) || (system_hw == SYSTEM_PBC)))
    {
 	   bmdoffset = 16;
@@ -3636,8 +3696,8 @@ void retro_run(void)
 
    if (!do_skip)
    {
-		video_cb(bitmap.data + bmdoffset, vwidth - vwoffset, vheight, 720 * 2);	
-   }		
+		video_cb(bitmap.data + bmdoffset, vwidth - vwoffset, vheight, 720 * 2);
+   }
    else
    {
 		video_cb(NULL, vwidth - vwoffset, vheight, 720 * 2);
