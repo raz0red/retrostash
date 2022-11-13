@@ -824,7 +824,7 @@ Renderer::DisplayRect Renderer::compute_display_rect()
 			upper_offset = 0 - render_state.slstart;
 		}
 	}
-	else
+	if (render_state.crop_overscan != 2 || display_height > (render_state.is_pal ? 288 : 240))
 	{
 		if (render_state.is_pal)
 		{
@@ -1509,7 +1509,7 @@ void Renderer::build_attribs(BufferVertex *output, const Vertex *vertices, unsig
 
 					// HDTODO: this might be wrong because it can result in Rect's with 0 width, also notice that height has the same +1
 					width - 1, // This is -1 due to boundary shenanigans above (otherwise upload.rect.contains(snoop) would return false for the right-most tiles)
-					
+
 					height,
 				};
 			}

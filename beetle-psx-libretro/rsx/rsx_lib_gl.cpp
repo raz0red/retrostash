@@ -352,7 +352,7 @@ static DrawConfig persistent_config = {
    {0, 0},         /* draw_area_dimensions */
    {0, 0},         /* draw_offset */
    {0x200, 0xC00}, /* display_area_hrange (hardware reset values)*/
-   {0x10, 0x100},  /* display_area_vrange (hardware reset values)*/ 
+   {0x10, 0x100},  /* display_area_vrange (hardware reset values)*/
    false,          /* is_pal */
    false,          /* is_480i */
 };
@@ -1572,7 +1572,7 @@ static GlDisplayRect compute_gl_display_rect(GlRenderer *renderer)
 
       /* The unusual case: 368px mode. Width is 364 px for
        * typical 368 mode games but often times something
-       * different, which necessitates checking width mode 
+       * different, which necessitates checking width mode
        * rather than calculated pixel width */
       case WIDTH_MODE_368:
          clock_div = 7;
@@ -1622,7 +1622,7 @@ static GlDisplayRect compute_gl_display_rect(GlRenderer *renderer)
             y = renderer->last_scanline - 239;
         }
    }
-   else
+   if (renderer->crop_overscan != 2 || height > (renderer->config.is_pal? 288 : 240))
    {
         if (renderer->config.is_pal)
         {
@@ -1762,7 +1762,7 @@ static bool retro_refresh_variables(GlRenderer *renderer)
    {
       image_offset_cycles = atoi(var.value);
    }
-   
+
    unsigned image_crop;
    var.key = BEETLE_OPT(image_crop);
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
@@ -2572,8 +2572,8 @@ void rsx_gl_finalize_frame(const void *fb, unsigned width,
    glDisable(GL_DEPTH_TEST);
    glDisable(GL_BLEND);
 
-   /* Clear the screen no matter what: prevents possible leftover 
-      pixels from previous frame when loading save state for any 
+   /* Clear the screen no matter what: prevents possible leftover
+      pixels from previous frame when loading save state for any
       games not using standard framebuffer heights */
    glClearColor(0.0, 0.0, 0.0, 0.0);
    glClear(GL_COLOR_BUFFER_BIT);

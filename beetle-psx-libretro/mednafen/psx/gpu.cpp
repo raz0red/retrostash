@@ -607,7 +607,7 @@ static void RSX_UpdateDisplayMode(void)
 
    rsx_intf_set_display_mode(
          depth_24bpp,
-         is_pal_mode, 
+         is_pal_mode,
          is_480i_mode,
          curr_width_mode);
 }
@@ -634,7 +634,7 @@ static uint16_t *VRAM_Alloc(uint8 upscale_shift)
 void GPU_Init(bool pal_clock_and_tv,
       int sls, int sle, uint8 upscale_shift)
 {
-   
+
    GPU.vram = VRAM_Alloc(upscale_shift);
 
    int x, y, v;
@@ -699,21 +699,21 @@ void GPU_Destroy(void)
    delete [] GPU.vram;
 }
 
-/* Rescale the GPU with a different upscale_shift 
- * 
+/* Rescale the GPU with a different upscale_shift
+ *
  * We copy, if necessary, the current VRAM (GPU.vram) at 1x
- * to a buffer (vram_new). 
- * We allocate enough space for the rescaled VRAM 
- * and copy the buffer to it, taking the upscale factor into account 
- * 
+ * to a buffer (vram_new).
+ * We allocate enough space for the rescaled VRAM
+ * and copy the buffer to it, taking the upscale factor into account
+ *
  */
 void GPU_Rescale(uint8 ushift)
 {
-   if (GPU.upscale_shift == 0) 
+   if (GPU.upscale_shift == 0)
    {
       /* VRAM is already at 1x, make the buffer point to the old VRAM
        * to avoid copying it */
-      vram_new = GPU.vram;  
+      vram_new = GPU.vram;
    }
 
    else
@@ -737,7 +737,7 @@ void GPU_Rescale(uint8 ushift)
     * or else texel_put won't use the new scaling factor
     * resulting in corrupted VRAM */
    GPU_set_upscale_shift(ushift);
-   
+
    GPU.vram = VRAM_Alloc(ushift);
 
    /* Copy the temp buffer to the rescaled VRAM, taking the
@@ -1074,7 +1074,7 @@ static void ProcessFIFO(uint32_t in_count)
       // A very very ugly kludge to support
       // texture mode specialization.
       // fixme/cleanup/SOMETHING in the future.
-      
+
       /* Don't alter SpriteFlip here. */
       if(cc >= 0x20 && cc <= 0x3F && (cc & 0x4))
          SetTPage(&GPU, CB[4 + ((cc >> 4) & 0x1)] >> 16);
@@ -1096,7 +1096,7 @@ static void ProcessFIFO(uint32_t in_count)
 static INLINE void GPU_WriteCB(uint32_t InData, uint32_t addr)
 {
    if(GPU_BlitterFIFO.in_count >= 0x10
-      && (GPU.InCmd != INCMD_NONE || 
+      && (GPU.InCmd != INCMD_NONE ||
       (GPU_BlitterFIFO.in_count - 0x10) >= Commands[GPU_BlitterFIFO.Peek() >> 24].fifo_fb_len))
       return;
 
@@ -1456,10 +1456,20 @@ int32_t GPU_Update(const int32_t sys_timestamp)
          }
          else
          {
-            const unsigned int FirstVisibleLine =
+            unsigned int FirstVisibleLineTemp =
                GPU.LineVisFirst + (crop_overscan == 2 ? GPU.VertStart : (GPU.HardwarePALType ? 20 : 16));
-            const unsigned int VisibleLineCount =
+            unsigned int VisibleLineCountTemp =
                (crop_overscan == 2 ? (GPU.VertEnd - GPU.VertStart) - ((GPU.HardwarePALType ? 287 : 239) - GPU.LineVisLast) - GPU.LineVisFirst : GPU.LineVisLast + 1 - GPU.LineVisFirst); //HardwarePALType ? 288 : 240;
+
+            if (VisibleLineCountTemp > (GPU.HardwarePALType ? 288 : 240))
+            {
+               FirstVisibleLineTemp =
+                  GPU.LineVisFirst + (GPU.HardwarePALType ? 20 : 16);
+               VisibleLineCountTemp =
+                  GPU.LineVisLast + 1 - GPU.LineVisFirst; //HardwarePALType ? 288 : 240;
+            }
+            const unsigned int FirstVisibleLine = FirstVisibleLineTemp;
+            const unsigned int VisibleLineCount = VisibleLineCountTemp;
 
             TIMER_SetHRetrace(false);
 
