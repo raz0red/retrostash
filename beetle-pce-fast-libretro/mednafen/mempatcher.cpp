@@ -52,7 +52,7 @@ static std::vector<CHEATF> cheats;
 static int savecheats;
 static uint32 resultsbytelen = 1;
 static bool resultsbigendian = 0;
-static bool CheatsActive = TRUE;
+static bool CheatsActive     = true;
 
 bool SubCheatsOn = 0;
 std::vector<SUBCHEAT> SubCheats[8];
@@ -134,26 +134,10 @@ void MDFNMP_InstallReadPatches(void)
    unsigned x;
    std::vector<SUBCHEAT>::iterator chit;
    if(!CheatsActive) return;
-
-
-#if 0
-   for(x = 0; x < 8; x++)
-   {
-      for(chit = SubCheats[x].begin(); chit != SubCheats[x].end(); chit++)
-      {
-         if(MDFNGameInfo->InstallReadPatch)
-            MDFNGameInfo->InstallReadPatch(chit->addr);
-      }
-   }
-#endif
 }
 
 void MDFNMP_RemoveReadPatches(void)
 {
-#if 0
- if(MDFNGameInfo->RemoveReadPatches)
-  MDFNGameInfo->RemoveReadPatches();
-#endif
 }
 
 static void CheatMemErr(void) { }
@@ -273,7 +257,6 @@ static bool TestConditions(const char *string)
  unsigned int bytelen;
  bool passed = 1;
 
- //printf("TR: %s\n", string);
  while(sscanf(string, "%u %c %63s %63s %63s", &bytelen, &endian, address, operation, value) == 5 && passed)
  {
   uint32 v_address;
@@ -302,7 +285,6 @@ static bool TestConditions(const char *string)
    value_at_address |= MemRead(v_address + x) << shiftie;
   }
 
-  //printf("A: %08x, V: %08llx, VA: %08llx, OP: %s\n", v_address, v_value, value_at_address, operation);
   if(!strcmp(operation, ">="))
   {
    if(!(value_at_address >= v_value))

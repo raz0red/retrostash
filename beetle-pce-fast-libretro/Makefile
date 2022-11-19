@@ -37,7 +37,7 @@ else ifneq (,$(findstring rpi,$(platform)))
    override platform += unix
 endif
 
-# If you have a system with 1GB RAM or more - cache the whole 
+# If you have a system with 1GB RAM or more - cache the whole
 # CD for CD-based systems in order to prevent file access delays/hiccups
 CACHE_CD = 0
 
@@ -79,7 +79,7 @@ ifneq (,$(findstring unix,$(platform)))
    else
    LDFLAGS += -lrt
    endif
-   
+
    ifneq ($(findstring Linux,$(shell uname -s)),)
      HAVE_CDROM = 1
    endif
@@ -92,18 +92,22 @@ ifneq (,$(findstring unix,$(platform)))
       else ifneq (,$(findstring rpi2,$(platform)))
          FLAGS += -DARM -marm -mcpu=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard
       else ifneq (,$(findstring rpi3,$(platform)))
+         ifneq (,$(findstring rpi3_64,$(platform)))
+            FLAGS += -DARM -march=armv8-a+crc+simd -mtune=cortex-a53
+         else
          FLAGS += -DARM -marm -mcpu=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard
+         endif
       else ifneq (,$(findstring rpi4_64,$(platform)))
          FLAGS += -DARM -march=armv8-a+crc+simd -mtune=cortex-a72
       endif
    endif
-   
+
 # Classic Platforms ####################
 # Platform affix = classic_<ISA>_<µARCH>
 # Help at https://modmyclassic.com/comp
-	
-# (armv7 a7, hard point, neon based) ### 
-# NESC, SNESC, C64 mini 
+
+# (armv7 a7, hard point, neon based) ###
+# NESC, SNESC, C64 mini
 else ifeq ($(platform), classic_armv7_a7)
 	TARGET := $(TARGET_NAME)_libretro.so
 	fpic := -fPIC
@@ -132,7 +136,7 @@ else ifeq ($(platform), classic_armv7_a7)
 #######################################
 
 # (armv8 a35, hard point, neon based) ###
-# PlayStation Classic 
+# PlayStation Classic
 else ifeq ($(platform), classic_armv8_a35)
 	TARGET := $(TARGET_NAME)_libretro.so
 	fpic := -fPIC
@@ -174,7 +178,7 @@ endif
 	LDFLAGS  += $(TARGET_RULE)
 	MINVERSION =
    endif
-   
+
    fpic += $(MINVERSION)
 
 # iOS
@@ -224,37 +228,19 @@ else ifeq ($(platform), qnx)
    AR = QCC -Vgcc_ntoarmv7le
    FLAGS += -D__BLACKBERRY_QNX__ -marm -mcpu=cortex-a9 -mfpu=neon -mfloat-abi=softfp
 
-# PS3
-else ifneq (,$(filter $(platform), ps3 sncps3 psl1ght))
-   TARGET := $(TARGET_NAME)_libretro_ps3.a
-   STATIC_LINKING = 1
-   ENDIANNESS_DEFINES := -DMSB_FIRST -DBYTE_ORDER=BIG_ENDIAN
-
-   # sncps3
-   ifneq (,$(findstring sncps3,$(platform)))
-      CC = $(CELL_SDK)/host-win32/sn/bin/ps3ppusnc.exe
-      CXX = $(CC)
-      AR = $(CELL_SDK)/host-win32/sn/bin/ps3snarl.exe
-      FLAGS += -DARCH_POWERPC_ALTIVEC
-      CXXFLAGS += -Xc+=exceptions
-      OLD_GCC := 1
-      NO_GCC := 1
-
-   # PS3
-   else ifneq (,$(findstring ps3,$(platform)))
-      CC = $(CELL_SDK)/host-win32/ppu/bin/ppu-lv2-gcc.exe
-      CXX = $(CELL_SDK)/host-win32/ppu/bin/ppu-lv2-g++.exe
-      AR = $(CELL_SDK)/host-win32/ppu/bin/ppu-lv2-ar.exe
-      FLAGS += -DARCH_POWERPC_ALTIVEC
-      OLD_GCC := 1
-
    # Lightweight PS3 Homebrew SDK
-   else ifneq (,$(findstring psl1ght,$(platform)))
+else ifneq (,$(filter $(platform), ps3 psl1ght))
       TARGET := $(TARGET_NAME)_libretro_$(platform).a
-      CC = $(PS3DEV)/ppu/bin/ppu-gcc$(EXE_EXT)
-      CXX = $(PS3DEV)/ppu/bin/ppu-g++$(EXE_EXT)
-      AR = $(PS3DEV)/ppu/bin/ppu-ar$(EXE_EXT)
+	STATIC_LINKING = 1
+	ENDIANNESS_DEFINES := -DMSB_FIRST -DBYTE_ORDER=BIG_ENDIAN
+	CC = $(PS3DEV)/ppu/bin/ppu-$(COMMONLV)gcc$(EXE_EXT)
+	AR = $(PS3DEV)/ppu/bin/ppu-$(COMMONLV)ar$(EXE_EXT)
+	CXX = $(PS3DEV)/ppu/bin/ppu-$(COMMONLV)g++$(EXE_EXT)
+	ifeq ($(platform), psl1ght)
+		FLAGS += -D__PSL1GHT__
    endif
+	FLAGS += -DARCH_POWERPC_ALTIVEC -D__PS3__ -DUSE_LIBRETRO_VFS
+	OLD_GCC := 1
 
 # PSP
 else ifeq ($(platform), psp1)
@@ -306,7 +292,7 @@ include $(DEVKITPRO)/libnx/switch_rules
     CFLAGS  :=  $(DEFINES) -g -O2 -fPIE -I$(LIBNX)/include/ -ffunction-sections -fdata-sections -ftls-model=local-exec -Wl,--allow-multiple-definition -specs=$(LIBNX)/switch.specs
     CFLAGS += $(INCDIRS)
     CFLAGS  += $(INCLUDE)  -D__SWITCH__
-    CXXFLAGS := $(ASFLAGS) $(CFLAGS) -fexceptions -fno-rtti -std=gnu++11 
+    CXXFLAGS := $(ASFLAGS) $(CFLAGS) -fexceptions -fno-rtti -std=gnu++11
     CFLAGS += -std=gnu11
     STATIC_LINKING = 1
 
@@ -343,6 +329,20 @@ else ifeq ($(platform), emscripten)
    HAVE_CDROM = 0
    HAVE_NEON = 0
    STATIC_LINKING = 1
+   FLAGS += -DWRC
+
+# RS90
+else ifeq ($(platform), rs90)
+   TARGET := $(TARGET_NAME)_libretro.so
+   CC = /opt/rs90-toolchain/usr/bin/mipsel-linux-gcc
+   CXX = /opt/rs90-toolchain/usr/bin/mipsel-linux-g++
+   AR = /opt/rs90-toolchain/usr/bin/mipsel-linux-ar
+   fpic    := -fPIC
+   SHARED  := -shared -Wl,--no-undefined -Wl,--version-script=link.T
+   LDFLAGS += -lrt
+   FLAGS += -fomit-frame-pointer -ffast-math -march=mips32 -mtune=mips32 -D_GNU_SOURCE
+   CXXFLAGS += -std=c++11
+   CFLAGS += -std=gnu11
 
 # GCW Zero
 else ifeq ($(platform), gcw0)
@@ -357,13 +357,39 @@ else ifeq ($(platform), gcw0)
    CXXFLAGS += -std=c++11
    CFLAGS += -std=gnu11
 
+# RETROFW
+else ifeq ($(platform), retrofw)
+   TARGET := $(TARGET_NAME)_libretro.so
+   CC = /opt/retrofw-toolchain/usr/bin/mipsel-linux-gcc
+   CXX = /opt/retrofw-toolchain/usr/bin/mipsel-linux-g++
+   AR = /opt/retrofw-toolchain/usr/bin/mipsel-linux-ar
+   fpic := -fPIC
+   SHARED := -shared -Wl,--no-undefined -Wl,--version-script=link.T
+   LDFLAGS += -lrt
+   FLAGS += -fomit-frame-pointer -ffast-math -march=mips32 -mtune=mips32 -mhard-float -D_GNU_SOURCE
+   CXXFLAGS += -std=c++11
+   CFLAGS += -std=gnu11
+
+# MIYOO
+else ifeq ($(platform), miyoo)
+   TARGET := $(TARGET_NAME)_libretro.so
+   CC = /opt/miyoo/usr/bin/arm-linux-gcc
+   CXX = /opt/miyoo/usr/bin/arm-linux-g++
+   AR = /opt/miyoo/usr/bin/arm-linux-ar
+   fpic := -fPIC
+   SHARED := -shared -Wl,--no-undefined -Wl,--version-script=link.T
+   LDFLAGS += -lrt
+   FLAGS += -fomit-frame-pointer -ffast-math -march=armv5te -mtune=arm926ej-s -D_GNU_SOURCE
+   CXXFLAGS += -std=c++11
+   CFLAGS += -std=gnu11
+
 # Windows MSVC 2017 all architectures
 else ifneq (,$(findstring windows_msvc2017,$(platform)))
 
       WINDOWS_VERSION=1
       NO_GCC := 1
 		HAVE_CDROM = 1
-      
+
 	PlatformSuffix = $(subst windows_msvc2017_,,$(platform))
 	ifneq (,$(findstring desktop,$(PlatformSuffix)))
 		WinPartition = desktop
@@ -517,7 +543,9 @@ INCLUDE := $(shell IFS=$$'\n'; cygpath -w "$(VS80COMNTOOLS)../../VC/include")
 LIB := $(shell IFS=$$'\n'; cygpath -w "$(VS80COMNTOOLS)../../VC/lib")
 BIN := $(shell IFS=$$'\n'; cygpath "$(VS80COMNTOOLS)../../VC/bin")
 
-WindowsSdkDir := $(shell reg query "HKLM\SOFTWARE\Microsoft\MicrosoftSDK\InstalledSDKs\8F9E5EF3-A9A5-491B-A889-C58EFFECE8B3" -v "Install Dir" | grep -o '[A-Z]:\\.*')
+#WindowsSdkDir := $(shell reg query "HKLM\SOFTWARE\Microsoft\MicrosoftSDK\InstalledSDKs\8F9E5EF3-A9A5-491B-A889-C58EFFECE8B3" -v "Install Dir" | grep -o '[A-Z]:\\.*')
+WindowsSdkDir := $(shell reg query "HKLM\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1A" -v "InstallationFolder" | grep -o '[A-Z]:\\.*')
+WindowsSdkDir ?= $(shell reg query "HKLM\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.0A" -v "InstallationFolder" | grep -o '[A-Z]:\\.*')
 
 HAVE_CDROM = 1
 
@@ -528,6 +556,7 @@ WindowsSDKGlIncludeDir := $(shell cygpath -w "$(WindowsSdkDir)\Include\gl")
 WindowsSDKMfcIncludeDir := $(shell cygpath -w "$(WindowsSdkDir)\Include\mfc")
 WindowsSDKLibDir := $(shell cygpath -w "$(WindowsSdkDir)\Lib")
 
+INCFLAGS_PLATFORM = -I"$(WindowsSDKIncludeDir)"
 export INCLUDE := $(INCLUDE);$(WindowsSDKIncludeDir);$(WindowsSDKAtlIncludeDir);$(WindowsSDKCrtIncludeDir);$(WindowsSDKGlIncludeDir);$(WindowsSDKMfcIncludeDir);libretro-common/include/compat/msvc
 export LIB := $(LIB);$(WindowsSDKLibDir)
 TARGET := $(TARGET_NAME)_libretro.dll
@@ -624,7 +653,7 @@ LDFLAGS += $(fpic) $(SHARED)
 FLAGS += $(fpic) $(NEW_GCC_FLAGS)
 FLAGS += $(INCFLAGS) $(INCFLAGS_PLATFORM)
 
-FLAGS += $(ENDIANNESS_DEFINES) $(WARNINGS) -DPACKAGE=\"mednafen\" -DMEDNAFEN_VERSION_NUMERIC=931 $(CORE_DEFINE) -DSTDC_HEADERS -D__STDC_LIMIT_MACROS -D__LIBRETRO__ -D_LOW_ACCURACY_ $(EXTRA_INCLUDES) $(SOUND_DEFINE)
+FLAGS += $(ENDIANNESS_DEFINES) $(WARNINGS) -DMEDNAFEN_VERSION_NUMERIC=931 $(CORE_DEFINE) -DSTDC_HEADERS -D__STDC_LIMIT_MACROS -D__LIBRETRO__ -D_LOW_ACCURACY_ $(EXTRA_INCLUDES) $(SOUND_DEFINE)
 
 ifneq (,$(findstring msvc,$(platform)))
 FLAGS += -DINLINE="_inline"
@@ -650,8 +679,8 @@ endif
 CXXFLAGS += $(FLAGS)
 CFLAGS   += $(FLAGS)
 
-OBJOUT   = -o 
-LINKOUT  = -o 
+OBJOUT   = -o
+LINKOUT  = -o
 
 ifneq (,$(findstring msvc,$(platform)))
 	OBJOUT = -Fo

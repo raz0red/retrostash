@@ -55,12 +55,6 @@ static int32 ClearACKDelay;
 static int32 lastts;
 static int32 pcecd_drive_ne = 0;
 
-// ADPCM variables and whatnot
-static inline void ADPCM_DEBUG(const char *format, ...)
-{
-/*printf("[Half=%d, End=%d, Playing=%d] "x, ADPCM.HalfReached, ADPCM.EndReached, ADPCM.Playing, ## __VA_ARGS__);*/ 
-}
-
 typedef Blip_Synth ADSynth;
 static ADSynth ADPCMSynth;
 static OKIADPCM_Decoder<OKIADPCM_MSM5205> MSM5205;
@@ -223,8 +217,8 @@ static INLINE uint8 read_1808(int32 timestamp)
    {
       if(PCECD_Drive_GetIO())
       {
-         PCECD_Drive_SetACK(TRUE);
-         ACKStatus = TRUE;
+         PCECD_Drive_SetACK(true);
+         ACKStatus = true;
          pcecd_drive_ne = PCECD_Drive_Run(timestamp);
          ClearACKDelay = 15 * 3;
       }
@@ -269,7 +263,7 @@ bool PCECD_Init(const PCECD_Settings *settings, void (*irqcb)(bool), double mast
 
    ADPCM.bigdivacc = (int64)((double)master_clock * OC_Multiplier * 65536 / 32087.5);
 
-   return(TRUE);
+   return true;
 }
 
 
@@ -292,7 +286,7 @@ void PCECD_Power(uint32 timestamp)
    PCECD_Drive_Power(timestamp);
    pcecd_drive_ne = 0x7fffffff;
 
-   bBRAMEnabled = FALSE;
+   bBRAMEnabled = false;
    memset(_Port, 0, sizeof(_Port));
    ACKStatus = 0;
    ClearACKDelay = 0;
@@ -328,7 +322,7 @@ void PCECD_Power(uint32 timestamp)
    Fader.Volume = 0;
    Fader.CycleCounter = 0;
    Fader.CountValue = 0;
-   Fader.Clocked = FALSE;
+   Fader.Clocked = false;
 }
 
 bool PCECD_IsBRAMEnabled(void)
@@ -373,7 +367,7 @@ uint8 PCECD_Read(uint32 timestamp, uint32 A)
          case 0x2: ret = _Port[2];
                    break;
 
-         case 0x3: bBRAMEnabled = FALSE;
+         case 0x3: bBRAMEnabled = false;
 
                    /* switch left/right of digitized cd playback */
                    ret = _Port[0x3];
@@ -413,7 +407,6 @@ uint8 PCECD_Read(uint32 timestamp, uint32 A)
                    break;
 
          case 0xa: 
-                   ADPCM_DEBUG("ReadBuffer\n");
                    ADPCM.ReadPending = 19 * 3; //24 * 3;
                    ret = ADPCM.ReadBuffer;
                    break;
@@ -423,7 +416,6 @@ uint8 PCECD_Read(uint32 timestamp, uint32 A)
                    break;
 
          case 0xc:
-                   //printf("ADPCM Status Read: %d\n", timestamp);
                    ret = 0x00;
 
                    ret |= (ADPCM.EndReached) ? 0x01 : 0x00;
@@ -519,9 +511,7 @@ void PCECD_Write(uint32 timestamp, uint32 physAddr, uint8 data)
 
       case 0x7:	// $1807: D7=1 enables backup ram 
          if (data & 0x80)
-         {
-            bBRAMEnabled = TRUE;
-         }
+            bBRAMEnabled = true;
          break;
 
       case 0x8:	// Set ADPCM address low
@@ -531,14 +521,9 @@ void PCECD_Write(uint32 timestamp, uint32 physAddr, uint8 data)
          ADPCM.Addr &= 0xFF00;
          ADPCM.Addr |= V;
 
-         ADPCM_DEBUG("SAL: %02x, %d\n", V, timestamp);
-
          // Length appears to be constantly latched when D4 is set(tested on a real system)
          if(ADPCM.LastCmd & 0x10)
-         {
-            ADPCM_DEBUG("Set length(crazy way L): %04x\n", ADPCM.Addr);
             ADPCM.LengthCount = ADPCM.Addr;
-         }
          break;
 
       case 0x9:	// Set ADPCM address high
@@ -548,24 +533,17 @@ void PCECD_Write(uint32 timestamp, uint32 physAddr, uint8 data)
          ADPCM.Addr &= 0x00FF;
          ADPCM.Addr |= V << 8;
 
-         ADPCM_DEBUG("SAH: %02x, %d\n", V, timestamp);
-
          // Length appears to be constantly latched when D4 is set(tested on a real system)
          if(ADPCM.LastCmd & 0x10)
-         {
-            ADPCM_DEBUG("Set length(crazy way H): %04x\n", ADPCM.Addr);
             ADPCM.LengthCount = ADPCM.Addr;
-         }
          break;
 
       case 0xa:
-         //ADPCM_DEBUG("Write: %02x, %d\n", V, timestamp);
          ADPCM.WritePending = 3 * 11;
          ADPCM.WritePendingValue = data;
          break;
 
       case 0xb:	// adpcm dma
-         ADPCM_DEBUG("DMA: %02x\n", V);
          _Port[0xb] = data;
          break;
 
@@ -573,7 +551,6 @@ void PCECD_Write(uint32 timestamp, uint32 physAddr, uint8 data)
          break;
 
       case 0xd:
-         ADPCM_DEBUG("Write180D: %02x\n", V);
          if(data & 0x80)
          {
             ADPCM.Addr = 0;
@@ -611,7 +588,6 @@ void PCECD_Write(uint32 timestamp, uint32 physAddr, uint8 data)
          // Length appears to be constantly latched when D4 is set(tested on a real system)
          if(data & 0x10)
          {
-            ADPCM_DEBUG("Set length: %04x\n", ADPCM.Addr);
             ADPCM.LengthCount = ADPCM.Addr;
             ADPCM.EndReached = false;
          }
@@ -624,7 +600,6 @@ void PCECD_Write(uint32 timestamp, uint32 physAddr, uint8 data)
             else
                ADPCM.ReadAddr = (ADPCM.Addr - 1) & 0xFFFF;
 
-            ADPCM_DEBUG("Set ReadAddr: %04x, %06x\n", ADPCM.Addr, ADPCM.ReadAddr);
          }
 
          // D0 and D1 control write address
@@ -633,7 +608,6 @@ void PCECD_Write(uint32 timestamp, uint32 physAddr, uint8 data)
             ADPCM.WriteAddr = ADPCM.Addr;
             if(!(data & 0x1))
                ADPCM.WriteAddr = (ADPCM.WriteAddr - 1) & 0xFFFF;
-            ADPCM_DEBUG("Set WriteAddr: %04x, %06x\n", ADPCM.Addr, ADPCM.WriteAddr);
          }
          ADPCM.LastCmd = data;
          UpdateADPCMIRQState();
@@ -642,10 +616,7 @@ void PCECD_Write(uint32 timestamp, uint32 physAddr, uint8 data)
       case 0xe:		// Set ADPCM playback rate
          {
             uint8 freq = V & 0x0F;
-
             ADPCM.SampleFreq = freq;
-
-            ADPCM_DEBUG("Freq: %02x\n", freq);
          }
          break;
 
@@ -658,7 +629,7 @@ void PCECD_Write(uint32 timestamp, uint32 physAddr, uint8 data)
             Fader.Volume = 65536;
             Fader.CycleCounter = 0;
             Fader.CountValue = 0;
-            Fader.Clocked = FALSE;
+            Fader.Clocked = false;
          }
          else
          {
@@ -667,7 +638,7 @@ void PCECD_Write(uint32 timestamp, uint32 physAddr, uint8 data)
             if(!Fader.Clocked)
                Fader.CycleCounter = Fader.CountValue;
 
-            Fader.Clocked = TRUE;
+            Fader.Clocked = true;
          }
          Fader_SyncWhich();
          break;
@@ -728,7 +699,6 @@ static INLINE void ADPCM_PB_Run(int32 basetime, int32 run_time)
 
 static INLINE void ADPCM_Run(const int32 clocks, const int32 timestamp)
 {
-   //printf("ADPCM Run: %d\n", clocks);
    ADPCM_PB_Run(timestamp, clocks);
 
    if(ADPCM.WritePending)
@@ -794,9 +764,6 @@ extern "C" void PCECD_Run(uint32 in_timestamp)
    int32 clocks = in_timestamp - lastts;
    int32 running_ts = lastts;
 
-   //printf("Run Begin: Clocks=%d(%d - %d), cl=%d\n", clocks, in_timestamp, lastts, CalcNextEvent);
-   //fflush(stdout);
-
    while(clocks > 0)
    {
       int32 chunk_clocks = CalcNextEvent(clocks);
@@ -808,8 +775,8 @@ extern "C" void PCECD_Run(uint32 in_timestamp)
          ClearACKDelay -= chunk_clocks;
          if(ClearACKDelay <= 0)
          {
-            ACKStatus = FALSE;
-            PCECD_Drive_SetACK(FALSE);
+            ACKStatus = false;
+            PCECD_Drive_SetACK(false);
             PCECD_Drive_Run(running_ts);
             if(PCECD_Drive_GetCD())
             {

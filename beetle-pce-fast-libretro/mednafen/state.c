@@ -15,7 +15,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -27,36 +26,16 @@
 #include "mednafen-endian.h"
 #include "state.h"
 
+#define SSEEK_END	2
+#define SSEEK_CUR	1
+#define SSEEK_SET	0
+
 #define RLSB 		MDFNSTATE_RLSB	/* 0x80000000 */
 
 /* Forward declaration */
 int StateAction(StateMem *sm, int load, int data_only);
 
-static int write32le(uint32_t b, FILE *fp)
-{
-   uint8_t s[4];
-   s[0]=b;
-   s[1]=b>>8;
-   s[2]=b>>16;
-   s[3]=b>>24;
-   return((fwrite(s,1,4,fp)<4)?0:4);
-}
-
-static int read32le(uint32_t *Bufo, FILE *fp)
-{
-   uint32_t buf;
-   if(fread(&buf,1,4,fp)<4)
-      return 0;
-#ifdef MSB_FIRST
-   *(uint32_t*)Bufo=((buf&0xFF)<<24)|((buf&0xFF00)<<8)|((buf&0xFF0000)>>8)|((buf&0xFF000000)>>24);
-#else
-   *(uint32_t*)Bufo=buf;
-#endif
-   return 1;
-}
-
-
-int32_t smem_read(StateMem *st, void *buffer, uint32_t len)
+static int32_t smem_read(StateMem *st, void *buffer, uint32_t len)
 {
    if ((len + st->loc) > st->len)
       return 0;
@@ -67,7 +46,7 @@ int32_t smem_read(StateMem *st, void *buffer, uint32_t len)
    return(len);
 }
 
-int32_t smem_write(StateMem *st, void *buffer, uint32_t len)
+static int32_t smem_write(StateMem *st, void *buffer, uint32_t len)
 {
    if ((len + st->loc) > st->malloced)
    {
@@ -87,25 +66,17 @@ int32_t smem_write(StateMem *st, void *buffer, uint32_t len)
    return(len);
 }
 
-int32_t smem_putc(StateMem *st, int value)
-{
-   uint8_t tmpval = value;
-   if(smem_write(st, &tmpval, 1) != 1)
-      return(-1);
-   return(1);
-}
-
-int32_t smem_seek(StateMem *st, uint32_t offset, int whence)
+static int32_t smem_seek(StateMem *st, uint32_t offset, int whence)
 {
    switch(whence)
    {
-      case SEEK_SET:
+      case SSEEK_SET:
          st->loc = offset;
          break;
-      case SEEK_END:
+      case SSEEK_END:
          st->loc = st->len - offset;
          break;
-      case SEEK_CUR:
+      case SSEEK_CUR:
          st->loc += offset;
          break;
    }
@@ -119,7 +90,7 @@ int32_t smem_seek(StateMem *st, uint32_t offset, int whence)
    return(0);
 }
 
-int smem_write32le(StateMem *st, uint32_t b)
+static int smem_write32le(StateMem *st, uint32_t b)
 {
    uint8_t s[4];
    s[0]=b;
@@ -129,7 +100,7 @@ int smem_write32le(StateMem *st, uint32_t b)
    return((smem_write(st, s, 4)<4)?0:4);
 }
 
-int smem_read32le(StateMem *st, uint32_t *b)
+static int smem_read32le(StateMem *st, uint32_t *b)
 {
    uint8_t s[4];
 
@@ -141,7 +112,7 @@ int smem_read32le(StateMem *st, uint32_t *b)
    return(4);
 }
 
-static bool SubWrite(StateMem *st, SFORMAT *sf, const char *name_prefix)
+static bool SubWrite(StateMem *st, SFORMAT *sf)
 {
    /* Size can sometimes be zero, so also check for the 
     * text name.  These two should both be zero only at 
@@ -160,23 +131,17 @@ static bool SubWrite(StateMem *st, SFORMAT *sf, const char *name_prefix)
 
       if(sf->size == (uint32_t)~0)		/* Link to another struct.	*/
       {
-         if(!SubWrite(st, (SFORMAT *)sf->v, name_prefix))
+         if(!SubWrite(st, (SFORMAT *)sf->v))
             return(0);
 
          sf++;
          continue;
       }
 
-      bytesize = sf->size;
+      bytesize      = sf->size;
 
-      if (name_prefix)
-         slen       = snprintf(
-               nameo + 1, 256, "%s%s", name_prefix, sf->name);
-      else
-      {
-         slen       = strlcpy(nameo + 1, sf->name, 256);
-         nameo[256] = 0;
-      }
+      slen          = strlcpy(nameo + 1, sf->name, 256);
+      nameo[256]    = 0;
       nameo[0]      = slen;
 
       smem_write(st, nameo, 1 + nameo[0]);
@@ -253,14 +218,14 @@ static int WriteStateChunk(StateMem *st, const char *sname, SFORMAT *sf)
 
    data_start_pos = st->loc;
 
-   if(!SubWrite(st, sf, NULL))
+   if(!SubWrite(st, sf))
       return(0);
 
    end_pos = st->loc;
 
-   smem_seek(st, data_start_pos - 4, SEEK_SET);
+   smem_seek(st, data_start_pos - 4, SSEEK_SET);
    smem_write32le(st, end_pos - data_start_pos);
-   smem_seek(st, end_pos, SEEK_SET);
+   smem_seek(st, end_pos, SSEEK_SET);
 
    return(end_pos - data_start_pos);
 }
@@ -294,43 +259,6 @@ static SFORMAT *FindSF(const char *name, SFORMAT *sf)
    return NULL;
 }
 
-/* Fast raw chunk reader */
-static void DOReadChunk(StateMem *st, SFORMAT *sf)
-{
-   /* Size can sometimes be zero, so also check for the text name.  
-    * These two should both be zero only at the end of a struct. */
-   while(sf->size || sf->name)       
-   {
-      int32_t bytesize;
-      if(!sf->size || !sf->v)
-      {
-         sf++;
-         continue;
-      }
-
-      if(sf->size == (uint32_t) ~0) /* Link to another SFORMAT struct */
-      {
-         DOReadChunk(st, (SFORMAT *)sf->v);
-         sf++;
-         continue;
-      }
-
-      bytesize = sf->size;
-
-      /* Loading raw data, bool types are stored as they 
-       * appear in memory, not as single bytes in the full state format.
-       * In the SFORMAT structure, the size member for 
-       * bool entries is the number of bool elements, not the 
-       * total in-memory size,
-       * so we adjust it here. */
-      if(sf->flags & MDFNSTATE_BOOL)
-         bytesize *= sizeof(bool);
-
-      smem_read(st, (uint8_t *)sf->v, bytesize);
-      sf++;
-   }
-}
-
 static int ReadStateChunk(StateMem *st, SFORMAT *sf, int size)
 {
    int temp = st->loc;
@@ -344,16 +272,10 @@ static int ReadStateChunk(StateMem *st, SFORMAT *sf, int size)
                                  and other places. */
 
       if(smem_read(st, toa, 1) != 1)
-      {
-         puts("Unexpected EOF");
          return(0);
-      }
 
       if(smem_read(st, toa + 1, toa[0]) != toa[0])
-      {
-         puts("Unexpected EOF?");
          return 0;
-      }
 
       toa[1 + toa[0]] = 0;
 
@@ -367,11 +289,8 @@ static int ReadStateChunk(StateMem *st, SFORMAT *sf, int size)
 
          if(recorded_size != expected_size)
          {
-            if(smem_seek(st, recorded_size, SEEK_CUR) < 0)
-            {
-               puts("Seek error");
+            if(smem_seek(st, recorded_size, SSEEK_CUR) < 0)
                return(0);
-            }
          }
          else
          {
@@ -400,12 +319,8 @@ static int ReadStateChunk(StateMem *st, SFORMAT *sf, int size)
       }
       else
       {
-         printf("Unknown variable in save state: %s\n", toa + 1);
-         if(smem_seek(st, recorded_size, SEEK_CUR) < 0)
-         {
-            puts("Seek error");
+         if(smem_seek(st, recorded_size, SSEEK_CUR) < 0)
             return(0);
-         }
       }
    }
 
@@ -436,32 +351,20 @@ static int MDFNSS_StateAction_internal(void *st_p, int load, int data_only, stru
          if(!strncmp(sname, section->name, 32))
          {
             if(!ReadStateChunk(st, section->sf, tmp_size))
-            {
-               printf("Error reading chunk: %s\n", section->name);
                return(0);
-            }
             found = 1;
             break;
          } 
          else
          {
-            if(smem_seek(st, tmp_size, SEEK_CUR) < 0)
-            {
-               puts("Chunk seek failure");
+            if(smem_seek(st, tmp_size, SSEEK_CUR) < 0)
                return(0);
-            }
          }
       }
-      if(smem_seek(st, -total, SEEK_CUR) < 0)
-      {
-         puts("Reverse seek error");
+      if(smem_seek(st, -total, SSEEK_CUR) < 0)
          return(0);
-      }
-      if(!found && !section->optional) /* Not found.  We are sad! */
-      {
-         printf("Section missing:  %.32s\n", section->name);
+      if(!found) /* Not found.  We are sad! */
          return(0);
-      }
    }
    else
    {
@@ -479,7 +382,6 @@ int MDFNSS_StateAction(void *st_p, int load, int data_only, SFORMAT *sf, const c
 
    love.sf       = sf;
    love.name     = name;
-   love.optional = optional;
 
    return(MDFNSS_StateAction_internal(st, load, 0, &love));
 }
@@ -504,7 +406,7 @@ int MDFNSS_SaveSM(void *st_p, int a, int b, const void *c, const void *d, const 
       return(0);
 
    sizy = st->loc;
-   smem_seek(st, 16 + 4, SEEK_SET);
+   smem_seek(st, 16 + 4, SSEEK_SET);
    smem_write32le(st, sizy);
 
    return(1);
