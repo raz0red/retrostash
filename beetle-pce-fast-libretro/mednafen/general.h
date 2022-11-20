@@ -3,6 +3,9 @@
 
 #include <string>
 
+// File-inclusion for-read-only path, for PSF and CUE/TOC sheet usage.
+bool MDFN_IsFIROPSafe(const std::string &path);
+
 void MDFN_ltrim(std::string &string);
 void MDFN_rtrim(std::string &string);
 void MDFN_trim(std::string &string);

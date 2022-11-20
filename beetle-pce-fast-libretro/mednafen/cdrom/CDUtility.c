@@ -17,13 +17,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <boolean.h>
 #include "CDUtility.h"
-#include "dvdisaster.h"
+#include "edc_crc32.h"
+#include "galois.h"
+#include "l-ec.h"
+#include "recover-raw.h"
 #include "lec.h"
 
+#include <assert.h>
 
-// lookup table for crc calculation
-static uint16_t subq_crctab[256] = 
+/* lookup table for crc calculation */
+static uint16_t subq_crctab[256] =
 {
    0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7, 0x8108,
    0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF, 0x1231, 0x0210,
@@ -57,18 +62,17 @@ static uint16_t subq_crctab[256] =
 };
 
 
-static uint8_t scramble_table[2352 - 12];
+static uint8_t cdutil_scramble_table[2352 - 12];
 
 static bool CDUtility_Inited = false;
 
 static void InitScrambleTable(void)
 {
-   unsigned i;
+   unsigned i, b;
    unsigned cv = 1;
 
    for(i = 12; i < 2352; i++)
    {
-      unsigned b;
       unsigned char z = 0;
 
       for(b = 0; b < 8; b++)
@@ -79,20 +83,21 @@ static void InitScrambleTable(void)
          cv = (cv >> 1) | (feedback << 14);
       }
 
-      scramble_table[i - 12] = z;
+      cdutil_scramble_table[i - 12] = z;
    }
 }
 
 void CDUtility_Init(void)
 {
-   if(CDUtility_Inited)
-      return;
+   if(!CDUtility_Inited)
+   {
+      Init_LEC_Correct();
 
-   Init_LEC_Correct();
+      InitScrambleTable();
+      lec_tables_init();
 
-   InitScrambleTable();
-
-   CDUtility_Inited = true;
+      CDUtility_Inited = true;
+   }
 }
 
 void encode_mode0_sector(uint32_t aba, uint8_t *sector_data)
@@ -148,10 +153,9 @@ bool edc_lec_check_and_correct(uint8_t *sector_data, bool xa)
 bool subq_check_checksum(const uint8_t *SubQBuf)
 {
    unsigned i;
-   uint16_t crc = 0;
-   uint16_t stored_crc = 0;
+   uint16_t        crc = 0;
+   uint16_t stored_crc = SubQBuf[0xA] << 8;
 
-   stored_crc = SubQBuf[0xA] << 8;
    stored_crc |= SubQBuf[0xB];
 
    for(i = 0; i < 0xA; i++)
@@ -170,7 +174,7 @@ void subq_generate_checksum(uint8_t *buf)
    for(i = 0; i < 0xA; i++)
       crc = subq_crctab[(crc >> 8) ^ buf[i]] ^ (crc << 8);
 
-   // Checksum
+   /* Checksum */
    buf[0xa] = ~(crc >> 8);
    buf[0xb] = ~(crc);
 }
@@ -178,6 +182,7 @@ void subq_generate_checksum(uint8_t *buf)
 void subq_deinterleave(const uint8_t *SubPWBuf, uint8_t *qbuf)
 {
    unsigned i;
+
    memset(qbuf, 0, 0xC);
 
    for(i = 0; i < 96; i++)
@@ -188,29 +193,30 @@ void subq_deinterleave(const uint8_t *SubPWBuf, uint8_t *qbuf)
 // Deinterleaves 96 bytes of subchannel P-W data from 96 bytes of interleaved subchannel PW data.
 void subpw_deinterleave(const uint8_t *in_buf, uint8_t *out_buf)
 {
-   unsigned ch;
+   unsigned ch, i;
+   assert(in_buf != out_buf);
 
    memset(out_buf, 0, 96);
 
    for(ch = 0; ch < 8; ch++)
    {
-      unsigned i;
       for(i = 0; i < 96; i++)
          out_buf[(ch * 12) + (i >> 3)] |= ((in_buf[i] >> (7 - ch)) & 0x1) << (7 - (i & 0x7));
    }
+
 }
 
 // Interleaves 96 bytes of subchannel P-W data from 96 bytes of uninterleaved subchannel PW data.
 void subpw_interleave(const uint8_t *in_buf, uint8_t *out_buf)
 {
-   unsigned d;
+   unsigned d, bitpoodle, ch;
+
+   assert(in_buf != out_buf);
 
    for(d = 0; d < 12; d++)
    {
-      unsigned bitpoodle;
       for(bitpoodle = 0; bitpoodle < 8; bitpoodle++)
       {
-         unsigned ch;
          uint8_t rawb = 0;
 
          for(ch = 0; ch < 8; ch++)
@@ -226,29 +232,24 @@ void subpw_interleave(const uint8_t *in_buf, uint8_t *out_buf)
 //  and the leadout entry together before extracting the D2 bit.  Audio track->data leadout is fairly benign though maybe noisy(especially if we ever implement
 //  data scrambling properly), but data track->audio leadout could break things in an insidious manner for the more accurate drive emulation code).
 //
-void subpw_synth_leadout_lba(const TOC& toc, const int32_t lba, uint8_t* SubPWBuf)
+void subpw_synth_leadout_lba(const struct TOC *toc, const int32_t lba, uint8_t* SubPWBuf)
 {
+   unsigned i;
    uint8_t buf[0xC];
-   uint32_t lba_relative;
-   uint32_t ma, sa, fa;
-   uint32_t m, s, f;
+   uint32_t lba_relative = lba - toc->tracks[100].lba;
+   uint32_t f  = (lba_relative  % 75);
+   uint32_t s  = ((lba_relative / 75) % 60);
+   uint32_t m  = (lba_relative  / 75 / 60);
+   uint32_t fa = (lba + 150)    % 75;
+   uint32_t sa = ((lba + 150)  / 75) % 60;
+   uint32_t ma = ((lba + 150)  / 75 / 60);
 
-   lba_relative = lba - toc.tracks[100].lba;
+   uint8_t adr     = 0x1; // Q channel data encodes position
+   uint8_t control =  toc->tracks[100].control;
 
-   f = (lba_relative % 75);
-   s = ((lba_relative / 75) % 60);
-   m = (lba_relative / 75 / 60);
-
-   fa = (lba + 150) % 75;
-   sa = ((lba + 150) / 75) % 60;
-   ma = ((lba + 150) / 75 / 60);
-
-   uint8_t adr = 0x1; // Q channel data encodes position
-   uint8_t control = toc.tracks[100].control;
-
-   if(toc.tracks[toc.last_track].valid)
-      control |= toc.tracks[toc.last_track].control & 0x4;
-   else if(toc.disc_type == DISC_TYPE_CD_I)
+   if (toc->tracks[toc->last_track].valid)
+      control |= toc->tracks[toc->last_track].control & 0x4;
+   else if (toc->disc_type == DISC_TYPE_CD_I)
       control |= 0x4;
 
    memset(buf, 0, 0xC);
@@ -256,34 +257,34 @@ void subpw_synth_leadout_lba(const TOC& toc, const int32_t lba, uint8_t* SubPWBu
    buf[1] = 0xAA;
    buf[2] = 0x01;
 
-   // Track relative MSF address
+   /* Track relative MSF address */
    buf[3] = U8_to_BCD(m);
    buf[4] = U8_to_BCD(s);
    buf[5] = U8_to_BCD(f);
 
-   buf[6] = 0; // Zerroooo
+   buf[6] = 0; /* Zerroooo */
 
-   // Absolute MSF address
+   /* Absolute MSF address */
    buf[7] = U8_to_BCD(ma);
    buf[8] = U8_to_BCD(sa);
    buf[9] = U8_to_BCD(fa);
 
    subq_generate_checksum(buf);
 
-   for(int i = 0; i < 96; i++)
+   for(i = 0; i < 96; i++)
       SubPWBuf[i] = (((buf[i >> 3] >> (7 - (i & 0x7))) & 1) ? 0x40 : 0x00) | 0x80;
 }
 
-void synth_leadout_sector_lba(uint8_t mode, const TOC& toc, const int32_t lba, uint8_t* out_buf)
+void synth_leadout_sector_lba(uint8_t mode, const struct TOC *toc, const int32_t lba, uint8_t* out_buf)
 {
    memset(out_buf, 0, 2352 + 96);
    subpw_synth_leadout_lba(toc, lba, out_buf + 2352);
 
    if(out_buf[2352 + 1] & 0x40)
    {
-      if(mode == 0xFF) 
+      if(mode == 0xFF)
       {
-         if(toc.disc_type == DISC_TYPE_CD_XA || toc.disc_type == DISC_TYPE_CD_I)
+         if(toc->disc_type == DISC_TYPE_CD_XA || toc->disc_type == DISC_TYPE_CD_I)
             mode = 0x02;
          else
             mode = 0x01;
@@ -308,99 +309,17 @@ void synth_leadout_sector_lba(uint8_t mode, const TOC& toc, const int32_t lba, u
    }
 }
 
-// ISO/IEC 10149:1995 (E): 20.2
-//
-void subpw_synth_udapp_lba(const TOC& toc, const int32_t lba, const int32_t lba_subq_relative_offs, uint8_t* SubPWBuf)
-{
-   uint8_t buf[0xC];
-   uint32_t lba_relative;
-   uint32_t ma, sa, fa;
-   uint32_t m, s, f;
-      int32_t lba_tmp = lba + lba_subq_relative_offs;
 
-      if(lba_tmp < 0)
-         lba_relative = 0 - 1 - lba_tmp;
-      else
-         lba_relative = lba_tmp - 0;
-
-   f = (lba_relative % 75);
-   s = ((lba_relative / 75) % 60);
-   m = (lba_relative / 75 / 60);
-
-   fa = (lba + 150) % 75;
-   sa = ((lba + 150) / 75) % 60;
-   ma = ((lba + 150) / 75 / 60);
-
-   uint8_t adr = 0x1; // Q channel data encodes position
-   uint8_t control;
-
-   if(toc.disc_type == DISC_TYPE_CD_I && toc.first_track > 1)
-      control = 0x4;
-   else if(toc.tracks[toc.first_track].valid)
-      control = toc.tracks[toc.first_track].control;
-   else
-      control = 0x0;
-
-   memset(buf, 0, 0xC);
-   buf[0] = (adr << 0) | (control << 4);
-   buf[1] = U8_to_BCD(toc.first_track);
-   buf[2] = U8_to_BCD(0x00);
-
-   // Track relative MSF address
-   buf[3] = U8_to_BCD(m);
-   buf[4] = U8_to_BCD(s);
-   buf[5] = U8_to_BCD(f);
-
-   buf[6] = 0; // Zerroooo
-
-   // Absolute MSF address
-   buf[7] = U8_to_BCD(ma);
-   buf[8] = U8_to_BCD(sa);
-   buf[9] = U8_to_BCD(fa);
-
-   subq_generate_checksum(buf);
-
-   for(int i = 0; i < 96; i++)
-      SubPWBuf[i] = (((buf[i >> 3] >> (7 - (i & 0x7))) & 1) ? 0x40 : 0x00) | 0x80;
-}
-
-void synth_udapp_sector_lba(uint8_t mode, const TOC& toc, const int32_t lba, int32_t lba_subq_relative_offs, uint8_t* out_buf)
-{
-   memset(out_buf, 0, 2352 + 96);
-   subpw_synth_udapp_lba(toc, lba, lba_subq_relative_offs, out_buf + 2352);
-
-   if(out_buf[2352 + 1] & 0x40)
-   {
-      if(mode == 0xFF) 
-      {
-         if(toc.disc_type == DISC_TYPE_CD_XA || toc.disc_type == DISC_TYPE_CD_I)
-            mode = 0x02;
-         else
-            mode = 0x01;
-      }
-
-      switch(mode)
-      {
-         default:
-            encode_mode0_sector(LBA_to_ABA(lba), out_buf);
-            break;
-
-         case 0x01:
-            encode_mode1_sector(LBA_to_ABA(lba), out_buf);
-            break;
-
-         case 0x02:
-            out_buf[12 +  6] = 0x20;
-            out_buf[12 + 10] = 0x20;
-            encode_mode2_form2_sector(LBA_to_ABA(lba), out_buf);
-            break;
-      }
-   }
-}
+/* ISO/IEC 10149:1995 (E): 20.2 */
+#if 0
+/* TODO/FIXME - missing functions */
+void subpw_synth_udapp_lba(const TOC& toc, const int32 lba, const int32 lba_subq_relative_offs, uint8* SubPWBuf);
+void synth_udapp_sector_lba(uint8 mode, const TOC& toc, const int32 lba, int32 lba_subq_relative_offs, uint8* out_buf);
+#endif
 
 void scrambleize_data_sector(uint8_t *sector_data)
 {
    unsigned i;
    for(i = 12; i < 2352; i++)
-      sector_data[i] ^= scramble_table[i - 12];
+      sector_data[i] ^= cdutil_scramble_table[i - 12];
 }

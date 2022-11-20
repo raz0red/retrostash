@@ -17,6 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "mednafen.h"
 #include "Stream.h"
 
 Stream::Stream()
@@ -31,17 +32,17 @@ Stream::~Stream()
 
 int Stream::get_line(std::string &str)
 {
- uint8 c;
+   uint8_t c;
 
- str.clear();	// or str.resize(0)??
+   str.clear();	// or str.resize(0)??
 
- while(read(&c, sizeof(c)) > 0)
- {
-  if(c == '\r' || c == '\n' || c == 0)
-   return(c);
+   while(read(&c, sizeof(c)) > 0)
+   {
+      if(c == '\r' || c == '\n' || c == 0)
+         return(c);
 
-  str.push_back(c);
- }
+      str.push_back(c);
+   }
 
- return(-1);
+   return(-1);
 }

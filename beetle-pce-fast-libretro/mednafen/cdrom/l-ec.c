@@ -22,9 +22,9 @@
  *  or direct your browser at http://www.gnu.org.
  */
 
-#include "dvdisaster.h"
-
-#include "galois-inlines.h"
+#include "l-ec.h"
+#include <stdlib.h>
+#include <string.h>
 
 #include <retro_miscellaneous.h>
 

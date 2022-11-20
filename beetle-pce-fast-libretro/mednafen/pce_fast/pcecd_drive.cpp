@@ -267,7 +267,7 @@ static void GenSubQFromSubPW(void)
 
 // NEC sub-errors(ASC), no ASCQ.
 #define NSE_NO_DISC			0x0B		// Used with SENSEKEY_NOT_READY	- This condition occurs when tray is closed with no disc present.
-#define NSE_TRAY_OPEN			0x0D		// Used with SENSEKEY_NOT_READY 
+#define NSE_TRAY_OPEN			0x0D		// Used with SENSEKEY_NOT_READY
 #define NSE_SEEK_ERROR			0x15
 #define NSE_HEADER_READ_ERROR		0x16		// Used with SENSEKEY_MEDIUM_ERROR
 #define NSE_NOT_AUDIO_TRACK		0x1C		// Used with SENSEKEY_MEDIUM_ERROR
@@ -784,7 +784,7 @@ static const uint8 RequiredCDBLen[16] =
  10, // 0xFn
 };
 
-static SCSICH PCECommandDefs[] = 
+static SCSICH PCECommandDefs[] =
 {
  { 0x00, SCF_REQUIRES_MEDIUM, DoTESTUNITREADY, "Test Unit Ready" },
  { 0x03, 0, DoREQUESTSENSE, "Request Sense" },
@@ -1103,7 +1103,7 @@ uint32 PCECD_Drive_Run(pcecd_drive_timestamp_t system_timestamp)
             }
             else
             {
-               cd_bus.DB = din.ReadUnit();
+               cd_bus.DB = din.ReadByte();
                SetREQ(true);
             }
          }
@@ -1168,7 +1168,7 @@ void PCECD_Drive_Init(int cdda_time_div, Blip_Buffer *leftbuf, Blip_Buffer *righ
  lastts = 0;
 
  //din = new SimpleFIFO(2048);
- 
+
  cdda.CDDATimeDiv = cdda_time_div;
 
  cdda.CDDAVolume = 65536;
@@ -1189,7 +1189,7 @@ void PCECD_Drive_SetCDDAVolume(unsigned vol)
 
 int PCECD_Drive_StateAction(StateMem * sm, int load, int data_only, const char *sname)
 {
- SFORMAT StateRegs[] = 
+ SFORMAT StateRegs[] =
  {
   SFVARN(cd_bus.DB, "DB"),
   SFVARN(cd_bus.signals, "Signals"),

@@ -1439,14 +1439,15 @@ static bool MDFNI_LoadCD(const char *path, const char *ext)
 
       for(unsigned i = 0; i < file_list.size(); i++)
       {
-         CDIF *cdif = CDIF_Open(file_list[i].c_str(), cdimagecache);
+         bool success = false;
+         CDIF *cdif = CDIF_Open(&success, file_list[i].c_str(), false, cdimagecache);
          CDInterfaces.push_back(cdif);
       }
    }
    else
    {
-      CDIF *cdif = CDIF_Open(path, cdimagecache);
-
+      bool success = false;
+      CDIF *cdif = CDIF_Open(&success, path, false, cdimagecache);
       if (cdif)
       {
          ret = true;
@@ -2345,10 +2346,13 @@ void retro_run(void)
 
    Emulate(&spec);
 
-   if (skip_frame)
+   if (skip_frame) {
+#ifndef WRC
       video_cb(NULL, video_width, video_height, FB_WIDTH * 2);
-   else
-   {
+#else
+      video_cb(NULL, video_width, 232, FB_WIDTH * 2);
+#endif
+   } else {
       if (video_width  != spec.DisplayRect.w || video_height != spec.DisplayRect.h) {
          resolution_changed = true;
          printf("%dx%d, %d, %d\n", spec.DisplayRect.w, spec.DisplayRect.h, spec.DisplayRect.x, spec.DisplayRect.y);
@@ -2356,8 +2360,12 @@ void retro_run(void)
 
       video_width  = spec.DisplayRect.w;
       video_height = spec.DisplayRect.h;
-
+      
+#ifndef WRC
       video_cb(surf->pixels + surf->pitch * spec.DisplayRect.y, video_width, video_height, FB_WIDTH * 2);
+#else
+      video_cb(surf->pixels + surf->pitch * spec.DisplayRect.y, video_width, 232, FB_WIDTH * 2);
+#endif
    }
 
    audio_batch_cb(spec.SoundBuf, spec.SoundBufSize);

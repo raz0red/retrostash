@@ -15,32 +15,31 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-// TODO/WIP
+#include "mednafen.h"
+#include "error.h"
+#include <errno.h>
+#include <string.h>
+#include <stdarg.h>
+#include <libretro.h>
+#include <cstdio>
 
-#ifndef __MDFN_FILESTREAM_H
-#define __MDFN_FILESTREAM_H
+extern retro_log_printf_t log_cb;
 
-#include <streams/file_stream.h>
-
-#include "Stream.h"
-
-class FileStream : public Stream
+MDFN_Error::MDFN_Error(int errno_code_new, const char *format, ...)
 {
-   public:
-      FileStream(const char *path, const int mode);
-      virtual ~FileStream();
+   va_list ap;
+   va_start(ap, format);
+   error_message = (char*)malloc(4096 * sizeof(char));
+   vsnprintf(error_message, 4096, format, ap);
+   va_end(ap);
 
-      virtual uint64_t read(void *data, uint64_t count);
-      virtual void write(const void *data, uint64_t count);
-      virtual void seek(int64_t offset, int whence);
-      virtual uint64_t tell(void);
-      virtual uint64_t size(void);
-      virtual void close(void);
-
-   private:
-      RFILE *fp;
-};
+   log_cb(RETRO_LOG_ERROR, "%s\n", error_message);
+}
 
 
-
-#endif
+MDFN_Error::~MDFN_Error()
+{
+   if(error_message)
+      free(error_message);
+   error_message = NULL;
+}

@@ -17,15 +17,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <stdarg.h>
-#include <string.h>
-
+#include "mednafen.h"
 #include "Stream.h"
 #include "FileStream.h"
 
+#include <stdarg.h>
+#include <string.h>
+
 FileStream::FileStream(const char *path, const int mode)
 {
-   fp            = filestream_open(path, (mode == MODE_WRITE) ? RETRO_VFS_FILE_ACCESS_WRITE : RETRO_VFS_FILE_ACCESS_READ, RETRO_VFS_FILE_ACCESS_HINT_NONE);
+   fp = filestream_open(path, (mode == MODE_WRITE || mode == MODE_WRITE_INPLACE) ? RETRO_VFS_FILE_ACCESS_WRITE : RETRO_VFS_FILE_ACCESS_READ, RETRO_VFS_FILE_ACCESS_HINT_NONE);
 }
 
 FileStream::~FileStream()
@@ -53,19 +54,32 @@ void FileStream::write(const void *data, uint64_t count)
 
 void FileStream::seek(int64_t offset, int whence)
 {
+   int seek_position = -1;
    if (!fp)
       return;
-   filestream_seek(fp, offset, whence);
+   switch (whence)
+   {
+      case SEEK_SET:
+         seek_position = RETRO_VFS_SEEK_POSITION_START;
+         break;
+      case SEEK_CUR:
+         seek_position = RETRO_VFS_SEEK_POSITION_CURRENT;
+         break;
+      case SEEK_END:
+         seek_position = RETRO_VFS_SEEK_POSITION_END;
+         break;
+   }
+   filestream_seek(fp, offset, seek_position);
 }
 
-int64_t FileStream::tell(void)
+uint64_t FileStream::tell(void)
 {
    if (!fp)
       return -1;
    return filestream_tell(fp);
 }
 
-int64_t FileStream::size(void)
+uint64_t FileStream::size(void)
 {
    if (!fp)
       return -1;

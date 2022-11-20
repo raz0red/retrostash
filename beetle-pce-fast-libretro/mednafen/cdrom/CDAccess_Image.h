@@ -3,10 +3,8 @@
 
 #include <map>
 
-#include "CDUtility.h"
-
 class Stream;
-class CDAFReader;
+class AudioReader;
 
 struct CDRFILE_TRACK_INFO
 {
@@ -20,7 +18,7 @@ struct CDRFILE_TRACK_INFO
 
    int32_t postgap;
 
-   int32_t index[100];
+   int32_t index[2];
 
    int32_t sectors;	// Not including pregap sectors!
    Stream *fp;
@@ -31,39 +29,23 @@ struct CDRFILE_TRACK_INFO
 
    uint32_t LastSamplePos;
 
-   CDAFReader *AReader;
-};
-
-template<typename T, size_t N>
-class stl_array {
-   T m_data[N];
-   public:
-   T* begin()              { return m_data; }
-   T* end()                { return m_data + N; }
-   T& operator[](size_t i) { return m_data[i]; }
-   size_t size()           { return N; }
-   bool empty()            { return N == 0; }
-   T* data()               { return m_data; }
-
-   const T* begin() const  { return m_data; }
-   const T*   end() const  { return m_data + N; }
-   const T& operator[](size_t i) const { return m_data[i]; }
-   const T*  data() const  { return m_data; }
+   AudioReader *AReader;
 };
 
 class CDAccess_Image : public CDAccess
 {
    public:
 
-      CDAccess_Image(const std::string& path, bool image_memcache);
+      CDAccess_Image(bool *success, const char *path, bool image_memcache);
       virtual ~CDAccess_Image();
 
       virtual bool Read_Raw_Sector(uint8_t *buf, int32_t lba);
 
-      virtual bool Fast_Read_Raw_PW_TSRE(uint8_t* pwbuf, int32_t lba);
+      virtual bool Read_Raw_PW(uint8_t *buf, int32_t lba);
 
       virtual bool Read_TOC(TOC *toc);
 
+      virtual void Eject(bool eject_status);
    private:
 
       int32_t NumTracks;
@@ -72,21 +54,26 @@ class CDAccess_Image : public CDAccess
       int32_t total_sectors;
       uint8_t disc_type;
       CDRFILE_TRACK_INFO Tracks[100]; // Track #0(HMM?) through 99
-      TOC toc;
 
-      std::map<uint32_t, stl_array<uint8_t, 12> > SubQReplaceMap;
+      struct cpp11_array_doodad
+      {
+         uint8 data[12];
+      };
+
+      std::map<uint32, cpp11_array_doodad> SubQReplaceMap;
 
       std::string base_dir;
 
-      bool ImageOpen(const std::string& path, bool image_memcache);
-      bool LoadSBI(const std::string& sbi_path);
-      void GenerateTOC(void);
+      bool ImageOpen(const char *path, bool image_memcache);
+      int LoadSBI(const char* sbi_path);
       void Cleanup(void);
 
       // MakeSubPQ will OR the simulated P and Q subchannel data into SubPWBuf.
-      int32_t MakeSubPQ(int32_t lba, uint8_t *SubPWBuf) const;
+      void MakeSubPQ(int32_t lba, uint8_t *SubPWBuf);
 
-      bool ParseTOCFileLineInfo(CDRFILE_TRACK_INFO *track, const int tracknum, const std::string &filename, const char *binoffset, const char *msfoffset, const char *length, bool image_memcache, std::map<std::string, Stream*> &toc_streamcache);
+      bool ParseTOCFileLineInfo(CDRFILE_TRACK_INFO *track, const int tracknum,
+            const std::string &filename, const char *binoffset, const char *msfoffset,
+            const char *length, bool image_memcache, std::map<std::string, Stream*> &toc_streamcache);
       uint32_t GetSectorCount(CDRFILE_TRACK_INFO *track);
 };
 

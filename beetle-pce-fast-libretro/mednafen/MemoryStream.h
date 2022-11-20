@@ -20,8 +20,6 @@
 #ifndef _MEMORY_STREAM_H
 #define _MEMORY_STREAM_H
 
-#include <retro_inline.h>
-
 #include "Stream.h"
 
 class MemoryStream : public Stream
@@ -34,8 +32,8 @@ class MemoryStream : public Stream
 				// Will only work if stream->tell() == 0, or if "stream" is seekable.
 				// stream will be deleted even if this constructor throws.
 
- MemoryStream(const MemoryStream &zs);
- MemoryStream & operator=(const MemoryStream &zs);
+ MemoryStream(const MemoryStream *zs);
+ MemoryStream & operator=(const MemoryStream *zs);
 
  virtual ~MemoryStream();
 
@@ -45,8 +43,8 @@ class MemoryStream : public Stream
  virtual uint64 read(void *data, uint64 count);
  virtual void write(const void *data, uint64 count);
  virtual void seek(int64 offset, int whence);
- virtual int64 tell(void);
- virtual int64 size(void);
+ virtual uint64_t tell(void);
+ virtual uint64_t size(void);
  virtual void close(void);
 
  virtual int get_line(std::string &str);

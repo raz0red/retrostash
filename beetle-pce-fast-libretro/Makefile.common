@@ -99,18 +99,22 @@ endif
 
 ifneq ($(HAVE_GRIFFIN),1)
 	SOURCES_CXX += \
+	    $(CDROM_DIR)/audioreader.cpp \
 		$(CDROM_DIR)/CDAccess.cpp \
 		$(CDROM_DIR)/CDAccess_Image.cpp \
 		$(CDROM_DIR)/CDAccess_CCD.cpp \
 		$(CDROM_DIR)/CDAFReader.cpp \
 		$(CDROM_DIR)/CDAFReader_Vorbis.cpp \
-		$(CDROM_DIR)/cdromif.cpp \
-		$(CDROM_DIR)/CDUtility.cpp \
-		$(CDROM_DIR)/lec.cpp \
-		$(CDROM_DIR)/galois.cpp \
-		$(CDROM_DIR)/recover-raw.cpp \
-		$(CDROM_DIR)/l-ec.cpp \
-		$(CDROM_DIR)/edc_crc32.cpp
+		$(CDROM_DIR)/cdromif.cpp
+	SOURCES_C += \
+	    $(CDROM_DIR)/recover-raw.c \
+	    $(CDROM_DIR)/CDUtility.c \
+		$(CDROM_DIR)/misc.c \
+		$(CDROM_DIR)/galois.c \
+		$(CDROM_DIR)/l-ec.c \
+		$(CDROM_DIR)/edc_crc32.c \
+		$(CDROM_DIR)/lec.c
+
 endif
 FLAGS += -DNEED_CD
 
@@ -143,6 +147,7 @@ endif
 
 ifneq ($(HAVE_GRIFFIN), 1)
 	SOURCES_CXX += \
+		$(MEDNAFEN_DIR)/error.cpp \
 		$(MEDNAFEN_DIR)/general.cpp \
 		$(MEDNAFEN_DIR)/FileStream.cpp \
 		$(MEDNAFEN_DIR)/MemoryStream.cpp \

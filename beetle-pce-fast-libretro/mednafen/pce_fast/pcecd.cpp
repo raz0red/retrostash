@@ -203,7 +203,7 @@ static void UpdateADPCMIRQState(void)
 {
    _Port[0x3] &= ~0xC;
 
-   _Port[0x3] |= ADPCM.HalfReached ? 0x4 : 0x0;	
+   _Port[0x3] |= ADPCM.HalfReached ? 0x4 : 0x0;
    _Port[0x3] |= ADPCM.EndReached ? 0x8 : 0x0;
 
    update_irq_state();
@@ -391,7 +391,7 @@ uint8 PCECD_Read(uint32 timestamp, uint32 A)
 
          case 0x7:
                    if(SubChannelFIFO.in_count > 0)
-                      ret = SubChannelFIFO.ReadUnit();
+                      ret = SubChannelFIFO.ReadByte();
                    else
                       ret = 0x00;	// Not sure if it's 0, 0xFF, the last byte read, or something else.
 
@@ -406,12 +406,12 @@ uint8 PCECD_Read(uint32 timestamp, uint32 A)
                    ret = read_1808(timestamp);
                    break;
 
-         case 0xa: 
+         case 0xa:
                    ADPCM.ReadPending = 19 * 3; //24 * 3;
                    ret = ADPCM.ReadBuffer;
                    break;
 
-         case 0xb: 
+         case 0xb:
                    ret = _Port[0xb];
                    break;
 
@@ -422,9 +422,9 @@ uint8 PCECD_Read(uint32 timestamp, uint32 A)
                    ret |= (ADPCM.Playing) ? 0x08 : 0x00;
                    ret |= (ADPCM.WritePending > 0) ? 0x04 : 0x00;
                    ret |= (ADPCM.ReadPending > 0) ? 0x80 : 0x00;
-                   break;   
+                   break;
 
-         case 0xd: 
+         case 0xd:
                    ret = ADPCM.LastCmd;
                    break;
       }
@@ -509,7 +509,7 @@ void PCECD_Write(uint32 timestamp, uint32 physAddr, uint8 data)
          }
          break;
 
-      case 0x7:	// $1807: D7=1 enables backup ram 
+      case 0x7:	// $1807: D7=1 enables backup ram
          if (data & 0x80)
             bBRAMEnabled = true;
          break;
