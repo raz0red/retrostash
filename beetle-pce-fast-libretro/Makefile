@@ -700,7 +700,7 @@ OBJECTS := $(SOURCES_CXX:.cpp=.o) $(SOURCES_C:.c=.o)
 all: $(TARGET)
 $(TARGET): $(OBJECTS)
 ifeq ($(platform), emscripten)
-	$(CXX) $(CXXFLAGS) $(OBJOUT)$@ $^
+	$(CXX) $(CXXFLAGS) $^ $(OBJOUT)$@ -r
 else ifeq ($(STATIC_LINKING), 1)
 	$(AR) rcs $@ $(OBJECTS)
 else

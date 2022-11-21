@@ -2345,10 +2345,15 @@ void retro_run(void)
 
    Emulate(&spec);
 
-   if (skip_frame)
+   if (skip_frame) {
+#ifndef WRC
       video_cb(NULL, video_width, video_height, FB_WIDTH * 2);
    else
    {
+#else
+      video_cb(NULL, video_width, 232, FB_WIDTH * 2);
+#endif
+   } else {
       if (video_width  != spec.DisplayRect.w || video_height != spec.DisplayRect.h) {
          resolution_changed = true;
          printf("%dx%d, %d, %d\n", spec.DisplayRect.w, spec.DisplayRect.h, spec.DisplayRect.x, spec.DisplayRect.y);
@@ -2357,7 +2362,11 @@ void retro_run(void)
       video_width  = spec.DisplayRect.w;
       video_height = spec.DisplayRect.h;
 
+#ifndef WRC
       video_cb(surf->pixels + surf->pitch * spec.DisplayRect.y, video_width, video_height, FB_WIDTH * 2);
+#else
+      video_cb(surf->pixels + surf->pitch * spec.DisplayRect.y, video_width, 232, FB_WIDTH * 2);
+#endif
    }
 
    audio_batch_cb(spec.SoundBuf, spec.SoundBufSize);
