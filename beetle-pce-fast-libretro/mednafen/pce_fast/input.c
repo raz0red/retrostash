@@ -165,6 +165,7 @@ void INPUT_Frame(void)
 
 #ifdef WRC
    bool pad6button = (wrc_options & OPT1);
+   bool mapRunSelect = (wrc_options & OPT2);
 #else
 #endif
 
@@ -205,8 +206,13 @@ void INPUT_Frame(void)
             if (state & INP_LBUMP) new_data |= (1 << 10);  // V
             if (state & INP_RBUMP) new_data |= (1 << 11);  // VI
          } else {
-            if (state & INP_X) new_data |= (1 << 0);       // I
-            if (state & INP_Y) new_data |= (1 << 1);       // II
+            if (mapRunSelect) {
+               if (state & INP_X) new_data |= (1 << 3);       // Run
+               if (state & INP_Y) new_data |= (1 << 2);       // Select
+            } else {
+               if (state & INP_X) new_data |= (1 << 0);       // I
+               if (state & INP_Y) new_data |= (1 << 1);       // II
+            }
          }
 #else
          uint16 new_data = data_ptr[x][0] | (data_ptr[x][1] << 8);
