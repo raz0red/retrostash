@@ -21,8 +21,13 @@
 #include <string.h>
 #include "settings.h"
 
+#ifdef WRC
+int setting_initial_scanline = 2;
+int setting_last_scanline = 242;
+#else
 int setting_initial_scanline = 0;
 int setting_last_scanline = 242;
+#endif
 int setting_pce_hoverscan = 352;
 int setting_pce_fast_nospritelimit = 0;
 int setting_pce_overclocked = 1;
@@ -47,9 +52,9 @@ uint64_t MDFN_GetSettingUI(const char *name)
    if (!strcmp("pce_fast.slstart", name))
       return setting_initial_scanline;
    if (!strcmp("pce_fast.slend", name))
-      return setting_last_scanline; 
+      return setting_last_scanline;
    if (!strcmp("pce_fast.hoverscan", name))
-      return setting_pce_hoverscan; 
+      return setting_pce_hoverscan;
 
    return 0;
 }

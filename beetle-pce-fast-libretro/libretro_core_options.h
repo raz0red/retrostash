@@ -140,7 +140,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
       "pce_fast_hoverscan",
       "Horizontal Overscan (352 Width Mode Only)",
       NULL,
-      "Choose the maximum image width to be displayed. Lower values will crop the right side of the image (for 352 px width games).",
+      "Choose the maximum image width to e displayed. Lower values will crop the right side of the image (for 352 px width games).",
       NULL,
       "video",
       {
