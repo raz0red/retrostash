@@ -3844,6 +3844,13 @@ static void check_variables(bool startup)
             enable_memcard1 = false;
       }
 
+#ifdef WRC
+      if (wrc_options & OPT6) {
+         printf("Memcard1 has been disabled.\n");
+         enable_memcard1 = false;
+      }
+#endif
+
       var.key = BEETLE_OPT(shared_memory_cards);
       if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
       {
