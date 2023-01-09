@@ -1,0 +1,6076 @@
+commit 08632fcbc039f70dbd6da5810db9dcc304d7fbde
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Thu Jul 21 16:49:16 2022 +0200
+
+    Reduce strlens
+
+commit 839e339757eea638e74ecea0c95eb46f6c8ecad8
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Mon Jul 18 23:32:10 2022 +0200
+
+    Update tremor
+
+commit 44c42fa77aa1e5231bfcdb27ae39c43d6eff74a4
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Mon Jul 18 23:26:31 2022 +0200
+
+    Slim down tremor
+
+commit a95138a2906e7fb1f8414b1bd0c6134bbfad2bc1
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Thu Jun 16 21:45:47 2022 +0200
+
+    Remove HAVE_PBP - leftover from Beetle PSX
+
+commit b3e3bd69073b15e885979c229ae56e3e7b2a9962
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Tue Jun 14 22:41:15 2022 +0200
+
+    Cleanups
+
+commit 56550741d7db2567371d9563f84c0c5c9de63b3f
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Tue Jun 14 22:35:15 2022 +0200
+
+    Remove unused if 0 code
+
+commit 9dc97f737da7ffdce6973fe4ca7d30e355d486ca
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Tue Jun 14 13:24:15 2022 +0200
+
+    Remove SoundFormatChanged conditional
+
+commit 0299e308f9d55cb427c7d71c81057121216a8e51
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Mon Jun 13 22:42:49 2022 +0200
+
+    Cleanups
+
+commit b848f6790b63062f5922050af50fe7b87506e21b
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Mon Jun 13 22:13:35 2022 +0200
+
+    Remove unused FXSCSIROM - only used for development
+
+commit 25de944a53763ca175787c5e3c968f375150dbfd
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Mon Jun 13 22:11:32 2022 +0200
+
+    Cleanups
+
+commit 56e2c2cd53486a37fbdc837a8191f2ba8e5b4dfb
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Mon Jun 13 20:54:15 2022 +0200
+
+    Cleanups
+
+commit cf19455ad730d03e2362c57ac0c09ddfdc8d1c0c
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Mon Jun 13 20:33:40 2022 +0200
+
+    Cleanups
+
+commit ada4f6c114500ec715a3f816c7761fe5750c5c0f
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Mon Jun 13 18:30:16 2022 +0200
+
+    remove unused if 0 blocks, remove unused variables
+
+commit e468f79ba0de514d9cf56d89e396432152add706
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Fri Jun 10 12:31:52 2022 +0200
+
+    Remove some unused flags
+
+commit 2fd49b6c4e6a61b57c54814d95b3a2e9c4eeb69d
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Fri Jun 10 12:30:47 2022 +0200
+
+    Remove WANT_DEBUGGER
+
+commit 088553489f2869e8892a5256e69fdea27b4b73d7
+Author: libretroadmin <reallibretroretroarch@gmail.com>
+Date:   Fri Jun 10 12:27:57 2022 +0200
+
+    Cleanups
+
+commit bfc0954e14b261a04dcf8dbe0df8798f16ae3f3c
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Apr 9 06:43:38 2022 +0200
+
+    Cleanups
+
+commit 00abc26cafb15cc33dcd73f4bd6b93cbaab6e1ea
+Merge: c06b592 9b162ae
+Author: Autechre <libretro@gmail.com>
+Date:   Mon Mar 7 17:42:04 2022 +0100
+
+    Merge pull request #86 from DisasterMo/crowdin-sync
+    
+    Add automatic Crowdin synchronization
+
+commit c06b592d768d4da9f6e2fb8a46ac58b173da53af
+Merge: 6d2b11e 882eb1d
+Author: Autechre <libretro@gmail.com>
+Date:   Mon Mar 7 17:41:26 2022 +0100
+
+    Merge pull request #87 from crystalct/master
+    
+    PS3/PSL1GHT build fix (solved issue #30)
+
+commit 882eb1d7510f806159b55d960b98595f803ea947
+Author: CrystalCT <nippurct@gmail.com>
+Date:   Mon Mar 7 08:27:32 2022 +0100
+
+    PS3/PSL1GHT build fix (solved issue #30)
+
+commit 9b162ae305cbe297a3055219f69552d75b565250
+Author: Michael Burgardt <michael.burgardt@gmail.com>
+Date:   Sun Jan 9 10:36:05 2022 +0100
+
+    Add automatic Crowdin synchronization
+
+commit 6d2b11e17ad5a95907c983e7c8a70e75508c2d41
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Nov 24 16:46:03 2021 +0100
+
+    (zlib) Update
+
+commit 333a2d127f20390543822960bfa7d9a1b4fa67b1
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Nov 24 16:40:57 2021 +0100
+
+    Slim down zlib
+
+commit 19f2b7ce529e70655db04d3dd4faf32b4de14df2
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Nov 18 00:45:13 2021 +0100
+
+    Get rid of DBG calls
+
+commit 98a6d9ea22c01fa4c4ae3d15f2129859063c6a8c
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Nov 18 00:04:00 2021 +0100
+
+    Cleanups - remove stdio.h where possible
+
+commit a1f1734509dd6acb11269f118d61f480ae8dbacf
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Oct 4 00:14:05 2021 +0200
+
+    Assume DR_FLAC_NO_STDIO
+
+commit 0ce581b72fcc1af31e82b383049fdd562f05ca42
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Oct 3 00:10:27 2021 +0200
+
+    remove unnecessary file
+
+commit 85413ab167b09bb7c93f30bb6f3a24dd6a058426
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Oct 3 00:09:56 2021 +0200
+
+    Cut down on zlib
+
+commit da28c0e02564b098bee855efb11b1c4ecd57a0f4
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Sep 25 04:38:03 2021 +0200
+
+    Buildfix for MSVC
+
+commit b4fb37bc18eb63366f96e44727dfebcb9c69c313
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Sep 18 16:51:12 2021 +0200
+
+    Cleanups
+
+commit 8d3484c439db096867f8168b8509c9ab9c7e78f0
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Sep 17 16:40:24 2021 +0200
+
+    Cleanups
+
+commit cf4e26fbc8670cec59b76e100a2dd090237a0441
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Sep 6 13:04:06 2021 +0200
+
+    (tremor) remove file I/O functions we don't need
+
+commit 3896104f3308b05d217d7212ed08a0fdea839230
+Merge: df10645 ff24594
+Author: Autechre <libretro@gmail.com>
+Date:   Fri Jul 9 15:18:26 2021 +0200
+
+    Merge pull request #85 from negativeExponent/16bpp
+    
+    Add support for 16 bpp color format
+
+commit ff24594922015fd64e9796618d1613ecdfb44030
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Fri Jul 9 15:54:35 2021 +0800
+
+    Reduce usage of WANT_32BPP/WANT_16BPP defines
+
+commit 4e89add4f6914ab40647d24b7d2dcad53d0621a2
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Fri Jul 9 14:39:07 2021 +0800
+
+    Remove unused YCbCyr colorspace
+
+commit e152bee152949f9d08f91284808d38ad6af2b3a2
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Fri Jul 9 11:29:23 2021 +0800
+
+    Add support for 16 bpp color format
+    
+    32bpp color is still set as default. To build 16 bpp, just add
+    NEED_BPP=16 when compiling. FRONTEND_SUPPORTS_RGB should also be set to
+    1.
+
+commit df1064503ca57966806d805d17aa61d2672cd6b2
+Merge: c4369e3 807998c
+Author: Autechre <libretro@gmail.com>
+Date:   Thu Jul 8 11:09:46 2021 +0200
+
+    Merge pull request #84 from negativeExponent/patch-3
+    
+    king.cpp: Remove leftover debug log
+
+commit 807998cf661c952bfe23543e9b89f48660dc67a2
+Author: negativeExponent <54053706+negativeExponent@users.noreply.github.com>
+Date:   Mon Jul 5 06:15:52 2021 +0800
+
+    king.cpp: Remove leftover debug log
+
+commit c4369e327f3ab1a9b6000f6f24aa6b8f0e836815
+Merge: af1b0a9 0ed997b
+Author: Autechre <libretro@gmail.com>
+Date:   Sun Jul 4 19:35:49 2021 +0200
+
+    Merge pull request #83 from negativeExponent/video_cleanup
+    
+    MDFN_Surface cleanup
+
+commit af1b0a9dfe214d680a588ce56fe4b2e45fd0b30e
+Merge: 623b2f1 805f079
+Author: Autechre <libretro@gmail.com>
+Date:   Sun Jul 4 19:35:22 2021 +0200
+
+    Merge pull request #82 from negativeExponent/update
+    
+    cleanups & selective sync with upstream
+
+commit 0ed997b557a17a5954e3f6fa8c0f29c14d37b41f
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Sun Jul 4 20:32:10 2021 +0800
+
+    Remove references for 16bpp format
+    
+    Core only supports 32bpp
+
+commit db4915e66d28508a05b6cd079f9e5317cdb5f008
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Sun Jul 4 20:28:15 2021 +0800
+
+    Update Deinterlacer.cpp based on lastest changes
+
+commit 6789df87b57d9626e3cabcf0e8eabcd7ec4ba32d
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Sun Jul 4 20:02:07 2021 +0800
+
+    Simply MDFN_Surface
+
+commit 805f0793610557b139cbb490bcd3f89aed8c6b89
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Sun Jul 4 16:25:50 2021 +0800
+
+    Sync some more savestate stuff
+
+commit 53a0646cc59ea41b0d0e79fd65a59b8ee724fdaf
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Sun Jul 4 15:58:04 2021 +0800
+
+    Backport: Corrected handling of width/height of 0xA for KING BG1-3, per tests on a PC-FX.  Fixes a graphical glitch in "Sakuraigar Mode" in
+            "Tyoushin Heiki Zeroigar".
+
+commit b655a093c232bcb14f2868ce0c0f9799b73b46ed
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Sun Jul 4 15:08:20 2021 +0800
+
+    Selectively backport changes from 1.21.3
+    
+    - PC-FX: Added a missing variable to save states.
+
+commit ffbdc5eb220f92a1f35f8ae6640b84a108dd2be7
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Sun Jul 4 06:24:51 2021 +0800
+
+    Limit number of input descriptors for 2 ports
+    
+    Support for upto 8 ports is only possible when multitap1 and multitap2 are enabled. The multitap is also considered experimental, so, just enumerate descriptors for 2 ports.
+
+commit 838f5b8fd302359c01e143ddf7b518bc3d23611d
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Sun Jul 4 06:22:10 2021 +0800
+
+    Remove MDFNI_LoadGame
+
+commit 62b77ce4406a39db8ead6a63a3b96730607bf6e6
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Sun Jul 4 06:07:53 2021 +0800
+
+    Remove the use of MDFNGameInfo
+
+commit 623b2f1c2e85d43471f536ba1524d1011ca2d388
+Merge: 67573ce 85eb387
+Author: Autechre <libretro@gmail.com>
+Date:   Thu Jul 1 04:29:30 2021 +0200
+
+    Merge pull request #81 from negativeExponent/update
+    
+    series of cleanups for libretro.cpp
+
+commit 85eb387de1df75848e40e03a46832a1f893a8ce7
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Thu Jul 1 09:47:40 2021 +0800
+
+    Remove misplaced 'return' keyword in retro_init()
+
+commit e0ae9f01368ab6fc030aee41e2f177425a3131e1
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Thu Jul 1 09:46:15 2021 +0800
+
+    Implement RETRO_ENVIRONMENT_GET_INPUT_BITMASKS
+
+commit 59269fd3594405d2efb197781c3760922ec72a71
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Thu Jul 1 09:41:41 2021 +0800
+
+    Update libretro-common
+
+commit efd50860c2e08d69b91cbb46ade80cb8593f1202
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Thu Jul 1 09:02:37 2021 +0800
+
+    Remove unused set_volume() func
+
+commit 83b4e91375a6616c3297ad6f416fbd5442f10a32
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Thu Jul 1 08:57:16 2021 +0800
+
+    Fix indents and cleanup
+
+commit 8c0b2bc87ebf7ff7ab97c5fe7e2cf6acd89f15f4
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Thu Jul 1 07:47:20 2021 +0800
+
+    Make some functions static
+
+commit 7c14b14ecb96655cb7c6dbf695788ca680477bc4
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Wed Jun 30 22:35:44 2021 +0800
+
+    Fix minor controller info issue
+
+commit e4f54f18c1644ed966e4f909443cfcaea056984e
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Wed Jun 30 22:23:31 2021 +0800
+
+    Remove these (unused)
+
+commit 0152016f4863c765753544ceae698a7567c6c245
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Wed Jun 30 22:11:47 2021 +0800
+
+    Cleanup retro_unload_game
+
+commit d9ff345a44e561d22ae55290989fc5019753d67a
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Wed Jun 30 22:03:52 2021 +0800
+
+    Make MDFNI_LoadGame() return as bool type
+
+commit e895db1dbf7dd78037c90e7f1bafd8b377566118
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Wed Jun 30 21:54:41 2021 +0800
+
+    Remove RETRO_ENVIRONMENT_GET_OVERSCAN
+
+commit 0943ff6f276e2fddf970b9e2bc243135165455f3
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Wed Jun 30 21:46:49 2021 +0800
+
+    Remove MDFN_MakeFName()
+
+commit 67573ce2d4eec9cec1e368688f618be807b465d8
+Merge: 8397155 146a2cd
+Author: Autechre <libretro@gmail.com>
+Date:   Wed Jun 30 04:19:17 2021 +0200
+
+    Merge pull request #80 from negativeExponent/disk_interface
+    
+    m3u: Implement disc control interface (disc swap)
+
+commit 146a2cddee6f0376b9e8b2b5ea7f9cc7b1dd5420
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Wed Jun 30 09:58:37 2021 +0800
+
+    dci: Add support for disc labels and initial index
+
+commit 150502b7f14aee4748f25ca1a697fdb05ef38f63
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Tue Jun 29 13:11:00 2021 +0800
+
+    m3u: Implement very basic disk control interface
+
+commit 83971553d498644d34d09415af7a00e55bb1988e
+Merge: ceff11e 8ad8b66
+Author: Autechre <libretro@gmail.com>
+Date:   Tue Jun 29 00:10:18 2021 +0200
+
+    Merge pull request #79 from negativeExponent/patch-2
+    
+    Fix double free error when closing content
+
+commit 8ad8b66f96e0079a0c6d3b36f9a6e7234c359385
+Author: negativeExponent <54053706+negativeExponent@users.noreply.github.com>
+Date:   Tue Jun 29 05:59:55 2021 +0800
+
+    Fix double free error when closing content
+
+commit ceff11eab32febfcf8507f0bfe618bcdf80e75ef
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Apr 12 18:28:25 2021 +0200
+
+    Remove unused Sort.c
+
+commit 23818196bdac178e0583d43b013660a423e3c27b
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Apr 9 18:40:56 2021 +0200
+
+    Remove unnecessary files in dependencies
+
+commit 684e15698c176cab311f46824de5c5a2cb66ebd2
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Apr 8 20:38:28 2021 +0200
+
+    Get rid of error_on_eos
+
+commit ff9fccbe90f3490e3b91a1094fe4a926ff4ae96e
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Apr 5 18:53:20 2021 +0200
+
+    Clean up asserts
+
+commit 01e4198ba14ac593157aec3095d903852053183a
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Apr 5 18:27:30 2021 +0200
+
+    Downscale error.cpp
+
+commit f49b4751f9dfed67ea3887468ea080f7f59d10c7
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Apr 5 18:21:02 2021 +0200
+
+    Get rid of FileWrapper
+
+commit 63cfa4d286402a1836ac34afb65cd2915e72e3c3
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Mar 24 17:03:16 2021 +0100
+
+    Remove these dependency files and add them to .gitignore
+
+commit b5e622b18d7b29ffa023d3ccc9bed1d8e80851ef
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Mar 24 17:02:00 2021 +0100
+
+    Add these files
+
+commit ba3bb7262fb1d8d5213d51984622475583e240eb
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Mar 24 16:40:15 2021 +0100
+
+    Backport updated libchdr
+
+commit 93b781e76dd3df75a770c87124ff302ff93e6b4b
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Mar 24 16:30:30 2021 +0100
+
+    Take file_stream_transforms header include out
+
+commit aefd5ba46c59893d21aee29ac37097cc5d17f93b
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Mar 24 15:11:35 2021 +0100
+
+    Put this behind DEBUG ifdef
+
+commit 049e311fbd13beb1f702db0c23b30ea8fcefef0f
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Mar 24 15:07:55 2021 +0100
+
+    Add cdimagecache core option
+
+commit 7f1964e1372aa9f70a66cfe16db196b2133535a6
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Mar 24 14:50:33 2021 +0100
+
+    Cleanups, memory leaks
+
+commit c9d4f334eaf2ca108ff05b44b786b1ece9083f4e
+Merge: cf43400 5425fe1
+Author: Autechre <libretro@gmail.com>
+Date:   Thu Mar 18 07:08:41 2021 +0100
+
+    Merge pull request #77 from SupervisedThinking/build_fix
+    
+    Makefile: fix cross-compile for ARM platforms
+
+commit 5425fe1ee4990993cfb2ec1a7b730dfb773c9a69
+Author: SupervisedThinking <supervisedthinking@gmail.com>
+Date:   Wed Mar 17 21:15:53 2021 +0100
+
+    Makefile: fix cross-compile
+
+commit cf43400459876dfb9c6e9a8e624ebcb357c4c522
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Mar 17 18:24:07 2021 +0100
+
+    * Fix memleak in FileStream
+
+commit 0f131bdc4583717fec68f001af579e66e7720720
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Mar 11 07:31:07 2021 +0100
+
+    Add ios-arm64/tvos-arm64
+
+commit f5a9ccbaf1c858ded4a74f3bcbd4cde21d45381c
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Feb 15 03:21:56 2021 +0100
+
+    Backport https://github.com/gameblabla/pcfxemu/commit/cff7d9d5e0549d2fef67e3b51a71451d6de0a481
+
+commit 0c1fbb7dceb0a8608fdd34486bc03ccd23789fba
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Feb 15 03:13:12 2021 +0100
+
+    Add MSVC 2005/2010 cores
+
+commit 274845caff62c94b19900063500821ceb9ed72c3
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Feb 15 03:00:48 2021 +0100
+
+    Update for MSVC
+
+commit 60a3ee2c4ec43f46cac749892d94b50566a19e48
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jan 28 06:22:38 2021 +0100
+
+    (macOS) Set up CROSS_COMPILE for ARM 64bit
+
+commit cd7029d5b3361ac303b98ad55f5929fc88320a03
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Jan 27 00:54:43 2021 +0100
+
+    Add Mac x64 and ARM64 targets
+
+commit 4eec3addc83f4dc09ca43783cc8fd333ecb26c21
+Merge: b5648f6 dd7b2f5
+Author: Autechre <libretro@gmail.com>
+Date:   Wed Jan 13 17:10:35 2021 +0100
+
+    Merge pull request #75 from liberodark/patch-1
+    
+    Add RPI4 / Odroid C2 C4 N2 / Vim3 support
+
+commit dd7b2f5d6bc3f48054813a5c3b163fd816f6047f
+Author: liberodark <liberodark@gmail.com>
+Date:   Wed Jan 13 16:51:17 2021 +0100
+
+    Add RPI4 / Odroid C2 C4 N2 / Vim3 support
+
+commit b5648f60681e481b5729ebc76608a41c6c709f8f
+Author: Autechre <libretro@gmail.com>
+Date:   Sat Jan 9 17:04:31 2021 +0100
+
+    Update .gitlab-ci.yml
+
+commit 7b1d871bed47c417c7cad8cc6c8af257d2d6352a
+Author: Autechre <libretro@gmail.com>
+Date:   Sat Jan 9 16:49:04 2021 +0100
+
+    Update .gitlab-ci.yml
+
+commit c81c05adfe2a58e77dc6881afff6fa06cf604fc4
+Author: Autechre <libretro@gmail.com>
+Date:   Thu Jan 7 21:12:12 2021 +0100
+
+    Update .gitlab-ci.yml
+
+commit a9516df53c01b7756ca15bcfa64d55cd5d2963cf
+Author: Autechre <libretro@gmail.com>
+Date:   Sat Jan 2 11:46:49 2021 +0100
+
+    Update .gitlab-ci.yml
+
+commit c6766f5d73175c21fdfbc3ce7dd44cb5271f1ba0
+Author: Autechre <libretro@gmail.com>
+Date:   Tue Dec 29 06:37:13 2020 +0100
+
+    Update Makefile
+
+commit 6d429055a7a10410bda9e8ba0eee7eac90f1df8f
+Author: Autechre <libretro@gmail.com>
+Date:   Tue Dec 29 03:17:46 2020 +0100
+
+    Update .gitlab-ci.yml
+
+commit 402e90f40de879eb3d5e07f4750cabd0db1c3e32
+Author: Autechre <libretro@gmail.com>
+Date:   Tue Dec 29 03:08:10 2020 +0100
+
+    Update .gitlab-ci.yml
+
+commit b45f0a5cff651a65f8551f93f7d8f8565678f17a
+Author: Autechre <libretro@gmail.com>
+Date:   Tue Dec 29 03:07:30 2020 +0100
+
+    Update Makefile
+
+commit d349edcd2693e562768acee6c0a91f1f71e266bc
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Dec 25 03:04:46 2020 +0100
+
+    Update
+
+commit cdd47cf316ecbc688871896b5020ea2356473d42
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Dec 25 02:58:16 2020 +0100
+
+    Update
+
+commit 9fd343bf0c65d4d0010095a9cf45c657a7fc9398
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Dec 25 02:28:41 2020 +0100
+
+    Update
+
+commit 3079d3d76fbce318373eafbc8e85216371d1bc24
+Author: Autechre <libretro@gmail.com>
+Date:   Fri Dec 25 01:57:49 2020 +0100
+
+    Update .gitlab-ci.yml
+
+commit 5c32aa020d14bf7d582c4d07dd4c2e748f986711
+Author: Autechre <libretro@gmail.com>
+Date:   Fri Dec 25 01:53:22 2020 +0100
+
+    Update .gitlab-ci.yml
+
+commit e682be98cbf774c169b51113e6a66a882ad05c39
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Dec 20 00:40:50 2020 +0100
+
+    Update
+
+commit f9db75c4e37840af0334a36a651017f037f7c6d3
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Dec 9 08:43:33 2020 +0100
+
+    Cleanups
+
+commit 3ba895565760303457cb45c96bddd9ab15cf845f
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Dec 9 08:38:52 2020 +0100
+
+    Cleanups
+
+commit a42a5887dfb60407967255d0385036c346bb58ad
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Dec 8 23:49:38 2020 +0100
+
+    Cleanups
+
+commit a552d9cd4c2174c1465dfd1c99f387df07465f1b
+Merge: 008a5ae eae5bf2
+Author: Autechre <libretro@gmail.com>
+Date:   Fri Nov 27 22:34:37 2020 +0100
+
+    Merge pull request #74 from yoshisuga/ios-tvos-unistd
+    
+    [iOS][tvOS] Add -DHAVE_UNISTD_H flag to compile zlib
+
+commit eae5bf25abd15eca9b6d3b07740df47ae532dee2
+Author: Yoshi Sugawara <yoshi.sugawara@gmail.com>
+Date:   Wed Nov 25 22:27:55 2020 -1000
+
+    [iOS][tvOS] Add -DHAVE_UNISTD_H flag to compile zlib
+
+commit 008a5ae04beb9bf939663e7e927bd7beca126024
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Nov 10 19:14:51 2020 +0100
+
+    Update Makefile.common
+
+commit 3384a47f3dbc0ba0ed4ed779f4a384d8e8d6a5d6
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Nov 10 18:46:41 2020 +0100
+
+    Buildfix
+
+commit e7f21a38249cb99386da6e92460f893b4622c3d7
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Nov 10 18:38:18 2020 +0100
+
+    Update libflac
+
+commit 294ecfc09a8dc4d1a20b83ad518283e24cbdb676
+Merge: c6003d5 22382c5
+Author: Autechre <libretro@gmail.com>
+Date:   Tue Nov 3 20:23:24 2020 +0100
+
+    Merge pull request #73 from rtissera/update-libchdr
+    
+    Update libchdr to upstream
+
+commit 22382c508648ccc3e0fc7c696875d89b80bb682c
+Author: Romain TISSERAND <romain.tisserand@gmail.com>
+Date:   Tue Nov 3 18:27:30 2020 +0100
+
+    Update libchdr to upstream
+
+commit c6003d582e39b95f0b0609bdfdbe47a9790b900a
+Merge: 3fda21f c928ec4
+Author: Autechre <libretro@gmail.com>
+Date:   Sun Nov 1 17:51:21 2020 +0100
+
+    Merge pull request #72 from rtissera/chd-fix-alignment
+    
+    Fix CHD alignment issues with lzma/zlib
+
+commit c928ec4cfb8e35787f8fd48e39fe82be34539d3a
+Author: Romain TISSERAND <romain.tisserand@gmail.com>
+Date:   Sun Nov 1 17:49:46 2020 +0100
+
+    Fix CHD alignment issues with lzma/zlib
+
+commit 3fda21f65ec6c960cb0d9a6b3c7cef87f36cde8e
+Merge: a0c4d1c 6373e52
+Author: Autechre <libretro@gmail.com>
+Date:   Thu Oct 15 08:23:36 2020 +0200
+
+    Merge pull request #71 from negativeExponent/patch-1
+    
+    Update rthreads.c
+
+commit 6373e52c5b1f7714cc144e3492553c67f6b22930
+Author: negativeExponent <54053706+negativeExponent@users.noreply.github.com>
+Date:   Thu Oct 15 14:21:24 2020 +0800
+
+    Update rthreads.c
+
+commit a0c4d1c0998e1fbe1934477b3410958a4017d2c6
+Merge: 459bd10 92db9ff
+Author: Autechre <libretro@gmail.com>
+Date:   Wed Oct 14 07:08:10 2020 +0200
+
+    Merge pull request #70 from negativeExponent/libretro-common
+    
+    Update libretro-common
+
+commit 92db9ff2fe677874a799fd53655310d3d5429edd
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Wed Oct 14 12:21:46 2020 +0800
+
+    Update libretro-common
+
+commit 459bd1087854de358eaece548f5888174b5c7ac4
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Oct 7 00:40:27 2020 +0200
+
+    Get rid of PSS_STYLE
+
+commit 740c56ed6a93d6177c107a90ddb9be4c0a47392e
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Oct 7 00:36:39 2020 +0200
+
+    Wrap around fseeko/ftello
+
+commit 24aecacc8abc107f4eec4d4d669b8e983c669454
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Oct 7 00:34:56 2020 +0200
+
+    Remove register keyword
+
+commit 572f90c6da7c941ec56e3eff318e75432622cf77
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Oct 7 00:33:14 2020 +0200
+
+    Add gitlab
+
+commit 81484afe14a1af68cb9b8b529043f126af75c2c1
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Oct 7 00:32:46 2020 +0200
+
+    Cleanups
+
+commit 4a507dd76f13abd2b77a247bdef658262f8e82ba
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Oct 5 01:05:20 2020 +0200
+
+    Convert jrevdct.cpp to C
+
+commit 2c9ae5a0af081b6fb42cbb11d56e380a740433aa
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Oct 5 00:56:39 2020 +0200
+
+    Cleanups
+
+commit f528aefa7428423df1c943fe4c910e7d882e6aed
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Oct 5 00:53:55 2020 +0200
+
+    Convert fxscsi.cpp to C
+
+commit e399e97c04b2a99a1ed089fc90bd9e69b39901d3
+Merge: 2a89c22 df77c13
+Author: Autechre <libretro@gmail.com>
+Date:   Sun Oct 4 10:48:01 2020 +0200
+
+    Merge pull request #69 from Ankitkumarji1323/master
+    
+    Update .gitignore
+
+commit 2a89c22a4758530dce8bfdc4e39083dd5cd5a622
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Oct 4 01:06:40 2020 +0200
+
+    Buildfix for Emscripten
+
+commit 97d4647a1281c2c5b6708e569f98e79e76660605
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Oct 3 21:41:51 2020 +0200
+
+    Cleanups
+
+commit 786326d99528c1447f5a1df46bb853b2cfb2e694
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Oct 3 21:40:30 2020 +0200
+
+    Cleanup
+
+commit 9a9cd678b6f872cd8f445c6f905ad5134f6234c6
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Oct 3 21:34:49 2020 +0200
+
+    Cleanups
+
+commit df77c1354a4b3504b626b979208995af4197b3cd
+Author: Ankitkumarji1323 <72144750+Ankitkumarji1323@users.noreply.github.com>
+Date:   Thu Oct 1 17:42:05 2020 +0530
+
+    Update .gitignore
+
+commit ca5d627a9df31d535527382728b541d1bb12db79
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Sep 22 06:35:15 2020 +0200
+
+    Get rid of IsAbsolutePath - use libretro-common equiv
+
+commit e692625acf6fb03718173d78df4024d4621cb76c
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Sep 19 20:32:29 2020 +0200
+
+    Cleanups
+
+commit 774955c02e182c05f6f7b66104014a5cd573e3f6
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Sep 19 20:26:33 2020 +0200
+
+    Cleanups
+
+commit 5cbb43884cc0c6eb6db5ce7972112ff280915f71
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Sep 18 21:41:58 2020 +0200
+
+    Cleanups
+
+commit fbd4d54ef1bd0e40552ca71cd12486e7184c76a1
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Sep 18 21:40:41 2020 +0200
+
+    Cleanups
+
+commit 4cbda3c37fce104680cde7d04d767c29711df038
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Sep 18 21:36:34 2020 +0200
+
+    Cleanups
+
+commit 3689e74bb5fb577aa8baf03da87f31c0edc5a61f
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Sep 18 21:33:46 2020 +0200
+
+    Cleanups
+
+commit af1b9e75d5df662c617c25481593c8d377f516b0
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Sep 13 19:50:25 2020 +0200
+
+    Cleanup
+
+commit 4a6c55e6149a4b6088405f517b49defd153279a7
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Sep 13 19:27:21 2020 +0200
+
+    Convert settings.cpp to settings.c
+
+commit b4a7375bdca715957863009551211b5372e0d2db
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Sep 13 19:18:37 2020 +0200
+
+    Cleanups - convert state.cpp to state.c
+
+commit 48ee7728a81c52f5ce9e23aec2d118854d64ebd1
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Sep 13 18:32:22 2020 +0200
+
+    Cleanup
+
+commit 5b05b198c95a838798dbb57a25a4b8046b8ff34b
+Merge: 1c40be8 e15f7a3
+Author: hizzlekizzle <hizzlekizzle@users.noreply.github.com>
+Date:   Sun Jul 5 08:45:33 2020 -0500
+
+    Merge pull request #68 from Sanaki/master
+    
+    Updated internal core name to Beetle PC-FX
+
+commit e15f7a313c5b0bf63f7042a0a906c2801deae7ed
+Author: Sanaki <sanaki@fuzzy-dice.net>
+Date:   Sun Jul 5 05:38:56 2020 -0700
+
+    Updated internal core name to Beetle PC-FX
+
+commit 1c40be8aab070726dd5b074f791e81c8ff07b160
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Jun 23 14:03:51 2020 +0200
+
+    Backport https://github.com/libretro/beetle-psx-libretro/pull/681/commits/f725c34a50cc1a4058a8cf55b6ac383302b0d35c
+
+commit f0d284854a1973196c36590505f70c3404cc37b4
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed May 20 04:25:02 2020 +0200
+
+    Update
+
+commit 88e59026843809d0b6c4e672cd9cbe53b1358756
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon May 18 16:04:33 2020 +0200
+
+    Silence most warnings
+
+commit 7bba6699d6f903bd701b0aa525d845de8427fee6
+Merge: 16de396 6e712c8
+Author: Twinaphex <libretro@gmail.com>
+Date:   Thu Jan 9 16:01:22 2020 +0100
+
+    Merge pull request #66 from negativeExponent/update_makefile
+    
+    Update makefile
+
+commit 16de3969c1f19618adfa9c6aa881e29236a00e47
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jan 9 15:19:35 2020 +0100
+
+    (MSVC 2017) Only compile in HAVE_CDROM part for desktop
+
+commit 717ed283a450033754eddfb23c23dbdb549baa3d
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jan 9 15:13:05 2020 +0100
+
+    Potential buildfix
+
+commit 6e712c8c6d7d3576c695769b31159de8d1c1d8cc
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Thu Jan 9 17:25:41 2020 +0800
+
+    Makefile: Add libnx target
+
+commit 5b1b65dc61e0ccb6ca2ea81093fb9ea3db0b9089
+Author: negativeExponent <negativeExponent@users.noreply.github.com>
+Date:   Thu Jan 9 17:15:10 2020 +0800
+
+    Makefile: Add wiiu target
+
+commit ab6c73d6da85059ab51194eff400af6d3b867769
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jan 9 05:27:42 2020 +0100
+
+    Potential buildfixes for wiiu
+
+commit db370d30657a3c2e525426acb5d94d9d1e794a37
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jan 9 04:34:39 2020 +0100
+
+    (MSVC 2017) Buildfix
+
+commit e04f695202a7295e4b6f2122ae947279ac9df007
+Merge: 41c76e6 7626fe9
+Author: Twinaphex <libretro@gmail.com>
+Date:   Wed Sep 11 04:56:56 2019 +0200
+
+    Merge pull request #63 from yoshisuga/tvos_platform
+    
+    (tvOS) support building
+
+commit 7626fe997f49ef47ab354d57f5b90901bcfffd91
+Author: Yoshi Sugawara <yoshi.sugawara@gmail.com>
+Date:   Tue Sep 10 14:53:35 2019 -1000
+
+    (tvOS) support building
+
+commit 41c76e6ddaf7e0a622408da26377ee9ba92f3785
+Merge: fef0302 46c83e6
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Aug 17 14:58:44 2019 +0200
+
+    Merge pull request #61 from webgeek1234/master
+    
+    libretro: allow mingw cross compile
+
+commit 46c83e66529ed98e71fd88e7d3867144dd458be6
+Author: Aaron Kling <webgeek1234@gmail.com>
+Date:   Tue Jun 4 14:30:30 2019 -0500
+
+    libretro: allow mingw cross compile
+
+commit fef0302daa111eec449f5eb58128f601fd2ce45e
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Jul 31 20:06:47 2019 +0200
+
+    Update to new core options
+
+commit bc0da4c9a6104d7f92e002761548d47d7679d8ee
+Merge: 1699743 31681a3
+Author: hizzlekizzle <hizzlekizzle@users.noreply.github.com>
+Date:   Tue Jul 30 17:36:06 2019 -0500
+
+    Merge pull request #60 from retro-wertz/patch-2
+    
+    Use C-style heap allocation
+
+commit 1699743a83904d43ed714ce42e1215ff04ee277f
+Merge: db7a763 79a02ad
+Author: hizzlekizzle <hizzlekizzle@users.noreply.github.com>
+Date:   Tue Jul 30 17:35:34 2019 -0500
+
+    Merge pull request #59 from retro-wertz/patch-1
+    
+    Update readme.md
+
+commit 31681a3ad4cda70cd37f8c3b99649db17b8d8a09
+Author: retro-wertz <retro-wertz@users.noreply.github.com>
+Date:   Wed Jul 31 04:46:36 2019 +0800
+
+    Update libretro.cpp
+
+commit 79a02aded8057b84e732b3cbc69af558c7ca0562
+Author: retro-wertz <retro-wertz@users.noreply.github.com>
+Date:   Wed Jul 31 04:14:41 2019 +0800
+
+    Update readme.md
+
+commit db7a76320d479ab98408ad1886354c51f0b71b65
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Jul 30 03:52:37 2019 +0200
+
+    Fix MSVC 2003
+
+commit 786d9fe3bbddecfd1907d1fcdba666eeed7e7f29
+Merge: ca23eb2 e08f48a
+Author: Twinaphex <libretro@gmail.com>
+Date:   Fri Jul 26 04:22:05 2019 +0200
+
+    Merge pull request #58 from bparker06/cdrom
+    
+    initial cdrom support
+
+commit e08f48a00eb371cbc9f88fd6b7bc48bea61d12d2
+Author: Brad Parker <cbparker@gmail.com>
+Date:   Thu Jul 25 22:15:32 2019 -0400
+
+    initial cdrom support
+
+commit ca23eb2601031589609989948a264f148f9b732a
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jul 7 07:36:28 2019 +0200
+
+    Remove unused CDIF_Stream_Thing
+
+commit c64801e71e3b215e365cb34a66016e1ccae1d05b
+Merge: 84b7ca6 6a8709c
+Author: Twinaphex <libretro@gmail.com>
+Date:   Fri Jun 28 11:24:37 2019 +0200
+
+    Merge pull request #57 from webgeek1234/master
+    
+    Android update
+
+commit 6a8709c6888bf7a05456e91c303dc2818ca3109d
+Author: Aaron Kling <webgeek1234@gmail.com>
+Date:   Fri May 24 23:31:00 2019 -0500
+
+    libretro: jni: Switch stl to c++ in preparation for ndk r20
+
+commit 84b7ca6af37525af126069f812d53784bc1702fe
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Jul 20 13:47:57 2018 +0200
+
+    Update libretro-common
+
+commit 49129452c618783d543abe20af4dac63326b2cbc
+Merge: 1767dd1 9d125a7
+Author: hizzlekizzle <hizzlekizzle@users.noreply.github.com>
+Date:   Wed Jun 6 20:05:52 2018 -0500
+
+    Merge pull request #55 from Aftnet/master
+    
+    Fixed MSVC compilation
+
+commit 9d125a78661175f4924a62d171b1e56fd5115aca
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Thu May 31 14:34:31 2018 +0900
+
+    Fix static/dynamic linking CRT
+
+commit 16c769a868a998fec2eb5058441ad6873a7761e7
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Thu May 31 13:59:03 2018 +0900
+
+    Makefile
+
+commit 1767dd147ce0be2072d407dd030956231be79d97
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 24 06:48:44 2018 +0200
+
+    Update tremor
+
+commit 8e8a5be8cd4dac70a2c3c13e2bf5ff273db10413
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Apr 19 08:31:18 2018 +0200
+
+    Update file.c
+
+commit 17dfbcd66353f2b06b87b182d7885c867a01db58
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Apr 19 08:08:45 2018 +0200
+
+    Updates
+
+commit bdc144164e5f2aab9e66ddbe87a8b30551f05f10
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Apr 13 02:08:30 2018 +0200
+
+    Remove msvc
+
+commit 2a3ce70dfaa09cf07264ca1c5e7691202d796242
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Apr 13 02:05:42 2018 +0200
+
+    Updates
+
+commit 7bba59a02687a0bab3b02f7a6d6e93266efb3d26
+Merge: 2fd29ad 4a55341
+Author: Twinaphex <libretro@gmail.com>
+Date:   Mon Apr 9 15:03:02 2018 +0200
+
+    Merge pull request #54 from webgeek1234/master
+    
+    Refactor android jni makefiles
+
+commit 4a55341da00368215effe6ffbc602a538c73668b
+Author: Aaron Kling <webgeek1234@gmail.com>
+Date:   Sat Apr 7 00:04:53 2018 -0500
+
+    Refactor android jni makefiles
+
+commit 2fd29ad0e247020f5c134280885d622b3d75e6d7
+Merge: 40c3004 ff288a2
+Author: Twinaphex <libretro@gmail.com>
+Date:   Wed Apr 4 07:52:50 2018 +0200
+
+    Merge pull request #53 from webgeek1234/master
+    
+    Fix android jni compile with clang
+
+commit ff288a2616d7d89965aefa737eb6508cf52529bf
+Author: Aaron Kling <webgeek1234@gmail.com>
+Date:   Tue Apr 3 20:47:06 2018 -0500
+
+    Fix android jni compile with clang
+
+commit 40c30045f822598a4917207414b0333310989ade
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Mar 24 13:41:11 2018 +0100
+
+    Update
+
+commit 11be243c301a979a3149e0e5bbd2465f66f85c0e
+Merge: e8e3cc1 802f587
+Author: Twinaphex <libretro@gmail.com>
+Date:   Mon Feb 5 11:11:15 2018 +0100
+
+    Merge pull request #52 from kwyxz/master
+    
+    Allow build on Haiku target
+
+commit 802f587f846d79f68a69d5ec14dc259a4ba3bd67
+Author: kwyxz <kwyxz@kwyxz.org>
+Date:   Mon Feb 5 06:12:14 2018 +0000
+
+    Allow build on Haiku target
+
+commit e8e3cc123e9fb362746f9c2ceba359749d7f33ef
+Merge: 111625e 513bde4
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sun Jan 28 06:31:01 2018 +0100
+
+    Merge pull request #51 from RobLoach/patch-1
+    
+    makefile: Remove erroneous -marm argument
+
+commit 513bde4af5d504becc7d353d19b68889de84273b
+Author: Rob Loach <robloach@gmail.com>
+Date:   Sat Jan 27 17:31:04 2018 -0500
+
+    makefile: Remove erroneous -marm argument
+    
+    There are platform conditionals for the -marm flag. It is not needed in this context.
+
+commit 111625e815c3d68f59c7ccbfac579eec77e033e3
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Jan 17 04:00:44 2018 +0100
+
+    Add missing file
+
+commit 805575c48526ab09f7f82c5f0dc52902ab0acfe3
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Jan 17 03:56:29 2018 +0100
+
+    Add missing file
+
+commit 726bc0e2fe73b43a7536b8bf7abbade3e8826fcb
+Merge: 149d2a0 06c6402
+Author: Twinaphex <libretro@gmail.com>
+Date:   Wed Jan 17 03:30:47 2018 +0100
+
+    Merge pull request #49 from ToadKing/emscripten
+    
+    fix emscripten builds
+
+commit 06c6402c89c8e89fd7f925717a91a234c7ca6266
+Author: Toad King <toadking@toadking.com>
+Date:   Tue Jan 16 20:01:44 2018 -0600
+
+    fix emscripten builds
+
+commit 149d2a0c96ce8f8913808c2021da99b232a36866
+Merge: 0c1c381 b7cf9a1
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sun Jan 7 22:09:33 2018 +0100
+
+    Merge pull request #48 from retro-wertz/patch-4
+    
+    Update android.mk
+
+commit b7cf9a10cab8188f794edbb233eae13fcd6656ab
+Author: retro-wertz <retro-wertz@users.noreply.github.com>
+Date:   Mon Jan 8 05:01:42 2018 +0800
+
+    Update android.mk
+    
+    add CHD support
+
+commit 0c1c381cf9a85f1cfed75d128e561757cdea88ad
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jan 7 15:52:30 2018 +0100
+
+    Remove unused functions
+
+commit e3f78e42bb36ea26c10dfcb8631b0853d39b9ed8
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jan 7 15:44:02 2018 +0100
+
+    Update general.cpp
+
+commit d5701497813d2b8499e14fab18fc0193b523c8c0
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Jan 5 23:30:25 2018 +0100
+
+    Updates
+
+commit 403df31536f84458590265a356d20f469f1e1d0f
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Jan 5 14:04:44 2018 +0100
+
+    Update libretro-common
+
+commit cb80821834ab44c2b3cbfd0ea7c67e5c7bb2756b
+Merge: 9547e27 aed22bd
+Author: Twinaphex <libretro@gmail.com>
+Date:   Fri Jan 5 13:13:00 2018 +0100
+
+    Merge pull request #47 from Aftnet/master
+    
+    Enable VFS for libchdr
+
+commit aed22bdbb8b48c9834e15dee83cac907c1be5a67
+Merge: bb4796a 9547e27
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Fri Jan 5 17:12:21 2018 +0900
+
+    Merge branch 'master' of https://github.com/libretro/beetle-pcfx-libretro.git
+
+commit bb4796a352f0e1fb2237ef6946f6b5a215c34daa
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Fri Jan 5 17:10:40 2018 +0900
+
+    Fix
+
+commit 9547e27870fc886ef63f06786aee73c688d8e476
+Merge: d0c9167 a688014
+Author: Twinaphex <libretro@gmail.com>
+Date:   Fri Jan 5 08:15:59 2018 +0100
+
+    Merge pull request #46 from Aftnet/master
+    
+    Enabled CHD support in UWP
+
+commit a688014eeddbd80da9f72cebdeee7ae8b5527cb1
+Merge: 82ec5f8 d0c9167
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Fri Jan 5 15:24:36 2018 +0900
+
+    Merge branch 'master' of https://github.com/libretro/beetle-pcfx-libretro.git
+
+commit 82ec5f8ec5002dfa486cf092d527fa2bb9a01b3b
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Fri Jan 5 15:23:32 2018 +0900
+
+    UWP fixes
+
+commit 786edae001ba46b37db2cce34764585bce82dcf1
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Fri Jan 5 15:08:54 2018 +0900
+
+    Updated makefile
+
+commit d0c916712fda704591bf6a6b75c77c9e1cc0bee4
+Merge: 1abae61 483a3cb
+Author: Twinaphex <libretro@gmail.com>
+Date:   Wed Jan 3 15:51:09 2018 +0100
+
+    Merge pull request #45 from retro-wertz/deinterlacer
+    
+    Fix error when compiling with NEED_DEINTERLACER=1
+
+commit 483a3cb7f98acb9832616783be14b5a1f1aeaac4
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Wed Jan 3 22:47:18 2018 +0800
+
+    Fix error when compiling with NEED_DEINTERLACER=1
+
+commit 1abae61a33af183acf59a0b3629bf41fe0504496
+Merge: 1edaace 3e980c3
+Author: Twinaphex <libretro@gmail.com>
+Date:   Wed Jan 3 15:34:01 2018 +0100
+
+    Merge pull request #44 from Aftnet/master
+    
+    Compilation fix
+
+commit 3e980c3f2d7cc9c09fd2205f3c87e3d58e5189fc
+Author: Alberto Fustinoni <alberto@aftnet.net>
+Date:   Wed Jan 3 22:09:14 2018 +0900
+
+    Compilation fix
+
+commit 1edaace6a8fbabaec003ffbf4a393255069d7e35
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Jan 2 07:09:17 2018 +0100
+
+    Get rid of basename code
+
+commit 9f953ffaf44aab9ca4ffe3a6ed5e895320ba569d
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Jan 2 07:07:48 2018 +0100
+
+    Get rid of unused code
+
+commit 7cbfeeda3a3ea8597d0c7e7fab7fb21ea12279ba
+Merge: e30ed74 21ed0aa
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Jan 2 07:00:20 2018 +0100
+
+    Merge pull request #43 from retro-wertz/sync_0_9_36_5
+    
+    Sync to 0.9.36.5
+
+commit 21ed0aa3e2a4cba6a24d1933707f7d215259f252
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Tue Jan 2 13:17:17 2018 +0800
+
+    v810:Fix missing files
+
+commit 875c04699aeb59fbe854f365c968b83b65264630
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Tue Jan 2 12:42:49 2018 +0800
+
+    v810:Remove unused files
+
+commit 78e96cf81ba674e0af4a9ec772705337087a582d
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Tue Jan 2 12:38:16 2018 +0800
+
+    v810:Update to 0.9.36.5
+
+commit 61ee658150e8094d754d5f085a39845a7861f91f
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Tue Jan 2 12:07:28 2018 +0800
+
+    OwlResampler.cpp: Update to 0.9.36.5
+
+commit 6a0e21cd73719d4cf17a5ceed341da1bd00d4414
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Tue Jan 2 11:50:22 2018 +0800
+
+    Sync
+
+commit fe7a8f65e9dfc577cb932664d65ab5d808d52242
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Sat Dec 30 22:44:43 2017 +0800
+
+    Bump version to 0.9.36.5
+
+commit 05a42220d5a29baaacb74dbfbb3e5cc27c750655
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Sat Dec 30 21:05:34 2017 +0800
+
+    Update to 0.9.36.5
+
+commit e30ed74e15fcc38e47a4363d6fbe05bc45aeab86
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Dec 31 11:54:33 2017 +0100
+
+    Further cleanups
+
+commit 63e73fdf488f2c9ffff905f478d91284bd1bec59
+Merge: 2b7faef d40ec9d
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sun Dec 31 11:49:26 2017 +0100
+
+    Merge pull request #42 from retro-wertz/memory_access
+    
+    Memory access using libretro API
+
+commit d40ec9da6411c03bf064fbd72da0084da1ab51f5
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Sun Dec 31 15:30:22 2017 +0800
+
+    Update
+
+commit 268b5b8ad2b1406ceb75e2d4daf40582cb534964
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Sun Dec 31 15:20:17 2017 +0800
+
+    Update
+
+commit 38e29e30e156ae4e9017764fefe916833693b209
+Merge: 24a733b 2b7faef
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Sun Dec 31 15:09:02 2017 +0800
+
+    Merge branch 'master' into memory_access
+
+commit 24a733bedd84a035975527f578ee9ec2b6bf81a9
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Sun Dec 31 14:53:13 2017 +0800
+
+    Use libretro API to access system ram and save ram
+
+commit 2b7faef70df083975e48cb95e0744fd34f5a5127
+Merge: 63c4584 ba83a2f
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sun Dec 31 07:32:15 2017 +0100
+
+    Merge pull request #41 from retro-wertz/patch-3
+    
+    Fix core not saving
+
+commit 63c4584fa160ef870e053677a32c97422f41df74
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Dec 31 02:35:04 2017 +0100
+
+    Update
+
+commit ba83a2fdf27a36e3494799e138b6e0ea8e91c089
+Author: retro-wertz <retro-wertz@users.noreply.github.com>
+Date:   Sun Dec 31 01:27:01 2017 +0800
+
+    Fix core not saving
+    
+    https://github.com/libretro/beetle-pcfx-libretro/issues/40
+    This should probably RETRO_VFS_FILE_ACCESS_WRITE instead?
+    
+    *review needed*
+
+commit 47240d7819ded5fada920a28ece19afa10b27fa3
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Dec 25 04:50:21 2017 +0100
+
+    Update
+
+commit 13b6de632114b79f5515e578b693809b59850fec
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Dec 25 04:48:40 2017 +0100
+
+    MSVC 2003 works now
+
+commit 98a1389a9a2ddda49cd55e3a358daecd3a79117d
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Dec 25 04:44:59 2017 +0100
+
+    Updates
+
+commit 2cf948267cae6b9239d6c4bfe2cbabad1b71878c
+Merge: 042fe51 5d45d07
+Author: Twinaphex <libretro@gmail.com>
+Date:   Thu Dec 21 16:39:07 2017 +0100
+
+    Merge pull request #38 from Aftnet/master
+    
+    Appveyor CI
+
+commit 5d45d07de0d44011e83a5acb69801bda1b1033eb
+Author: Alberto Fustinoni <alberto@aftnet.net>
+Date:   Thu Dec 21 22:34:14 2017 +0900
+
+    Appveyor CI
+
+commit 042fe51f520a4b429da3ae36f34542372f2c332b
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Dec 20 06:16:35 2017 +0100
+
+    Reduce savestate code
+
+commit 6728b4a954bc4702f022a0f1e45c8c7e55917ebc
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Dec 20 05:06:44 2017 +0100
+
+    Should fix WiiU
+
+commit 45ba5736afa8bd3a0fcecc0040f7a35d29675532
+Merge: c75d0fc fac04c7
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Dec 19 14:03:08 2017 +0100
+
+    Merge pull request #37 from Aftnet/master
+    
+    MSVC2017/UWP compilation
+
+commit fac04c71e55ccf5fc68bf27d339793729a1074d9
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Tue Dec 19 15:13:55 2017 +0900
+
+    Fixes
+
+commit f5c43f23487b70b4088bd5dae03de767e28d1f8b
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Tue Dec 19 14:04:03 2017 +0900
+
+    Fixes
+
+commit 825443646ab5408d4fa95a96d513734052264dd0
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Tue Dec 19 13:07:51 2017 +0900
+
+    Makefile
+
+commit c75d0fc60065a4141715d7e14aa552bb429ef960
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Dec 18 22:58:34 2017 +0100
+
+    Cleanup
+
+commit abe4b8501f26ebcbab10ce8c113e0e6047fc6825
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Dec 18 16:33:09 2017 +0100
+
+    Update
+
+commit 32bac7cea7a678dc194d83cdffbef76b42118d0d
+Author: Twinaphex <libretro@gmail.com>
+Date:   Mon Dec 18 16:02:17 2017 +0100
+
+    Update CDAccess_Image.cpp
+
+commit fad36517ea246159c647f24bb847a2222c1a7821
+Merge: bf16c3f df23213
+Author: Twinaphex <libretro@gmail.com>
+Date:   Mon Dec 18 14:24:59 2017 +0100
+
+    Merge pull request #36 from Aftnet/master
+    
+    Build fixes, removed dependency on file_path to fix VFS
+
+commit df232131525db13389802caebfe7c0e49adeca8d
+Author: Alberto Fustinoni <alberto@aftnet.net>
+Date:   Mon Dec 18 22:16:35 2017 +0900
+
+    Fix
+
+commit d4b20c0d5996630177c8dbeb76d7cb68bcf3a41a
+Author: Alberto Fustinoni <alberto@aftnet.net>
+Date:   Mon Dec 18 21:56:09 2017 +0900
+
+    Removed unused dirent, file_path
+
+commit 1a38ac8ec5cf0fb93ef8c29fd7381ac4a3df3f4f
+Author: Alberto Fustinoni <alberto@aftnet.net>
+Date:   Mon Dec 18 21:48:21 2017 +0900
+
+    Added missing compat from common
+
+commit bf16c3f9b8a3b7bb7ebcd5540a1c4808f4fd838b
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Dec 17 18:46:01 2017 +0100
+
+    Update libretro.cpp
+
+commit d9b0a784bf9bdc31beb662c1220b130b59ead4bb
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Dec 16 15:00:00 2017 +0100
+
+    Update
+
+commit a0505b02647637eef5086e9b111d43085848bf30
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Dec 16 02:49:41 2017 +0100
+
+    Update
+
+commit a54215f1722de12924e89aede43a034b4b603b44
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Dec 16 01:09:14 2017 +0100
+
+    Update
+
+commit f564c3c9fa3e8049e009affb83532517872d7d9f
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Dec 16 01:07:21 2017 +0100
+
+    Update
+
+commit 63cdd8ff44b864da5dbc1c7849e13e914324d5c8
+Merge: f76c754 079f466
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Dec 2 05:52:57 2017 +0100
+
+    Merge pull request #35 from retro-wertz/mouse
+    
+    Update mouse sensitivity
+
+commit 079f466b39c530e118bb397fd91d19033badf5ca
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Sat Dec 2 07:05:38 2017 +0800
+
+    Update mouse sensitivity
+
+commit f76c75447e710c4c1357e1ce8732fa54387ad565
+Merge: c52ce14 b350ebc
+Author: Twinaphex <libretro@gmail.com>
+Date:   Thu Nov 23 06:38:57 2017 +0100
+
+    Merge pull request #34 from retro-wertz/mouse
+    
+    Mouse support
+
+commit b350ebc50c49d3326d7e96e6a1e6dd6c9c0ac576
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Thu Nov 23 12:04:39 2017 +0800
+
+    Add core option mouse_sensitivity
+
+commit 8f443b16469610a795db12b8696bf4aa35cdb531
+Author: retrowertz <retro-wertz@users.noreply.github.com>
+Date:   Thu Nov 23 11:30:55 2017 +0800
+
+    Add mouse device support
+
+commit c52ce149e4253e37682993db1ca8dea54ad195be
+Author: radius <andres.430@gmail.com>
+Date:   Wed Nov 22 21:59:15 2017 -0500
+
+    don't set more ports than what was initially setup
+
+commit 0a1cbb414e997a2b04bf5c3395fae3ef1be7cedd
+Author: radius <andres.430@gmail.com>
+Date:   Wed Nov 22 21:56:23 2017 -0500
+
+    fix crashes with rewind on
+
+commit 5331315778c41c7238ef95cd377d777ad2ebd589
+Author: Brad Parker <cbparker@gmail.com>
+Date:   Mon Oct 23 18:33:22 2017 -0400
+
+    add travis build script
+
+commit 224c1f1d7e6edd4a55dcdd51b0276f1873f94d9c
+Merge: bb6adee a9aa5e0
+Author: Twinaphex <libretro@gmail.com>
+Date:   Wed Sep 6 20:39:48 2017 +0200
+
+    Merge pull request #31 from yoshisuga/master
+    
+    support for iOS arm64 build
+
+commit a9aa5e09567bf68fab4dc00b558b106227184f24
+Author: Yoshi Sugawara <yoshi.sugawara@gmail.com>
+Date:   Wed Sep 6 08:07:34 2017 -1000
+
+    support for iOS arm64 build
+
+commit bb6adeef21d68d3607f9b22a46a08fa27ef8a53c
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Aug 18 23:58:12 2017 +0200
+
+    Update
+
+commit 83105f6d4aae3449ba4e83460e52112e187a1b51
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Aug 18 22:57:59 2017 +0200
+
+    Update
+
+commit 82038c34f3dab48237cf9626df9cab0fe5255966
+Merge: 9b179c3 d793957
+Author: Twinaphex <libretro@gmail.com>
+Date:   Fri Aug 18 22:18:36 2017 +0200
+
+    Merge pull request #29 from Aftnet/master
+    
+    WinRT compatibility, bugfixes
+
+commit d79395729ccc8dd6b5ff725831b8ecc7e1dfcc19
+Author: Alberto Fustinoni <alberto@aftnet.net>
+Date:   Fri Aug 18 23:00:33 2017 +0900
+
+    Bugfix
+
+commit a7d777762fe179c92ca46aeda6683220a5705c4d
+Author: Alberto Fustinoni <alberto@aftnet.net>
+Date:   Fri Aug 18 22:46:28 2017 +0900
+
+    Fix
+
+commit 09de50ff9b2de42f7f7359cf120f1dbde1443fdc
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Fri Aug 18 17:42:08 2017 +0900
+
+    Updated libretro header
+
+commit 397870f40bda01c072b88d1e511a7b2a341181f6
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Fri Aug 18 17:33:49 2017 +0900
+
+    Fixes
+
+commit 46f121e18f98196cd71c7e7745a56c70a37457ac
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Fri Aug 18 17:21:15 2017 +0900
+
+    Updated common files
+
+commit 9e3b646412fbc4cca6e1222bf3402b3e4c12ac33
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Fri Aug 18 17:04:39 2017 +0900
+
+    Fixes
+
+commit 6a2c8959a090a635e4c6c87a25fbde22534584b1
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Fri Aug 18 17:00:06 2017 +0900
+
+    Build fixes
+
+commit df42f4d4fe473c9534d52ba665d49fb62a8c4bde
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Fri Aug 18 16:37:52 2017 +0900
+
+    Compilation
+
+commit 2889a93fa06d8d4de667ebe4a976c050f9048266
+Author: Alberto Fustinoni <claudiuslollarius@gmail.com>
+Date:   Fri Aug 18 16:27:16 2017 +0900
+
+    Compilation
+
+commit 9b179c377ddee7c647665df2055e9891aced5ce8
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Aug 18 01:39:58 2017 +0200
+
+    Rename source file to mednafen_md5.c
+
+commit fd5933b5d892edd6437db433314b4d16ae91efc0
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Aug 14 07:30:56 2017 +0200
+
+    Add crypto_types.h
+
+commit e8e5215652e9698df65e4c7c4383e966a00b5204
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Aug 14 06:47:29 2017 +0200
+
+    Update all dependencies so this finally compiles
+
+commit 67af9ffe17fcc88d7bbd5e413718d55a60bba3b9
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Aug 14 06:43:46 2017 +0200
+
+    Update libFLAC
+
+commit 6cb1d8b2639a8543d59667406f010c1d1eb537d7
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Aug 14 06:42:35 2017 +0200
+
+    Some compilation fixes
+
+commit 4f47791fdca1a2e5a5d37c9db8c3aac88c15443a
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Aug 14 06:41:20 2017 +0200
+
+    Fix implicit memset
+
+commit 45bf555028d8fb38fe8030c09b5c029f22a57b87
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Aug 14 06:34:41 2017 +0200
+
+    Update libflac so it works on PS3
+
+commit 9781a1a3b2f4ac5939be1cdc0f649645bfa260ec
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Aug 12 05:34:02 2017 +0200
+
+    Update include dirs
+
+commit 056c18b7dfbf982ef7e5ca50f5fc28703187f52b
+Merge: 9ce587d b2ab43f
+Author: Twinaphex <libretro@gmail.com>
+Date:   Wed Aug 9 19:53:34 2017 +0200
+
+    Merge pull request #28 from rtissera/leadout
+    
+    Fix CHD leadout calculation
+
+commit b2ab43fe71f1263ab8697d723ede5e8c687c943d
+Author: Romain Tisserand <romain.tisserand@gmail.com>
+Date:   Wed Aug 9 19:36:53 2017 +0200
+
+    Fix CHD leadout calculation
+
+commit 9ce587de29075a2e48f281093cb6d47b61718c31
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Aug 8 22:01:23 2017 +0200
+
+    Buildfixes - MD5 mednafen functions need to be uniquely namespaced
+
+commit e06d810bc176226eb706e972fe38d856ba7b6b7d
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Aug 8 18:50:03 2017 +0200
+
+    update libchdr
+
+commit 1eb640f207a4d16ac58e0a56fd2fe5b1e66b4e0a
+Merge: d72d174 49a9e86
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Aug 8 19:23:46 2017 +0200
+
+    Merge pull request #27 from rtissera/chd
+    
+    CHD support
+
+commit 49a9e86b17139ac76286ca24c0ccff08a26a2181
+Author: Romain Tisserand <romain.tisserand@gmail.com>
+Date:   Tue Aug 8 19:15:24 2017 +0200
+
+    Forgot to add CHD extension test in libretro.cpp
+
+commit b6a3ad4a3d5716ce06489254e3fe356b45d78230
+Author: Romain Tisserand <romain.tisserand@gmail.com>
+Date:   Tue Aug 8 18:39:12 2017 +0200
+
+    First CHD implementation for PCFX core
+
+commit d72d17419267da33ec74f1a7096c1631399461f9
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Jul 28 09:38:24 2017 +0200
+
+    Buildfix
+
+commit 5b06ad5584d088cb1e1598feb5d74df509fe0ef4
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Jun 13 10:13:14 2017 +0200
+
+    Cleanup
+
+commit c91099fe28ea8d578c1734465ebec79d38a7e609
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Jun 13 09:23:38 2017 +0200
+
+    Make OwlResampler::Resample more portable
+
+commit 91bde25729dfc9d92bbf2a37bddf28b365b557f5
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Mar 26 18:42:54 2017 +0200
+
+    Silence warning
+
+commit d46ee482a7370f35610a896affb8fc6400cd1661
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Mar 26 18:41:56 2017 +0200
+
+    Get rid of CanRead()
+
+commit 4e556878f4cf06ebf94baa1a9458a94c0307e248
+Merge: 291c4b6 13abc1f
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Mar 21 22:59:58 2017 +0100
+
+    Merge pull request #25 from orbea/permissions
+    
+    Fix permissions.
+
+commit 13abc1fbea0c7dda69369858fc2fd0ad23553737
+Author: orbea <ovariegata@yahoo.com>
+Date:   Tue Mar 21 11:07:35 2017 -0700
+
+    Fix permissions.
+
+commit 291c4b682d01b1a4ee0ac137dfd41f9d0bf55ce8
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Feb 18 17:34:32 2017 +0100
+
+    Add header include
+
+commit f4a05e296c21bdc589df822cb7d8cf3b0e8a69a2
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Feb 18 17:06:37 2017 +0100
+
+    Add header include
+
+commit 6ce88a99e49703ac69dd0398dfc490159e4c046a
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Feb 18 16:13:57 2017 +0100
+
+    Updates
+
+commit 49007fe18873c4f027cd92cfe88aa96cf0d087d3
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Feb 18 15:50:50 2017 +0100
+
+    Don't include vector in state.h
+
+commit 6052610b6455f3eda660c5d98808f639b0e36289
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Feb 18 15:43:10 2017 +0100
+
+    Cleanup
+
+commit 94456924eab9145706b6d3c0659cd4f6d956a631
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Feb 18 15:41:44 2017 +0100
+
+    Cleanups
+
+commit f53c58a1af17bf1fc0bd5bfe4c5010b55434006b
+Merge: 6b76de1 075f1c2
+Author: Twinaphex <libretro@gmail.com>
+Date:   Thu Feb 2 23:49:07 2017 +0100
+
+    Merge pull request #22 from retro-wertz/patch-2
+    
+    Update libretro.cpp
+
+commit 075f1c252064be6ba0365a62dd96155cbb3633a0
+Author: retro-wertz <retro-wertz@users.noreply.github.com>
+Date:   Fri Feb 3 06:35:50 2017 +0800
+
+    Update libretro.cpp
+
+commit 6b76de1437f17bdc34bdd86fd84e877c707bb676
+Merge: 9ca5cfc c32873d
+Author: hizzlekizzle <hizzlekizzle@users.noreply.github.com>
+Date:   Tue Jan 31 10:56:00 2017 -0600
+
+    Merge pull request #21 from retro-wertz/patch-1
+    
+    Add core options
+
+commit c32873d340f96a605efff82acbe6984f346cf211
+Author: retro-wertz <retro-wertz@users.noreply.github.com>
+Date:   Tue Jan 31 06:05:40 2017 +0800
+
+    Fix initial_scanline
+
+commit 16384f8d75b44d04a90635d43f58520a50f9ac8b
+Author: retro-wertz <retro-wertz@users.noreply.github.com>
+Date:   Tue Jan 31 05:41:03 2017 +0800
+
+    Use environ_cb instead of MDFND_DispMessage...
+
+commit 4130ea078597195fdc57d310b18aaa12287d563a
+Author: retro-wertz <retro-wertz@users.noreply.github.com>
+Date:   Tue Jan 31 04:10:52 2017 +0800
+
+    Add core options
+
+commit 9ca5cfc2f0c1a17070f7da3df89ea471d5a78717
+Merge: 92f05ff a712590
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sun Jan 29 15:46:45 2017 +0100
+
+    Merge pull request #20 from retro-wertz/master
+    
+    Revert "Downsize tremor"
+
+commit a712590d0b1da72a19f0f8bd50ccd86e6f67f896
+Author: retro-wertz <nlflorentino@gmail.com>
+Date:   Sun Jan 29 17:47:10 2017 +0800
+
+    Revert Downsize tremor
+
+commit 92f05ffff4862e48be15cbfbe603e5971f38a7d1
+Merge: 3aa000e 6ec798d
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Jan 28 14:13:31 2017 +0100
+
+    Merge pull request #19 from retro-wertz/patch-1
+    
+    Make it work with WAVE/WAV file type names in cue sheet.
+
+commit 6ec798d027c55ddffbb5e91ff81ae0cb380b5b5a
+Author: retro-wertz <retro-wertz@users.noreply.github.com>
+Date:   Sat Jan 28 15:21:33 2017 +0800
+
+    Make it work with WAVE/WAV file type names in cue sheet.
+
+commit 3aa000e359fa74a47d0a0c13afe99ae312a45eaf
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Jan 24 15:43:25 2017 +0100
+
+    Better error handling
+
+commit f31b8e8a0031e62e814c0cbbb0e716932b2c7081
+Author: aliaspider <aliaspider@gmail.com>
+Date:   Mon Jan 23 19:05:24 2017 +0100
+
+    (ngc/Wii) buildfix for devkitpro r29.
+
+commit c321525cc6031cc3dd3741a1b74330621d74d7de
+Merge: 045d89d 6f6ab9e
+Author: Andrés <fr500@users.noreply.github.com>
+Date:   Sun Jan 15 13:48:40 2017 -0500
+
+    Merge pull request #18 from GregorR/libretro-git-version-android
+    
+    Report git version with library_version on Android
+
+commit 6f6ab9e7080b70ee489c5c83d186b51bc7c16337
+Author: Gregor Richards <hg-yff@gregor.im>
+Date:   Sun Jan 15 13:34:45 2017 -0500
+
+    Report git version with library_version on Android
+
+commit 045d89daae32fbd66e08ad61cad1beb6816227d4
+Merge: edbd5e7 0dfef66
+Author: hizzlekizzle <hizzlekizzle@users.noreply.github.com>
+Date:   Tue Jan 10 20:16:15 2017 -0600
+
+    Merge pull request #16 from markwkidd/patch-2
+    
+    match default audio behavior setting to upstream Mednafen
+
+commit 0dfef662463153183a26d733bee944932454a087
+Author: markwkidd <mark@stardart.net>
+Date:   Tue Jan 10 20:08:12 2017 -0500
+
+    match default audio behavior to upstream/Mednafen
+    
+    This seems like a similar situation to the BIOS ROM name issue from earlier this week: https://github.com/libretro/beetle-pcfx-libretro/pull/15
+    
+    In porting to libretro, the various 'get setting' functions were simplified to return only the values needed for that particular core. The default value in standalone Mednafen for this setting is 1, but it wound up as 0 in the port. http://mednafen.fobby.net/documentation/pcfx.html#Settings+Reference
+    
+    There are forums users who are experiencing the 'click' audio error which this PR should fix.
+
+commit edbd5e7312afd78d78404c4336d7da041cd43498
+Merge: 25a083d 1a76f2a
+Author: Twinaphex <libretro@gmail.com>
+Date:   Mon Jan 9 23:13:27 2017 +0100
+
+    Merge pull request #15 from markwkidd/patch-1
+    
+    correct BIOS typo in port from Medanfen standalone
+
+commit 1a76f2a76db6af14bd20b88e473dbc4262b3e344
+Author: markwkidd <mark@stardart.net>
+Date:   Mon Jan 9 16:14:50 2017 -0500
+
+    correct BIOS typo in port from Medanfen standalone
+
+commit 25a083d51f669d582a0328da341d39ee8d4089dd
+Merge: 53cf5d0 45fe377
+Author: Twinaphex <libretro@gmail.com>
+Date:   Fri Dec 16 16:07:40 2016 +0100
+
+    Merge pull request #13 from Tatsuya79/patch-3
+    
+    Fix MODE2 button
+
+commit 45fe3778ff286e4723303a13c93018858d21f502
+Author: Tatsuya79 <jeanpascalmeunier@hotmail.com>
+Date:   Tue Dec 13 19:43:06 2016 +0100
+
+    Fix MODE2 button
+
+commit 53cf5d0a18ed5084dd006ff146da9e6f81d3d0bf
+Merge: b9a1873 110404f
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sun Dec 11 01:23:43 2016 +0100
+
+    Merge pull request #11 from Tatsuya79/patch-2
+    
+    Implement Mode 1 & 2 buttons
+
+commit 110404f42eeac53dde53a8fee2e5d6dac52ad467
+Author: Tatsuya79 <jeanpascalmeunier@hotmail.com>
+Date:   Sun Dec 11 00:19:32 2016 +0100
+
+    Cleanup
+
+commit 6d8576fa6b156a47d80debd4e04bdbd6514b544d
+Author: Tatsuya79 <jeanpascalmeunier@hotmail.com>
+Date:   Sun Dec 11 00:17:47 2016 +0100
+
+    Implement Mode 1 & 2 buttons
+
+commit b9a1873bfc799b24be511e76649d8d3a638110ef
+Merge: 6bcbcf2 e681f96
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Dec 10 21:36:00 2016 +0100
+
+    Merge pull request #10 from Tatsuya79/patch-1
+    
+    Allow 1024 pixels FB_WIDTH
+
+commit e681f961e5c9c3d179048699e8b9685ed4b025cf
+Author: Tatsuya79 <jeanpascalmeunier@hotmail.com>
+Date:   Sat Dec 10 18:32:32 2016 +0100
+
+    Allow 1024 pixels FB_WIDTH
+    
+    1024 games were showing a black screen. (ex. Pia Carrot after introduction)
+
+commit 6bcbcf21ac194f29bacce292cd612466648ae19a
+Merge: ee8ca6f 22f54c4
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Dec 10 01:14:12 2016 +0100
+
+    Merge pull request #9 from GregorR/libretro-git-version
+    
+    Report git version with library_version
+
+commit 22f54c4c2b7c73067f2bcb28cca69717e9e18d48
+Author: Gregor Richards <hg-yff@gregor.im>
+Date:   Fri Dec 9 19:00:07 2016 -0500
+
+    Report git version with library_version
+
+commit ee8ca6f8a3893549fb43fd86da8613ed086663d4
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Dec 4 19:14:33 2016 +0100
+
+    (Windows) Fix target name
+
+commit 47db5744f01989c5c7dd09ceb4b7c4d65da410c9
+Merge: 89d16cd cf06dcb
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sun Dec 4 15:28:19 2016 +0100
+
+    Merge pull request #6 from fetzerch/debug
+    
+    Fix compilation with DEBUG=1
+
+commit cf06dcb68c251896dba1777984c93e791a47ac89
+Author: Christian Fetzer <fetzer.ch@gmail.com>
+Date:   Sun Dec 4 14:23:53 2016 +0100
+
+    Fix compilation with DEBUG=1
+    
+    The core fails to build with DEBUG=1 because it relies on symbols being
+    optimized out. Therefore switch from O0 to Og (optimize for debugging).
+    
+    libretro.o: In function `port_rbyte(int&, unsigned int)':
+    libretro.cpp:(.text+0x784): undefined reference to `HuC6273_Read8(unsigned int)'
+    libretro.cpp:(.text+0x7e4): undefined reference to `FXSCSI_CtrlRead(unsigned int)'
+    libretro.o: In function `port_rhword(int&, unsigned int)':
+    libretro.cpp:(.text+0xa1f): undefined reference to `HuC6273_Read16(unsigned int)'
+    libretro.cpp:(.text+0xa8b): undefined reference to `FXSCSI_CtrlRead(unsigned int)'
+    libretro.o: In function `port_wbyte(int&, unsigned int, unsigned char)':
+    libretro.cpp:(.text+0xcfe): undefined reference to `HuC6273_Write16(unsigned int, unsigned short)'
+    libretro.cpp:(.text+0xd2e): undefined reference to `FXSCSI_CtrlWrite(unsigned int, unsigned char)'
+    (...)
+
+commit 89d16cd0352a6e87d9b403fec295eb3f2e376055
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Sep 7 06:41:47 2016 +0200
+
+    Add Emscripten target
+
+commit 7b1262ef4a812aa58038e7fc5fb110616c18c3d4
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Sep 7 06:39:23 2016 +0200
+
+    Cleanup Makefile
+
+commit 78b6dfea058632368f458e816a09579b504c9a15
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Sep 7 06:37:37 2016 +0200
+
+    Cleanup Makefile
+
+commit cbea8cf3edad78c7f129601c9b0fc83619f72f8b
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Aug 28 05:08:42 2016 +0200
+
+    (Softfloat) Cleanup
+
+commit be4172e8eb4998449d384388bff02e114fcfc32b
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Aug 28 05:06:18 2016 +0200
+
+    Simplify softfloat
+
+commit b35ccf3d661439a19083ed35b130c0ae0e80b790
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Aug 22 23:52:58 2016 +0200
+
+    Cleanups
+
+commit 9123a74aabcf8514ac8844c2c80975e854ec23ff
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Aug 18 21:51:14 2016 +0200
+
+    Revert "Cleanups"
+    
+    This reverts commit 806ecca3699d4d580e6b44cbbdf2cee5f12543c9.
+
+commit 806ecca3699d4d580e6b44cbbdf2cee5f12543c9
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Aug 18 21:46:10 2016 +0200
+
+    Cleanups
+
+commit ef50b7a0ee00230ecae43b24087bd7087e53e180
+Merge: 1e90090 43451ae
+Author: Twinaphex <libretro@gmail.com>
+Date:   Thu Aug 18 19:56:57 2016 +0200
+
+    Merge pull request #5 from orbea/license
+    
+    Distribute the Mednafen license
+
+commit 43451ae5fd13efc4b5805e7c5e4861f9c6f6213c
+Author: orbea <ovariegata@yahoo.com>
+Date:   Thu Aug 18 10:42:32 2016 -0700
+
+    Distribute the Mednafen license
+
+commit 1e90090780bd289f070f8b6fcd1934ee7adc8532
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Aug 15 06:34:19 2016 +0200
+
+    remove final
+
+commit 60d16f35fe6126434303a72c924aab8076c67f51
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Aug 15 04:42:34 2016 +0200
+
+    Fix
+
+commit 97459c29885566175eca5a582717b102d377477d
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Aug 15 04:18:35 2016 +0200
+
+    Update
+
+commit e15316a551514c38ed6fe0d261e641efef876120
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Aug 15 04:03:27 2016 +0200
+
+    Update
+
+commit 491778b4981b7e9c82b87a1e9d4b81f9583b125b
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Aug 14 17:41:58 2016 +0200
+
+    Cleanups
+
+commit 94b53ab780ee76265bd37d67bc4ad7f54cdcf6c6
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Aug 14 03:54:11 2016 +0200
+
+    Remove SimpleFIFO
+
+commit 8182eca55ae560642f44ea4ae0409b5ca947fed4
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Aug 12 18:56:34 2016 +0200
+
+    Cleanups
+
+commit 21432f14e1237b4bbc7e6150c81e58d8b1829f8d
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Aug 12 11:23:20 2016 +0200
+
+    Cleanups
+
+commit 311d13446b1b94e709188322a822394478b6385c
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Aug 9 20:18:46 2016 +0200
+
+    Cleanups
+
+commit 0c23e7a0a71d2c8ccadde5fc067b3ff704058b96
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Aug 9 19:22:33 2016 +0200
+
+    Cleanup
+
+commit a74cb8b3d369ae8b24a9d59259a7f368f7155a24
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Aug 9 07:59:09 2016 +0200
+
+    Cleanups
+
+commit a2700d920091333f7f7748d77e9d8ee021e52790
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Aug 7 15:21:36 2016 +0200
+
+    Remove HAVE_LIBCDIO ifdef
+
+commit 34bade94589b6ef74b14f7086429cd2d895915e1
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Aug 7 15:20:40 2016 +0200
+
+    Update CD-ROM code
+
+commit 4759531997ffc09c17515f8b88939268cf6f2660
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Aug 6 20:55:45 2016 +0200
+
+    Big-endian buildfix
+
+commit ba54f11c4aafcacf84166da8ab92ee48f6d19263
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Aug 6 18:46:41 2016 +0200
+
+    Buildfix
+
+commit 56e29ade6c06d74319b60bd7713e8ca63e14a68f
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Aug 6 17:13:21 2016 +0200
+
+    Backport
+
+commit bc0334016e6b2ecd54134a6f2ecbf30f70b682a7
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Aug 6 17:04:25 2016 +0200
+
+    Backport https://github.com/aliaspider/beetle-pce-fast-libretro/commit/b37ec0775db2f9803df49eec8908c98cd1c59bb6
+
+commit c608fc1b630685e0be626f2dbf6d0c94942ef0f0
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Aug 6 16:47:10 2016 +0200
+
+    Backport SimpleFIFO changes
+
+commit b2bf30dadc292a1c5a716694134de8139dc9b3a2
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jul 21 20:29:32 2016 +0200
+
+    Better error handling
+
+commit c136f93e46ac8050ff58975e24ba90535937f65a
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jul 21 20:26:41 2016 +0200
+
+    Merge mednafen.cpp and libretro.cpp
+
+commit 59ad40cdf459aeee9958cd73ab135094a715b05c
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jul 21 19:28:24 2016 +0200
+
+    Cleanups
+
+commit 90108eba6c06f1a2ee672670f0738eb39ae249af
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jul 21 05:06:58 2016 +0200
+
+    Replace mednafen/file.cpp
+
+commit 4e3ec7d98511e93bd78919df47e009e0cc5f484c
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jul 21 04:55:28 2016 +0200
+
+    Cleanups
+
+commit d760d809b9df8f64ab2a8b4cb0cfcbfa9d3b7fa3
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jul 21 04:22:05 2016 +0200
+
+    Remove more throws
+
+commit 9a8bbbc3674111c696675aaa22fdc845ec5974c2
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jul 21 04:19:47 2016 +0200
+
+    Get rid of try/catch
+
+commit 99a20e371376dfac1caa74cb40230c6c1bf2b534
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jul 21 04:17:44 2016 +0200
+
+    Start removing exception code
+
+commit c2173758fb4400ac9da663542eb78461aad0b728
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jul 21 04:03:56 2016 +0200
+
+    Remove try/catch
+
+commit 517c6ccd7e0eb29973898e9a51c5bd7040fdf0ec
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jul 21 04:00:52 2016 +0200
+
+    Error - remove exceptions
+
+commit 77c8a9c50cd464608bb5cd534c76ef20982dc078
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jul 21 03:55:59 2016 +0200
+
+    Remove physical device support
+
+commit bda70ef4fe41a228a9b25e782df26c844ff67816
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jun 9 08:17:25 2016 +0200
+
+    Use stdstring
+
+commit 87dd836a8ad3030b0e5410e87ede80f6c2bada79
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Jun 7 04:45:17 2016 +0200
+
+    Cleanups
+
+commit 8557a80f7acbfcd7c7e87297568ae7e7cb473b3e
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Jun 6 03:26:41 2016 +0200
+
+    Don't use vasprintf
+
+commit e1064a792128b747d0f07f0ead73be98eb82d574
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Jun 6 02:00:47 2016 +0200
+
+    (MSVC) Remove trio
+
+commit 904f305afd8b8539eddabfe55b9f9672478dcab9
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Jun 6 01:55:05 2016 +0200
+
+    Remove trio
+
+commit f179d01df3911729f930eb6f02fbe2753956f0ef
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jan 28 19:20:33 2016 +0100
+
+    Silences warnings
+
+commit 5b62ae8ce804bb09b0b3b7fcbd9ae01b07f76f12
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Oct 16 02:50:34 2015 +0200
+
+    Add iOS 9 rules
+
+commit c2d0bb7814a99ab4855d12206846a2e5783d2d43
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Sep 30 01:32:33 2015 +0200
+
+    Slim down trio
+
+commit b47e03a3e79c8fcf8d0385ddff41cf3360c43b4a
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sun Sep 20 11:57:31 2015 +0200
+
+    Delete README.md
+
+commit e6f92635043bf5d4634e38655a68da8b73caeb77
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Sep 18 14:27:38 2015 +0200
+
+    Update
+
+commit 90bcb1e8041cd337868f8db673c373b96b9586a8
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Sep 1 00:08:03 2015 +0200
+
+    (Vita) Add target
+
+commit c70726dfdbe436368385aa7b366f3153bb0abb19
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Aug 7 04:34:39 2015 +0200
+
+    Cleanups
+
+commit 50b575261c146f3afa6c90b518cd1b226a89a900
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Aug 6 16:45:17 2015 +0200
+
+    Remove .Po files
+
+commit 56404e78978f5a71c18b5a0817b7c699de8e0a49
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Aug 6 16:44:02 2015 +0200
+
+    Cleanups
+
+commit 42b99d2b2338dfba7ffecbbd056ae13898ed078d
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Aug 6 16:33:05 2015 +0200
+
+    Convert md5 over to C
+
+commit 67a3d9b5e3df2bc13070910638de8db228febf3a
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Aug 1 23:53:37 2015 +0200
+
+    (OSX) Lower requirements to OSX 10.1
+
+commit d1af30b1ffb3d3b2610242b6b6a1eea49738446d
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Jul 29 19:44:30 2015 +0200
+
+    Downsize tremor
+
+commit ba86de97f9b0ee3f6cd807f1588e6ad5b299880c
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Jul 29 17:25:26 2015 +0200
+
+    mempatcher.cpp - cleanups
+
+commit b230b9d85f2a2cea84af89be0c4deea3806956dd
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Jul 29 17:22:50 2015 +0200
+
+    Put MSB_FIRST ifdefs around big-endian swapping code
+
+commit 40c03ff1b4597f65b9ebe7524ac1909a2e71f120
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Jul 28 03:00:22 2015 +0200
+
+    Add mednafen-endian.c
+
+commit 50240fbcf9566488fddb6c0063a6f6c3c163167f
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Jul 27 22:16:17 2015 +0200
+
+    Updates
+
+commit f32250c697d726270e5a2b75e80c3360391c3b78
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jul 26 18:28:17 2015 +0200
+
+    Create Makefile.common
+
+commit e331d65a53e41de87c1f1471be6c08b8bf853bcd
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jul 25 04:33:32 2015 +0200
+
+    Cleanup
+
+commit 15684757d1381689a0dfd0979b754372634a9abd
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jul 25 04:29:45 2015 +0200
+
+    Cleanups
+
+commit 1717b41b2f14bc73d207a86ea22928778b6329db
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jul 25 01:25:18 2015 +0200
+
+    Cleanups
+
+commit 280bb73d4805640d5fd86d5dcadb2f58346d3460
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jul 25 00:08:24 2015 +0200
+
+    Cleanup
+
+commit 737789a245911930eb2922a1023ea3318973b365
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jul 25 00:06:48 2015 +0200
+
+    Cleanups
+
+commit 23a0d54f0a511d3a135af573358bcf253420e37c
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Jul 24 15:22:18 2015 +0200
+
+    Cleanups
+
+commit e4cfe27e4553e317906ba7a22238b5ea9fbad949
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Jul 24 14:27:50 2015 +0200
+
+    Cleanups - don't use LSB_FIRST
+
+commit 31019b15f4ca83bd6ca34ae7f7bf3bb7035abaef
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Jul 20 01:05:36 2015 +0200
+
+    Update Makefile for big-endian
+
+commit d7b4269a8d7d8d02702c56b404cb3a3136f25bfe
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Jul 15 16:03:34 2015 +0200
+
+    CLeanups
+
+commit ac6387d16ed28f6b524a22ef3b8dd99284c3ed25
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Mar 10 20:58:26 2015 +0100
+
+    We rely on QNX Makefile target
+
+commit 1457c4b5ffd52745a76334782b520270045928ab
+Merge: 0017f6b 5841546
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Mar 10 11:29:32 2015 +0100
+
+    Merge pull request #2 from iKarith/master
+    
+    Don't use xcrun for setting IOSSDK
+
+commit 5841546cc1c3e42bfb4e1c36f7d9af66887a3ed2
+Author: T. Joseph Carter <iKarith@users.noreply.github.com>
+Date:   Tue Mar 10 01:50:30 2015 -0700
+
+    Don't use xcrun for setting IOSSDK
+
+commit 0017f6b4e422c19f4b143855b1638da22af4a4b0
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Dec 4 17:27:13 2014 +0100
+
+    Implement input descriptors
+
+commit 217b49a631d9c9e47cc4faa91aada8b99e326f91
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Oct 23 09:49:44 2014 +0200
+
+    Update Makefile
+
+commit da4f5ec7be0044f7946d29fc71e7504c6efda4c9
+Author: Alcaro <floating@muncher.se>
+Date:   Mon Sep 22 22:20:23 2014 +0000
+
+    Update libretro.h
+
+commit 3fb3dc17bbacd4c9ebb495ed46193203180821c3
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Jul 30 23:55:38 2014 +0200
+
+    Add toc to allowed extensions
+
+commit 21b869cb69d581a0ef567308bd07b685406bd755
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Jun 27 00:05:27 2014 +0200
+
+    Update state.cpp
+
+commit 18cb45078e8f6648223e182baa2533ff8346cecb
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jun 26 23:48:46 2014 +0200
+
+    Update thread.h
+
+commit 314968db4963ed81c7367e7bbea9310b56d2a4cc
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jun 25 01:40:21 2014 +0200
+
+    Get MSVC 2003 core to compile again
+
+commit d7dc7aaf9d341069ac8095f54d63acf9f3c244d1
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Jun 24 00:55:14 2014 +0200
+
+    Remove rumble
+
+commit 06117098a408c2ac6b04bb3a439850e61e24de95
+Merge: 019aabb 90f9d99
+Author: Twinaphex <libretro@gmail.com>
+Date:   Mon Jun 23 17:03:48 2014 +0200
+
+    Merge pull request #1 from Nukotan/patch
+    
+    Fix for games played stay unzipped
+
+commit 90f9d996e504286bd8f2e5e3fdce5658c51caaa4
+Author: Nukotan <cresta_catnine@hotmail.co.jp>
+Date:   Mon Jun 23 23:37:38 2014 +0900
+
+    Fix for games played stay unzipped
+
+commit 019aabbb5b8c53467a019f0fcae4a1faedbc131f
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Jun 23 15:56:14 2014 +0200
+
+    Remove unused scond_wait_timeout
+
+commit 95ece41bfe4f15bfc0c7543d9497100c6ec3f702
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Jun 23 04:05:14 2014 +0200
+
+    Add include path for PSP (hah, as if this will ever run at fullspeed
+    on this)
+
+commit 18c3bf854957120aa317274dd03a1b29e9081f45
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Jun 23 00:59:04 2014 +0200
+
+    Update headers
+
+commit 116adc5b5485fe11081206efc50bd7ad7ac326f2
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 23:48:51 2014 +0200
+
+    Remove pcfx.cpp
+
+commit c2e6f80020f1046986e5d083467ddb0ca1a6f049
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 22:02:53 2014 +0200
+
+    ckport Mednafen 0.9.34.1 multithreaded CD reading condvar
+    improvements
+
+commit 2d669d634c037156256ea5ae705d7852c9015df6
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 04:00:32 2014 +0200
+
+    Integrate pcfx.cpp into libretro.cpp
+
+commit 256e1c9fea4bd7c6f72d7475fe11f19d4c27201d
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:56:44 2014 +0200
+
+    Set performance level to 15
+
+commit 1606e95b98ed3d3ede18cff06012c2cc791063bd
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:55:37 2014 +0200
+
+    Rename pcfx-09333 to pcfx
+
+commit dfad5b945249a5fc62171e2f502b9d1ad02defc6
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:53:13 2014 +0200
+
+    Remove cputest
+
+commit 8bb7d6c6a99e49079e813addfe6a33022c44ba2a
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:31:09 2014 +0200
+
+    Remove mednafen_buf
+
+commit bc7d70b14cfe10a1ce1fb8038c0e0b1457f6fabf
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:29:32 2014 +0200
+
+    Remove blargg headers
+
+commit d6141950f530f4d559e5252fb68fd93ef11af036
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:28:49 2014 +0200
+
+    Remove Blip Buffer - unused
+
+commit 691c64cafe7f63be1c85f9bc87f5dcf16fd2a554
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:25:45 2014 +0200
+
+    Remove okiadpcm
+
+commit 1edce488ab923227a27ab577b59735706cfc12af
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:24:28 2014 +0200
+
+    Remove Stereo_Buffer
+
+commit b945dda81c02a2f8a4544ec44ad6d37308d4f92a
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:21:45 2014 +0200
+
+    Remove huc6280/z80_fuse
+
+commit 5b14cb35d13dd9387351bc500920cd337b8eb701
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:20:45 2014 +0200
+
+    Remove more code we don't need for PCFX in hw_cpu
+
+commit e6a1e54db2cf2100f86027236dfdcadf12fdc549
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:19:56 2014 +0200
+
+    Take out non-PCFX code
+
+commit 15aadff5f7bb06a65af31273d54add4254c16bce
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:07:22 2014 +0200
+
+    (PCFX) Take out WANT_DEBUGGER
+
+commit 9e3220898d3fe80e8181b8ee0061d2d9029cf58f
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 03:04:12 2014 +0200
+
+    (PCFX) Take out some WANT_DEBUGGER code
+    - Replace MakeColor with MAKECOLOR macro
+
+commit 812621c23e2daf1554ebb10aef1c3d06686fcb5a
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 02:55:57 2014 +0200
+
+    Take out the core Makefiles
+
+commit 46bbe01427e86f6ec576e1d80ef6474c2b470501
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 01:26:24 2014 +0200
+
+    Add back v810 - needed for PCFX
+
+commit 49d5e4b6e99b21b0782954ebc10f25cd86d1377a
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jun 22 01:10:01 2014 +0200
+
+    Remove Wswan - now in its own separate standalone repo
+
+commit eab1a70471cf03623f56918bb9943c34c70ec512
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 23:53:30 2014 +0200
+
+    Get rid of old wswan directories
+
+commit acdf643d4cf9f692f2352dab96a0afabcb14c7ed
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 23:50:19 2014 +0200
+
+    Rename wswan-09333 into wswan
+
+commit d9935896a5a3b0001a95fbdde1c78b7bab407783
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 23:44:58 2014 +0200
+
+    Upgrade to Mednafen 0.9.35 for Wonderswan
+
+commit 282d758053efd13c6b93a4c9c723f6bbd3531c0c
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 19:14:13 2014 +0200
+
+    Take out Mednafen NGP - has its own standalone repo now
+
+commit 0665a11ebbdffe83d8c717c345765c31277d4625
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 18:20:23 2014 +0200
+
+    Remove Mednafen VB - now has its own standalone repo
+
+commit cfcc7e18aec63755a688658852ebe204d4e16b93
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 08:51:47 2014 +0200
+
+    Update Android JNI Makefile too
+
+commit c5b44869fc8bf5f572df780dabd2323bcd7d8e98
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 08:51:14 2014 +0200
+
+    Bump up VB core to 0.9.36 - nothing changed inbetween version
+    0.9.33.3 and 0.9.36
+
+commit 4434734f8bd4ec9238bc8f58cc60f0c46f8ccacb
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 04:00:59 2014 +0200
+
+    Fixup check_variables
+
+commit 9384a3267da6957631c8e6310ce9d007abd39156
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 03:59:36 2014 +0200
+
+    (JNI) Take out player.cpp
+
+commit 51ada9f24a846badd91c4a0ffb205d7e31bc3725
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 03:59:12 2014 +0200
+
+    Take out player.cpp
+
+commit d6f75716ba6b25690b2dfafd65073f0aebf9b378
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 03:54:28 2014 +0200
+
+    Remove arcade_card - not needed since PCE is not in this repo
+    anymore
+
+commit a361d8c63af9af29ebec79fd3d51fc944f41b16a
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 03:50:22 2014 +0200
+
+    Remove huc6270/backup
+
+commit 26176185dd1c9429de1406fe834e39d446b97822
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 03:48:56 2014 +0200
+
+    Take out pce-fast MSVC solutions
+
+commit 8c2395cb46414aa234a2d8848a0a091c3f510ea0
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 03:47:58 2014 +0200
+
+    Add thread rules to Android JNI Makefile too
+
+commit a6dd5bcd7c9baaa836b7fa0673497a2b08c87a73
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jun 21 03:36:12 2014 +0200
+
+    Rewrite code - threads.c updated
+
+commit d6c007c2bd9b1b285c9d155460e0bab3afd5cfa1
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Jun 20 20:37:08 2014 +0200
+
+    Update libretro.h
+
+commit ccacec421c05905e11a19eb2f0b808685ceb803c
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Jun 20 20:36:18 2014 +0200
+
+    Take out Mednafen PCE Fast core - use standalone repo
+
+commit a43c41809786fdf6b4d485393a22181e615d7ce1
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Jun 18 18:27:13 2014 +0200
+
+    Take out Mednafen PSX - moved to standalone repo now
+
+commit c520e08380156015925c6fe1b0b804f139232475
+Merge: 437489e 81852fe
+Author: Twinaphex <libretro@gmail.com>
+Date:   Thu Jun 5 18:18:27 2014 +0200
+
+    Merge pull request #54 from Oggom/master
+    
+    Re-commit Core Volume fix
+
+commit 81852fe64554093d6d36e504a3d1d0de46d4e564
+Author: Oggom <Oggom@users.noreply.github.com>
+Date:   Thu Jun 5 18:06:15 2014 +0200
+
+    Update libretro.cpp
+
+commit 437489e6422d8d25b68fdcb5149af922ffd71b37
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue May 20 23:20:33 2014 +0200
+
+    Use miphone-os-version-min for OSX 10.6 and up
+
+commit 643c5e3cf708bc4ca2cbf166418bc199966cc75f
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun May 4 18:20:01 2014 +0200
+
+    Set PC Engine Fast to 32bpp - apparently something is still hardcoded
+    for 32bpp somewhere so can't rely on WANT_16BPP for this core...
+
+commit 8a28b498cd5cff03aea84202f8492509fbbe3881
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri May 2 01:46:08 2014 +0200
+
+    (PSX) Some small-time opts to do with fade to black
+
+commit cfbaac2a73786731fcfe9901b5226f4742adf721
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri May 2 00:53:56 2014 +0200
+
+    (Mednafen PSX) Reimplement dithering core option
+
+commit 45f34c7043119316e578d310a38b9b625609d0bc
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri May 2 00:31:25 2014 +0200
+
+    (Mednafen PCE Fast) Don't set pce_nospritelimit twice
+
+commit 6d518e220509bc6954516dce47e6f6a9ef3a7bec
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri May 2 00:17:19 2014 +0200
+
+    Readd WANT_PSX_EMU conditional for check_variables
+
+commit 7d0cda776498240870c7d9315328bcd4e4619b63
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu May 1 02:43:04 2014 +0200
+
+    (Mednafen PCFX) Implement SET_CONTROLLER_INFO
+
+commit 5a6f32cf6fb935b4773527b24ca7667546ceafd4
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu May 1 02:32:39 2014 +0200
+
+    Implement SET_CONTROLLER_TYPE for Mednafen PSX
+
+commit 7102882fe28a3191d6079847a145a7b60e451d22
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu May 1 02:17:23 2014 +0200
+
+    (Mednafen PSX) Now implements SET_CONTROLLER_TYPE
+
+commit 23f3dbec1c9f8767e6695652a74d2491d3a95bbf
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Apr 30 05:46:05 2014 +0200
+
+    (Mednafen GBA) Update MSVC solutions
+
+commit def37bbace797ef3dda9fb999fd94ff811cc65a3
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Apr 30 05:09:05 2014 +0200
+
+    (Mednafen GBA) Remove memory.h includes which are unnecessary and get in the way of portability
+
+commit 6ef78525c5ac989d29e123c0297cfd820fee7e82
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Apr 30 05:05:04 2014 +0200
+
+    Update Mednafen GBA core to 0.9.33.3
+
+commit 06e6fc406f50cd500f7149e83318d62140725fc5
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Apr 27 01:11:26 2014 +0200
+
+    (MSVC 2003 Xbox 1) Build fixes for Mednafen PCFX
+
+commit 31e8552461ccd75c9a58eed9df237c3b768705fa
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 15:55:31 2014 -0700
+
+    Rename dir msvc/pce-fast to msvc/pce_fast
+
+commit 57c8657fb9264f319eee689f4755196f53d34527
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 15:50:26 2014 -0700
+
+    (MSVC 360) Fix MSVC 360 solution for Mednafen PCFX
+
+commit c0f6f78dd1a09b2de469631f8c45f6d654df26df
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 15:43:24 2014 -0700
+
+    Remove msvc-2003-xbox1.vcproj~
+
+commit 747c47eeb188653f1efab13949cff1500a7a289d
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 15:42:50 2014 -0700
+
+    Cleanups
+
+commit 53957a795506f0046df8f60d11d7029c7faac001
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 15:41:25 2014 -0700
+
+    Remove MSVC 2010 suo file
+
+commit d209c490e649cded8d2788c4ffac9eead75db93e
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 15:41:12 2014 -0700
+
+    Remove sdf files
+
+commit b6ca3dab3d2e2f41c62e1c7294b3f53454d6e309
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 15:39:35 2014 -0700
+
+    (MSVC 2010) MSVC 2010 Mednafen PCFX solution links now
+
+commit ac610f0ff85392b4a881fda98ab0b37552d8e7f4
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 14:55:21 2014 -0700
+
+    Remove .ipch from MSVC-2010 PCFX dir
+
+commit ced5271f65a555ea484a9a74596afbdfb0b6c841
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 14:52:54 2014 -0700
+
+    (MSVC PCFX) Preliminary MSVC solution - does not link yet
+
+commit b4b459135eb77d12b62901edde58a19c3819fb02
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 22:16:47 2014 +0200
+
+    use _WIN32 in psx.h ifdef instead of _MSC_VER - should apply for both
+    MSVC and Mingw
+
+commit 0871fd291b0bf9d616c6eb65fa896eafa60c4f89
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 21:10:33 2014 +0200
+
+    Add ctype.h to psx.cpp
+
+commit 83f3690e2dc16c9b59742abe91b4a0a2ee055e63
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 20:34:41 2014 +0200
+
+    (JNI) Add lynx target to JNI Makefile
+
+commit b69abe035adf1d060d5376105d36f730b2336714
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 20:17:10 2014 +0200
+
+    Update pce_fast target name
+
+commit 200c8cb61a67cc59899a783dfe5f9bb49cdb8005
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 20:01:31 2014 +0200
+
+    (Android x86) Compile with SIMD x86 for OwlResampler
+    (PS3) Enable Altivec SIMD for OwlResampler
+
+commit 07be3049ca23e3570c5425bbb563b897beebb3aa
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 19:57:37 2014 +0200
+
+    (JNI) PCFX core links now
+
+commit 3d9dc6a8377f107e67c92c2777a42c6dbf896f74
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 19:13:46 2014 +0200
+
+    remove sys/stat.h in header files for better Android compatibility
+
+commit 76fa0bc1401a842fc5d01ba1fe6bf800fcac5d49
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 06:29:19 2014 +0200
+
+    (PCFX) Trivial changes
+
+commit 14cc23ec4a203161174b893856112caf20df76ca
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Apr 26 05:00:57 2014 +0200
+
+    Add OSX version minor detection to Makefile
+
+commit e376e9c410e928e0a9b7d0aa090934e13a85cb52
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Apr 24 03:28:28 2014 +0200
+
+    Add cplusplus header guards to cputest.h
+
+commit 25577ff7bc68df06bb985ab1bf3a9977f5ae4573
+Merge: 4d55eb1 4ec836d
+Author: Twinaphex <libretro@gmail.com>
+Date:   Wed Apr 23 16:13:30 2014 +0200
+
+    Merge pull request #45 from fr500/master
+    
+    Fix dualshock analogs, and other fixes
+
+commit 4ec836d8917a628dd833dc1a686ef99b9547be84
+Author: AndresSM <andres.430@gmail.com>
+Date:   Tue Apr 22 23:48:15 2014 -0500
+
+    Fix some messages
+
+commit b43fe8e26bd3c9d1faea5423fa65b722dabee75c
+Author: AndresSM <andres.430@gmail.com>
+Date:   Tue Apr 22 23:37:06 2014 -0500
+
+        Fixed some core options:
+        - psx.input.port1.multitap was renamed for some reason to psx.input.pport1.multitap
+        - psx.input.port2.multitap was renamed for some reason to psx.input.pport2.multitap
+    
+        Dualshock analogs were "broken", mednafen has psx.input.analog_mode_ct, if true then you toggle analogs by pressing start+select+l1+l2+r1+r2 for roughly two seconds. In the libretro port it was set to 1 always.
+        I've made this a core option:
+        setting_psx_analog_toggle, this enables/disables the MODE button, defaults to disabled.
+    
+        I think a sane default is for it to be disabled and analogs to work out of the box so I have added that too.
+        If setting_psx_analog_toggle is enabled then it replicates mednafen's and the psx's  behavior, MODE button works and by default it's off, so analogs are off.
+
+commit 4d55eb140e2e1829232c3b8082eb2acac406e666
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 19:25:32 2014 +0200
+
+    (Mednafen VB) Build fix
+
+commit b5342c5633584d06d24bd08ddada38acd994d0ae
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 18:32:49 2014 +0200
+
+    (JNI) Build fixes
+
+commit 4e007bf4f986b2dae4a5e24b996c79c03bc042cb
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 15:44:51 2014 +0200
+
+    Take out psx.fastboot in core options
+
+commit f269b18bfc35d4e9faabe892e0aae6f1be16219b
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Apr 22 15:22:58 2014 +0200
+
+    (Mednafen VB) MSVC 2003 Xbox 1 build fix
+
+commit d9301999e1247cc6c93b1d8208bbe6d430f9ca49
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Apr 22 13:16:49 2014 +0200
+
+    (MSVC 2003) NGP fixed
+
+commit acce344f924f2237f7ac70166cfcd8d2159e3a0f
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 12:46:18 2014 +0200
+
+    Omit hw_sound/pce_psg for PC Engine core
+
+commit 48dd7e2fdbaf2975ef642462bb3553a3ea27e9fc
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 12:41:35 2014 +0200
+
+    Fix inline logging function
+
+commit 205d1dc36f9e8eb050df74eb86dd1cf43b2b1a57
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Apr 22 12:37:05 2014 +0200
+
+    (MSVC 2003 PCE) Build fixes
+
+commit e6071a8981ec933a151b912a170909c4ef6b8420
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 12:28:08 2014 +0200
+
+    (pt. 2) MSVC 2003 doesn't support varargs in macros
+
+commit 8ef92d80555b690f62f03738bc23afd6db0c9200
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 12:25:34 2014 +0200
+
+    (PCE) Comment out OP_CLEARF/OP_SETF
+
+commit 9cd2f84e9d9ecc43a5c45eaa6c5bcd44bf198457
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 12:24:17 2014 +0200
+
+    MSVC 2003 doesn't support varargs in macros
+
+commit e387063875f7350c00d393a9a2726ad4ae355d46
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Apr 22 12:12:48 2014 +0200
+
+    (MSVC 2003) Some build fixes
+
+commit f7e13f263fc39763cbd847bf73e2805bd66a9e53
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 02:55:09 2014 -0700
+
+    (MSVC 2010 360) Build fix
+
+commit aa0d8ff00a1875d098dda920ccd6151a4f1aac76
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 02:52:10 2014 -0700
+
+    (VB MSVC 2010) Fix build
+
+commit 1fbe177c8c2fdf2fa58d8392ef1ecd633c481db7
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 02:45:08 2014 -0700
+
+    (Wswan MSVC 2010 360) Build fix
+
+commit 12cd5481b38b911af067e4527f8e91f4c00f11a9
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 02:42:27 2014 -0700
+
+    (MSVC 2010) MSVC 2010 Wswan build fix
+
+commit c09dfe1f2be7c57c361d8391a83b91a4d8b59e22
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 11:41:04 2014 +0200
+
+    (Wswan) Get rid of OP_RANGE usage
+
+commit e1abb4dd44ee50fb5fc1d6a9885f5502fb7b1e77
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 11:39:11 2014 +0200
+
+    Get rid of computed gotos in wondereswan/gfx.cpp by reverting to
+    previous version
+
+commit b34ff23d097cd84aebeb94b11bdb16c9aff62873
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 02:26:49 2014 -0700
+
+    (MSVC VB) Some build fixes
+
+commit 84e1bf8d6e00eec7e18cc8c5770c769f0a58bec8
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 11:24:25 2014 +0200
+
+    Add MSVC hack for v810_oploop.inc - MSVC doesn't support computed
+    gotos
+
+commit c33cafcd52274d1522ae0653ddc86362804559fc
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 02:15:59 2014 -0700
+
+    (MSVC 2010 360) Fix NGP MSVC 2010 360 solution
+
+commit 8e683d2ea55a99422762e9ce90f76b2d53612186
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 02:02:56 2014 -0700
+
+    (MSVC NGP) Build fixes for MSVC 2010
+
+commit f3d083b275420ed654aefcd3fba9d72325160e31
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 01:48:10 2014 -0700
+
+    (MSVC PCE Fast) Fix MSVC 2010 solution
+
+commit 1ac3777cdc2fc49d9065d81c01de45298d32dba5
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 01:40:07 2014 -0700
+
+    (MSVC) cputest.c - compile as C++ for MSVC
+
+commit 0b0c352172e47fcdd75086dd437f9dfc7a0da5d6
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 10:35:28 2014 +0200
+
+    Define gettext_noop in mednafen.h
+
+commit c7e88073d66ed365ee5b54dd120203cde9f29f6c
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 10:32:00 2014 +0200
+
+    scsicd.cpp - MSVC compatibility fixes
+
+commit 9e07813109e88921460e78753e18acb1da5507fc
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 01:25:01 2014 -0700
+
+    (MSVC 2010) Some build fixes
+
+commit d7475c6aa2e6b84bf4519ceb03f8f141f6826ec9
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 09:47:50 2014 +0200
+
+    (PS3) Build fixes
+
+commit 354e49e2d7b94045f6570ec796fc861b4207d7d1
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 09:30:15 2014 +0200
+
+    Remove mednafen/cdrom-0928
+
+commit 66ca29332eecb5ff10f63534596b05d5cfdbddce
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 00:31:36 2014 +0200
+
+    Fix Mednafen PCE
+
+commit 87abd627d69f6cfa942ec1a32d61bf5633da9268
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 22 00:25:50 2014 +0200
+
+    Reimplement cputest.c for libretro
+
+commit 2011ba792609a1a07e3c32483639c3fe1541e435
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Apr 21 04:43:09 2014 +0200
+
+    Some Lynx commits
+
+commit dd64f7031c74ae528bb71a62e517bcc16ff05f43
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Apr 21 01:51:59 2014 +0200
+
+    (Mednafen PCFX) Runs - but just displays black and audio
+
+commit 10a04432555977a105021fb27b314965e840de9d
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Apr 21 00:38:14 2014 +0200
+
+    (Mednafen VB) Updated to version 0.9.33.3
+
+commit e1614c8c0a0aac959ac4d6d1d934d98bf34ffc42
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Apr 21 00:27:03 2014 +0200
+
+    Rename vb to vb-0926
+
+commit c4267b048b93793c165ab5863de1dfb789ce5ff3
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Apr 21 00:24:36 2014 +0200
+
+    (Mednafen PSX) Update to version 0.9.33.3
+
+commit 33d93a7229a4c24874f3c426e85af4c25fb06a67
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Apr 20 23:59:21 2014 +0200
+
+    (Mednafen NGP) Updated to version 0.9.33.3
+
+commit 35f69753fdc1fe64e9af94948e7f95b6db967e32
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Apr 20 23:46:20 2014 +0200
+
+    Rename mednafen/ngp to mednafen/ngp-0928
+
+commit 97a07110ffb9a45485f6db84bfe59e52c2640f18
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Apr 20 23:43:06 2014 +0200
+
+    (Mednafen Wswan) Update to version 0.9.33.3
+
+commit 41afd02b610849e0dfe59e250ee30d8d7a0fca04
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Apr 20 23:14:25 2014 +0200
+
+    (Mednafen PCE) Update other components to latest versions (HW_CPU HUC6280,
+    HW_SOUND PCE_PSG, HW_VIDEO HUC6270)
+
+commit c2adc1c6198f359f3e4d7b99418e7fed9df2b1b6
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Apr 20 23:05:37 2014 +0200
+
+    (Mednafen PCE) Update to 0.9.33.3
+
+commit f23e446ff856d99fdbe1f8ec9fbd485ebfa76bdb
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Apr 20 21:46:57 2014 +0200
+
+    Style nit
+
+commit fee97198558a50f32074076c6e39fb825c9dea05
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Apr 20 21:44:56 2014 +0200
+
+    Reimplement MDFNI_CloseGame - will properly clean up CDInterfaces
+    (and thread with it) before shutdown of libretro side
+
+commit 2242570d2159987fd3cd4be4e375e36e05512421
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Apr 20 19:00:03 2014 +0200
+
+    Cleanups
+
+commit b3da366424937e23c6144b944e462752c555be8d
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Apr 20 18:49:46 2014 +0200
+
+    Rewrite file files
+
+commit 6e312c0afa1ae33ab99db2737d0dde0a4e8a544e
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Apr 20 18:42:38 2014 +0200
+
+    Remove cputest/
+
+commit 535f9106e05b1e085c67ee1004e5fcf5b6137e4f
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Apr 20 17:52:43 2014 +0200
+
+    Take out WANT_DEBUGGER ifdefs
+
+commit 648ffbc4405a29d960ae9d7324cd7f63a43bdccd
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Apr 20 16:32:46 2014 +0200
+
+    Add logging
+
+commit 71297e298b51415d70fd8e059ae0bb88156a57e1
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Apr 14 06:51:43 2014 +0200
+
+    (OSX PPC) Add PPC detection
+
+commit 8b61ad4a11804e21566925c98f1a0a00b842c62b
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 8 05:03:42 2014 +0200
+
+    (Android JNI) Fix Mednafen PSX build
+
+commit b30e9ba89db6e293fd79bf06e6fca35925764910
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 8 04:40:56 2014 +0200
+
+    (Android) Build fix for Mednafen PCE
+
+commit 8b03f75e94d440f2c1030a0a0f5323ccd044bd73
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Mar 30 19:55:41 2014 +0200
+
+    (PSX) Rewrite LoadMemCard
+
+commit 929e7eda6c76f523f56318e8a0596ed29421cc28
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Mar 30 19:24:37 2014 +0200
+
+    Get rid of assert 0s in mednafen/settings.cpp
+
+commit 4a5f6e7181491b8a55108a069190fb22fe51e1ad
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Mar 27 05:02:55 2014 +0100
+
+    Move to new Mednafen PSX (0.9.32)
+
+commit 6346b9d4c13f6528154bda038b3a510bc19e5b67
+Merge: ef13654 af0ce65
+Author: Twinaphex <libretro@gmail.com>
+Date:   Wed Mar 26 16:57:21 2014 -0700
+
+    Merge pull request #38 from monciwoda/gba_hle
+    
+    Option to switch between HLE and external bios in gba core
+
+commit ef13654d2727d5c0448d3eb28fc35f2c82c04803
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Mar 17 23:29:50 2014 +0100
+
+    Update CDAccess_Image/CDUtility
+
+commit bf2561d17c970e242c7b54f58b06334c5c48dbff
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sun Mar 16 16:20:39 2014 +0100
+
+    (MSVC) Update MSVC 2010 solutions
+
+commit eea24a584a4db294c90b726446bfe95febed5ead
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sun Mar 16 15:59:53 2014 +0100
+
+    (MSVC) Add MSVC 2010 solutions
+
+commit 01ed67eb140491126c1f036f3dc4f915495ae2ab
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Mar 9 19:10:30 2014 +0100
+
+    (MSVC Xbox 1) Build fix for PCE Fast
+
+commit a72f0749cd5c0f0f426023c1d64571ef3ab1d16a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Mar 9 19:02:34 2014 +0100
+
+    (PCE Fast) Build fix 360
+
+commit af0ce6574ade2d45df63905962a48a67ed264636
+Author: monciwoda <monciwoda@outlook.com>
+Date:   Sat Mar 8 14:32:15 2014 +0100
+
+    Enable HLE bios by default in gba core, and add option to switch to original bios
+
+commit 1f5bb5071cbb4f57730d4e5462425bd7baec2a8d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Feb 28 15:54:18 2014 +0100
+
+    (MSVC 360 Update PCE Fast - take out cd_crc32.cpp
+
+commit fb285bc57ae844502eb5f02698b6fc6e33e497a7
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Feb 23 00:36:47 2014 +0100
+
+    (PSP) Fixup enum references to fix Mednafen PC Engine PSP build
+
+commit fbb5db19c09d3f57ba6e67680402de573c16185c
+Merge: 8496dd3 dd68e0d
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sun Feb 9 18:00:35 2014 +0100
+
+    Merge pull request #36 from fr500/master
+    
+    Misc mednafen fixes
+
+commit dd68e0d40469c8a04033b75845edb1440b2a7670
+Author: AndresSM <andres.430@gmail.com>
+Date:   Fri Feb 7 20:41:05 2014 -0500
+
+    Added core options for VisualBoy:
+    - Anaglyph mode
+    - Palette
+
+commit adf2d6fb4a607c6fcfb168b7564a17d0cf38ef58
+Author: AndresSM <andres.430@gmail.com>
+Date:   Fri Feb 7 17:34:14 2014 -0500
+
+    Add a fallback for situations where SAVE_DIRECTORY is not defined
+    Added color options for VB
+
+commit 8496dd30bad802f099f160b1469202b9fe4ac487
+Merge: be896f2 b263b07
+Author: Twinaphex <libretro@gmail.com>
+Date:   Fri Feb 7 16:09:57 2014 +0100
+
+    Merge pull request #35 from fr500/master
+    
+    Save in the correct location
+
+commit b263b07c9dc38903ba7285b756f60113b9604160
+Author: AndresSM <andres.430@gmail.com>
+Date:   Fri Feb 7 02:32:32 2014 -0500
+
+    Fix: core will not crash anymore if RETRO_GET_SAVE_DIRECTORY is not defined
+
+commit e61289495902c3f63f46d99944da731304568de0
+Author: AndresSM <andres.430@gmail.com>
+Date:   Fri Feb 7 02:16:01 2014 -0500
+
+    Fix: forgot to define retro_save_directory
+
+commit 4dc3f1a328ac27d47bd8b183790feb5776f313cc
+Author: AndresSM <andres.430@gmail.com>
+Date:   Fri Feb 7 02:07:58 2014 -0500
+
+    Add RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY
+    Modify stubs.cpp so saves will go to the correct location
+
+commit be896f21218e7a0e81bc81c43900ee58dc33af71
+Merge: f6e10f8 4945130
+Author: Twinaphex <libretro@gmail.com>
+Date:   Thu Jan 23 13:57:29 2014 -0800
+
+    Merge pull request #33 from fr500/master
+    
+    Mapped dualanalog and flightstick modes to core setting
+
+commit 494513011e9fd22cbea2ea780454b639012bede1
+Author: Andrés Suárez <Andres@PC-Andres.(none)>
+Date:   Mon Jan 20 18:19:08 2014 -0500
+
+    - fixed previous commit so it doesn't modify anything on settings.cpp nor settings.h
+    - now you can change controllers on the fly
+
+commit 2e6544cd49ac7ac3c6df9c3a28df00346345b568
+Author: Andrés Suárez <Andres@PC-Andres.(none)>
+Date:   Mon Jan 20 12:09:46 2014 -0500
+
+    changed analog core settings so they affect both ports
+
+commit cf6210b065492a72a3aa29e9f6bdccc6adaf37c4
+Author: Andrés Suárez <Andres@PC-Andres.(none)>
+Date:   Mon Jan 20 11:55:55 2014 -0500
+
+    added core settings for analog type dualshock|dualanalog|analogjoy
+
+commit 8aaa3d393025f3712610f863f2ac017d7fde7876
+Author: Andrés Suárez <andres.430@gmail.com>
+Date:   Mon Jan 20 02:09:13 2014 -0500
+
+    Update libretro.cpp
+    
+    Try to map mednafen input devices as core options
+
+commit f6e10f866a010f2c5e5afadd432099e281f6b2fd
+Author: Themaister <maister@archlinux.us>
+Date:   Thu Jan 9 15:51:45 2014 +0100
+
+    Log rumble as info, not error.
+
+commit e8d25d030958430ac605e9a9eac279fc835ad471
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Jan 3 17:37:51 2014 +0100
+
+    (OSX) Set min OS version to 10.6
+
+commit 2c5cc0966e56f95985c2a43700c8786492cf6718
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Jan 2 02:50:09 2014 +0100
+
+    Fixup libretro logging
+
+commit 0ce3a02f9aa333f4f460868bae812a89e44d48d0
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Dec 28 03:41:44 2013 +0100
+
+    (PS3) PCE Fast core should now compile again on PS3
+
+commit 70792ee170478549260bb73dd7b1b393619499b9
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Dec 21 04:10:03 2013 +0100
+
+    Don't spam IRQ trigger errors - Blood Omen: Legacy of Kain spams
+    this a lot
+
+commit 0698b0d9dafe551a8125b23dacd174fc64844bc1
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Dec 21 03:14:55 2013 +0100
+
+    (trio.c) Avoid implicit declarations for read/write
+
+commit 715d958dc74e439eb6fe2eb288efafb4d552987a
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Dec 21 03:09:01 2013 +0100
+
+    Clean up mednafen/settings.cpp
+
+commit cf0884253bba0d04e83a4d2bc9649ddd21f9ae0f
+Merge: 7dbe28b 236c81f
+Author: Twinaphex <libretro@gmail.com>
+Date:   Fri Dec 20 17:52:06 2013 -0800
+
+    Merge pull request #29 from pinumbernumber/fix-pal-overscan
+    
+    PAL black bars
+
+commit 7dbe28be3e5195f09ced9fd517948f01f7cfb2c5
+Merge: 44ee3ac 9f1fc26
+Author: Twinaphex <libretro@gmail.com>
+Date:   Fri Dec 20 17:51:32 2013 -0800
+
+    Merge pull request #30 from heuripedes/master
+    
+    Fix BIOS loading
+
+commit 9f1fc26997eb0edd78061b2fb73903ce2087c022
+Author: Higor Eurípedes <heuripedes@gmail.com>
+Date:   Fri Dec 20 22:45:28 2013 -0300
+
+    Remove unused var from MDFN_GetSettingS
+
+commit c5f0b5b90bf2f93cc39c0239272895f271e06abc
+Author: Higor Eurípedes <heuripedes@gmail.com>
+Date:   Fri Dec 20 22:41:08 2013 -0300
+
+    Do not assembly paths in MDFN_GetSettingS
+
+commit 236c81f9cd3e5c41b89efc1209ec153403187faa
+Author: pinumbernumber <1337rz@gmail.com>
+Date:   Thu Dec 19 19:28:35 2013 +0000
+
+    PAL black bars
+
+commit 44ee3ac5d7f06c40632537836a3acb9854564182
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Dec 18 21:48:36 2013 +0100
+
+    MDFNMKF_FIRMWARE can be found inside libretro system dir
+
+commit 7077c153f0da62c00d031ba94cc4dd18ed914672
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Dec 18 21:42:11 2013 +0100
+
+    (Handy) Add Handy modle - doesn't work yet - fails at ROM loading
+
+commit 6609bc1f061de32a9f2f1c9ab548c3794a879536
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Dec 18 20:39:01 2013 +0100
+
+    Update libretro.h
+
+commit 701ad7374599b7154cff3ebef5f46e9510bf3a70
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Dec 17 11:08:34 2013 +0100
+
+    Fixes
+
+commit edf189b330ee311aee9217827af4f52b69c370a2
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Dec 17 02:24:08 2013 +0100
+
+    Hook up new logging interface
+
+commit 5caedec94011a707f56bea322fb778b64414ef71
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Dec 16 01:12:03 2013 +0100
+
+    (QNX) Build fix for QNX with Mednafen PSX - tolower needs ctype.h
+    included
+
+commit 58f62eca78f95f33251ce61957cd04638d3c48a9
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Dec 11 00:07:35 2013 +0100
+
+    get rid of fopen64/fstat64/fseeko64, etc
+
+commit c0b05d4b5003ee5a86de9664ee3a7169716fbced
+Merge: 245c9d4 5777aee
+Author: Twinaphex <libretro@gmail.com>
+Date:   Fri Nov 29 14:46:18 2013 -0800
+
+    Merge pull request #28 from lioncash/master
+    
+    Fix a memory leak, a missing break, and some index out of bounds errors.
+
+commit 245c9d42da015ce2c7c262014aee18c04e9d4e1c
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Nov 29 23:13:53 2013 +0100
+
+    (iOS) Add iPhone SDK minimum version to avoid problems
+
+commit 8998cf746cf3a8fdc197b4cf30175f8d03daa8c9
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 15 03:21:10 2013 +0100
+
+    (PCE Fast MSVC Xbox 1) Fix build/link errors
+
+commit 0c43ac1f480c10feabef58b8953dd9aee345f7aa
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Nov 15 03:18:32 2013 +0100
+
+    Comment out some varargs macros for Xbox 1 again
+
+commit 79963eff2e5bf379b51fc07fff5aeb01c7280a0f
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Nov 15 03:16:08 2013 +0100
+
+    Don't include inttypes.h/sys/int.h when stdint.h will do
+    Include direct.h for _WIN32 and unistd.h for non-WIN32
+
+commit 029eb923c6d4aad7924d2d170ebff5ebe3457490
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Nov 15 03:14:04 2013 +0100
+
+    Make scsicd.cpp backwards compatible with Xbox 1 AGAIN (don't update
+    these cdrom parts anymore unless you want to do the post-update
+    patching yourself again)
+
+commit 2f0f392ce214ba16ce4a1709522015b79af12a42
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Nov 15 03:09:22 2013 +0100
+
+    (XDK1) xbox 1 does not support varargs in macros - so comment this out
+    for now
+
+commit 01b9ed0a5fac16cb380802774984fb932c565c10
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Nov 15 03:07:56 2013 +0100
+
+    Comment out SCSIDBG
+
+commit 9f45157331f45d783e84f8338ca4c1097c6f3cd4
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Nov 15 03:06:52 2013 +0100
+
+    (CDROM) Get rid of getopt.h header include - no reason to include this
+
+commit ad27159bd0fc8d2f4420e2127d08189e25f9a9c9
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Nov 8 07:15:34 2013 +0100
+
+    (PSX spu_reverb.inc) Clamping
+
+commit 568d6f56c8091b36ab27fb92e587ef73a7e73d2a
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Nov 8 06:58:46 2013 +0100
+
+    (PSX) Clamping
+
+commit f6e4c0266cf1ae4b2a839cd083591134279d9cce
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Nov 8 06:45:33 2013 +0100
+
+    Take out Silent_Blip_Buffer
+
+commit fcd6c714a6732a8537fc8865eb48bf109dffc635
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Nov 3 03:21:45 2013 +0100
+
+    (Android) Fixed Mednafen PSX compile
+
+commit e473f54023bca86adb77eb694b3b780959867d97
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Oct 31 16:33:18 2013 +0100
+
+    (Android) Fix stuff so cores that need NEED_TREMOR and NEED_CD will
+    compile now again
+
+commit e728fea62d91c61496656687f3e1f749c29920c9
+Author: twinaphex <libretro@gmail.com>
+Date:   Thu Oct 31 16:23:14 2013 +0100
+
+    'Fixed' Android compilation of PCE core again - maister - please make
+    sure when you pull from upstream that you put the headers in the right
+    order again - can easily be tested by trying to compile ndk-build core=pce-fast - Ryphecha includes these files in an order that will break down with the
+    Android toolchain
+
+commit c9bc52731bb43dfa980cd31d9ea2a0444b85441d
+Author: Themaister <maister@archlinux.us>
+Date:   Wed Oct 30 15:25:08 2013 +0100
+
+    Disable skip BIOS by default.
+    
+    It is reported to break SaGa Frontier when enabled.
+    Happens in vanilla Mednafen as well.
+    
+    Should perhaps consider dropping the option entirely.
+
+commit 5777aee370901e4b382815a7330c2df09019ccf0
+Author: Lioncash <mathew1800@gmail.com>
+Date:   Wed Oct 16 12:29:31 2013 -0400
+
+    Fix a missing break in a case statement in snes/src/chip/superfx/disasm/disasm.cpp
+
+commit 5d0e3e02859d801448889fe847a018eb0be3d2c8
+Author: Lioncash <mathew1800@gmail.com>
+Date:   Wed Oct 16 12:28:44 2013 -0400
+
+    Fix a memory leak in pce_fast-0924/vdc.cpp.
+    
+    Fix 4 out of bounds exceptions RGB_FIFO only has a size of 3, so accessing it at the third index is out of bounds.
+
+commit 01fdcee209f43bc3152b349926d448ed1c9f877f
+Merge: 4954872 19ab1b6
+Author: Squarepusher <libretro@gmail.com>
+Date:   Fri Oct 4 15:39:59 2013 -0700
+
+    Merge pull request #26 from pinumbernumber/fix-pal
+    
+    Fix PAL PSX crashes due to insufficient framebuffer
+
+commit 19ab1b6b43a8a04cc48e83f8f498360ec99fc826
+Author: pinumbernumber <1337rz@gmail.com>
+Date:   Tue Oct 1 14:09:27 2013 +0100
+
+    Fix framerate variable type
+
+commit 3a494ee6ca194a7a3dd9b4ef347683948161b463
+Author: pinumbernumber <1337rz@gmail.com>
+Date:   Tue Oct 1 13:28:59 2013 +0100
+
+    Fix PAL PSX crashes due to insufficient framebuffer
+
+commit 4954872605bcfd62b0ada8858d84fb00d4c8e4b5
+Author: Themaister <maister@archlinux.us>
+Date:   Thu Sep 26 15:16:12 2013 +0200
+
+    Update libretro header.
+
+commit 8faff95d73a1f9356da619fd01edaeebe96a6afa
+Author: Themaister <maister@archlinux.us>
+Date:   Thu Sep 26 13:45:09 2013 +0200
+
+    Comment out debug spam.
+
+commit 7cd015b1acfa3887bf1e18d7b5951dfeac8f5fd0
+Author: Themaister <maister@archlinux.us>
+Date:   Thu Sep 26 13:42:08 2013 +0200
+
+    Add rumble support.
+    
+    Use dualshock instead of dualanalog. Hopefully won't break. :)
+
+commit 8aa91fecdfedcf5635baf173379ad1e4e2fe4cff
+Author: Themaister <maister@archlinux.us>
+Date:   Wed Sep 25 15:06:01 2013 +0200
+
+    Explicitly log when PSX BIOS is missing.
+    
+    FileStream doesn't have an open() call, so use exceptions.
+
+commit 73850f73bb49d5df2bf30522c6753f155ab5f912
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Sep 24 00:26:50 2013 +0200
+
+    Do check_variables at end of retro_load_game for every Mednafen
+    core other than PSX
+
+commit 2569e910c0b55448bb4cb0a5e89184732fba4162
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Sep 17 02:03:54 2013 +0200
+
+    Putting check_variables up front in retro_load_game was causing crash
+    issues for Mednafen NGP
+
+commit 87b5e6bece0b75a26a50a8d579838aefa4a145c7
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Sep 16 13:18:29 2013 +0200
+
+    (OSX) pthread flag for linker unneeded
+
+commit a71e2d7fa2be5b3d9b116f6993efea40d3dd6137
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Sep 13 11:46:50 2013 +0200
+
+    Upgraded to Mednafen 0.9.32
+
+commit 33d32051400e1a684b59f0e96295850a291ab80d
+Author: Daniel De Matteis <danieldematteis@Daniel-De-Matteiss-MacBook.local>
+Date:   Thu Sep 12 00:40:37 2013 +0200
+
+    (OSX) Fix compile by getting rid of -Wno-narrowing
+
+commit 2d4d9078bd12185f185e4b7a81653c3f53e36478
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Sep 8 14:26:09 2013 +0200
+
+    Add CCD check.
+
+commit df08e74c939f224a58464f3d092b4b40c8828bea
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Sep 8 13:44:40 2013 +0200
+
+    Fix PCE build.
+
+commit 377a85b857770dc98c9d54747b1c971960435441
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Sep 8 13:41:01 2013 +0200
+
+    Update PSX core to 0.9.31-wip.
+
+commit 67a2d23ef4bc3728e753b6a2676b2aef6da37f1f
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Sep 8 11:49:58 2013 +0200
+
+    Move v28 version to psx-0928.
+
+commit 74682ebac4fbd2914787970ae43904f8ce585c03
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Aug 10 03:46:37 2013 +0200
+
+    (NGP) Fixes input anomalies in Card Fighters and other games by reporting
+    more than 7 button (Card Fighters was hitting some kind of debug menu)
+
+commit dc0dcf8eb998e3380722bcfb2e934ddce52d9e2f
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Jul 31 13:54:58 2013 +0200
+
+    (Android) Mednafen PSX compiles
+
+commit 3d5d3166756fe7dd710f16857cc42ec8f6b1f077
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jul 14 02:50:22 2013 +0200
+
+    Fix TARGET_NAME for ARM target
+
+commit c5d407cd00e2e5649e6f7e5ed5e6e8183b903d69
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jul 14 02:43:04 2013 +0200
+
+    Define IS_X86 to 0 for ARM targets
+
+commit a8bef1ebbabe7030af27457a8209162339cb93f1
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Jul 14 02:41:32 2013 +0200
+
+    (Makefile) Add RM target(s)
+
+commit 1b05a4b073bdb324ca83e117971bdfcea404334b
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri May 24 20:39:17 2013 +0200
+
+    (PSX) Add some more core options
+
+commit 4c98fae545ff0462a8e9221d73c947210ab7b25f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri May 24 20:08:09 2013 +0200
+
+    Refactor settings.cpp implementation
+
+commit 164c9aecfbf5663888b928fdd6978c56c94a07f5
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri May 24 18:59:38 2013 +0200
+
+    (NGP) Added NGP core option - Language
+
+commit 4fd934cafa0dd1b201115264c781561017bdecd9
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri May 24 18:21:37 2013 +0200
+
+    Build fix for non-PCE cores
+
+commit cc2f9eb7e89920d79f93f42aadaa31a3a5f66905
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri May 24 17:37:36 2013 +0200
+
+    (PCE Fast core) Add 'Keep Aspect' option
+
+commit 0092ac4c06d3906559abcc8773081c0a81dd990e
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri May 24 17:26:57 2013 +0200
+
+    (Mednafen PCE Fast) Possibility to set CD speed, CDDA volume,
+    ADPCM value
+
+commit b8c172f48f17789f5f41f80fc2cdf15b9c56ebf5
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun May 19 23:35:15 2013 +0200
+
+    (Mednafen PSX) Remove Tales of Phantasia hack - multitap is now disabled by default
+    - will auto-enable multitap for games that are multitap compatible for
+    convenience
+
+commit 162c4fe59cce2dc4546c3747b4398b4a024542c5
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun May 19 23:33:53 2013 +0200
+
+    (Mednafen PSX) Make multitap disabled the default - Team Buddies
+    was showing issues as well with it enabled by default
+
+commit 632358955d24fdf6bebe481acaa080d8ac4b79f0
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun May 19 19:55:15 2013 +0200
+
+    Small build fix
+
+commit 73d51d4e8a8b1f6bd821140ad29785bcd31edc24
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun May 19 17:08:29 2013 +0200
+
+    (Mednafen PSX) Make dithering a toggleable runtime core option
+
+commit f901bc2bbacc455ed57d628f9eec44c3237dd622
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun May 19 16:23:53 2013 +0200
+
+    (Mednafen PSX) Tales of Phantasia needs multitap disabled otherwise
+    input will not work
+
+commit 86ec354e4fc3b9ffdf03b811a67acc114f58759f
+Merge: 0f30a07 f1cf78f
+Author: Squarepusher <libretro@gmail.com>
+Date:   Sat May 18 14:29:55 2013 -0700
+
+    Merge pull request #17 from CatalystG/master
+    
+    (BlackBerry) Add NDK build project.
+
+commit 0f30a073669eaeb2d19caac49b75dd7e065d426d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat May 18 23:27:08 2013 +0200
+
+    (Win32 Mingw) Patch up target names
+
+commit fe8acbdcd70dfa1b2e3e75d068955bf26a0588ec
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat May 18 17:48:31 2013 +0200
+
+    Cleanup Makefile wrt static linking
+
+commit e718436cf7f5579515b8d98f4a91cf359a0001b2
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat May 18 03:51:57 2013 +0200
+
+    (iOS) Standardize target names
+
+commit 79e7422cd6e6928835d9d528727188c934bb2360
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed May 1 00:03:33 2013 +0200
+
+    Update extensions
+
+commit cfd718571399120196c53acf47f9cdc6cea6f8ee
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Apr 30 16:40:00 2013 +0200
+
+    (Mednafen PSX) Build fix for QNX (include <ctype.h> because tolower is used)
+
+commit dd2e524f2f46a0f5172510bc2e40aa71e6da2653
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Apr 30 06:54:41 2013 +0200
+
+    (QNX) Update target filename
+
+commit 4717ac85fa06ff790de0e75b7c4cb383edd080ae
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Apr 27 16:40:24 2013 +0200
+
+    Update MD5 checksum correctly.
+
+commit 30babf07ccea2d14d418cd1f3669c79834c38f01
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Apr 27 15:48:36 2013 +0200
+
+    Fix disk append/replace.
+
+commit 3a42eeeafb64a16890d15f773fa8536a2e3bdd40
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Apr 27 12:42:18 2013 +0200
+
+    Fix dualanalog PSX.
+
+commit 741e7ec9ce3b683586fd7e82265a081aa860b03f
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Apr 27 11:58:05 2013 +0200
+
+    Add m3u to allowed extensions (PSX).
+
+commit 209b3ceae3656df444d91edc5406ef7e47bc40cf
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Apr 12 15:52:37 2013 +0200
+
+    (MSVC Xbox) Fix compilation of PCE Fast core by defining
+    WANT_THREADING
+
+commit 2def9362ab4eaf6b69afca8d285c6dfb6103aa61
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Apr 9 05:23:42 2013 +0200
+
+    Reimplement controls - don't spam SetInput on every frame -
+    rather update pointer - will later add runtime options for
+    changing controller types
+
+commit c06d14969b24e1cb49e4003510bca39323bad143
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Apr 9 04:05:18 2013 +0200
+
+    Add first runtime option to Mednafen core - Mednafen PCE_Fast -
+    pce_nospritelimit
+
+commit c42ea98f06f2aab6031ea87c84ade105b86d4a15
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Mon Apr 8 02:36:51 2013 +0200
+
+    Update libretro header
+
+commit f1cf78f54adc84e7ec8e9265ccbc0a3cdd5dc6a7
+Author: CatalystG <CatalystGdev@gmail.com>
+Date:   Sat Apr 6 10:40:07 2013 -0400
+
+    (BlackBerry) Add NDK build project.
+
+commit e86e6de5ebc5d237da85223da4f0904492d5c106
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Mar 30 07:49:23 2013 +0100
+
+    (Android - Mednafen PCE) Fix build by defining NEED_THREADING
+
+commit 5879fa4c4f8a5dae7fb543e2b902da30b5c7104d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Mar 29 16:40:42 2013 +0100
+
+    (QNX) Fix build for C++
+
+commit f0c90fcc9f8430848156e49ecf52877c20daed7d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Mon Mar 25 07:43:00 2013 +0100
+
+    (Blackberry) Add QNX Makefile target
+
+commit 1f1501e9d16c2d6871043ab6f52e5ea2d0f8e8ff
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Mon Mar 18 03:15:18 2013 +0100
+
+    Fix build - eject_state only defined for WANT_PSX
+
+commit 9a2016c04f9a63764cb3952f6c5d3bf6f369196e
+Merge: ad7c476 db9e046
+Author: Squarepusher <libretro@gmail.com>
+Date:   Sun Mar 17 17:11:08 2013 -0700
+
+    Merge pull request #16 from meancoot/master
+    
+    iOS build target
+
+commit db9e046c3c2f7d79eae2577180dafd2d27a9fdb3
+Author: meancoot <nowhere>
+Date:   Sun Mar 17 19:08:03 2013 -0400
+
+    Add iOS build target
+
+commit ad7c4767e50c5d75d34f90956a401328b46e158b
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Mar 9 10:31:20 2013 +0100
+
+    Fix when info == NULL for disk replace.
+
+commit e798bba27e071cd05874a0a74df56c0d214fcd04
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Mar 9 10:24:29 2013 +0100
+
+    Add replace/add interfaces for cdswap.
+
+commit 090b5b2af7be44e075ba2b89c501c042f394a79a
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Mar 9 10:08:54 2013 +0100
+
+    Update libretro.h.
+
+commit 106f7e8c805ed303134a71ebcd6f220ed551e455
+Merge: 101551d 9d39bee
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Mar 9 10:08:36 2013 +0100
+
+    Merge branch 'cd-swap' of git://github.com/libretro/mednafen-libretro
+    
+    Conflicts:
+            mednafen/psx/psx.cpp
+
+commit 101551dc2a0130e08b02fbebf3bbc6e86523f886
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Mar 2 16:22:59 2013 +0100
+
+    Swapped MDFN_UNLIKELY and MDFN_LIKELY second params
+
+commit 8196858fabbd754e7086b00541a8b8681e9858f5
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Mar 2 08:39:58 2013 +0100
+
+    Reimplement MDFN_WARN_UNUSED, MDFN_LIKELY, MDFN_UNLIKELY
+
+commit ebd65de1105a267abc8c5053b36a3939a2780905
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Mar 2 08:30:22 2013 +0100
+
+    Implement stubs for MDFN_LIKELY/MDFN_UNLIKELY - never really got much
+    of a performance gain with expect anyway - so no-ops are probaby fine
+
+commit 144c77cbdd1842d536e9aa0f986f2c9209fa7236
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Mar 1 19:15:44 2013 +0100
+
+    (Mednafen VB) Another build fix - yes, INLINE is already defined
+    but it's still a pain in the ass for this included file
+
+commit d6904b7a8296960b82ebbfdc562feade0ee3f48b
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Mar 1 19:06:52 2013 +0100
+
+    (MSVC Xbox) Build fix
+
+commit 94cd7d15592ab6aefd568aac2252c6b2bc94e8f6
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Mar 1 17:49:50 2013 +0100
+
+    (PS3) Add system timer sleep for PS3 - for MDFND_Sleep - PS3
+    port should now compile and link again
+
+commit b1b2d1778e7be91782986255f25eca83eb9b9fda
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Mar 1 16:05:54 2013 +0100
+
+    (MSVC Mednafen VB) Do opcode table switch on 'opcode'
+
+commit d8c035db2abdd9e5310bc632fad6289d0fa5a241
+Author: Themaister <maister@archlinux.us>
+Date:   Mon Feb 25 20:39:39 2013 +0100
+
+    Implement optional overscan cropping for PSX.
+
+commit 66100a4a135fee77e3da121e4fbafd5304613ba6
+Author: Themaister <maister@archlinux.us>
+Date:   Mon Feb 25 19:38:23 2013 +0100
+
+    Comment logging.
+
+commit 5f6b43ed31987f4c3802f38eeaeb8128baedfb9b
+Author: Themaister <maister@archlinux.us>
+Date:   Mon Feb 25 19:27:33 2013 +0100
+
+    Add more width fixes for PSX.
+
+commit 9564745588ee1fd2a115acddc01a8d81d5b7334f
+Author: Themaister <maister@archlinux.us>
+Date:   Mon Feb 25 09:38:53 2013 +0100
+
+    Add special casing for PSX.
+
+commit 0ab3ca8822ea93d988daa6c1f6131a8d3136d50d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 22:54:25 2013 +0100
+
+    Set framebuffer width back to 680 - fixes Soul Blade/Toshinden 1
+    screen
+
+commit 8c177a013f3fb700d7b4b5e580b6605d7068d790
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 21:40:31 2013 +0100
+
+    (psx - cdc) Reinsert edc_lec_check_correct - mutates buffer
+
+commit 94316fc69939e365a59ed49658f6bfdf0c24f1c3
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 19:21:50 2013 +0100
+
+    (cdromif) Gets rid of excessive throwing
+
+commit 6f980477b3e8ae0a36293a35d64e2d6bf3b630e7
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 18:25:24 2013 +0100
+
+    (psx/cdromif) Tweaks
+
+commit 3bf0375748b881415260a23e2d788edbb5a1ac55
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 06:05:22 2013 +0100
+
+    Revert "(PSX GPU) Tweaks"
+    
+    This reverts commit cb49967566b3229510f28ea899b776c0d0a1d182.
+
+commit 013bbf126b725c0cbf97f34ff1b5ca38ded7c01d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 06:02:11 2013 +0100
+
+    Revert "(PSX) GPU tweaks"
+    
+    This reverts commit 54bf41803fc1cdb7af2eb5ad7353299553dff74a.
+
+commit 5a092227b0df37d081fc1e8ecc7b839ab62203ed
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 05:58:18 2013 +0100
+
+    Revert "(PSX) CPU tweaks"
+    
+    This reverts commit f1402d196c992b2fe08d536228d8e9c45536f15a.
+
+commit f1402d196c992b2fe08d536228d8e9c45536f15a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 05:16:10 2013 +0100
+
+    (PSX) CPU tweaks
+
+commit 1b30e1ee05b3abd611997d2b14d93ac6849ef939
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 05:06:15 2013 +0100
+
+    (PSX) Faster SPU clamping
+
+commit 54bf41803fc1cdb7af2eb5ad7353299553dff74a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 04:54:24 2013 +0100
+
+    (PSX) GPU tweaks
+
+commit 945910855324622fa9dcf4de315639a827fe4811
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 04:45:07 2013 +0100
+
+    Remove PSX_EVENT_SYSTEM_CHECKS
+
+commit cb49967566b3229510f28ea899b776c0d0a1d182
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 04:38:11 2013 +0100
+
+    (PSX GPU) Tweaks
+
+commit 6dc137a2cc4ce6e55be037e591d274d06126858a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 04:32:44 2013 +0100
+
+    (libretro) GPU tweaks
+
+commit cc465d8b5d8ccbd2f84143a5ad0bbcef02cbb6bc
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 04:26:18 2013 +0100
+
+    (psx) Cleanup psx.cpp
+
+commit 47a4c3cae1cca247df6ddff447bc5bfee9be2566
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 04:22:19 2013 +0100
+
+    Fix blanking
+
+commit f9b0accd147219c005a7f894bc3df4d168a44728
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 03:49:06 2013 +0100
+
+    Make macros out of MAKECOLOR - and use them
+
+commit 9d39bee8f529be1ed80a489e46bdf859addc204f
+Merge: 22c1698 50fc189
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Feb 24 02:13:28 2013 +0100
+
+    Merge branch 'master' into cd-swap
+
+commit 50fc1893255acf6b2a150dad0a089ffd2e62bf26
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 02:11:45 2013 +0100
+
+    Take out SPU resampler again
+
+commit 983ab87171f82eeae9166c04ae5e630ea884d38c
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Feb 24 01:50:12 2013 +0100
+
+    Fix Win32 build.
+
+commit 22c169830e9ac06e911e9899004382af8d6e8943
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Feb 24 01:50:12 2013 +0100
+
+    Fix Win32 build.
+
+commit 791fd19b467e8f25c87ad686627fbdedb85f1d44
+Merge: e31018a 7076c6a
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Feb 24 01:06:11 2013 +0100
+
+    Merge branch 'master' into cd-swap
+
+commit 7076c6aded44b2461ae70cd91a20b236c7b28d45
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Feb 24 01:02:42 2013 +0100
+
+    Fix segfault in PSX.
+
+commit e31018a1eccc94cae54b1742e5f90deee1f48125
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Feb 24 01:02:42 2013 +0100
+
+    Fix segfault in PSX.
+
+commit c4c144e6a136cabb01735243a273f0038a3bb7d6
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 00:45:47 2013 +0100
+
+    (PSX) Simplify retro_run for PSX - no more hoky manipulation of frame
+    buffer for various screen widths/heights
+
+commit 137613a1127e1a59f0617dfe99644bce7dca3981
+Merge: e646400 1b52fdd
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Feb 24 00:26:17 2013 +0100
+
+    Merge branch 'master' into cd-swap
+
+commit 1b52fddc2b0d503794ee38f7d9df4c67232ee06c
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Feb 24 00:25:50 2013 +0100
+
+    Ensure static, fixes potential breakage.
+
+commit ea7354720bfbae97d76efd67111832cf4766c5de
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Feb 24 00:23:11 2013 +0100
+
+    Add MDFND_Sleep.
+
+commit c7c6f141913a8018020255520b8c446462249941
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 24 00:17:09 2013 +0100
+
+    Add threading code
+
+commit 0800b1996a989b9c63e7df382ec1c8d5d0b6fe64
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Feb 23 23:27:25 2013 +0100
+
+    Fix excessive printf stuff.
+
+commit e646400c499f004b87a7718ec94327062864891b
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Feb 23 23:27:25 2013 +0100
+
+    Fix excessive printf stuff.
+
+commit 448ba98833b3eede61c26b415b4566d7b4edb583
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Feb 23 12:16:38 2013 +0100
+
+    Fix Win32 build.
+
+commit d52a01847cfbdf26535d9d2fe347af196665deb2
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Feb 23 12:16:38 2013 +0100
+
+    Fix Win32 build.
+
+commit 40e6680e500c7b13cce192dba6922e820af62d2e
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Feb 23 11:37:58 2013 +0100
+
+    Add MKDIR defines.
+
+commit 6e309e61da4afaf6e0780bf470bef5e41075366f
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Feb 23 11:37:58 2013 +0100
+
+    Add MKDIR defines.
+
+commit 4cddd56fc72bfe589b8e73160fc4ebf9c273a9f4
+Merge: 701ce4f 232c1e2
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Feb 23 11:34:04 2013 +0100
+
+    Merge branch 'master' into cd-swap
+    
+    Conflicts:
+            mednafen/psx/psx.cpp
+
+commit 232c1e2f3cb0387f308c57333332fec7c27bcad7
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Feb 23 11:31:05 2013 +0100
+
+    Reenable fastboot.
+
+commit 0aa852ea3c961be784fa9b8bb620df0ad658438e
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Feb 23 11:25:17 2013 +0100
+
+    Update PSX core v0.9.28.
+
+commit 701ce4f9dd8290a081a383630c98ff8474bad217
+Author: Themaister <maister@archlinux.us>
+Date:   Thu Feb 21 23:44:41 2013 +0100
+
+    Add very crude disk swapping.
+    
+    Needs to be written more cleanly. Here as a POC.
+
+commit f15dae3d6f3d9531e56ae129d6d439b70784b3a7
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 17 06:22:32 2013 +0100
+
+    (Xbox 1) Use devenv for Xbox 1 building
+
+commit d0824bc5757d6f1a97dd2914dfca3d2bc8d36fe9
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 10 15:37:17 2013 +0100
+
+    (Xbox 1) Add msvc-2003-xbox1.bat for building
+
+commit 50f4cd97aa045b0c37f52c8965f271bf251d1abf
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Feb 9 08:27:32 2013 +0100
+
+    (360) Add msvc-2010-360.bat for building
+
+commit 2cbf03c6a62bc70e4e25f3deab30df81c8882f4f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Feb 3 07:12:19 2013 +0100
+
+    (MSVC 360) Update target output filenames
+
+commit 0ef9a434a5bead2e44c6a01f53244f1894c7e99c
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Feb 2 21:09:50 2013 +0100
+
+    (Xbox) MSVC solutions now use 32BPP
+
+commit a1bcef2f483b887be362e5100decc296f9cc8580
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Thu Jan 31 23:15:59 2013 +0100
+
+    PCE Core - use 32bpp
+
+commit ce5a4adaa9dd62d6f2c1dcdfba0ae32f7008e2f2
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 30 07:51:35 2013 +0100
+
+    (Android) Wswan core works now
+
+commit b284972217e7565e256878124e83fce117c82bf8
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 30 01:25:05 2013 +0100
+
+    Set wswan core to 32bpp - fixes crash
+
+commit 18173f98125aedb69efd374dd4c8c9ff8dadb57b
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Jan 19 20:45:28 2013 +0100
+
+    (NGP MSVC 2003 Xbox 1) Add MSVC 2003 Xbox1 solution
+
+commit 6258c9400ce8320ca8436bec7e453d77c5c06c72
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Jan 19 19:33:09 2013 +0100
+
+    (Wswan MSVC2003) Don't compile in CD code
+
+commit 700daa08d6112b0f958a007a87020768ad2ea934
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Jan 19 19:30:41 2013 +0100
+
+    (VB Core) Small fix
+
+commit be2eff31aa43120575e91319d227f27df9382db6
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Jan 19 19:27:10 2013 +0100
+
+    (VB) Add Xbox 1 solution
+
+commit e36c36a84b1b32e1d19633fc736824e68d0a69f4
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Jan 19 18:54:52 2013 +0100
+
+    (Wswan) Add MSVC 2003 Xbox 1 solution + make Wswan core compatible
+
+commit 1fbf42333349b066e4479f7735d431daef74b84a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Jan 19 18:41:14 2013 +0100
+
+    Rename MSVC 2010 360 solutions
+
+commit 97d0f922cd662365c2769d7dd172835a4044d771
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Jan 19 18:27:27 2013 +0100
+
+    Remove gettext_noop from cores
+
+commit 1ca11787c67241914774a1cc358d1f6f5beb50da
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Jan 19 18:13:54 2013 +0100
+
+    (MSVC 2003 Xbox 1) Make PCE core Xbox 1-compatible
+
+commit 8d6d38bf0c1cd79ae4f305da32050513f766d875
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Jan 19 15:50:34 2013 +0100
+
+    (XBOX) Adding MD5 sum to SRAM path name is illegal for FATX
+
+commit cd8c69561b3c2667c836c1a5584f6d5657fd0ef5
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Jan 19 10:41:48 2013 +0100
+
+    Small cleanup to general.cpp
+
+commit 6da3ddfcd642da1dff45c470e8f3bb955f331d12
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Jan 19 10:22:57 2013 +0100
+
+    Remove reliance on PSS_STYLE
+
+commit c2cc9e28a90202409cf6fdaf98057953562a325f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Thu Jan 17 23:28:05 2013 +0100
+
+    Cleanups
+
+commit 1ea41d26aad43bfeefb9c3e627029b3c0434c855
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Thu Jan 17 22:41:20 2013 +0100
+
+    (PCE Fast) Add CRC for 1941 SuperGrafx
+
+commit 6fefaa80fa135e304f98010324324d12e53dd13a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 15:58:41 2013 +0100
+
+    (Wswan MSVC 2010 360) Fix solution
+
+commit 3d212eb76e1e37b184e0b7cc58c745fcb94f642d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 15:53:41 2013 +0100
+
+    Revert "Update NGP core to 0.9.28"
+    
+    This reverts commit a6d6ec736eda2af92e6688a13e7289b605ce13cd.
+
+commit a6d6ec736eda2af92e6688a13e7289b605ce13cd
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 15:47:22 2013 +0100
+
+    Update NGP core to 0.9.28
+
+commit c7cdd8660ba0fb134b52ba72954f16030fa4c55f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 15:46:12 2013 +0100
+
+    (Wswan 0.9.28) - Compiles on Android
+
+commit 0b0b97a26d94d0bc5aca1d07aee9f5bdfb73a053
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 15:35:13 2013 +0100
+
+    (PCE Android) Fix Android Makefile
+
+commit cd7bc579bf104efe49aaf3c30c9da905a7cebb4d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 15:29:17 2013 +0100
+
+    (PCE) Add SGX ROM extension
+
+commit 2d91205efda4e0839caf05b8d3bba233828e651f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 15:26:30 2013 +0100
+
+    (PCE 0.9.28) Compiles now on PS3
+
+commit 6dfe5c8caab3aeaea52bede0e0046eae44a77bca
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 15:22:03 2013 +0100
+
+    Add huc6280.cpp
+
+commit 621f7bc9b9b0dd6904273402174a2398e5d3c98a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 15:17:23 2013 +0100
+
+    (Mednafen PCE) Upgraded PCE core to 0.9.28
+
+commit 8aba630b3cce4b4e2e122ac93faa5461c33f1d84
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 08:05:16 2013 +0100
+
+    Upgrade wswan port
+
+commit 917e80a1544b1cb1c8ed46ec83bcbfbf1e9a8084
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 08:02:11 2013 +0100
+
+    (Wswan MSVC 2010 360) Add solution
+
+commit c923faa66ce547897fe83a0c51fc1987c313bd6f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 07:27:38 2013 +0100
+
+    (MSVC) Fix slash for WIN32
+
+commit 94b69e8c3476e06d912ef527103ad9653361b1d6
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 07:22:56 2013 +0100
+
+    (GBA MSVC 2010) Add MSVC GBA 2010 solution
+
+commit a3e89953a2ba790a2731447693b57e89985eb23b
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 06:00:28 2013 +0100
+
+    (MSVC) Had to rename vdc.cpp in hw_video/huc6270 - one object file vdc.o
+    would override the other vdc.o
+
+commit bbfb015dc8262a142710b74e2cd3338ae3477363
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 05:48:13 2013 +0100
+
+    (PCE FAST 360) Add preliminary MSVC 2010 360 solution
+
+commit 24fe34ea096e9c8cd9b226e91228dcc9e459d669
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 04:41:21 2013 +0100
+
+    (MSVC 360 PCE Fast) Add WANT_CRC32 to other targets
+
+commit 3ad387d020e609e2237931ec3cbf41e59d07ef0d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 04:38:19 2013 +0100
+
+    (PC Engine Fast) Add 360 solution
+
+commit 26c32282b38047eed05e0921231a16b2831d5148
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 03:35:47 2013 +0100
+
+    (VB 360 MSVC) Small change
+
+commit 900d3042e8cbbbbcb7185e583532eeefb1cf47f3
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 03:19:13 2013 +0100
+
+    (VB 360 MSVC) Works - very naive switch conversion of computed
+    goto - inspired by VBJin - Mario's Tennis doesn't boot up
+
+commit 5779301715d9426739b7b28a264773589f914c9d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Jan 16 02:03:06 2013 +0100
+
+    (VB MSVC 360) Add solution - not yet working
+
+commit 9c785159bb2e763316bf955d1bf7e1e839c0db98
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Jan 15 13:34:01 2013 +0100
+
+    (NGP 360 MSVC) Add solution - NGP core works
+
+commit 1fc18dc9f6c85d9ec2ea6e81d4774250bcf759df
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Dec 30 04:44:59 2012 +0100
+
+    (PSX) Change fps from 59.85 to 59.95fps - fixes audio pops
+
+commit d2a7feab9af815e3057c55ba3ca9625697665adb
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Dec 30 04:04:25 2012 +0100
+
+    (Android) Compiles and links wswan now
+
+commit 76ed3bca3171cfa61c8961a64245d78a3b92fac0
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Dec 30 01:02:05 2012 +0100
+
+    (Android) VB works now as well
+
+commit 6ea492ba9af63998c75df1b8f198bb5dc5996f30
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Dec 30 00:10:46 2012 +0100
+
+    (Android) Mednafen PCE and NGP work now on Android
+
+commit 35895f6a6af6e9f46e16ad572410514ae8d00c75
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Dec 29 18:07:45 2012 +0100
+
+    (Android) Fixes
+
+commit 9640afd69f492bed96444a59ba46ca7c3412fd38
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Dec 29 14:50:24 2012 +0100
+
+    (JNI) Fixes paths
+
+commit 55f23707a2800beb0ebc6dfcac297c9bb45f6245
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Dec 28 23:16:13 2012 +0100
+
+    Committed Application.mk
+
+commit 766310e8364744bdb1056e8f40ec109be70067a7
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Dec 28 23:03:33 2012 +0100
+
+    Add JNI Makefile
+
+commit ff5e3569a6235f561d6290b704d467e4bb5db917
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Thu Nov 29 23:21:44 2012 +0100
+
+    Cleanup mednafen.cpp - leave only what we need
+
+commit 8feb7dca20fa6422132bdde5c869d9407bb9b2b0
+Author: Themaister <maister@archlinux.us>
+Date:   Thu Nov 29 13:53:53 2012 +0100
+
+    Actually log where bios is loaded from.
+    
+    How did that assert(0) ever go through? ... *shrug*
+
+commit ea72a707a30c6c974cb7ec80d63e7b56ba803ac8
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Nov 28 08:20:45 2012 +0100
+
+    (PCFX) Add initial PCFX core support - not yet done
+
+commit 1ff4c0da17007d23659298883efa8c15a53f8868
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 27 05:54:01 2012 +0100
+
+    (Mednafen GBA) input works on big-endian
+
+commit eec1a8828be2460ef796efa0730265a27578557c
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 27 05:38:49 2012 +0100
+
+    Update all cores to reflect file changes
+
+commit fd13e4bf1aaa2c9435cb8f772b2c7e4e1dde0a1e
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 27 05:20:47 2012 +0100
+
+    get rid of broken reference/getter hell in file.cpp - just use
+    the private variables promoted to public straight - no way to get
+    this code portable without 'mangling' this guff
+
+commit 0a00bac258bef13de446453ad9d8e4b7976626bb
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 27 04:44:20 2012 +0100
+
+    (GBA) Patches
+
+commit 697735e2ff75b664913d1b72e029b92d2fd82575
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 27 04:16:48 2012 +0100
+
+    (Mednafen SNES) 'Fix' little edian input - still issue with 'hold states'
+    of buttons
+
+commit 53908ec941a88ca8d59e486b69fc539d25b65415
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 27 04:05:55 2012 +0100
+
+    (Mednafen VB) works on PS3 now + fixed controls on big-endian
+
+commit 6e8710ba0ff5ae6f70fe7545e82655f5d5cc2930
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 27 03:38:27 2012 +0100
+
+    (Neopop) Controls work on big-endian now
+
+commit 52f8f1be43810538aed25d07a26f38971053d2ef
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 27 02:02:26 2012 +0100
+
+    Get rid of -std=gnu99 - there is little C code in this codebase
+    anyway
+
+commit 535b467b2ff68a01f915148d78b42dcef15d33de
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 27 01:46:20 2012 +0100
+
+    Makefile - some fixes for non-GCC based compilers
+
+commit 8104a8bf104c418d314f44ba198af62174dca8ba
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 27 00:41:32 2012 +0100
+
+    (PCE Core) Add PS3 hack workaround for computed goto
+
+commit 75cbbc9e814c1f54bfd70ac57e48391ae176a35d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 25 03:41:54 2012 +0100
+
+    (Mednafen VB) Add VB core - working
+
+commit bc6b7fa011291a6987fa9bd81fe68d0e6c659c7a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 25 02:49:52 2012 +0100
+
+    (Mednafen bsnes) Add ROM extensions
+
+commit 7acedabbe9ae536bbb822d175d1982a91cc6bd3e
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 25 01:25:08 2012 +0100
+
+    (Mednafen GBA) Don't use gz compression stuff - replace with FILE
+    equivalents
+
+commit 0a0fb41c98975b8e3f3ca267371fbc57503119f1
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 25 01:17:31 2012 +0100
+
+    (Mednafen PCE-Fast) Update to 0.9.26 core - rewinds now
+
+commit 6702f7efa271f4939bb818232ab2ee5592a75360
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 24 18:37:16 2012 +0100
+
+    (Mednafen bsnes) SRAM fix
+
+commit 13f69fa44383fa89c3e2b4f2fc80921912d19105
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 24 17:14:05 2012 +0100
+
+    (Mednafen bSNES) bsnes core running now - some issue with 'held down'
+    buttons and with games supporting srm RAM failing to load after first run -
+    investigate
+
+commit ea493644335e2dbd685ad7602d2d3aadd244fb55
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 24 08:17:18 2012 +0100
+
+    (Mednafen GBA) Added GBA core, can compile and run
+
+commit 66953e3737ad77d5c5f76d8f24e12435a63c87e1
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 24 07:44:49 2012 +0100
+
+    (NGP) NGP core can be compiled now and runs
+
+commit 3196114a9e9815315b93764e68fe70b59b75b31a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 24 06:29:37 2012 +0100
+
+    Cleanups
+
+commit 24ee1d3fc112c1e6a859b50682d50d9c6649464f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 24 04:45:01 2012 +0100
+
+    (PSP libretro) Add -G0
+
+commit 03f8225adb11185e6897af379a27541178b2b33a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 23 21:17:14 2012 +0100
+
+    (Libretro) Add PSP1 target
+
+commit f1edfd2fdfeb358b620dc606dabdad1a587b7d4f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Thu Nov 22 21:03:38 2012 +0100
+
+     PC Engine button remapping from ficoos
+
+commit 51a59326ac0fa0647eaad1a1502b1ad30f5229f1
+Author: Toad King <toadking@toadking.com>
+Date:   Tue Nov 20 20:34:34 2012 -0500
+
+    Fix compile on devkitpro
+
+commit d6e9e3ca4d7558509125970b73a94bc092a106de
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Nov 21 02:28:26 2012 +0100
+
+    Fixup WANT_32BPP path
+
+commit b5391ec96721bf3ea0b7de0f7b861e693480c91d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Nov 21 02:27:23 2012 +0100
+
+    Cleanup retro_run
+
+commit f53ff5ec4eea5f716cf92c3c1e7366c1ac8bea24
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 20 22:08:57 2012 +0100
+
+    (Mednafen PSX) Gets around 'exits' caused by exception throwing on consoles -
+    starts up TOC-based CD images now on consoles
+
+commit 7736523a819bbeee54022ea3c1eeff968820eed4
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 20 18:37:08 2012 +0100
+
+    (Mednafen PSX) Works now on PS3 - slieshow at 18/19fps - don't
+    expect this to get any faster
+
+commit 1116a8acdb0eca37b3d5f5343fbcc99e3bc7e428
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 20 17:29:55 2012 +0100
+
+    Add console support hooks
+
+commit 7ffaa8cf30bbed2f5fcaa3d16deddb6fcbc931a9
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 20 17:11:38 2012 +0100
+
+    Merge thread stub functions into stubs.cpp
+
+commit 2847ec254cc6c4423d5c79c0e2c98447a884767c
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 20 17:08:02 2012 +0100
+
+    Header cleanups
+
+commit ce5a9e6fbd0f2855ba1ec91bd4962fec38d7e3c3
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 17 04:01:05 2012 +0100
+
+    Have to revert because original framebuffer sizes make zero sense
+    and things keep getting cut off - so reverting to what worked before
+    Revert "(PSX) sane framebuffer sizes + other changes"
+    
+    This reverts commit 1e8a31ae513f88bf7d0d9f71f9268ddff6444e1f.
+
+commit 1e8a31ae513f88bf7d0d9f71f9268ddff6444e1f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 17 03:43:56 2012 +0100
+
+    (PSX) sane framebuffer sizes + other changes
+
+commit d93af13d51e544ce5fbcbd0da640ec1983c2aebb
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 17 03:05:20 2012 +0100
+
+    Turn on psx.fastboot to skip BIOS screen
+
+commit d65feddbcc4fc19b351233ed6624ad4240a12f94
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 17 02:09:27 2012 +0100
+
+    Use blip buffer fast
+
+commit 2e39ca8d074eba961e4ad8a4b71a2726b2b819a4
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 17 01:58:06 2012 +0100
+
+    Surface cleanups
+
+commit ed12bbbaf490ae1c7a829a4a16ad65bdb514c95f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 17 01:43:03 2012 +0100
+
+    Remove printf from file wrapper code - remove MDFN_RawInputStateAction
+
+commit 453bc88e4fda193e6ea8d69b4a490411140e064b
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 17 01:14:40 2012 +0100
+
+    Slim down trio
+
+commit 1606fff6686e91785d1b755c5880ab29fce68401
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 16 16:33:10 2012 +0100
+
+    Reimplement FileStream
+
+commit d2c099e971bb4c10558dd75246fe073756b7657a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 16 15:20:13 2012 +0100
+
+    Small build fix for PCE core
+
+commit 3ed64bae9289f504ad241d12cc143273954b3b4f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 16 15:12:25 2012 +0100
+
+    Get rid of everything Minifen will handle for us
+
+commit 5ed02e99cb2d54f934be90a651a794f9216121e3
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 16 03:58:56 2012 +0100
+
+    Cleanup
+
+commit 7a753b23c72f0cccdcffa3afeb086a9a0203b83a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 16 03:46:33 2012 +0100
+
+    cleanups
+
+commit 56ab33cd55556fad4d3338d71be0d7abdeb71efa
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 16 03:32:17 2012 +0100
+
+    Slim down cdromif - no need for multithreading (slows down if any) -
+    take out superfluous exception throwing
+
+commit 04a4a089f9608350a808cc9143e7e3ca05d9cd56
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 16 03:21:33 2012 +0100
+
+    Removed StreamFilter - +3/+4fps in Mednafen PSX
+
+commit 50513e80c2f05f4348889935be928530aa018097
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 16 03:04:02 2012 +0100
+
+    Only compile in scsicd.cpp for PCE Fast core
+
+commit fd1c7e5f630ee46ef3c10d9dc8d57399fb90f19c
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 16 01:56:52 2012 +0100
+
+    Rework messaging functions
+
+commit 1d84e4813665637a87b8c31ead5d8aa87813a5e1
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 16 00:16:26 2012 +0100
+
+    Revert "(PSX) Works on PS3 - 18/20fps"
+    
+    This reverts commit a573c34eb98309dd63a3e32d48541596bec8525d.
+
+commit a573c34eb98309dd63a3e32d48541596bec8525d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Nov 16 00:04:25 2012 +0100
+
+    (PSX) Works on PS3 - 18/20fps
+
+commit d36536750b2aff965d6eb7eba892890770285499
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Thu Nov 15 21:49:55 2012 +0100
+
+    Make Tremor optional
+
+commit 23ee14a57c4be865241784a06ff11e254d3ab1e0
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Thu Nov 15 19:11:24 2012 +0100
+
+    Don't need Musepack
+
+commit 5937957a017a1c1baae1fae237326852d52e8e5f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Thu Nov 15 18:35:26 2012 +0100
+
+    Initial PS3 compilation support
+
+commit 50b924e3fe39c997090b6b521502441982903472
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Nov 14 02:20:07 2012 +0100
+
+    Add trio flags in Makefile
+
+commit 391bc305dcfde8df87c42d872452ed269388314e
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Nov 14 01:56:23 2012 +0100
+
+    Hooked up reset
+
+commit 2949a116941951e56fb41e1d57054bf998c6a607
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Nov 14 01:41:02 2012 +0100
+
+    (State) Use same function signatures as Mednafen mainline
+
+commit 30b6482509e3c71f0176f239716f3b46fa4417d5
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Wed Nov 14 00:09:33 2012 +0100
+
+    (MSVC PSX) Finally compiles on MSVC
+
+commit d0876e362dabb4e7bdd1c7b31dbd5e5151be887b
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 13 23:43:30 2012 +0100
+
+    Fix header include
+
+commit 5cd001377575482404d61976b9fe2f780474445b
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 13 23:39:27 2012 +0100
+
+    (MSVC) Hack for computed goto table (by zeromus) needs testing
+
+commit 8af424650e3549f24aae54e801aa4fecfcd2cd25
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 13 23:23:58 2012 +0100
+
+    Undefine NEED_THREADING for both PSX and PCE_FAST
+
+commit bef585d1bf86d3dece7f7909814dc724bd682d55
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 13 23:13:53 2012 +0100
+
+    Go back to single threading for CD I/O
+    - performs better than multithreading
+
+commit 03c0aeecfc3ade7d6cce2f444fedefe3b90cdd86
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 13 22:54:13 2012 +0100
+
+    (General/Settings) Remove some things we won't need in Minifen
+
+commit 79e1cb68fb7d9dc0d2075c5a3edd3aed79826ded
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 13 22:40:18 2012 +0100
+
+    (File) remove what we don't need for minifen
+
+commit 8d166efe36873b53b8055b9d4b052c79ba154a2e
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 13 22:27:48 2012 +0100
+
+    (Surface) take out rprec, gprec, bprec, aprec
+
+commit a88a71ddddd148c0305b79816b7ffb5061dd68bd
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 13 22:18:18 2012 +0100
+
+    Surface cleanup
+
+commit 85f77bd12aa51e8a3fc531a1e98a1702cbd8b39f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 13 21:11:10 2012 +0100
+
+    Cleanups
+
+commit 561b0f31ba9d6251e93d7aea627e58a1eb4a5e29
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 13 20:48:46 2012 +0100
+
+    Only compile in okiadpcm for PC Engine core - not PSX
+
+commit 1e85e705089f8b72d13ab10e879d8a7923ffae5c
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 13 20:34:38 2012 +0100
+
+    Get rid of NEED_RESAMPLER defines
+
+commit 4334ba5e60ff22b97f5ad27c63ca609ac7d4cc65
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Tue Nov 13 18:55:02 2012 +0100
+
+    Cleanup
+
+commit b48015e57996bbaee252646dfc3b81db5a4eb090
+Author: Themaister <maister@archlinux.us>
+Date:   Mon Nov 12 22:25:30 2012 +0100
+
+    Don't hardcode obscure gcc paths on windows.
+
+commit 522fa3de8021a94d3f4594f20815e0b86d838e83
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Mon Nov 12 01:11:38 2012 +0100
+
+    (PSX) CPU opts
+
+commit e7fe62715211f6ee899e67f59835a1489abf93d3
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Mon Nov 12 00:42:27 2012 +0100
+
+    (PSX) GPU tweak
+
+commit b88cad30ac3aa2d6011b3de5086f8727c19c895b
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Mon Nov 12 00:01:28 2012 +0100
+
+    (PSX) GPU tweak
+
+commit 9579cad72a62b69a92a2c801ad5af9268ee3f0c6
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 23:10:41 2012 +0100
+
+    (PSX) Tweaks to gpu.cpp
+
+commit b249710886ba5bb73c5ff7d88334128862b709a8
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 22:40:44 2012 +0100
+
+    (PSX) Fix memcard regression
+
+commit 18219f4ca12b17636eb38087e29328595acb4119
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 22:25:32 2012 +0100
+
+    (MSVC) MSVC compatibility fixes
+
+commit 1b542824af4f56a0852edf62bcb4214e4dcf86d1
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 21:47:12 2012 +0100
+
+    More MSVC fixes
+
+commit d041d6c1b45610363d01548bf4ba715d34ebc48a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 20:01:50 2012 +0100
+
+    (PSX) Build fixes
+
+commit 6911a011ac57b8c90de0fda5e0d41eca49bd8afd
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 19:50:18 2012 +0100
+
+    (Mednafen PSX) MSVC compile fixes
+
+commit 0ed0940ff5241f7581c315a91865338848d4fd56
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 19:34:53 2012 +0100
+
+    Simply FileWrapper.cpp
+
+commit 0253d8002490ecc5e65c6bbeaa7e87609c53d509
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 15:16:46 2012 +0100
+
+    Performance improvements
+
+commit e98ee77f09673f5550aa88e3a2e009573151606c
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 13:44:10 2012 +0100
+
+    (Mednafen PSX) Performance improvements - around ~5fps or more
+
+commit 6f8b4645975047bd86ba897f0362c63fa21ca01e
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 03:41:46 2012 +0100
+
+    (PSX) More clamping replacements
+
+commit 84de5bc88372af81d37cfb6f4bb8a35bc174a35a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 02:54:45 2012 +0100
+
+    (Mednafen PSX) More faster clamping
+
+commit f502eca96be575112248c378cb9b778965195031
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 02:13:39 2012 +0100
+
+    (Mednafen PSX) Faster clamping
+
+commit ebbf2bf6031ec85bd80cf97bc15bd187cb7b9ce5
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Nov 11 00:42:19 2012 +0100
+
+    (Mednafen PSX) Comment out some logs
+
+commit db4ba38be17f5268f586f439c7f98ca13a390742
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 10 23:34:36 2012 +0100
+
+    (Mednafen PSX) FPS improvements - around 5 to 10fps
+
+commit abd97ef61d435c88f077afd99fa6a455325f555c
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Nov 11 00:04:25 2012 +0100
+
+    Log path after sanitation.
+
+commit 214050ecb1eb8ab719d2447b7246ff3baa6c6ce1
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Nov 10 23:43:07 2012 +0100
+
+    Fix build.
+
+commit 7a3f3c2a9d708c7b27c53f08e175a2f8d67219e3
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 10 21:35:26 2012 +0100
+
+    Cleanups
+
+commit 3f5879c3e34303420a89b9c438fa4267d08d5527
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 10 21:13:36 2012 +0100
+
+    (MSVC2010) Compatibility fixes
+
+commit 3eaf7dd695f43ae946218e4c549f0252e7222a1f
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 10 21:06:49 2012 +0100
+
+    Clean up includes
+
+commit 0527e4a9719a93ebfd4cab1537e54179f31eaffa
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Nov 10 20:44:37 2012 +0100
+
+    (MSVC 2010) More build fixes
+
+commit f6a4d35498cb4877a8631b2500034c120cfd0e99
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Nov 10 12:59:05 2012 +0100
+
+    Fix derpy derp.
+
+commit 164a0d76d3ec8a668af20aef4271d29969f5a55a
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Nov 10 02:20:13 2012 +0100
+
+    Fix up path handling for bios/memcard.
+
+commit b04878dcd5e40c56205cd9fd4de750a2aca5bd4a
+Author: Themaister <maister@archlinux.us>
+Date:   Thu Nov 8 23:09:27 2012 +0100
+
+    More win32 fixups.
+
+commit 65da71f57c5ce4e3ac6a48bb7f14aae67f3b06fc
+Author: Themaister <maister@archlinux.us>
+Date:   Thu Nov 8 23:07:23 2012 +0100
+
+    Include fixups.
+
+commit 3e813728306ec7f1583daa119f61289335f8dfe4
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Thu Nov 8 21:27:51 2012 +0100
+
+    Forgot to commit this
+
+commit aa32eae56a63b5ef876a935eb0c4d0695fc4f805
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Oct 26 21:53:41 2012 +0200
+
+    (MSVC) Push initial MSVC changes
+
+commit 83c80b1a4aa4dfbc2f552eba82002f9121a1adcf
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Fri Oct 26 18:00:14 2012 +0200
+
+    Cut down on exceptions party in cd code
+
+commit e1bc9d9ce58da7c34b61076315db300f9c7b40cf
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Mon Oct 22 21:57:27 2012 +0200
+
+    (Libretro) maintenance upgrade + threads work now on Wii
+
+commit a1ac699242173c18260d46f0f982b0ca7cb8e7c9
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Mon Oct 22 17:49:56 2012 +0200
+
+    Compile Wonderswan core without NEED_CD
+
+commit 8a1a03bda7d452a04886c763ce49624c5eb05106
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Mon Oct 22 17:41:16 2012 +0200
+
+    (Mednafen 0.9.22) works now
+
+commit 0290b333249ed359539c4e8bfecbfd7bb1e4c749
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Mon Oct 22 17:00:42 2012 +0200
+
+    Add resampler and original Blip_Buffer in case we ever need it
+
+commit c0f2e66ddd02f71d8660045b2290c7ba9b3df62c
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Mon Oct 22 14:34:14 2012 +0200
+
+    (RGB565) Can now use RGB565 color format if frontend supports it
+    (Wswan) Experimental wswan support - not yet working
+
+commit ec1e98555d0962d754ac04fc873c27b223420740
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Oct 21 03:46:12 2012 +0200
+
+    Savestates work - tested with PCE core
+
+commit 6a58de67cb8129569a348580c7ef970951080ca2
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Oct 21 02:37:11 2012 +0200
+
+    No more conversion to 16bpp for PSX
+
+commit dc4236c50774a965bfa04d624d69c5d3ef3125be
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sun Oct 21 01:47:02 2012 +0200
+
+    Integrated pfce_fast now too - can compile pce_fast now in same
+    repo
+
+commit e1b305a8b4e7cda2145b563d2e6638a01605de13
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 23:56:43 2012 +0200
+
+    Make threading code self-contained
+
+commit 826403c1275f9ab2d824fe256d8d47b743ae6026
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 23:32:28 2012 +0200
+
+    Setting up fr multiple cores - to be able to compile each core
+    as separate
+
+commit c26eb53884f1f0e4a9fd5b188133e138ea0f5178
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 22:36:08 2012 +0200
+
+    Corrected typo
+
+commit 74ce0a6b2175e20a2be5954c45422435de92aee8
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 22:35:08 2012 +0200
+
+    Add "load CD into RAM" feature/hack
+
+commit e35a20cf0a3f456484a12de05e6e4577fe0f5613
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 21:23:33 2012 +0200
+
+    Remove string/ files
+
+commit f269f2390de579b8dce0309190aa7afe89dc29a1
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 21:18:24 2012 +0200
+
+    Now no longer needs mednafen config file
+
+commit 9eeab7b391f8b219dedcfa4025c06eee29a8857d
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 20:47:09 2012 +0200
+
+    (psx) Comment out debug logs
+
+commit 3933a969819e57432deb6f39043389198678e8a3
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 19:03:03 2012 +0200
+
+    Settings refactor - aim to no longer go through mednafen
+    config file
+
+commit d09d20f3007b63cfad43b33a6d9deb67aa7e09a9
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 08:54:50 2012 +0200
+
+    Update to Mednafen 0.9.26 - psx core
+
+commit fcf2d96753d22e5883c3599bc8d943414d691673
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 08:07:45 2012 +0200
+
+    Remove ConvertUTF
+
+commit a7022054824f78a8aaeb083dda98513a0bb3809a
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 07:54:33 2012 +0200
+
+    Some sound stereo/mono ifdefs - fps increases around 3/4fps again
+
+commit a47e0a92362a2309535a2d478822a3dc0c7b62ab
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 07:37:54 2012 +0200
+
+    Compile with -NDEBUG - a couple of extra FPS
+
+commit f76de4c1e26904e6531f8d6d25510765e2d76521
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 07:21:43 2012 +0200
+
+    Remove cdrom interface single threaded
+
+commit 94e685d5167ded5b63eab180c47d429910fb1d84
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 07:08:10 2012 +0200
+
+    Cleanups of file structures
+
+commit c5c37867fa76dd6d790f0c32aa499f503d2c2f9c
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 06:26:24 2012 +0200
+
+    Rip out all compression code
+
+commit d69f53690d587d733f2dcfbbceea857386300036
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 06:16:17 2012 +0200
+
+    Video optimizations - ~4/~5fps speedup
+
+commit c05011c393626ea0a692adc050f4bc8df24d3383
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 05:53:03 2012 +0200
+
+    No resampler
+
+commit cbf9ae69f9aacf963eb74aaaf016c435ee343855
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 05:39:53 2012 +0200
+
+    Some sound optimizations
+
+commit 731afdfbad075d4cfd3c9cec7b4abf9a6709b012
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 05:17:40 2012 +0200
+
+    Sound optimizations
+
+commit f9c22658e95c320a2236dd4cd110c5be6ca6ad4c
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 04:32:21 2012 +0200
+
+    Cleanups #2 for RetroFen
+
+commit e515b9ab962b336324ed869da3b07499d225570e
+Author: twinaphex <autechre1024@hotmail.com>
+Date:   Sat Oct 20 04:13:19 2012 +0200
+
+    Cleanups for RetroFen
+
+commit 32a02748fe310d28c0c736dda0239af07c5f0709
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Oct 13 15:31:49 2012 +0200
+
+    Updates to 0.9.25.
+
+commit 895970399a444b809afec2057094a1a702bf0cf0
+Merge: 7c0f21e 3281b6c
+Author: Squarepusher <autechre1024@hotmail.com>
+Date:   Sat Oct 6 09:42:27 2012 -0700
+
+    Merge pull request #6 from ficoos/PAL_fix
+    
+    Fix crash when loading PAL games
+
+commit 3281b6c6fef35581e191c144640f197885d83f42
+Author: Saggi Mizrahi <ficoos@gmail.com>
+Date:   Sat Oct 6 18:39:01 2012 +0200
+
+    Fix crash when loading PAL disks
+    
+    Signed-off-by: Saggi Mizrahi <ficoos@gmail.com>
+
+commit b73b01210e4895ac095808fa6184b7c7174cc4b4
+Author: Saggi Mizrahi <ficoos@gmail.com>
+Date:   Wed Sep 26 22:52:40 2012 +0200
+
+    Add psx fastboot as a configurable setting
+    
+    Some people like the playstaion boot up sound, make it optional but
+    leave the default as off.
+    
+    Signed-off-by: Saggi Mizrahi <ficoos@gmail.com>
+
+commit 7c0f21e8e3051dc10465da31255f6dc295e6f6ac
+Author: TwinAphex51224 <twinaphex1@gmail.com>
+Date:   Mon Sep 24 05:50:17 2012 +0200
+
+    Take out some unneeded stuff
+
+commit 9621b27e53e4f5145368af3fcf28fd83ffe3de37
+Author: Twinaphex512 <autechre1024@hotmail.com>
+Date:   Mon Sep 24 05:07:02 2012 +0200
+
+    (MSVC) Preliminary solution
+
+commit 316edfc73fb5b4a81aaddeca18b071de1fa7d2c3
+Author: TwinAphex51224 <twinaphex1@gmail.com>
+Date:   Sun Sep 23 23:08:59 2012 +0200
+
+    Should fix saving of memory cards
+
+commit aca01cac5ef49cb4345869dcbc18fab2352a09ea
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Sep 23 22:28:49 2012 +0200
+
+    Revert "Revert "enable psxfastboot""
+    
+    This reverts commit 428d97adc85b86f036fa1df07aef6f1390e954aa.
+
+commit 428d97adc85b86f036fa1df07aef6f1390e954aa
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Sep 23 22:25:14 2012 +0200
+
+    Revert "enable psxfastboot"
+    
+    This reverts commit 0499196ac253cd24ff4f6ddd281f76db015bd952.
+
+commit 6792727f0aa72ebf376ffe469b795d5dfb021dba
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Sep 23 22:21:12 2012 +0200
+
+    Hardcode fb_width/fb_height.
+
+commit 08b68fde33aa73f75418109ced90dd0387bbd0f6
+Author: TwinAphex51224 <twinaphex1@gmail.com>
+Date:   Sun Sep 23 17:44:53 2012 +0200
+
+    Take out TBlur
+
+commit 96b4d60864bf183c521afa14979901a53185de7e
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Sep 23 11:52:47 2012 +0200
+
+    Fix possible segfault when game fails to load.
+
+commit fc7cf1cf9e79763605c69ab4c9ac4a26815d4c2d
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Sep 23 11:30:43 2012 +0200
+
+    Update geometry to 320x240 as used by libretro.
+
+commit 0499196ac253cd24ff4f6ddd281f76db015bd952
+Author: TwinAphex51224 <twinaphex1@gmail.com>
+Date:   Sat Sep 22 22:07:41 2012 +0200
+
+    enable psxfastboot
+
+commit c9d2d91fee847d783fff7aca2a2a2983c959e166
+Author: TwinAphex51224 <twinaphex1@gmail.com>
+Date:   Sat Sep 22 19:37:26 2012 +0200
+
+    Internal core resampling not necessary - 44Khz should disable
+    resampler already anyways, so no use having the dead code around
+
+commit 106326e46486caf44bd4d33faa92cff5eeaafccd
+Author: TwinAphex51224 <twinaphex1@gmail.com>
+Date:   Sat Sep 22 18:51:53 2012 +0200
+
+    Make custom mednafen-libretro.cpp and use that instead - takes out
+    some needless branches/stuff we don't need
+
+commit bd327936f93fcdf8b2bc19a17034031444a06f52
+Merge: 6ccb0e0 2e50137
+Author: Squarepusher <autechre1024@hotmail.com>
+Date:   Fri Sep 21 09:53:41 2012 -0700
+
+    Merge pull request #3 from ficoos/pal_fix
+    
+    Fix PAL emulation
+
+commit 6ccb0e059a27ecdecc1729ecffa83ce08e936f40
+Author: TwinAphex51224 <twinaphex1@gmail.com>
+Date:   Fri Sep 21 20:50:40 2012 +0200
+
+    Bump up version number
+
+commit 0fc4518ef91b02258ad94ace4f251b38f0cf8a96
+Author: Themaister <maister@archlinux.us>
+Date:   Thu Sep 20 21:38:19 2012 +0200
+
+    Update FPS field to reflect empirical testing.
+
+commit b4cbfac20a676286339b1db99558e9f1a542d267
+Author: TwinAphex51224 <twinaphex1@gmail.com>
+Date:   Thu Sep 20 22:35:44 2012 +0200
+
+    Commented out excessive logging
+
+commit 2e50137a8d889260ebb1458d3e6cbae87507f844
+Author: Saggi Mizrahi <ficoos@gmail.com>
+Date:   Wed Aug 22 15:38:30 2012 -0400
+
+    Fix PAL emulation
+    
+    Also fixes overscan issues with more resolutions.
+    
+    Signed-off-by: Saggi Mizrahi <ficoos@gmail.com>
+
+commit b9524d6d467c5a149fe1997798501214ab489d2c
+Author: Themaister <maister@archlinux.us>
+Date:   Fri Aug 17 23:01:08 2012 +0200
+
+    Minor fixups.
+
+commit 3f26bea3289e4098ed587e5e4696a835bfbc6fbc
+Merge: 4cab51f 3e890b5
+Author: Hans-Kristian Arntzen <maister@archlinux.us>
+Date:   Fri Aug 17 13:55:33 2012 -0700
+
+    Merge pull request #1 from ficoos/master
+    
+    Add support for "gamepad" input
+
+commit 4cab51f229ebe1715ef93e7021c91d59e92f26c7
+Author: clobber <brymaster@gmail.com>
+Date:   Fri Aug 17 02:12:31 2012 -0500
+
+    This fixes save files reading/writing
+
+commit 38f006e00e6c45c81240663237bb44539f25188d
+Merge: 44d7a68 eb25ec0
+Author: Hans-Kristian Arntzen <maister@archlinux.us>
+Date:   Thu Aug 16 11:47:48 2012 -0700
+
+    Merge pull request #2 from ficoos/analog_fix
+    
+    Analog direction reverses when gamepad sends maximum value.
+
+commit 44d7a687efec8a414cce56d949736b1005e5bf90
+Author: Themaister <maister@archlinux.us>
+Date:   Wed Aug 15 21:26:44 2012 +0200
+
+    Update to 0.9.24.
+
+commit eb25ec04cac54f2ee8363ceb4eccc9f11a428f79
+Author: Saggi Mizrahi <ficoos@gmail.com>
+Date:   Fri Aug 3 19:15:16 2012 -0400
+
+    Fix analog calculation
+    
+    Analog read would overflow and become -1 instead of 128 when analog
+    reached maximum value.
+    
+    Signed-off-by: Saggi Mizrahi <ficoos@gmail.com>
+
+commit 3e890b55fed2878c55501b82eefef4536eca18d9
+Author: Saggi Mizrahi <ficoos@gmail.com>
+Date:   Tue Jul 24 21:17:14 2012 -0400
+
+    Add support for regular gamepad input
+    
+    Some games cannot work with dual analog input. (eg. Castlevania -
+    Symphony of the Night).
+    
+    I reuse the mouse device because RetroArch doesn't givce plugins the
+    ability to add "features". I choose specifically the mouse options
+    because it's the only device type that can be specified per input port.
+    
+    The default is now "gamepad" because it's the most compatible option and it
+    is the default in mednafen [1].
+    
+    [1] http://mednafen.sourceforge.net/documentation/09x/psx.html
+    
+    Signed-off-by: Saggi Mizrahi <ficoos@gmail.com>
+
+commit 03fcaf14d4ef8342eff85c9475b42648c1a70bab
+Author: Themaister <maister@archlinux.us>
+Date:   Thu Jun 28 23:29:42 2012 +0200
+
+    Analog support.
+
+commit fa5adbacd5efdb0c763cd9b04f8f54300f3151fc
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Jun 16 15:07:18 2012 +0200
+
+    Opt-in for 24bpp.
+
+commit 06f54d1192923f28249ab3b3b97c375e1092f1b0
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Jun 16 01:07:41 2012 +0200
+
+    Update README for sysdir.
+
+commit 1ad14740896346eaa624825868afa10c06730d46
+Author: Themaister <maister@archlinux.us>
+Date:   Sat Jun 16 01:00:17 2012 +0200
+
+    Avoid using configs. Requires system dir.
+
+commit 8ee82e3878069e49bfc04d420fce18d2e8bcdcf9
+Author: Themaister <maister@archlinux.us>
+Date:   Fri Jun 15 09:29:22 2012 +0200
+
+    Clarify hack.
+
+commit 8f408257631d089dc6674f0e41c3d4194416d2e9
+Author: Themaister <maister@archlinux.us>
+Date:   Tue Jun 12 01:06:33 2012 +0200
+
+    Build fix.
+
+commit 98cd4c5d0d15eec57a493e7c5dca21dd1b90cd76
+Author: Themaister <maister@archlinux.us>
+Date:   Tue Jun 12 01:03:09 2012 +0200
+
+    Use RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY.
+
+commit 15a37df2dba223e315d31d1034b8cc5ad366086c
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Jun 10 00:54:07 2012 +0200
+
+    Fix build.
+
+commit f48f8405a49cb355ea1b52f0137800488ad1ed75
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Jun 10 00:46:41 2012 +0200
+
+    Use sthread abstraction for threads.
+
+commit d3924ab7d6e6c5c723574f26ffeba8585f499a00
+Author: Themaister <maister@archlinux.us>
+Date:   Tue Jun 5 18:04:43 2012 +0200
+
+    Revert "Automatically create .cue from .iso/.img, etc."
+    
+    This reverts commit df00f075c4a5911d03ec63a8c7cb1ec5db7d9347.
+
+commit df00f075c4a5911d03ec63a8c7cb1ec5db7d9347
+Author: Themaister <maister@archlinux.us>
+Date:   Tue Jun 5 18:26:45 2012 +0200
+
+    Automatically create .cue from .iso/.img, etc.
+
+commit 0d54ef767c7ffbff87c0f219d215770eb2c1b132
+Author: Twinaphex <autechre1024@hotmail.com>
+Date:   Tue Jun 5 01:36:20 2012 +0200
+
+    Commented out logging - can reenable by defining DEBUG
+
+commit 3eea3bb04435060c852eff5e015124ffccdcd3da
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Jun 3 19:29:23 2012 +0200
+
+    Small nits.
+
+commit c549840a83b915cb83b3befbf6f90fa8a70b6a60
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Jun 3 19:19:45 2012 +0200
+
+    Nit...
+
+commit ab807fb8b667503652e722321edd099f40134283
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Jun 3 19:19:13 2012 +0200
+
+    Nit.
+
+commit 9f731d7c8bad4801cf7f9de8ccb337a86a12642f
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Jun 3 19:18:46 2012 +0200
+
+    Add README.
+
+commit ace67e55b45be685a0dec450b4a7fa34685cc00d
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Jun 3 19:05:30 2012 +0200
+
+    Drop -fno-strict-aliasing.
+
+commit 57ebac86b83cf76f72c82a56761ad84d56ab404b
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Jun 3 18:58:46 2012 +0200
+
+    Input appears to work.
+
+commit e942ae84aa4553125406cca7b3d966124a86fbb2
+Author: Themaister <maister@archlinux.us>
+Date:   Sun Jun 3 17:48:14 2012 +0200
+
+    Initial commit.

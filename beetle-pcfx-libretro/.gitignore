@@ -1,0 +1,11 @@
+*.o
+*.so
+*.d
+*.dll
+*.dylib
+*.lib
+*.pdb
+*.exp
+*.manifest
+/new
+

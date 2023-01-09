@@ -14,11 +14,17 @@ cd $SCRIPT_DIR/beetle-pce-fast-libretro
 emmake make -f Makefile -j6 platform=emscripten
 cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts/
 
-#cd $SCRIPT_DIR/beetle-pcfx-libretro
-#emmake make -f Makefile -j6 platform=emscripten
-#cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts/
+cd $SCRIPT_DIR/beetle-pcfx-libretro
+emmake make -f Makefile -j6 platform=emscripten
+cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts/
+
+cd $SCRIPT_DIR/neocd_libretro
+emmake make -f Makefile -j6 platform=emscripten
+cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts/
 
 cd $SCRIPT_DIR/RetroArch/dist-scripts/
 emmake ./dist-cores.sh emscripten
 
 cd $SCRIPT_DIR
+
+#void wrc_on_set_options(int opts) {}

@@ -137,8 +137,11 @@ void wrc_set_input(int index, unsigned int state, float alx, float aly, float ar
    wrc_input_state[index] = state;
 }
 
+extern void wrc_on_set_options(int opts);
+
 void wrc_set_options(int opts) {
    wrc_options = opts;
+   wrc_on_set_options(opts);
 }
 
 #endif

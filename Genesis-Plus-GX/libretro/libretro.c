@@ -1232,6 +1232,8 @@ void em_cmd_savefiles() {
    if (system_hw == SYSTEM_MCD)
       bram_save();
 }
+
+void wrc_on_set_options(int opts) {}
 #endif
 
 static void extract_name(char *buf, const char *path, size_t size)

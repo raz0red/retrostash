@@ -877,6 +877,8 @@ static DECLFW(IOWrite)
 #ifdef WRC
 extern "C" void em_cmd_savefiles() {
 }
+
+extern "C" void wrc_on_set_options(int opts) {}
 #endif
 
 static void PCECDIRQCB(bool asserted)

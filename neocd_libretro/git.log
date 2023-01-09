@@ -1,0 +1,970 @@
+commit 53f5453311a1ac43700fedb2317c810586f9ccf5
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Wed Nov 30 22:10:01 2022 +0100
+
+    * Updated libretro_common
+    * Preliminary support for direct CD-ROM access
+    * Enabled LTO for some platforms (experimental)
+
+commit fd08c7d862a0fcbdd291c06c80537c4ff55e1f8c
+Merge: b7d96e7 1506bb5
+Author: LibretroAdmin <105389611+LibretroAdmin@users.noreply.github.com>
+Date:   Sun Nov 27 19:10:24 2022 +0100
+
+    Merge pull request #81 from hunterk/master
+    
+    add B+C input macro
+
+commit 1506bb59bb903b6b42f0ff7b10b39c1dd509ef9c
+Author: hunterk <hunter_kaller@yahoo.com>
+Date:   Sun Nov 27 09:49:32 2022 -0600
+
+    add B+C input macro
+    
+    as requested here https://www.reddit.com/r/RetroArch/comments/z60fux/is_it_possible_to_add_new_remapping_for_neocd_core/
+
+commit b7d96e794f2dfa500cba46c78cbc3c28349cfd05
+Merge: 327aece 1cdad1a
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Sun May 15 18:37:59 2022 +0200
+
+    Merge pull request #72 from energy-t/reduce-latency-cleanish
+    
+    Reduce latency by adjusting emulated frame slice boundary
+
+commit 1cdad1afe58902aa9f8a870fe452d73407267950
+Author: energy-t <93666381+energy-t@users.noreply.github.com>
+Date:   Sun May 15 07:04:53 2022 -0500
+
+    Reduce latency by adjusting emulated frame slice boundary, implemented via a define to preserve clarity of code
+
+commit 327aeceecdf71c8a0c0af3d6dc53686c94fe44ad
+Merge: c963ddb 8bf0922
+Author: Autechre <libretro@gmail.com>
+Date:   Fri Mar 25 22:50:15 2022 +0100
+
+    Merge pull request #71 from phcoder/ps2
+    
+    Add PS2 compilation
+
+commit 8bf092289ec073aa230266e1f6895b3bfa5ced16
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Fri Mar 25 22:12:31 2022 +0100
+
+    Add PS2 compilation
+    
+    In Magician Lord it's 25% speed but may be useful on lighter titles
+
+commit c963ddbf00a69f71e03afe5dfea64517bd4eb56a
+Merge: 1be8c19 2ffdbb5
+Author: Autechre <libretro@gmail.com>
+Date:   Fri Mar 25 08:29:49 2022 +0100
+
+    Merge pull request #70 from phcoder/djgpp
+    
+    DOS compilation, missing VFS init, ROM detection speedup and report git commit
+
+commit 2ffdbb57bd4a98bbf4a5cb299a1ab243778b6253
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Fri Mar 25 03:55:07 2022 +0100
+
+    Remove needless lambda
+
+commit a98db196e4af0d1f381d33f23daf33a08b9bba1b
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Thu Mar 24 12:43:04 2022 +0100
+
+    Don't read full BIOS when identifying
+
+commit 990ef459234e9784a524841d20139b59c5b80c93
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Thu Mar 24 05:57:07 2022 +0100
+
+    Add git commit to the reported version
+
+commit 1f42352a4e3402f866fb758bbc8fdd6a9a364fed
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Thu Mar 24 04:42:39 2022 +0100
+
+    Add missing dirent init
+
+commit fdd7d82557fe42c86fcf07ebfa0f1447634a578e
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Thu Mar 24 01:10:41 2022 +0100
+
+    Add djgpp compilation
+
+commit 1be8c19fee77d0174a4ba8f791d1f9165441992e
+Merge: 3aa984f c5dbc77
+Author: Autechre <libretro@gmail.com>
+Date:   Thu Mar 24 09:07:17 2022 +0100
+
+    Merge pull request #69 from phcoder/em
+    
+    Convert libchdr to VFS and add emscripten compilation
+
+commit c5dbc77da92b283f3baea41e6b5b2f07a5ac6754
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Thu Mar 24 01:10:22 2022 +0100
+
+    Add emscripten compilation
+
+commit 74d1226a92d8eccdf0d9eeb9ef89d9cf8ca1044c
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Thu Mar 24 01:40:08 2022 +0100
+
+    Use libretro VFS in libchdr
+
+commit b5e67aa15c0bf4843a77e425f86edc94ffd24233
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Thu Mar 24 01:24:32 2022 +0100
+
+    Fix double libretro-common inclusion
+
+commit 3aa984f8d951ed43240a97233879b7063ea808e8
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Sun Feb 13 23:22:18 2022 +0100
+
+    Refactored the libretro "glue" code
+    Added support for the new logging interface and notifications
+    Added button macros and handling of analog sticks for gamepads
+
+commit 1da57786a8f93972991aace7071407f5cf85283f
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Thu Feb 10 00:34:15 2022 +0100
+
+    Vita fix, try 2
+
+commit 942f099852276137402ada522e59be18b23a6bf9
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Thu Feb 10 00:20:43 2022 +0100
+
+    Fix Vita compilation
+
+commit 0b91ee7db181b99f5dd0d9c4aaafb9cb0389a074
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Wed Feb 9 22:51:25 2022 +0100
+
+    Updated dependencies: libchdr and libretro-common
+
+commit 1b04b0bcb974d350787b5d5344c16a23a4b5fc16
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Wed Feb 9 00:05:51 2022 +0100
+
+    Distinguish SMKDan BIOSes (0.07 and 0.07beta)
+
+commit c440a62c26c1993faba3c5f4cbb2ed3b92bc3db7
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Tue Feb 8 23:48:13 2022 +0100
+
+    WiiU compilation fix.
+
+commit 94815df73fef4d27febb80bd9ad15e04c6be49e2
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Tue Feb 8 23:31:52 2022 +0100
+
+    Updated Musashi M68K emulation core. This will probably break savestate compatibility, sorry!
+
+commit 83d10f3be10fff2f28aa56fc674c687528cb7f5c
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Nov 16 07:52:33 2021 +0100
+
+    Use VFS
+
+commit 5c1ad6669276db13612bdcba51f2667b1c14c5ce
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Nov 16 07:32:31 2021 +0100
+
+    Replace file I/O code  -slim down on stdio.h
+
+commit 33b8f9c28671104047b1993b097a4ddcf3040e55
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Sun Oct 10 09:50:49 2021 +0200
+
+    After comparing the video output of a real machine (via OSSC) and the emulator, it seems the correct aspect ratio to pass RetroArch is 4/3
+
+commit d3a24e1dced9bc7cc0d4fe60b7b7fedf7fd47cd6
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Oct 4 09:52:48 2021 +0200
+
+    Slim down on libogg and libvorbis dependencies - take out the file I/O
+    paths that were never used
+
+commit b61c06f163f8ed55d69de415edc275d1f54f75ef
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Oct 4 09:38:33 2021 +0200
+
+    Cut down on zlib dependency
+
+commit e7d92f34cadc9defde28803c75f44aa84ab78efb
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Oct 4 09:34:48 2021 +0200
+
+    Set DRFLAC_NO_STDIO
+
+commit da0a995466f7301314015a6ec1f1a415801b074a
+Author: Fabrice Martinez <fabrice.martinez@newtec.fr>
+Date:   Wed Sep 1 13:46:29 2021 +0200
+
+    Updated libretro-common
+
+commit 90a7705c0a493f7556063acb47e11a146d1f13db
+Author: Fabrice Martinez <fabrice.martinez@newtec.fr>
+Date:   Wed Sep 1 13:39:54 2021 +0200
+
+    Updated libchdr
+
+commit 524b26cdcc722f400533ad94e0eb30a163cc88e0
+Author: Fabrice Martinez <fabrice.martinez@newtec.fr>
+Date:   Wed Sep 1 12:36:01 2021 +0200
+
+    Modified readme.md
+
+commit 323f1029254186245fb5483ea7d31a856d1eac60
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Sun Aug 22 13:15:24 2021 +0200
+
+    * Fixed timing issues in Neo Drift Out and Universe BIOS
+
+commit b3e1f30be8b88bb28bf639d2d5c455c3a660ee14
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Aug 9 16:09:03 2021 +0200
+
+    Vita doesn't seem to define 'uint' anymore in <sys/types.h> with latest
+    toolchain
+
+commit ffa5ae0e853a30e87edb33bfaa5aadb86bf3058c
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Sat May 15 11:00:34 2021 +0200
+
+    Fixed: My guess that the 0x700 mask at FF0004 is HBL was incorrect and prevented the vu-meter bars in the front loader BIOS from updating correctly. Reverting the changes.
+
+commit fc85ed4f5e3d075945493a3ae103df53b63cb340
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Sun Apr 25 09:08:31 2021 +0200
+
+    Fixed: Some games not loading under CDZ BIOS
+
+commit 2d517a53516a226007357ae0afb09fb8d6a1b1e0
+Author: Fabrice Martinez <fabrice.martinez@newtec.fr>
+Date:   Thu Apr 22 12:08:13 2021 +0200
+
+    Silence warnings
+
+commit 972e8b53cf9055400d32494736191e56faa71de8
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Thu Apr 22 01:36:21 2021 +0200
+
+    Define USE_FILE32API to try and fix minizip compilation under Android
+
+commit 8162e5e8137cff083e336fb6fa67b3ded4cebc96
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Thu Apr 22 01:08:57 2021 +0200
+
+    Using own code to read zip archives
+    Version bumped to 2021
+
+commit ee96fb2025a991436cca29dceffe1befddb7e1ea
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 20 03:09:15 2021 +0200
+
+    Add ifdefs for Switch/Vita
+
+commit f98f0367bc2e6d6be7b56457bd40992ee0ea050f
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Apr 20 01:01:37 2021 +0200
+
+    Add __LIBRETRO__ ifdef for os_types.h
+
+commit 7d47f3b19ee8184cefb0c209cb2e5dfb60d1a330
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Mon Apr 19 22:49:24 2021 +0200
+
+    * FLAC decoding reimplemented using dr_flac
+    * libchdr updated to latest version
+    * libogg and libvorbis updated
+
+commit daf79d5e2a41845e3f5d1daead04f4e1fdbba8d0
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Apr 10 15:31:02 2021 +0200
+
+    (libFLAC) - bitmath is unneeded for libretro core
+
+commit e3df6d0052ef3aac5fea20d13ee79ed60eef0485
+Author: Autechre <libretro@gmail.com>
+Date:   Sat Apr 10 13:46:28 2021 +0200
+
+    Delete lpc_intrin_sse2.o
+
+commit 23d485cf05b30de251ba2fc5b7d8b4cee91fdf2a
+Author: Autechre <libretro@gmail.com>
+Date:   Sat Apr 10 13:46:17 2021 +0200
+
+    Delete ogg_mapping.o
+
+commit ad1a6b6ed7ed9fe425bfb1f46310254d79aa7e3f
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Sat Apr 10 11:49:49 2021 +0200
+
+    * Slight change to libFLAC to avoid warnings.
+    * Audio emulation should be more stable, unfortunately this does not fix Nazca games as hoped.
+    * Timings in general should be more accurate and match better what happens in real hardware, especially the communication IRQ switching between 64Hz and 75Hz
+    * Older save states will not work, sorry. I still need to add proper versioning to the save states, maybe in the next version.
+    * Using std::array instead of std::vector wherever it's possible.
+    * Proper aspect ratio.
+
+commit 6e978a04d797d421c43e7809d6777d20024e4432
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Apr 9 23:04:33 2021 +0200
+
+    Cleanups
+
+commit 5d014543591454293aa23fafde003f78c339f363
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Apr 9 22:56:38 2021 +0200
+
+    Remove submodule
+
+commit fd5409339a43203247f03dbf4ee873638fc78bc5
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Apr 9 22:54:58 2021 +0200
+
+    Relocate libretro-common
+
+commit 5f3d42413ede56771d07bb333717c8a1229a0fd8
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Apr 9 17:04:12 2021 +0200
+
+    Cut down on unneeded files in dependencies
+
+commit a7c19f6d801b923eda3b2d7d48b85d69821c5450
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Apr 9 16:54:52 2021 +0200
+
+    Simplify Makefile.common
+
+commit 6b74f7e2d2771763454ab245fd0bdbeb35e203f7
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Apr 9 15:58:40 2021 +0200
+
+    Drop cmake
+
+commit 18a496f7b06e9fa3bdd0f2a8b976fca42a7d375b
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Mar 9 05:28:19 2021 +0100
+
+    Expand iOS rules
+
+commit 67364b89495bbf3257c234e7d9ef5867898bfa0e
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Mar 9 05:16:24 2021 +0100
+
+    Add tvos-arm64
+
+commit efa990953354b017b91a09010a60ee2fb266875f
+Author: twinaphex <libretro@gmail.com>
+Date:   Tue Mar 9 04:58:28 2021 +0100
+
+    Add ios-arm64/tvos-arm64
+
+commit 6fbf97ebdb684b9d759d84f9fd62e6f9f91a4ab6
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Jan 29 21:41:38 2021 +0100
+
+    (macOS) Improve Makefile rules
+
+commit 4f8d4ccdaa14f0d89480a12d3a64141e239c0346
+Author: twinaphex <libretro@gmail.com>
+Date:   Fri Jan 29 16:34:23 2021 +0100
+
+    (MacOS/iOS) Add macOS ARM 64bit and iOS building
+
+commit dbdaf0d67192c32ce62e0541fac9839dfba576ad
+Author: Autechre <libretro@gmail.com>
+Date:   Thu Jan 7 22:58:09 2021 +0100
+
+    Update .gitlab-ci.yml
+
+commit 5917e97051efef39437fa2b4392bf6e41b23e410
+Author: Autechre <libretro@gmail.com>
+Date:   Thu Jan 7 22:47:18 2021 +0100
+
+    Update .gitlab-ci.yml
+
+commit b795a80565b7a2c5e1f5bc055e25bedd89f5209b
+Author: Autechre <libretro@gmail.com>
+Date:   Sat Jan 2 15:20:10 2021 +0100
+
+    Update .gitlab-ci.yml
+
+commit 340fdb4422dd66a5ace23781279555cb7b279b82
+Author: Autechre <libretro@gmail.com>
+Date:   Mon Dec 28 23:48:17 2020 +0100
+
+    Update .gitlab-ci.yml
+
+commit 7e3a14e6125bb67b1798f66f401d7ac6a4a2974d
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Dec 21 23:39:16 2020 +0100
+
+    Update
+
+commit 00a4124405530c61b722fdcd2d432a1dc358a12b
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Dec 21 23:28:54 2020 +0100
+
+    Update Makefile.common
+
+commit f05e6a20dfd76126f0ce13ae2086a620e6dd1c1d
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Dec 21 23:20:01 2020 +0100
+
+    Cleanup/update
+
+commit 00509cfca382bccfb79ddb1873e58f1196d810e6
+Author: twinaphex <libretro@gmail.com>
+Date:   Mon Dec 21 23:16:57 2020 +0100
+
+    Update
+
+commit 82a9a59d2074e27ab0d44b8a624e3df37d020e14
+Author: twinaphex <libretro@gmail.com>
+Date:   Sun Dec 20 21:11:35 2020 +0100
+
+    Update
+
+commit aedbf12d4df2d2ee4dbc584ecb5102bab29aff59
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Oct 7 23:07:29 2020 +0200
+
+    Fix builds
+
+commit 7ebd3af2fb60d903a95ef74237bafe2627680c65
+Author: twinaphex <libretro@gmail.com>
+Date:   Wed Oct 7 16:55:33 2020 +0200
+
+    Add .gitlab-ci.yml
+
+commit 30f2cdacf4c8f12269713815caeec936c2e05dd7
+Author: Autechre <libretro@gmail.com>
+Date:   Wed Oct 7 15:43:02 2020 +0200
+
+    Delete ffmpeg.cfg
+
+commit 9427033717c04663f83696504be6165f5436a836
+Merge: cd35d71 c9c3805
+Author: Autechre <libretro@gmail.com>
+Date:   Wed Oct 7 15:41:56 2020 +0200
+
+    Merge pull request #55 from LodanZark/patch-2
+    
+    BIOS Clean Up
+
+commit c9c38050fb13265f4277c9db37c63023f227271a
+Author: LodanZark <lodan.zark@hotmail.com>
+Date:   Tue Sep 22 21:00:19 2020 +0100
+
+    BIOS Clean Up
+    
+    Fix the SMKMAN BIOS hashes to match with the latest files available on his website:
+    NGCD DEBUG BIOS 0.07b DEC 2010 (https://smkdan.eludevisibility.org/ngcd2/)
+    neocd_sf.rom 4a94719ee5d0e3f2b981498f70efc1b8f1cef325
+    neocd_st.rom 19729b51bdab60c42aafef6e20ea9234c7eb8410
+    neocd_sz.rom 6a947457031dd3a702a296862446d7485aa89dbb
+    
+    Clarify that ng-lo.rom it's a bad dump, that was available on MAME until version 0.127, more info:
+    https://mametesters.org/view.php?id=2579
+
+commit cd35d71398a7b26ce5483f0b54cb96de4a7f4042
+Merge: e58c46d 7b0f0a4
+Author: Autechre <libretro@gmail.com>
+Date:   Tue Sep 22 16:43:03 2020 +0200
+
+    Merge pull request #54 from LodanZark/patch-1
+    
+    Update Readme (replace Unibios 3.2 to 3.3)
+
+commit 7b0f0a4f242936f76de50180dc14e4c9a3ebed48
+Author: LodanZark <lodan.zark@hotmail.com>
+Date:   Tue Sep 22 12:35:56 2020 +0100
+
+    Update Readme (replace Unibios 3.2 to 3.3)
+    
+    This change reflects the commit: e58c46d1653a4a309767ba286f19abdbdcbb7f87
+
+commit e58c46d1653a4a309767ba286f19abdbdcbb7f87
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Fri May 15 00:55:38 2020 +0200
+
+    * CD-ROM controller logic split into a separate file
+    * Y Zooming don't need a ROM file anymore
+    * New system to identify and patch BIOS, should allow unknown BIOS to run.
+    * BIOS files don't need to have a specific name anymore they are identified by contents
+    * Support for Universe BIOS 3.3
+    * BIOS name in the menu now includes filename
+
+commit 8a17bc1736f04acbaa7e2c3c5ac33f20f992c4a1
+Merge: b90144e 0b4525e
+Author: Autechre <libretro@gmail.com>
+Date:   Wed May 6 17:56:52 2020 +0200
+
+    Merge pull request #50 from phcoder/emscripten
+    
+    Emscripten support
+
+commit 0b4525e8e65bd44b24221d18e517a15f20cb64c6
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Wed May 6 11:05:01 2020 +0200
+
+    Emscripten support
+
+commit b90144eeee7f43e5f3096e0ffb33454d491c0dd7
+Merge: 471881b efbd3c3
+Author: Autechre <libretro@gmail.com>
+Date:   Sun May 3 21:26:20 2020 +0200
+
+    Merge pull request #49 from phcoder/wiiu
+    
+    Fix WiiU the other way round
+
+commit efbd3c3c60dd9b2cd7243ad039284542c0eff19a
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Sun May 3 21:11:22 2020 +0200
+
+    Fix WiiU the other way round
+
+commit 471881be781505f0059cf0dd0e70241df57c2ef3
+Merge: a56465b 375d003
+Author: Autechre <libretro@gmail.com>
+Date:   Sun May 3 20:20:21 2020 +0200
+
+    Merge pull request #48 from libretro/revert-46-std
+    
+    Revert "Pinpoint C standard to std=c99 to prevent different semantics of uint…"
+
+commit 375d00341f1290641b650a848dd144b496132b71
+Author: Autechre <libretro@gmail.com>
+Date:   Sun May 3 20:20:01 2020 +0200
+
+    Revert "Pinpoint C standard to std=c99 to prevent different semantics of uint…"
+
+commit a56465b131d6f6f2b1b14cd2f52ab938a75f01cd
+Merge: 92ba62f c448350
+Author: Autechre <libretro@gmail.com>
+Date:   Sun May 3 05:11:39 2020 +0200
+
+    Merge pull request #46 from phcoder/std
+    
+    Pinpoint C standard to std=c99 to prevent different semantics of uint…
+
+commit c4483508eaee4d80985bd387b2867f3d8197ee16
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Sun May 3 03:45:56 2020 +0200
+
+    Pinpoint C standard to std=c99 to prevent different semantics of uint on wiiu
+    
+    Right now it depends on what is compiler default
+
+commit 92ba62f48c8e11ceef6d7266e54592a2c4396a6f
+Merge: 9565de1 f8b65b5
+Author: Autechre <libretro@gmail.com>
+Date:   Sat May 2 14:57:21 2020 +0200
+
+    Merge pull request #45 from phcoder/ctrfix
+    
+    Add STATIC_LINKING for ctr
+
+commit f8b65b53251baa1a2c222056d63949515183a353
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Fri May 1 21:41:20 2020 +0200
+
+    Add STATIC_LINKING for ctr
+    
+    It was lost in mismerge
+
+commit 9565de1a9f37b13b7626a308aa87f6432879e4e1
+Merge: 282e6d5 e51e82b
+Author: Autechre <libretro@gmail.com>
+Date:   Thu Apr 23 04:04:00 2020 +0200
+
+    Merge pull request #44 from phcoder/bigendian
+    
+    Add WiiU and PSL1GHT support
+
+commit e51e82bdfbcc16b1768853c0792c72916fd060fd
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Wed Apr 22 23:00:33 2020 +0200
+
+    Add PSL1GHT compilation
+
+commit 04508fb0e36ddbc95795c240549e386e01a5d229
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Wed Apr 22 22:47:29 2020 +0200
+
+    Fix CD-ROM music endianness
+
+commit 635153ce0de326b5457ca8f52fb0b8f15574c0d3
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Wed Apr 22 19:34:07 2020 +0200
+
+    Update libretro-common
+
+commit 6010876e5b2c2b05e25ebf1f1885d8d51b5e5a4b
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Wed Apr 22 19:32:53 2020 +0200
+
+    Add WiiU compilation
+
+commit 958c4d28dc49b2c6cd728fed847c9871fb06afe7
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Wed Apr 22 19:31:04 2020 +0200
+
+    Fix big-endian support
+
+commit 1ccbc51f6264134291f1ee5752a24c92ee965646
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Tue Apr 21 18:11:32 2020 +0200
+
+    Guard has_attribute usage
+
+commit 282e6d592d3ee14d9d06e906c3673e31aa3870b0
+Merge: d62afcf 7ebec45
+Author: Autechre <libretro@gmail.com>
+Date:   Tue Apr 21 19:54:38 2020 +0200
+
+    Merge pull request #43 from phcoder/3ds
+    
+    Add 3ds support
+
+commit 7ebec45e7b59b6040e901a1cd6d20dbd8dfb532f
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Tue Apr 21 16:23:02 2020 +0200
+
+    Add 3ds support
+    
+    Based on vita support with few adjustments
+
+commit d62afcf1fa7c88c5f5e365d2c5bc04ec7d059844
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Tue Apr 21 12:29:23 2020 +0200
+
+    Implemented horizontal interrupt masking (not verified on real hardware)
+
+commit 5a880a57328773bba6019e55f2731da629df3534
+Merge: 91b9be3 492b948
+Author: Autechre <libretro@gmail.com>
+Date:   Tue Apr 21 10:34:37 2020 +0200
+
+    Merge pull request #42 from phcoder/plat2
+    
+    Fix heisenbug on vita and few small flag fixes
+
+commit 492b9488166657cb745197328bc5ce2ab5a26e1f
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Tue Apr 21 10:14:01 2020 +0200
+
+    Apply defines in debug mode as well
+    
+    Most of those CFLAGS are not about debugging, move them out of debug guard
+
+commit 1779c9ea9b24297de6e91a079faec2dc9b7bc0ce
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Tue Apr 21 10:13:01 2020 +0200
+
+    vita: Use synchronous CD operation mode
+    
+    Threaded version crashes in mutex_unlock, not sure why. Use threadless
+    version
+
+commit 7bc976efb683e6aca62086a84ae28c4190541a3d
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Tue Apr 21 10:12:35 2020 +0200
+
+    Use slightly optimized vita compile flags
+
+commit 8acd10904336074e751cb4823b048650b89f253e
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Tue Apr 21 10:10:58 2020 +0200
+
+    Add synchronous CD operation mode
+
+commit 91b9be3d0d05b8e3470de0224b6b5d858f5d4405
+Merge: 3825848 c55eb53
+Author: Autechre <libretro@gmail.com>
+Date:   Tue Apr 21 08:46:38 2020 +0200
+
+    Merge pull request #41 from phcoder/vita
+    
+    Add psvita compilation
+
+commit c55eb53ca1c18a6ee2bf987b42e85c4352dd692c
+Author: Vladimir Serbinenko <phcoder@gmail.com>
+Date:   Tue Apr 21 02:53:34 2020 +0200
+
+    Add psvita compilation
+
+commit 61378dbd9425d8abfd5901ce0e1a77a88c859d24
+Author: Vladimir Serbinenko <phcoder@google.com>
+Date:   Tue Apr 21 01:53:11 2020 +0200
+
+    Update libretro-common
+
+commit 3825848fe7dd7e0ef859729eefcb29e2ea2956b7
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Thu Jan 30 19:37:14 2020 +0100
+
+    Initial implementation of memory maps (untested)
+
+commit bc61400badc3adc7b575368af17c28dae9462118
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Thu Jan 30 19:15:29 2020 +0100
+
+    Updated libretro-common
+
+commit 6a4f1795c173ceb1967d107a9def95b52b5b8266
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jan 25 16:44:47 2020 +0100
+
+    JUst use free from non-std
+
+commit 2a20d2cda07f59acb145921ac3ead336cb42be97
+Author: twinaphex <libretro@gmail.com>
+Date:   Sat Jan 25 16:24:46 2020 +0100
+
+    Apple buildfix
+
+commit f4eb6e815e379d66c1b3f8cc3a4456062ff8043a
+Merge: 7346ab5 943da13
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Sat Jan 25 16:00:23 2020 +0100
+
+    Merge pull request #34 from gouchi/master
+    
+    Remove duplicate
+
+commit 943da136abd8148336a94194509c2a84754dabe9
+Author: gouchi <gouchi@free.fr>
+Date:   Sat Jan 25 15:16:51 2020 +0100
+
+    Remove duplicate
+
+commit 7346ab58a0c0e96f35b39086b03439c10343b81c
+Merge: add5be7 01a533d
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Wed Dec 18 22:53:52 2019 +0100
+
+    Merge pull request #31 from jdgleaver/per-game-saves
+    
+    Add optional per-game save files
+
+commit 01a533dcd68b01f5d882b9fa34e0a60c76ebf0d7
+Author: jdgleaver <james@leaver.myzen.co.uk>
+Date:   Wed Dec 18 10:28:17 2019 +0000
+
+    Add optional per-game save files
+
+commit add5be70c5261a3b12b6c7e167046f67aff1a1ff
+Merge: 25f5fef 06ec7dc
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sun Dec 15 15:04:01 2019 +0100
+
+    Merge pull request #30 from jdgleaver/android
+    
+    Add Android build files
+
+commit 06ec7dc11833a92feedd296de360b2504b17ab7d
+Author: jdgleaver <james@leaver.myzen.co.uk>
+Date:   Sun Dec 15 13:49:39 2019 +0000
+
+    Add Android build files
+
+commit 25f5fefd1aa51eb7146be37dbd191f287ebd62a1
+Merge: 355fa8e b65d895
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Sat Nov 16 08:58:40 2019 +0100
+
+    Merge pull request #29 from gouchi/master
+    
+    Replace strcasecmp
+
+commit b65d8954bc6341aafcfae6c1b92ffc38262406a4
+Author: gouchi <gouchi@free.fr>
+Date:   Fri Nov 15 21:58:06 2019 +0100
+
+    Replace strcasecmp
+
+commit 355fa8e9ddd22eb04edc2f2dd273521c52e0d3b4
+Merge: 3ca3204 c057fb3
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Nov 12 23:20:18 2019 +0100
+
+    Merge pull request #27 from gouchi/master
+    
+    Fix linux-arm7neonhf build
+
+commit c057fb3c0e8557e291ea5fd152be9291e6882f9b
+Author: gouchi <gouchi@free.fr>
+Date:   Tue Nov 12 21:34:22 2019 +0100
+
+    Fix linux-arm7neonhf build
+
+commit 3ca3204003cffbbe710a29c7563485ca97fb3db7
+Merge: 5016cf5 2b4d12a
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Mon Nov 11 21:06:03 2019 +0100
+
+    Merge pull request #26 from slash0042/master
+    
+    Add libnx port
+
+commit 2b4d12a5d6d197a711fc2a94297fb8b4e38cb46f
+Author: slash0042 <57612744+slash0042@users.noreply.github.com>
+Date:   Mon Nov 11 11:42:14 2019 -0800
+
+    Remove -specs from libnx
+
+commit 3ba4d87ef0392ac575881c92ab5d94d74951e1bf
+Author: slash0042 <57612744+slash0042@users.noreply.github.com>
+Date:   Mon Nov 11 00:30:24 2019 -0600
+
+    Add libnx port
+
+commit 5016cf5802f75820c7bec0e47224785b4177a2d2
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Sun Nov 10 22:19:15 2019 +0100
+
+    Fixed a typo that made the makefile use CFLAGS instead of CXXFLAGS
+    Removed -ffast-math because it's already implied by -Ofast
+
+commit d02a6a1d569ac40a8c4dfa1d3c95f43918c7a5fd
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Sat Nov 9 22:48:33 2019 +0100
+
+    Renamed endian.h to neocd_endian.h to avoid conflicts under Linux.
+    Updated libretro-common submodule
+
+commit e85f7730f041c67f626ed25f4b933ee01b505289
+Author: Martinez Fabrice <martinez.fabrice@gmail.com>
+Date:   Tue Oct 29 21:29:26 2019 +0100
+
+    Changed compilation flags
+
+commit 8c8a6bac6c387d87d23494c0ca2647c87163b1c6
+Merge: 639fb7e 1990d91
+Author: Twinaphex <libretro@gmail.com>
+Date:   Tue Oct 29 21:16:05 2019 +0100
+
+    Merge pull request #21 from gouchi/master
+    
+    Added Makefile
+
+commit 1990d91db68f898b84bfafe8c1a967ad4da37ec8
+Author: gouchi <gouchi@free.fr>
+Date:   Mon Oct 28 12:03:16 2019 +0100
+
+    Added Makefile
+
+commit 639fb7ed476af34acb4bf41d1246a757d73ce45b
+Author: Fabrice Martinez <fabrice.martinez@newtec.fr>
+Date:   Wed Jul 24 11:31:22 2019 +0200
+
+    * Added libretro-common
+    * CHD support modified to used the version included in libretro-common
+    * Added support for Retroarch VFS
+
+commit f1e188f5409ae6296a511e173ee1990174327e02
+Merge: 348e88f f27139a
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Mon Jun 10 14:09:13 2019 +0200
+
+    Merge pull request #14 from RomainQuidet/macOS_libchdr_compilation
+    
+    [macOS support] ignore CMake generated files, correct compilation fol…
+
+commit f27139a67ceb3bc2b62de0e3ba9d06d90fb417c6
+Author: Romain Quidet <contact@xdappfactory.com>
+Date:   Mon Jun 10 13:11:10 2019 +0200
+
+    [macOS support] ignore CMake generated files, correct compilation following original libchdr chmake C sources and compile flag for lzma
+
+commit 348e88f33adac380032918aa5e6aed3783014caf
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Mon Jun 10 03:40:30 2019 +0200
+
+    Added support for MAME variant of the BIOS
+    Added support for the Universe BIOS
+    CHD bugfixes
+
+commit e4b6e99d3452ee9d0006cafd63e1dd66e57a3824
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Sun Jun 9 05:30:07 2019 +0200
+
+    Added support for MAME CHD files
+
+commit 55a61c87f1dde2e8dd5c43d74709594a256cb105
+Merge: fd77de0 548e11c
+Author: Twinaphex <libretro@gmail.com>
+Date:   Sat Jun 8 23:01:05 2019 +0200
+
+    Merge pull request #13 from RomainQuidet/macOS_support
+    
+    [macOS support] move back musashi to C
+
+commit 548e11c0b1e6338b169accc17e2421f7a8ca9efb
+Author: Romain Quidet <contact@xdappfactory.com>
+Date:   Sat Jun 8 22:05:39 2019 +0200
+
+    [macOS support] move back musashi to C
+
+commit fd77de0d3f557f9d92a78c7bdda44c207f992ab5
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Fri Apr 5 23:21:09 2019 +0200
+
+    - The framebuffer width is now easily reconfigurable: Just write the desired width in video.h and recompile.
+    - Default framebuffer width changed to 320
+    - Some video code refactored: shorter & easier to understand (no performance difference)
+
+commit 4ea30f8d18bddda129acea18cff77e27362a416c
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Tue Feb 19 01:33:57 2019 +0100
+
+    Fixed infinite loop in HIRQ timer (Samsho3)
+
+commit f0a11337d3d8f338be0e26d646e4cc23f083805b
+Merge: bb32776 73b237a
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Thu Jan 10 22:00:36 2019 +0100
+
+    Merge branch 'master' of https://github.com/fabrice-martinez/neocd_libretro
+
+commit bb32776de9e4bd0edbfe7439dc14fb41fdfe225b
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Thu Jan 10 21:04:56 2019 +0100
+
+    BUGFIX: Forgot to change the Z80 include to use the new names
+
+commit 86d458b106f44a72fbd37bfbc8ef300eb780bc8c
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Thu Jan 10 20:37:24 2019 +0100
+
+    Fixed a name confict in endian.h under Linux
+    Rewrote trackindex.h more "c++", no change in performance
+
+commit 73b237a94f138c896fb117293c7606c42bb34513
+Author: Fabrice Martinez <fabrice.martinez@newtec.fr>
+Date:   Thu Sep 27 11:42:55 2018 +0200
+
+    Typos corrected in README and .info file.
+
+commit f7c0c2c211651c237af2bb1ce27aaa13af5328dd
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Wed Sep 26 21:40:37 2018 +0200
+
+    - FLAC is now compiled statically on Windows platforms
+    - Small bug fix on the speed hacks
+
+commit 48f9d59d9f37253f3d9daa4c03cc5089328b7ce5
+Author: Fabrice Martinez <martinez.fabrice@gmail.com>
+Date:   Tue Sep 25 21:16:56 2018 +0200
+
+    Initial commit.

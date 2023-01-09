@@ -160,9 +160,26 @@ enum
    REGION_EU = 2,
 };
 
+static void CDInsertEject(void);
+static void CDEject(void);
+
 #ifdef WRC
 extern "C" void em_cmd_savefiles() {}
+
+extern "C" extern void wrc_on_set_options(int opts) {
+   if (opts & OPT7) {
+      CDEject();
+      //CDInsertEject();
+   }
+
+   if (opts & OPT8) {
+      //CDEject();
+      CDInsertEject();
+   }
+}
 #endif
+
+
 
 static bool firmware_is_present(unsigned region)
 {
@@ -1935,8 +1952,6 @@ void lightrec_free_mmap()
 /* Forward declarations, required for disk control
  * 'set initial disk' functionality */
 static unsigned disk_get_num_images(void);
-static void CDInsertEject(void);
-static void CDEject(void);
 
 static void InitCommon(std::vector<CDIF *> *_CDInterfaces, const bool EmulateMemcards = true, const bool WantPIOMem = false)
 {
@@ -2576,6 +2591,7 @@ extern "C" int StateAction(StateMem *sm, int load, int data_only)
          CDEject();
          CDInsertEject();
       } else {
+
          if(!cdifs || CD_SelectedDisc >= (int)cdifs->size())
             CD_SelectedDisc = -1;
 
