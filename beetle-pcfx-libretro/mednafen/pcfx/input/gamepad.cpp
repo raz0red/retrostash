@@ -22,6 +22,16 @@
 #include "../../mednafen-endian.h"
 #include "../../state_helpers.h"
 
+#ifdef WRC
+#include "../../../../wrc.h"
+#include <emscripten.h>
+#include <stdio.h>
+#endif
+
+#ifdef WRC
+extern int currController;
+#endif
+
 class PCFX_Input_Gamepad : public PCFX_Input_Device
 {
  public:
@@ -67,6 +77,7 @@ class PCFX_Input_Gamepad : public PCFX_Input_Device
 
  virtual void Frame(const void *data)
  {
+#ifndef WRC
   uint16 new_buttons = MDFN_de16lsb((uint8 *)data);
   bool mode_changed = false;
 
@@ -81,6 +92,39 @@ class PCFX_Input_Gamepad : public PCFX_Input_Device
    mode2 = !mode2;
    mode_changed = true;
   }
+#else
+    //  { "i", "I", 11, IDIT_BUTTON, NULL },
+    //  { "ii", "II", 10, IDIT_BUTTON, NULL },
+    //  { "iii", "III", 9, IDIT_BUTTON, NULL },
+    //  { "iv", "IV", 6, IDIT_BUTTON, NULL },
+    //  { "v", "V", 7, IDIT_BUTTON, NULL },
+    //  { "vi", "VI", 8, IDIT_BUTTON, NULL },
+    //  { "select", "SELECT", 4, IDIT_BUTTON, NULL },
+    //  { "run", "RUN", 5, IDIT_BUTTON, NULL },
+    //  { "up", "UP ↑", 0, IDIT_BUTTON, "down" },
+    //  { "right", "RIGHT →", 3, IDIT_BUTTON, "left" },
+    //  { "down", "DOWN ↓", 1, IDIT_BUTTON, "up" },
+    //  { "left", "LEFT ←", 2, IDIT_BUTTON, "right" },
+    //  { "mode1", "MODE 1 (Switch)", 12, IDIT_BUTTON, NULL },
+    //  { NULL, "empty", 0, IDIT_BUTTON },
+    //  { "mode2", "MODE 2 (Switch)", 13, IDIT_BUTTON, NULL },
+
+    unsigned int state = wrc_input_state[currController];
+    uint16 new_buttons = 0;
+
+    if (state & INP_B) new_buttons |= (1 << 0);         // I
+    if (state & INP_A) new_buttons |= (1 << 1);         // II
+    if (state & INP_X) new_buttons |= (1 << 2);         // III
+    if (state & INP_Y) new_buttons |= (1 << 3);         // IV
+    if (state & INP_LBUMP) new_buttons |= (1 << 4);     // V
+    if (state & INP_RBUMP) new_buttons |= (1 << 5);     // VI
+    if (state & INP_SELECT) new_buttons |= (1 << 6);    // Select
+    if (state & INP_START) new_buttons |= (1 << 7);     // Run
+    if (state & INP_UP) new_buttons |= (1 << 8);        // Up
+    if (state & INP_RIGHT) new_buttons |= (1 << 9);     // Right
+    if (state & INP_DOWN) new_buttons |= (1 << 10);     // Down
+    if (state & INP_LEFT) new_buttons |= (1 << 11);     // Left
+#endif
 
   buttons = new_buttons & ~( (1 << 12) | (1 << 14));
   buttons |= mode1 << 12;

@@ -230,7 +230,7 @@ uint16 FXINPUT_Read16(uint32 A, const v810_timestamp_t timestamp)
  FXINPUT_Update(timestamp);
 
  uint16 ret = 0;
- 
+
  A &= 0xC2;
 
  if(A == 0x00 || A == 0x80)
@@ -242,7 +242,7 @@ uint16 FXINPUT_Read16(uint32 A, const v810_timestamp_t timestamp)
   else
    ret = 0x0;
  }
- else 
+ else
  {
   int which = (A >> 7) & 1;
 
@@ -288,13 +288,19 @@ void FXINPUT_Write16(uint32 A, uint16 V, const v810_timestamp_t timestamp)
 
 void FXINPUT_Write8(uint32 A, uint8 V, const v810_timestamp_t timestamp)
 {
- FXINPUT_Write16(A, V, timestamp); 
+ FXINPUT_Write16(A, V, timestamp);
 }
 
+#ifdef WRC
+int currController = 0;
+#endif
 void FXINPUT_Frame(void)
 {
  for(int i = 0; i < TOTAL_PORTS; i++)
  {
+#ifdef WRC
+  currController = i;
+#endif
   devices[i]->Frame(data_ptr[i]);
  }
 }
