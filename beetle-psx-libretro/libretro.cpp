@@ -177,6 +177,11 @@ extern "C" extern void wrc_on_set_options(int opts) {
       CDInsertEject();
    }
 }
+
+extern "C" void wrc_step() {}
+extern "C" void wrc_save_state(char* file) {}
+extern "C" void wrc_load_state(char* file) {}
+extern "C" int wrc_start(char* arg) {}
 #endif
 
 

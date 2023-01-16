@@ -4,27 +4,29 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR/beetle-psx-libretro
 emmake make -f Makefile -j6 platform=emscripten
-cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts/
+cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts-new/
 
 cd $SCRIPT_DIR/Genesis-Plus-GX
 emmake make -f Makefile.libretro -j6 platform=emscripten
-cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts/
+cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts-new/
 
 cd $SCRIPT_DIR/beetle-pce-fast-libretro
 emmake make -f Makefile -j6 platform=emscripten
-cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts/
+cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts-new/
 
 cd $SCRIPT_DIR/beetle-pcfx-libretro
 emmake make -f Makefile -j6 platform=emscripten
-cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts/
+cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts-new/
 
 cd $SCRIPT_DIR/neocd_libretro
 emmake make -f Makefile -j6 platform=emscripten
-cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts/
+cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts-new/
 
-cd $SCRIPT_DIR/RetroArch/dist-scripts/
+cd $SCRIPT_DIR/a5200
+emmake make -f Makefile -j6 platform=emscripten
+cp *.bc $SCRIPT_DIR/RetroArch/dist-scripts-new/
+
+cd $SCRIPT_DIR/RetroArch/dist-scripts-new/
 emmake ./dist-cores.sh emscripten
 
 cd $SCRIPT_DIR
-
-#void wrc_on_set_options(int opts) {}

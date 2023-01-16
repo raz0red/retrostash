@@ -795,11 +795,13 @@ static Deinterlacer deint;
 
 static bool cdimagecache = false;
 
-
-extern "C" void em_cmd_savefiles() {
-}
-
+extern "C" void em_cmd_savefiles() {}
 extern "C" void wrc_on_set_options(int opts) {}
+extern "C" void wrc_step() {}
+extern "C" void wrc_save_state(char* file) {}
+extern "C" void wrc_load_state(char* file) {}
+extern "C" int wrc_start(char* arg) {}
+
 
 static std::vector<CDIF *> CDInterfaces;	// FIXME: Cleanup on error out.
 // TODO: LoadCommon()

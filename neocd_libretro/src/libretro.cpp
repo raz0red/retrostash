@@ -23,6 +23,10 @@ extern "C" void em_cmd_savefiles() {
 }
 
 extern "C" void wrc_on_set_options(int opts) {}
+extern "C" void wrc_step() {}
+extern "C" void wrc_save_state(char* file) {}
+extern "C" void wrc_load_state(char* file) {}
+extern "C" int wrc_start(char* arg) {}
 #endif
 
 void initVfs()

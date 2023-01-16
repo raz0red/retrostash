@@ -1234,6 +1234,10 @@ void em_cmd_savefiles() {
 }
 
 void wrc_on_set_options(int opts) {}
+void wrc_step() {}
+ wrc_save_state(char* file) {}
+void wrc_load_state(char* file) {}
+int wrc_start(char* arg) {}
 #endif
 
 static void extract_name(char *buf, const char *path, size_t size)
