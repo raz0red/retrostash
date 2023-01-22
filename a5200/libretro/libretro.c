@@ -1424,47 +1424,61 @@ static unsigned char vidBuf[512 * 512];
 //a5200_screen_buffer
 
 int wrc_start(char* arg) {
-    char* filename = arg;
-    unsigned long filesize, done = 0;
-    unsigned char* buffer;
+   char* filename = arg;
+   unsigned long filesize, done = 0;
+   unsigned char* buffer;
 
-    memcpy(atari_os, ROM_altirra_5200_os, A5200_BIOS_SIZE);
+   int bios_read = 0;
+   RFILE* bios_file = NULL;
+   int64_t bytes_read = 0;
 
-    /* Open file */
-    FILE* fp = fopen(filename, "rb");
-    if (!fp) {
-        return 0;
-    }
+   bios_file = filestream_open("/bios.bin", RETRO_VFS_FILE_ACCESS_READ,
+                              RETRO_VFS_FILE_ACCESS_HINT_NONE);
+   if (bios_file) {
+      bytes_read = filestream_read(bios_file, atari_os, A5200_BIOS_SIZE);
+      filestream_close(bios_file);
+      bios_read = (bytes_read == A5200_BIOS_SIZE);
+   }
 
-    /* Get file size */
-    fseek(fp, 0, SEEK_END);
-    filesize = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
+   if(!bios_read) {
+      memcpy(atari_os, ROM_altirra_5200_os, A5200_BIOS_SIZE);
+   }
 
-    /* allocate buffer */
-    buffer = (unsigned char*)malloc(filesize);
-    if (!buffer) {
-        fclose(fp);
-        return 0;
-    }
+   /* Open file */
+   FILE* fp = fopen(filename, "rb");
+   if (!fp) {
+         return 0;
+   }
 
-    /* Read into buffer (2k blocks) */
-    while (filesize > CHUNKSIZE) {
-        fread(buffer + done, CHUNKSIZE, 1, fp);
-        done += CHUNKSIZE;
-        filesize -= CHUNKSIZE;
-    }
+   /* Get file size */
+   fseek(fp, 0, SEEK_END);
+   filesize = ftell(fp);
+   fseek(fp, 0, SEEK_SET);
 
-    /* Read remaining bytes */
-    fread(buffer + done, filesize, 1, fp);
-    done += filesize;
+   /* allocate buffer */
+   buffer = (unsigned char*)malloc(filesize);
+   if (!buffer) {
+         fclose(fp);
+         return 0;
+   }
 
-    /* Close file */
-    fclose(fp);
+   /* Read into buffer (2k blocks) */
+   while (filesize > CHUNKSIZE) {
+         fread(buffer + done, CHUNKSIZE, 1, fp);
+         done += CHUNKSIZE;
+         filesize -= CHUNKSIZE;
+   }
+
+   /* Read remaining bytes */
+   fread(buffer + done, filesize, 1, fp);
+   done += filesize;
+
+   /* Close file */
+   fclose(fp);
 
    // load card game if ok
    if (Atari800_OpenFile(buffer, done) == AFILE_ERROR) {
-      return 0;
+         return 0;
    }
 
    a5200_screen_buffer = vidBuf;
@@ -1475,7 +1489,7 @@ int wrc_start(char* arg) {
    printf("Init succeeded.\n");
 
    return 1;
-}
+   }
 
 #define JST_UP 0x0100
 #define JST_RIGHT 0x0200

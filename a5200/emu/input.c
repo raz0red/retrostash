@@ -121,7 +121,7 @@ void INPUT_Frame(void) {
 			key_code = AKEY_SPACE;
 			press_space = 0;
 		}
-		else 
+		else
 		{
 			last_key_code = AKEY_NONE;
 		}
