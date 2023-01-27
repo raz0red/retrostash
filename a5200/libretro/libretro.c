@@ -1489,7 +1489,7 @@ int wrc_start(char* arg) {
    printf("Init succeeded.\n");
 
    return 1;
-   }
+}
 
 #define JST_UP 0x0100
 #define JST_RIGHT 0x0200
