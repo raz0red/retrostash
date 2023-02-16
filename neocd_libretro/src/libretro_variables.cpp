@@ -6,6 +6,11 @@
 #include "libretro.h"
 #include "neogeocd.h"
 
+#ifdef WRC
+#include "../../../../wrc.h"
+#include <emscripten.h>
+#endif
+
 // Variable names for the settings
 static const char* const REGION_VARIABLE = "neocd_region";
 static const char* const BIOS_VARIABLE = "neocd_bios";
@@ -58,7 +63,21 @@ void Libretro::Variables::update(bool needReset)
 
     if (libretro.environment(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
     {
+#ifdef WRC
+        uint32_t nationality = NeoGeoCD::NationalityUSA;
+
+        if (wrc_options & OPT3) {
+            nationality = NeoGeoCD::NationalityJapan;
+            printf("# region: japan\n");
+        } else if (wrc_options & OPT4) {
+            nationality = NeoGeoCD::NationalityEurope;
+            printf("# region: europe\n");
+        } else {
+            printf("# region: usa\n");
+        }
+#else
         uint32_t nationality = NeoGeoCD::NationalityJapan;
+#endif
 
         if (!strcmp(var.value, "USA"))
             nationality = NeoGeoCD::NationalityUSA;
@@ -101,11 +120,28 @@ void Libretro::Variables::update(bool needReset)
         }
     }
 
+#ifdef WRC
+    globals.cdSpeedHack = true;
+    if (wrc_options & OPT1) {
+        globals.cdSpeedHack = false;
+    }
+    printf("# cdSpeedHack: %d\n", globals.cdSpeedHack);
+#endif
+
     var.value = NULL;
     var.key = LOADSKIP_VARIABLE;
 
     if (libretro.environment(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
         globals.skipCDLoading = strcmp(var.value, "On") ? false : true;
+
+#ifdef WRC
+    globals.skipCDLoading = true;
+    if (wrc_options & OPT2) {
+        globals.skipCDLoading = false;
+    }
+    printf("# skipCDLoading: %d\n", globals.skipCDLoading);
+#endif
+
 
     var.value = NULL;
     var.key = PER_CONTENT_SAVES_VARIABLE;

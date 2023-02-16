@@ -17,11 +17,8 @@
 #include <psp2/kernel/threadmgr.h>
 #endif
 
-
 #ifdef WRC
-extern "C" void em_cmd_savefiles() {
-}
-
+extern "C" void em_cmd_savefiles() {}
 extern "C" void wrc_on_set_options(int opts) {}
 extern "C" void wrc_step() {}
 extern "C" void wrc_save_state(char* file) {}

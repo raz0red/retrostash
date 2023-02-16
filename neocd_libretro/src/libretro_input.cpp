@@ -5,6 +5,12 @@
 #include "neogeocd.h"
 #include "timeprofiler.h"
 
+
+#ifdef WRC
+#include "../../../../wrc.h"
+#include <emscripten.h>
+#endif
+
 // Definition of the Neo Geo arcade stick
 static const struct retro_input_descriptor neogeoCDPadDescriptors[] = {
     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "D-Pad Left" },
@@ -102,6 +108,30 @@ void Libretro::Input::update()
     uint8_t input2 = 0xFF;
     uint8_t input3 = 0x0F;
 
+#ifdef WRC
+    for (int i = 0; i < 2; i++) {
+        unsigned int state = wrc_input_state[i];
+        uint8_t inp = 0xFF;
+        if (state & INP_LEFT) inp &= ~(::Input::Left);
+        if (state & INP_UP) inp &= ~(::Input::Up);
+        if (state & INP_DOWN) inp &= ~(::Input::Down);
+        if (state & INP_RIGHT) inp &= ~(::Input::Right);
+        if (state & INP_A) inp &= ~(::Input::A);
+        if (state & INP_B) inp &= ~(::Input::B);
+        if (state & INP_X) inp &= ~(::Input::C);
+        if (state & INP_Y) inp &= ~(::Input::D);
+
+        if (i == 0) {
+            if (state & INP_SELECT) input3 &= ~(::Input::Controller1Select);
+            if (state & INP_START) input3 &= ~(::Input::Controller1Start);
+            input1 = inp;
+        } else {
+            if (state & INP_SELECT) input3 &= ~(::Input::Controller2Select);
+            if (state & INP_START) input3 &= ~(::Input::Controller2Start);
+            input2 = inp;
+        }
+    }
+#else
     PROFILE(p_polling, ProfilingCategory::InputPolling);
     libretro.inputPoll();
     PROFILE_END(p_polling);
@@ -127,6 +157,7 @@ void Libretro::Input::update()
         if (libretro.inputState(padMap2[i], RETRO_DEVICE_JOYPAD, 0, padMap2[i + 1]))
             input3 &= ~padMap2[i + 2];
     }
+#endif
 
     neocd->input.setInput(input1, input2, input3);
 }
