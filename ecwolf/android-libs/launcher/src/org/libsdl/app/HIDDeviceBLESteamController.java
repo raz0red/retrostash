@@ -1,0 +1,5 @@
+XSym
+0108
+937ccfde1bb88e94a197becfac701a1a
+../../../../../../deps/SDL/android-project/app/src/main/java/org/libsdl/app/HIDDeviceBLESteamController.java
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   

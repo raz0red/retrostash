@@ -1,0 +1,5 @@
+XSym
+0097
+3083c2d9c2d64e62cb1159de5e347d3b
+../../../../../../deps/SDL/android-project/app/src/main/java/org/libsdl/app/HIDDeviceManager.java
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              

@@ -1,0 +1,5 @@
+XSym
+0093
+fd5b81de8d81c9077ca7d03edc80850a
+../../../../../../deps/SDL/android-project/app/src/main/java/org/libsdl/app/HIDDeviceUSB.java
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  

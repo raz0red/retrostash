@@ -1,0 +1,5 @@
+XSym
+0090
+33293adacb82687348f04504953b0fe9
+../../../../../../deps/SDL/android-project/app/src/main/java/org/libsdl/app/HIDDevice.java
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     

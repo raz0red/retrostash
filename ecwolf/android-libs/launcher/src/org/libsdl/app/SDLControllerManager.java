@@ -1,0 +1,5 @@
+XSym
+0101
+399a17d3ce9db7660c0fdeed64aa365d
+../../../../../../deps/SDL/android-project/app/src/main/java/org/libsdl/app/SDLControllerManager.java
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          

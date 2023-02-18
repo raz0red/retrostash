@@ -1,0 +1,5 @@
+XSym
+0084
+c3ff581f1f9cdca2975a10b8a9752312
+../../../../../../deps/SDL/android-project/app/src/main/java/org/libsdl/app/SDL.java
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
