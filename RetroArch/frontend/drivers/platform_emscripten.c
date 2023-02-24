@@ -128,6 +128,9 @@ void hash_generate_from_file(int console_id, const char* path) {
 unsigned int wrc_options = {0};
 unsigned int wrc_input_state[GAMEPAD_COUNT] = {0};
 float wrc_input_state_analog[GAMEPAD_COUNT][4] = {0};
+int wrc_mouse_x = {0};
+int wrc_mouse_y = {0};
+int wrc_buttons = {0};
 
 void wrc_set_input(int index, unsigned int state, float alx, float aly, float arx, float ary) {
    wrc_input_state_analog[index][0] = alx;
@@ -135,6 +138,12 @@ void wrc_set_input(int index, unsigned int state, float alx, float aly, float ar
    wrc_input_state_analog[index][2] = arx;
    wrc_input_state_analog[index][3] = ary;
    wrc_input_state[index] = state;
+}
+
+void wrc_update_mouse(int x, int y, int buttons) {
+  wrc_mouse_x = x;
+  wrc_mouse_y = y;
+  wrc_buttons = buttons;
 }
 
 extern void wrc_on_set_options(int opts);

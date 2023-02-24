@@ -37,6 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <streams/file_stream.h>
 
+#ifdef WRC
+#include <emscripten.h>
+#endif
+
 /* forward declarations */
 RFILE* rfopen(const char *path, const char *mode);
 int rfscanf(RFILE * stream, const char * format, ...);
@@ -582,12 +586,12 @@ static void M_Load_Key(int k)
 {
    switch (k)
    {
- 
+
       case K_JOY_B:
       case K_ESCAPE:
          M_Menu_SinglePlayer_f();
          break;
- 
+
       case K_JOY_A:
       case K_ENTER:
          S_LocalSound("misc/menu2.wav");
@@ -1180,7 +1184,7 @@ M_OptionsVideo_Draw(void)
     cvar = Cvar_FindVar("r_lerpmodels");
     M_Print(16, 80, "      Smooth Animation");
     M_DrawCheckbox(220, 80, cvar->value);
-    
+
     cvar = Cvar_FindVar("r_lerpmove");
     M_Print(16, 88, "      Smooth Movement");
     M_DrawCheckbox(220, 88, cvar->value);
@@ -1969,8 +1973,11 @@ M_Quit_Key(int key)
 	break;
     }
 #else
+#ifdef WRC
+    EM_ASM({ window.emulator.setExiting(true); });
+#endif
    extern bool shutdown_core;
-	key_dest = key_console;
+    key_dest = key_console;
 	Host_Quit_f();
    shutdown_core = true;
    environ_cb(RETRO_ENVIRONMENT_SHUTDOWN, NULL);

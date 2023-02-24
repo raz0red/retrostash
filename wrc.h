@@ -39,5 +39,16 @@
 extern unsigned int wrc_options;
 extern unsigned int wrc_input_state[GAMEPAD_COUNT];
 extern float wrc_input_state_analog[GAMEPAD_COUNT][4];
+extern int wrc_mouse_x;
+extern int wrc_mouse_y;
+extern int wrc_buttons;
+
+#define MOUSE_LEFT                  1
+#define MOUSE_MIDDLE                1 << 1
+#define MOUSE_RIGHT                 1 << 2
+#define MOUSE_WHEEL_UP              1 << 3
+#define MOUSE_WHEEL_DOWN            1 << 4
+#define MOUSE_HORIZ_WHEEL_UP        1 << 5
+#define MOUSE_HORIZ_WHEEL_DOWN      1 << 6
 
 #endif

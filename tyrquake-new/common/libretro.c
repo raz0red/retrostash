@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <file/file_path.h>
 #include <streams/file_stream.h>
 #include <string/stdstring.h>
+#include <retro_dirent.h>
 
 #if defined(_WIN32) && !defined(_XBOX)
 #include <windows.h>
@@ -67,6 +68,15 @@ qboolean isDedicated;
 
 #ifdef __PSL1GHT__
 #include <lv2/systime.h>
+#elif defined (__PS3__)
+#include <sys/sys_time.h>
+#include <sys/timer.h>
+#endif
+
+#ifdef WRC
+#include "chd.h"
+#include "../../../../wrc.h"
+#include <emscripten.h>
 #endif
 
 #define SURFCACHE_SIZE 10485760
@@ -82,24 +92,48 @@ unsigned device_type = 0;
 
 unsigned MEMSIZE_MB;
 
+bool shutdown_core = false;
+
 static bool libretro_supports_bitmasks = false;
 
 #if defined(HW_DOL)
 #define DEFAULT_MEMSIZE_MB 8
 #elif defined(WIIU)
 #define DEFAULT_MEMSIZE_MB 32
-#elif defined(HW_RVL) || defined(_XBOX1) 
+#elif defined(HW_RVL) || defined(_XBOX1)
 #define DEFAULT_MEMSIZE_MB 24
 #else
 #define DEFAULT_MEMSIZE_MB 32
 #endif
 
-#define DEFAULT_SAMPLERATE 48000
-static uint16_t samplerate = DEFAULT_SAMPLERATE;
+/* Use 44.1 kHz by default (matches CD
+ * audio tracks) */
+#define AUDIO_SAMPLERATE_DEFAULT 44100
+/* SFX resampling fails with certain fps/
+ * sample rate combinations (seems to be an
+ * internal limitation...). When running at
+ * the affected framerates, we must fall back
+ * to lower or higher sample rates to maintain
+ * acceptable audio quality. */
+#define AUDIO_SAMPLERATE_22KHZ 22050
+#define AUDIO_SAMPLERATE_48KHZ 48000
+static uint16_t audio_samplerate = AUDIO_SAMPLERATE_DEFAULT;
 
-#define AUDIO_BUFFER_SIZE 4096
+/* Audio buffer must be sufficient for operation
+ * at 10 fps
+ * > (2 * 44100) / 10 = 8820 total samples
+ * > buffer size must be a power of 2
+ * > Nearest power of 2 to 8820 is 16384 */
+#define AUDIO_BUFFER_SIZE 16384
+
 static int16_t audio_buffer[AUDIO_BUFFER_SIZE];
 static unsigned audio_buffer_ptr;
+
+static int16_t audio_buffer[AUDIO_BUFFER_SIZE];
+static int16_t audio_out_buffer[AUDIO_BUFFER_SIZE];
+static unsigned audio_buffer_ptr = 0;
+
+static unsigned audio_batch_frames_max = AUDIO_BUFFER_SIZE >> 1;
 
 // System analog stick range is -0x8000 to 0x8000
 #define ANALOG_RANGE 0x8000
@@ -373,6 +407,8 @@ double Sys_DoubleTime(void)
    newtime = ticks_to_microsecs(gettime()) / 1000000.0;
 #elif defined(__PSL1GHT__)
    newtime = sysGetSystemTime() / 1000000.0;
+#elif defined(__PS3__)
+   newtime = sys_time_get_system_time() / 1000000.0;
 #elif defined(_WIN32)
    static double pfreq;
    static __int64 startcount;
@@ -465,6 +501,12 @@ void retro_init(void)
 
 void retro_deinit(void)
 {
+   if (!shutdown_core)
+   {
+      CL_Disconnect();
+      Host_ShutdownServer(false);
+   }
+
    Sys_Quit();
    if (heap)
       free(heap);
@@ -547,7 +589,7 @@ void retro_get_system_info(struct retro_system_info *info)
 void retro_get_system_av_info(struct retro_system_av_info *info)
 {
    info->timing.fps            = framerate;
-   info->timing.sample_rate    = samplerate;
+   info->timing.sample_rate    = audio_samplerate;
 
    info->geometry.base_width   = width;
    info->geometry.base_height  = height;
@@ -580,7 +622,10 @@ void retro_set_environment(retro_environment_t cb)
    vfs_iface_info.required_interface_version = 1;
    vfs_iface_info.iface                      = NULL;
    if (environ_cb(RETRO_ENVIRONMENT_GET_VFS_INTERFACE, &vfs_iface_info))
+   {
       filestream_vfs_init(&vfs_iface_info);
+      dirent_vfs_init(&vfs_iface_info);
+   }
 }
 
 void retro_set_audio_sample(retro_audio_sample_t cb)
@@ -615,8 +660,20 @@ void retro_reset(void)
    M_Game_StartNewGame();
 }
 
+
+#ifdef WRC
+static initial_send = true;
+#endif
+
 void Sys_SendKeyEvents(void)
 {
+#ifdef WRC
+   if (initial_send) {
+      retro_set_controller_port_device(0, RETRO_DEVICE_MODERN);
+      initial_send = false;
+   }
+#endif
+
    int port;
 
    if (!poll_cb)
@@ -626,6 +683,43 @@ void Sys_SendKeyEvents(void)
 
    if (!input_cb)
       return;
+
+#ifdef WRC
+   if (wrc_buttons & MOUSE_LEFT)
+      Key_Event(K_MOUSE1, 1);
+   else
+      Key_Event(K_MOUSE1, 0);
+
+   if (wrc_buttons & MOUSE_RIGHT)
+      Key_Event(K_MOUSE2, 1);
+   else
+      Key_Event(K_MOUSE2, 0);
+
+   if (wrc_buttons & MOUSE_MIDDLE)
+      Key_Event(K_MOUSE3, 1);
+   else
+      Key_Event(K_MOUSE3, 0);
+
+   if (wrc_buttons & MOUSE_WHEEL_UP)
+      Key_Event(K_MOUSE4, 1);
+   else
+      Key_Event(K_MOUSE4, 0);
+
+   if (wrc_buttons & MOUSE_WHEEL_DOWN)
+      Key_Event(K_MOUSE5, 1);
+   else
+      Key_Event(K_MOUSE5, 0);
+
+   if (wrc_buttons & MOUSE_HORIZ_WHEEL_UP)
+      Key_Event(K_MOUSE6, 1);
+   else
+      Key_Event(K_MOUSE6, 0);
+
+   if (wrc_buttons & MOUSE_HORIZ_WHEEL_DOWN)
+      Key_Event(K_MOUSE7, 1);
+   else
+      Key_Event(K_MOUSE7, 0);
+#endif
 
    for (port = 0; port < MAX_PADS; port++)
    {
@@ -638,6 +732,7 @@ void Sys_SendKeyEvents(void)
          case RETRO_DEVICE_JOYPAD_ALT:
          case RETRO_DEVICE_MODERN:
             {
+#ifndef WRC
                unsigned i;
                int16_t ret    = 0;
                if (libretro_supports_bitmasks)
@@ -651,7 +746,7 @@ void Sys_SendKeyEvents(void)
                   }
                }
 
-               for (i=RETRO_DEVICE_ID_JOYPAD_B; 
+               for (i=RETRO_DEVICE_ID_JOYPAD_B;
                      i <= RETRO_DEVICE_ID_JOYPAD_R3; ++i)
                {
                   if (ret & (1 << i))
@@ -659,6 +754,69 @@ void Sys_SendKeyEvents(void)
                   else
                      Key_Event(K_JOY_B + i, 0);
                }
+#else
+               unsigned i;
+               unsigned int state = wrc_input_state[0];
+               for (i=RETRO_DEVICE_ID_JOYPAD_B; i <= RETRO_DEVICE_ID_JOYPAD_R3; ++i)
+               {
+                  int hit = 0;
+                  switch(i) {
+                     case RETRO_DEVICE_ID_JOYPAD_B:
+                        hit = state & INP_A;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_Y:
+                        hit = state & INP_X;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_SELECT:
+                        hit = state & INP_SELECT;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_START:
+                        hit = state & INP_START;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_UP:
+                        hit = state & INP_UP;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_DOWN:
+                        hit = state & INP_DOWN;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_LEFT:
+                        hit = state & INP_LEFT;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_RIGHT:
+                        hit = state & INP_RIGHT;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_A:
+                        hit = state & INP_B;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_X:
+                        hit = state & INP_Y;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_L:
+                        hit = state & INP_LBUMP;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_R:
+                        hit = state & INP_RBUMP;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_L2:
+                        hit = state & INP_LTRIG;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_R2:
+                        hit = state & INP_RTRIG;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_L3:
+                        hit = state & INP_LTHUMB;
+                        break;
+                     case RETRO_DEVICE_ID_JOYPAD_R3:
+                        hit = state & INP_RTHUMB;
+                        break;
+                  }
+
+                  if (hit)
+                     Key_Event(K_JOY_B + i, 1);
+                  else
+                     Key_Event(K_JOY_B + i, 0);
+               }
+#endif
             }
             break;
          case RETRO_DEVICE_KEYBOARD:
@@ -725,6 +883,12 @@ void Sys_SendKeyEvents(void)
    }
 }
 
+#ifdef WRC
+void wrc_on_key(int key, int down) {
+   Key_Event((knum_t) key, down);
+}
+#endif
+
 static void keyboard_cb(bool down, unsigned keycode,
       uint32_t character, uint16_t mod)
 {
@@ -741,6 +905,59 @@ const char *argv[MAX_NUM_ARGVS];
 static const char *empty_string = "";
 
 extern int coloredlights;
+
+static const float supported_framerates[] = {
+   10.0f,
+   15.0f,
+   20.0f,
+   25.0f,
+   30.0f,
+   40.0f,
+   50.0f,
+   60.0f,
+   72.0f,
+   75.0f,
+   90.0f,
+   100.0f,
+   119.0f,
+   120.0f,
+   144.0f,
+   155.0f,
+   160.0f,
+   165.0f,
+   180.0f,
+   200.0f,
+   240.0f,
+   244.0f,
+   300.0f,
+   360.0f
+};
+#define NUM_SUPPORTED_FRAMERATES (sizeof(supported_framerates) / sizeof(supported_framerates[0]))
+
+static float sanitise_framerate(float target)
+{
+   unsigned i = 1;
+
+   if (target <= supported_framerates[0])
+      return supported_framerates[0];
+
+   if (target >= supported_framerates[NUM_SUPPORTED_FRAMERATES - 1])
+      return supported_framerates[NUM_SUPPORTED_FRAMERATES - 1];
+
+   while (i < NUM_SUPPORTED_FRAMERATES)
+   {
+      if (supported_framerates[i] > target)
+         break;
+
+      i++;
+   }
+
+   if ((supported_framerates[i] - target) <=
+       (target - supported_framerates[i - 1]))
+      return supported_framerates[i];
+
+   return supported_framerates[i - 1];
+}
 
 static void update_variables(bool startup)
 {
@@ -761,7 +978,7 @@ static void update_variables(bool startup)
                   &target_framerate))
                target_framerate = 60.0f;
 
-            framerate = target_framerate;
+            framerate = sanitise_framerate(target_framerate);
          }
          else
             framerate = atof(var.value);
@@ -771,22 +988,16 @@ static void update_variables(bool startup)
 
       frametime_usec = 1000.0f / framerate;
 
-      /* Note: The audio handling code of the game engine
-       * completely falls apart below 50 FPS. To go any
-       * lower than this, we have to manipulate the actual
-       * audio sample rate to achieve a fixed 'samples per
-       * frame' matching the default frame rate of 60. This
-       * means we get progressively lower quality audio as
-       * the frame rate decreases, but the alternative is
-       * no sound at all... */
-      if (framerate > 49.0f)
-         samplerate = DEFAULT_SAMPLERATE;
+      /* Certain framerates require specific
+       * sample rates to avoid distorted audio */
+      if ((framerate == 40.0f) ||
+          (framerate == 72.0f) ||
+          (framerate == 119.0f))
+         audio_samplerate = AUDIO_SAMPLERATE_22KHZ;
+      else if (framerate == 120.0f)
+         audio_samplerate = AUDIO_SAMPLERATE_48KHZ;
       else
-      {
-         samplerate = (uint16_t)((float)DEFAULT_SAMPLERATE * (framerate / 60.0f));
-         /* Round up to the nearest power of 2 */
-         samplerate = (samplerate + 0x1) & ~0x1;
-      }
+         audio_samplerate = AUDIO_SAMPLERATE_DEFAULT;
    }
 
    var.key = "tyrquake_colored_lighting";
@@ -801,7 +1012,7 @@ static void update_variables(bool startup)
    }
    else
       coloredlights = 0;
-   
+
    var.key = "tyrquake_resolution";
    var.value = NULL;
 
@@ -851,7 +1062,7 @@ static void update_variables(bool startup)
       else
          invert_y_axis = -1;
    }
-   
+
    var.key = "tyrquake_analog_deadzone";
    var.value = NULL;
 
@@ -886,8 +1097,6 @@ static void audio_process(void);
 static void audio_callback(void);
 
 static bool did_flip;
-
-bool shutdown_core = false;
 
 void retro_run(void)
 {
@@ -985,7 +1194,7 @@ bool retro_load_game(const struct retro_game_info *info)
 			// > Build final save path
 			fill_pathname_join(g_save_dir, base_save_dir, game_name, sizeof(g_save_dir));
 			use_external_savedir = true;
-			
+
 			// > Create save directory, if required
 			if (!path_is_directory(g_save_dir))
 			{
@@ -1013,10 +1222,17 @@ bool retro_load_game(const struct retro_game_info *info)
 
    MEMSIZE_MB = DEFAULT_MEMSIZE_MB;
 
+#ifndef WRC
    if ( strstr(path_lower, "id1") ||
         strstr(path_lower, "quoth") ||
         strstr(path_lower, "hipnotic") ||
         strstr(path_lower, "rogue") )
+#else
+   if ( strstr(path_lower, "/id1/") ||
+        strstr(path_lower, "/quoth/") ||
+        strstr(path_lower, "/hipnotic/") ||
+        strstr(path_lower, "/rogue/") )
+#endif
    {
       char tmp_dir[PATH_MAX_LENGTH];
       tmp_dir[0] = '\0';
@@ -1039,22 +1255,38 @@ bool retro_load_game(const struct retro_game_info *info)
    parms.memsize = MEMSIZE_MB * 1024 * 1024;
    argv[0] = empty_string;
 
+#ifndef WRC
    if (strstr(g_pak_path, "rogue"))
+#else
+   if (strstr(g_pak_path, "/rogue/"))
+#endif
    {
       parms.argc++;
       argv[1] = "-rogue";
    }
+#ifndef WRC
    else if (strstr(g_pak_path, "hipnotic"))
+#else
+   else if (strstr(g_pak_path, "/hipnotic/"))
+#endif
    {
       parms.argc++;
       argv[1] = "-hipnotic";
    }
+#ifndef WRC
    else if (strstr(g_pak_path, "quoth"))
+#else
+   else if (strstr(g_pak_path, "/quoth/"))
+#endif
    {
       parms.argc++;
       argv[1] = "-quoth";
    }
+#ifndef WRC
    else if (!strstr(g_pak_path, "id1"))
+#else
+   else if (!strstr(g_pak_path, "/id1/"))
+#endif
    {
       const char *basename = path_basename(g_rom_dir);
       char tmp_dir[PATH_MAX_LENGTH];
@@ -1105,7 +1337,7 @@ bool retro_load_game(const struct retro_game_info *info)
       return false;
    }
 
-   /* Override some default binds with more modern ones if we are booting the 
+   /* Override some default binds with more modern ones if we are booting the
     * game for the first time. */
    fill_pathname_join(cfg_file, g_save_dir, "config.cfg", sizeof(cfg_file));
 
@@ -1239,10 +1471,10 @@ void	VID_SetPalette2 (unsigned char *palette)
 		pal += 3;
 		v = (255<<24) + (r<<0) + (g<<8) + (b<<16);
 		*table++ = v;
-		
+
 	}
 
-	
+
 	d_8to24table[255] &= 0xffffff;	// 255 is transparent
 	d_8to24table[0] &= 0x000000;	// black is black
 
@@ -1347,7 +1579,7 @@ void D_EndDirectRect(int x, int y, int width, int height)
 static void audio_process(void)
 {
    /* adds music raw samples and/or advances midi driver */
-   BGM_Update(); 
+   BGM_Update();
    /* update audio */
    if (cls.state == ca_active)
    {
@@ -1360,23 +1592,15 @@ static void audio_process(void)
    CDAudio_Update();
 }
 
-static void
-audio_batch_cb_blocking(int16_t * sa, size_t sz)
-{
-   while (sz)
-   {
-      size_t r = audio_batch_cb(sa, sz);
-      sz -= r;
-      sa += r;
-   }
-}
-
 static void audio_callback(void)
 {
-   unsigned read_first, read_second;
-   const int nchans = 2;
-   int samples_per_frame = (nchans * samplerate) / framerate;
-   unsigned read_end = audio_buffer_ptr + samples_per_frame;
+   unsigned read_first;
+   unsigned read_second;
+   unsigned samples_per_frame      = (2 * audio_samplerate) / framerate;
+   unsigned audio_frames_remaining = samples_per_frame >> 1;
+   unsigned read_end               = audio_buffer_ptr + samples_per_frame;
+   int16_t *audio_out_ptr          = audio_out_buffer;
+   uintptr_t i;
 
    if (read_end > AUDIO_BUFFER_SIZE)
       read_end = AUDIO_BUFFER_SIZE;
@@ -1384,19 +1608,47 @@ static void audio_callback(void)
    read_first  = read_end - audio_buffer_ptr;
    read_second = samples_per_frame - read_first;
 
-   audio_batch_cb_blocking(audio_buffer + audio_buffer_ptr, read_first / nchans);
+   for (i = 0; i < read_first; i++)
+      *(audio_out_ptr++) = *(audio_buffer + audio_buffer_ptr + i);
+
    audio_buffer_ptr += read_first;
+
    if (read_second >= 1)
    {
-      audio_batch_cb_blocking(audio_buffer, read_second / nchans);
+      for (i = 0; i < read_second; i++)
+         *(audio_out_ptr++) = *(audio_buffer + i);
+
       audio_buffer_ptr = read_second;
    }
+
+   /* At low framerates we generate very large
+    * numbers of samples per frame. This may
+    * exceed the capacity of the frontend audio
+    * batch callback; if so, write the audio
+    * samples in chunks */
+   audio_out_ptr = audio_out_buffer;
+   do
+   {
+      unsigned audio_frames_to_write =
+            (audio_frames_remaining > audio_batch_frames_max) ?
+                  audio_batch_frames_max : audio_frames_remaining;
+      unsigned audio_frames_written  =
+            audio_batch_cb(audio_out_ptr, audio_frames_to_write);
+
+      if ((audio_frames_written < audio_frames_to_write) &&
+          (audio_frames_written > 0))
+         audio_batch_frames_max = audio_frames_written;
+
+      audio_frames_remaining -= audio_frames_to_write;
+      audio_out_ptr          += audio_frames_to_write << 1;
+   }
+   while (audio_frames_remaining > 0);
 }
 
 qboolean SNDDMA_Init(dma_t *dma)
 {
    shm = dma;
-   shm->speed = samplerate;
+   shm->speed = audio_samplerate;
    shm->channels = 2;
    shm->samplepos = 0;
    shm->samplebits = 16;
@@ -1459,8 +1711,9 @@ void
 IN_Init(void)
 {
    int i;
-   for (i = 0; i < MAX_PADS; i++)
+   for (i = 0; i < MAX_PADS; i++) {
       quake_devices[i] = RETRO_DEVICE_JOYPAD;
+   }
 }
 
 void
@@ -1480,9 +1733,15 @@ IN_Move(usercmd_t *cmd)
    static int cur_my;
    int mx, my, lsx, lsy, rsx, rsy;
 
+#ifndef WRC
    if (quake_devices[0] == RETRO_DEVICE_KEYBOARD) {
+
       mx = input_cb(0, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_X);
       my = input_cb(0, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_Y);
+#else
+      mx = wrc_mouse_x;
+      my = wrc_mouse_y;
+#endif
 
       if (mx != cur_mx || my != cur_my)
       {
@@ -1503,12 +1762,19 @@ IN_Move(usercmd_t *cmd)
          cur_mx = mx;
          cur_my = my;
       }
+#ifndef WRC
    } else if (quake_devices[0] != RETRO_DEVICE_NONE && quake_devices[0] != RETRO_DEVICE_KEYBOARD) {
+
       // Left stick move
       lsx = input_cb(0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT,
                RETRO_DEVICE_ID_ANALOG_X);
       lsy = input_cb(0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT,
                RETRO_DEVICE_ID_ANALOG_Y);
+#else
+      lsx = (wrc_input_state_analog[0][0] * ANALOG_RANGE);
+      lsy = (wrc_input_state_analog[0][1] * ANALOG_RANGE);
+#endif
+
 
       if (lsx > analog_deadzone || lsx < -analog_deadzone) {
          if (lsx > analog_deadzone)
@@ -1527,10 +1793,15 @@ IN_Move(usercmd_t *cmd)
       }
 
       // Right stick Look
+#ifndef WRC
       rsx = input_cb(0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT,
                RETRO_DEVICE_ID_ANALOG_X);
       rsy = invert_y_axis * input_cb(0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT,
                RETRO_DEVICE_ID_ANALOG_Y);
+#else
+      rsx = (wrc_input_state_analog[0][2] * ANALOG_RANGE);
+      rsy = (m_pitch.value >= 0 ? -1 : 1) * (wrc_input_state_analog[0][3] * ANALOG_RANGE);
+#endif
 
       if (rsx > analog_deadzone || rsx < -analog_deadzone)
       {
@@ -1556,7 +1827,9 @@ IN_Move(usercmd_t *cmd)
          cl.viewangles[PITCH] = 80;
       if (cl.viewangles[PITCH] < -70)
          cl.viewangles[PITCH] = -70;
+#ifndef WRC
    }
+#endif
 }
 
 /*
@@ -1568,3 +1841,18 @@ void
 IN_ModeChanged(void)
 {
 }
+
+#ifdef WRC
+void em_cmd_savefiles() {}
+void wrc_on_set_options(int opts) {}
+void wrc_step() {}
+void wrc_save_state(char* file) {}
+void wrc_load_state(char* file) {}
+int wrc_start(char* arg) {}
+
+const chd_header *chd_get_header(chd_file *chd) { return 0; }
+chd_error chd_get_metadata(chd_file *chd, UINT32 searchtag, UINT32 searchindex, void *output, UINT32 outputlen, UINT32 *resultlen, UINT32 *resulttag, UINT8 *resultflags) { return CHDERR_NONE; }
+chd_error chd_open(const char *filename, int mode, chd_file *parent, chd_file **chd) { return CHDERR_NONE; }
+void chd_close(chd_file *chd) {}
+chd_error chd_read(chd_file *chd, UINT32 hunknum, void *buffer) { return CHDERR_NONE; }
+#endif

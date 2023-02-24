@@ -277,6 +277,9 @@ Host_WriteConfiguration(void)
 // config.cfg cvars
     if (host_initialized & !isDedicated) {
 	f = rfopen(va("%s/config.cfg", com_savedir), "w");
+
+printf("#### Wrote configuration file: %s/config.cfg\n", com_savedir);
+
 	if (!f) {
 	    Con_Printf("Couldn't write config.cfg.\n");
 	    return;

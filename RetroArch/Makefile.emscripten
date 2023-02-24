@@ -68,7 +68,7 @@ OBJDIR := obj-emscripten
 LIBS    := -s USE_ZLIB=1
 # WRC (CWrap and several exported methods)
 LDFLAGS := -L. --no-heap-copy -s $(LIBS) -s TOTAL_MEMORY=$(MEMORY) -s EXIT_RUNTIME=0 -s FULL_ES2=1 -s "EXTRA_EXPORTED_RUNTIME_METHODS=['callMain', 'cwrap']" \
-           -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_FUNCTIONS="['_main', '_malloc', '_cmd_savefiles', '_cmd_save_state', '_cmd_load_state', '_cmd_take_screenshot', '_cmd_audio_reinit', '_cmd_audio_stop', '_cmd_audio_start', '_cmd_pause', '_cmd_unpause', '_emscripten_mainloop', '_rwebaudio_enable', '_hash_generate_from_file', '_wrc_set_input', '_wrc_set_options', '_wrc_enable_bilinear_filter', '_wrc_start', '_wrc_step', '_wrc_save_state', '_wrc_load_state']" \
+           -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_FUNCTIONS="['_main', '_malloc', '_cmd_savefiles', '_cmd_save_state', '_cmd_load_state', '_cmd_take_screenshot', '_cmd_audio_reinit', '_cmd_audio_stop', '_cmd_audio_start', '_cmd_pause', '_cmd_unpause', '_emscripten_mainloop', '_rwebaudio_enable', '_hash_generate_from_file', '_wrc_set_input', '_wrc_set_options', '_wrc_enable_bilinear_filter', '_wrc_start', '_wrc_step', '_wrc_save_state', '_wrc_load_state', '_wrc_update_mouse', '_wrc_on_key']" \
            --js-library emscripten/library_rwebaudio.js \
            --js-library emscripten/library_rwebcam.js \
            --js-library emscripten/library_errno_codes.js
@@ -104,6 +104,8 @@ libretro = libretro_emscripten.bc
 ifneq ($(V), 1)
    Q := @
 endif
+
+# -fsanitize=address
 
 ifeq ($(DEBUG), 1)
    LDFLAGS += -O0 -g
