@@ -45,6 +45,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <streams/file_stream.h>
 
+#ifdef WRC
+#include <emscripten.h>
+#endif
+
 /* forward declarations */
 RFILE* rfopen(const char *path, const char *mode);
 int rfclose(RFILE* stream);
@@ -278,8 +282,6 @@ Host_WriteConfiguration(void)
     if (host_initialized & !isDedicated) {
 	f = rfopen(va("%s/config.cfg", com_savedir), "w");
 
-printf("#### Wrote configuration file: %s/config.cfg\n", com_savedir);
-
 	if (!f) {
 	    Con_Printf("Couldn't write config.cfg.\n");
 	    return;
@@ -293,6 +295,11 @@ printf("#### Wrote configuration file: %s/config.cfg\n", com_savedir);
 	    rfprintf(f, "+mlook\n");
 
 	rfclose(f);
+
+#ifdef WRC
+    EM_ASM({ window.emulator.onSave()});
+#endif
+
     }
 }
 

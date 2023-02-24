@@ -36,6 +36,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <streams/file_stream.h>
 
+#ifdef WRC
+#include <emscripten.h>
+#endif
+
 /* forward declarations */
 RFILE* rfopen(const char *path, const char *mode);
 int rfscanf(RFILE * stream, const char * format, ...);
@@ -545,6 +549,10 @@ void Host_Savegame_f(void)
    }
    rfclose(f);
    Con_Printf("done.\n");
+
+#ifdef WRC
+    EM_ASM({ window.emulator.onSave()});
+#endif
 }
 
 

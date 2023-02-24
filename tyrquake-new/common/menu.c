@@ -337,6 +337,9 @@ M_Main_Draw(void)
 		   Draw_CachePic(va("gfx/menudot%i.lmp", f + 1)));
 }
 
+#ifdef WRC
+extern void Host_WriteConfiguration(void);
+#endif
 
 static void
 M_Main_Key(int key)
@@ -351,6 +354,10 @@ M_Main_Key(int key)
 	if (cls.demonum != -1 && !cls.demoplayback
 	    && cls.state <= ca_connected)
 	    CL_NextDemo();
+#ifdef WRC
+    printf("### Write config...\n");
+    Host_WriteConfiguration();
+#endif
 	break;
 
     case K_JOY_DOWN:
