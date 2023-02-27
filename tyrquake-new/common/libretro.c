@@ -171,8 +171,13 @@ gp_layout_t modern = {
    {
       {"JOY_LEFT",  "+moveleft"},     {"JOY_RIGHT", "+moveright"},
       {"JOY_DOWN",  "+back"},         {"JOY_UP",    "+forward"},
+#ifndef WRC
       {"JOY_B",     "+movedown"},     {"JOY_A",     "+moveright"},
       {"JOY_X",     "+moveup"},       {"JOY_Y",     "+moveleft"},
+#else
+      {"JOY_A",     "+movedown"},     {"JOY_B",     "+moveright"},
+      {"JOY_Y",     "+moveup"},       {"JOY_X",     "+moveleft"},
+#endif
       {"JOY_L",     "impulse 12"},    {"JOY_R",     "impulse 10"},
       {"JOY_L2",    "+jump"},         {"JOY_R2",    "+attack"},
       {"JOY_SELECT","+showscores"},   {"JOY_START", "togglemenu"},
@@ -203,8 +208,13 @@ gp_layout_t classic = {
    {
       {"JOY_LEFT",  "+left"},         {"JOY_RIGHT", "+right"},
       {"JOY_DOWN",  "+back"},         {"JOY_UP",    "+forward"},
+#ifndef WRC
       {"JOY_B",     "+jump"} ,        {"JOY_A",     "impulse 10"},
       {"JOY_X",     "+klook"},        {"JOY_Y",     "+attack"},
+#else
+      {"JOY_A",     "+jump"} ,        {"JOY_B",     "impulse 10"},
+      {"JOY_Y",     "+klook"},        {"JOY_X",     "+attack"},
+#endif
       {"JOY_L",     "+moveleft"},     {"JOY_R",     "+moveright"},
       {"JOY_L2",    "+lookup"},       {"JOY_R2",    "+lookdown"},
       {"JOY_L3",    "+movedown"},     {"JOY_R3",    "+moveup"},
@@ -237,8 +247,13 @@ gp_layout_t classic_alt = {
    {
       {"JOY_LEFT",  "+moveleft"},     {"JOY_RIGHT", "+moveright"},
       {"JOY_DOWN",  "+back"},         {"JOY_UP",    "+forward"},
+#ifndef WRC
       {"JOY_B",     "+lookdown"},     {"JOY_A",     "+right"},
       {"JOY_X",     "+lookup"},       {"JOY_Y",     "+left"},
+#else
+      {"JOY_A",     "+lookdown"},     {"JOY_B",     "+right"},
+      {"JOY_Y",     "+lookup"},       {"JOY_X",     "+left"},
+#endif
       {"JOY_L",     "+jump"},         {"JOY_R",     "+attack"},
       {"JOY_L2",    "+speed"},          {"JOY_R2",    "impulse 10"},
       {"JOY_L3",    "+movedown"},     {"JOY_R3",    "impulse 12"},
@@ -663,6 +678,9 @@ void retro_reset(void)
 
 #ifdef WRC
 static initial_send = true;
+void retro_set_modern_controller() {
+   retro_set_controller_port_device(0, RETRO_DEVICE_MODERN);;
+}
 #endif
 
 void Sys_SendKeyEvents(void)
@@ -762,10 +780,10 @@ void Sys_SendKeyEvents(void)
                   int hit = 0;
                   switch(i) {
                      case RETRO_DEVICE_ID_JOYPAD_B:
-                        hit = state & INP_A;
+                        hit = state & INP_B;
                         break;
                      case RETRO_DEVICE_ID_JOYPAD_Y:
-                        hit = state & INP_X;
+                        hit = state & INP_Y;
                         break;
                      case RETRO_DEVICE_ID_JOYPAD_SELECT:
                         hit = state & INP_SELECT;
@@ -786,10 +804,10 @@ void Sys_SendKeyEvents(void)
                         hit = state & INP_RIGHT;
                         break;
                      case RETRO_DEVICE_ID_JOYPAD_A:
-                        hit = state & INP_B;
+                        hit = state & INP_A;
                         break;
                      case RETRO_DEVICE_ID_JOYPAD_X:
-                        hit = state & INP_Y;
+                        hit = state & INP_X;
                         break;
                      case RETRO_DEVICE_ID_JOYPAD_L:
                         hit = state & INP_LBUMP;
@@ -1150,6 +1168,43 @@ static void extract_directory(char *out_dir, const char *in_dir, size_t size)
       strlcpy(out_dir, ".", size);
 }
 
+#ifdef WRC
+void retro_aux_defaults() {
+   Cmd_ExecuteString("bind AUX1 \"+moveright\"", src_command);
+   Cmd_ExecuteString("bind AUX2 \"+moveleft\"", src_command);
+   Cmd_ExecuteString("bind AUX3 \"+back\"", src_command);
+   Cmd_ExecuteString("bind AUX4 \"+forward\"", src_command);
+   Cmd_ExecuteString("bind AUX5 \"+right\"", src_command);
+   Cmd_ExecuteString("bind AUX6 \"+left\"", src_command);
+   Cmd_ExecuteString("bind AUX7 \"+lookup\"", src_command);
+   Cmd_ExecuteString("bind AUX8 \"+lookdown\"", src_command);
+}
+
+void retro_modern_defaults(char *cfg_file) {
+printf("### retro_modern_defaults\n");
+   if (!cfg_file || !path_is_valid(cfg_file))
+   {
+printf("### retro_modern_defaults (full)\n");
+       Cvar_Set("gamma", "0.95");
+       Cmd_ExecuteString("bind ' \"toggleconsole\"", src_command);
+       Cmd_ExecuteString("bind ~ \"toggleconsole\"", src_command);
+       Cmd_ExecuteString("bind ` \"toggleconsole\"", src_command);
+
+       Cmd_ExecuteString("bind f \"+moveup\"", src_command);
+       Cmd_ExecuteString("bind c \"+movedown\"", src_command);
+
+       Cmd_ExecuteString("bind a \"+moveleft\"", src_command);
+       Cmd_ExecuteString("bind d \"+moveright\"", src_command);
+       Cmd_ExecuteString("bind w \"+forward\"", src_command);
+       Cmd_ExecuteString("bind s \"+back\"", src_command);
+
+       Cmd_ExecuteString("bind e \"impulse 10\"", src_command);
+       Cmd_ExecuteString("bind q \"impulse 12\"", src_command);
+   }
+   retro_aux_defaults();
+}
+#endif
+
 bool retro_load_game(const struct retro_game_info *info)
 {
    unsigned i;
@@ -1341,6 +1396,7 @@ bool retro_load_game(const struct retro_game_info *info)
     * game for the first time. */
    fill_pathname_join(cfg_file, g_save_dir, "config.cfg", sizeof(cfg_file));
 
+#ifndef WRC
    if (!path_is_valid(cfg_file))
    {
        Cvar_Set("gamma", "0.95");
@@ -1368,11 +1424,12 @@ bool retro_load_game(const struct retro_game_info *info)
    Cmd_ExecuteString("bind AUX6 \"+left\"", src_command);
    Cmd_ExecuteString("bind AUX7 \"+lookup\"", src_command);
    Cmd_ExecuteString("bind AUX8 \"+lookdown\"", src_command);
+#else
+   retro_modern_defaults(cfg_file);
+#endif
 
    return true;
 }
-
-
 
 void retro_unload_game(void)
 {

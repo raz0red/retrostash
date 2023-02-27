@@ -39,6 +39,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef WRC
 #include <emscripten.h>
+extern void retro_modern_defaults(char *cfg_file);
+extern void retro_set_modern_controller();
 #endif
 
 /* forward declarations */
@@ -317,6 +319,9 @@ M_Menu_Main_f(void)
     key_dest = key_menu;
     m_state = m_main;
     m_entersound = true;
+#ifdef WRC
+    EM_ASM({ window.emulator.onShowQuakeMenu(true)});
+#endif
 }
 
 
@@ -357,6 +362,7 @@ M_Main_Key(int key)
 #ifdef WRC
     printf("### Write config...\n");
     Host_WriteConfiguration();
+    EM_ASM({ window.emulator.onShowQuakeMenu(false)});
 #endif
 	break;
 
@@ -478,7 +484,11 @@ M_SinglePlayer_Key(int key)
 		Cbuf_AddText("disconnect\n");
 	    Cbuf_AddText("maxplayers 1\n");
 	    Cbuf_AddText("map start\n");
-
+#ifdef WRC
+        printf("### Write config...\n");
+        Host_WriteConfiguration();
+        EM_ASM({ window.emulator.onShowQuakeMenu(false)});
+#endif
 	    break;
 
 	case 1:
@@ -613,6 +623,11 @@ static void M_Load_Key(int k)
 
          // issue the load command
          Cbuf_AddText("load s%i\n", load_cursor);
+#ifdef WRC
+        printf("### Write config...\n");
+        Host_WriteConfiguration();
+        EM_ASM({ window.emulator.onShowQuakeMenu(false)});
+#endif
          return;
 
       case K_JOY_UP:
@@ -652,7 +667,12 @@ static void M_Save_Key(int k)
          m_state = m_none;
          key_dest = key_game;
          Cbuf_AddText("save s%i\n", load_cursor);
-         return;
+#ifdef WRC
+        printf("### Write config...\n");
+        Host_WriteConfiguration();
+        EM_ASM({ window.emulator.onShowQuakeMenu(false)});
+#endif
+        return;
 
       case K_JOY_UP:
       case K_JOY_LEFT:
@@ -1004,9 +1024,21 @@ M_OptionsInput_AdjustSliders(int dir)
     }
 }
 
+#ifdef WRC
+static reset_controls = false;
+#endif
+
 static void
 M_OptionsInput_Draw(void)
 {
+#ifdef WRC
+    if (reset_controls) {
+        reset_controls = false;
+        retro_modern_defaults(0);
+        retro_set_modern_controller();
+    }
+#endif
+
     float r;
     const qpic_t *p;
 
@@ -1029,7 +1061,6 @@ M_OptionsInput_Draw(void)
 		    12 + ((int)(realtime * 4) & 1));
 }
 
-
 static void
 M_OptionsInput_Key(int k)
 {
@@ -1050,9 +1081,17 @@ M_OptionsInput_Key(int k)
 	case 1:
 	    m_state = m_none;
 	    Con_ToggleConsole_f();
+#ifdef WRC
+        printf("### Write config...\n");
+        Host_WriteConfiguration();
+        EM_ASM({ window.emulator.onShowQuakeMenu(false)});
+#endif
 	    break;
 	case 2:
 	    Cbuf_AddText("exec default.cfg\n");
+#ifdef WRC
+        reset_controls = true;
+#endif
 	    break;
 	default:
 	    M_OptionsInput_AdjustSliders(1);

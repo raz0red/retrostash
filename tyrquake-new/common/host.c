@@ -47,6 +47,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef WRC
 #include <emscripten.h>
+extern void retro_aux_defaults();
+extern void retro_set_modern_controller();
 #endif
 
 /* forward declarations */
@@ -297,6 +299,8 @@ Host_WriteConfiguration(void)
 	rfclose(f);
 
 #ifdef WRC
+    retro_aux_defaults();
+    retro_set_modern_controller();
     EM_ASM({ window.emulator.onSave()});
 #endif
 
