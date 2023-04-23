@@ -178,13 +178,12 @@ extern "C" extern void wrc_on_set_options(int opts) {
    }
 }
 
+extern "C" void wrc_on_key(int key, int down) {};
 extern "C" void wrc_step() {}
 extern "C" void wrc_save_state(char* file) {}
 extern "C" void wrc_load_state(char* file) {}
 extern "C" int wrc_start(char* arg) {}
 #endif
-
-
 
 static bool firmware_is_present(unsigned region)
 {

@@ -105,6 +105,13 @@ void wrc_enable_bilinear_filter(int enable) {
    video_driver_reinit(DRIVER_VIDEO_MASK);
 }
 
+void wrc_force_aspect_ratio(int enable) {
+   printf("## wrc_force_aspect_ratio: %d\n", enable);
+   settings_t *settings = config_get_ptr();
+   settings->bools.video_force_aspect = (enable == 1);
+   video_driver_reinit(DRIVER_VIDEO_MASK);
+}
+
 extern void rcheevos_file_reader_init();
 static bool rcheevos_init = false;
 

@@ -18,6 +18,7 @@
 #endif
 
 #ifdef WRC
+extern "C" void wrc_on_key(int key, int down) {}
 extern "C" void em_cmd_savefiles() {}
 extern "C" void wrc_on_set_options(int opts) {}
 extern "C" void wrc_step() {}

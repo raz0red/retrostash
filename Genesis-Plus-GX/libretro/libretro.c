@@ -1233,6 +1233,7 @@ void em_cmd_savefiles() {
       bram_save();
 }
 
+ wrc_on_key(int key, int down) {}
 void wrc_on_set_options(int opts) {}
 void wrc_step() {}
  wrc_save_state(char* file) {}

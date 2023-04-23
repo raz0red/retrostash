@@ -796,6 +796,7 @@ static Deinterlacer deint;
 static bool cdimagecache = false;
 
 extern "C" void em_cmd_savefiles() {}
+extern "C" void wrc_on_key(int key, int down) {}
 extern "C" void wrc_on_set_options(int opts) {}
 extern "C" void wrc_step() {}
 extern "C" void wrc_save_state(char* file) {}
