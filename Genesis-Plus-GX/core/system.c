@@ -51,7 +51,7 @@ uint32 mcycles_vdp;
 uint8 system_hw;
 uint8 system_bios;
 uint32 system_clock;
-int16 SVP_cycles = 800; 
+int16 SVP_cycles = 800;
 
 static uint8 pause_b;
 static EQSTATE eq[2];
@@ -103,6 +103,11 @@ int audio_init(int samplerate, double framerate)
 
 void audio_set_rate(int samplerate, double framerate)
 {
+#ifdef WRC
+  // Tweak to eliminate audio pops (minor FPS adjust)
+  samplerate *= 1.005;
+#endif
+
   /* Number of M-cycles executed per second. */
   /* All emulated chips are kept in sync by using a common oscillator (MCLOCK)            */
   /*                                                                                      */
@@ -153,7 +158,7 @@ void audio_set_rate(int samplerate, double framerate)
 void audio_reset(void)
 {
   int i;
-  
+
   /* Clear blip buffers */
   for (i=0; i<3; i++)
   {
@@ -183,7 +188,7 @@ void audio_set_equalizer(void)
 void audio_shutdown(void)
 {
   int i;
-  
+
   /* Delete blip buffers */
   for (i=0; i<3; i++)
   {
@@ -434,7 +439,7 @@ void system_frame_gen(int do_skip)
   {
     blank_line(bitmap.viewport.h, -bitmap.viewport.x, bitmap.viewport.w + 2*bitmap.viewport.x);
   }
-  
+
   /* clear DMA Busy, FIFO FULL & field flags */
   status &= 0xFEED;
 
@@ -457,7 +462,7 @@ void system_frame_gen(int do_skip)
 
   /* update 6-Buttons & Lightguns */
   input_refresh();
-  
+
   /* H-Int counter */
   if (h_counter == 0)
   {
@@ -487,8 +492,8 @@ void system_frame_gen(int do_skip)
     }
 
     /* set VINT flag */
-    status |= 0x80;    
-   
+    status |= 0x80;
+
     /* Vertical Interrupt */
     vint_pending = 0x20;
     if (reg[1] & 0x20)
@@ -521,7 +526,7 @@ void system_frame_gen(int do_skip)
   mcycles_vdp = MCYCLES_PER_LINE;
 
   /* initialize line count */
-  line = bitmap.viewport.h + 1; 
+  line = bitmap.viewport.h + 1;
 
   /* initialize overscan area */
   start = lines_per_frame - bitmap.viewport.y;
@@ -559,7 +564,7 @@ void system_frame_gen(int do_skip)
     mcycles_vdp += MCYCLES_PER_LINE;
   }
   while (++line < (lines_per_frame - 1));
-  
+
   /* update VCounter */
   v_counter = line;
 
@@ -571,10 +576,10 @@ void system_frame_gen(int do_skip)
 
   /* reload H-Int counter */
   h_counter = reg[10];
-  
+
   /* clear VBLANK flag */
   status &= ~0x08;
- 
+
   /* run VDP DMA */
   if (dma_length)
   {
@@ -608,7 +613,7 @@ void system_frame_gen(int do_skip)
 
   /* reset line count */
   line = 0;
-  
+
   /* Active Display */
   do
   {
@@ -635,7 +640,7 @@ void system_frame_gen(int do_skip)
     {
       /* reload H-Int counter */
       h_counter = reg[10];
-      
+
       /* Horizontal Interrupt is pending */
       hint_pending = 0x10;
       if (reg[0] & 0x10)
@@ -773,7 +778,7 @@ void system_frame_scd(int do_skip)
   {
     blank_line(bitmap.viewport.h, -bitmap.viewport.x, bitmap.viewport.w + 2*bitmap.viewport.x);
   }
-  
+
   /* clear DMA Busy, FIFO FULL & field flags */
   status &= 0xFEED;
 
@@ -826,7 +831,7 @@ void system_frame_scd(int do_skip)
     }
 
     /* set VINT flag */
-    status |= 0x80;    
+    status |= 0x80;
 
     /* Vertical Interrupt */
     vint_pending = 0x20;
@@ -856,7 +861,7 @@ void system_frame_scd(int do_skip)
   mcycles_vdp = MCYCLES_PER_LINE;
 
   /* initialize line count */
-  line = bitmap.viewport.h + 1; 
+  line = bitmap.viewport.h + 1;
 
   /* initialize overscan area */
   start = lines_per_frame - bitmap.viewport.y;
@@ -890,7 +895,7 @@ void system_frame_scd(int do_skip)
     mcycles_vdp += MCYCLES_PER_LINE;
   }
   while (++line < (lines_per_frame - 1));
-  
+
   /* update VCounter */
   v_counter = line;
 
@@ -902,10 +907,10 @@ void system_frame_scd(int do_skip)
 
   /* reload H-Int counter */
   h_counter = reg[10];
-  
+
   /* clear VBLANK flag */
   status &= ~0x08;
- 
+
   /* run VDP DMA */
   if (dma_length)
   {
@@ -935,7 +940,7 @@ void system_frame_scd(int do_skip)
 
   /* reset line count */
   line = 0;
-  
+
   /* Active Display */
   do
   {
@@ -953,7 +958,7 @@ void system_frame_scd(int do_skip)
     {
       render_line(line);
     }
-    
+
     /* update 6-Buttons & Lightguns */
     input_refresh();
 
@@ -962,7 +967,7 @@ void system_frame_scd(int do_skip)
     {
       /* reload H-Int counter */
       h_counter = reg[10];
-      
+
       /* Horizontal Interrupt is pending */
       hint_pending = 0x10;
       if (reg[0] & 0x10)
@@ -997,7 +1002,7 @@ void system_frame_scd(int do_skip)
     bitmap.viewport.ow = bitmap.viewport.w;
     bitmap.viewport.changed |= 1;
   }
-  
+
   /* adjust timings for next frame */
   scd_end_frame(scd.cycles);
   input_end_frame(mcycles_vdp);
@@ -1231,7 +1236,7 @@ void system_frame_sms(int do_skip)
         {
           render_obj((line - lines_per_frame) & 1);
         }
-        
+
         /* Sprites pre-processing occurs even when display is disabled */
         parse_satb(line - lines_per_frame);
       }
@@ -1305,7 +1310,7 @@ void system_frame_sms(int do_skip)
     {
       vdp_dma_update(mcycles_vdp);
     }
-    
+
     /* parse first line of sprites */
     if (reg[1] & 0x40)
     {
@@ -1315,7 +1320,7 @@ void system_frame_sms(int do_skip)
 
   /* Master System & Game Gear VDP specific */
   else
-  {    
+  {
     /* Sprites pre-processing occurs even when display is disabled */
     parse_satb(-1);
   }
@@ -1331,7 +1336,7 @@ void system_frame_sms(int do_skip)
 
   /* latch Vertical Scroll register */
   vscroll = reg[9];
-  
+
   /* reset line count */
   line = 0;
 
@@ -1365,7 +1370,7 @@ void system_frame_sms(int do_skip)
     {
       /* reload H-Int counter */
       h_counter = reg[10];
-      
+
       /* Horizontal Interrupt is pending */
       hint_pending = 0x10;
       if (reg[0] & 0x10)

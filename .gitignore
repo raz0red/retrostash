@@ -3,3 +3,5 @@
 *.bc
 *.wasm
 *.tmp
+yabause.old
+ecwolf

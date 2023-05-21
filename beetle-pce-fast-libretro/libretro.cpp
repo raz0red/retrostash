@@ -2110,7 +2110,12 @@ bool retro_load_game(const struct retro_game_info *info)
    for(y = 0; y < 2; y++)
    {
      Blip_Buffer_set_sample_rate(&sbuf[y],
-           44100, 50);
+#ifdef WRC
+            // Minor tweak to eliminate audio pops (minor FPS adjust)
+            44100 * 1.005, 50);
+#else
+            44100, 50);
+#endif
      Blip_Buffer_set_clock_rate(&sbuf[y], (long)(PCE_MASTER_CLOCK / 3));
      Blip_Buffer_bass_freq(&sbuf[y], 10);
    }

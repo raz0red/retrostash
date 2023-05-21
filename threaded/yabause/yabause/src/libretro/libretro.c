@@ -1247,3 +1247,14 @@ size_t wcstombs(char *s, const wchar_t *pwcs, size_t n)
 }
 
 #endif
+
+
+#ifdef WRC
+void wrc_on_key(int key, int down) {}
+void em_cmd_savefiles() { }
+void wrc_on_set_options(int opts) {}
+void wrc_step() {}
+void wrc_save_state(char* file) {}
+void wrc_load_state(char* file) {}
+int wrc_start(char* arg) {}
+#endif

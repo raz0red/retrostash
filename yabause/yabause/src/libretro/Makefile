@@ -379,6 +379,7 @@ else ifeq ($(platform), emscripten)
         fpic := -fPIC
         SHARED := -shared -Wl,--no-undefined -Wl,--version-script=link.T
         HAVE_CDROM = 0
+		CFLAGS += -DWRC
 
 # GCW0
 else ifeq ($(platform), gcw0)
