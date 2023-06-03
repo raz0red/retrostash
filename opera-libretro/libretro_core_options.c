@@ -388,6 +388,10 @@ static void set_bios_values(struct retro_core_option_value *values)
   values[i].label = NULL;
 }
 
+#ifdef WRC
+extern bool wrc_font_set;
+#endif
+
 static void set_font_values(struct retro_core_option_value *values)
 {
   size_t i = 0;
@@ -410,6 +414,10 @@ static void set_font_values(struct retro_core_option_value *values)
 
       if (file_exists_in_system_directory(font->filename))
         {
+#ifdef WRC
+          printf("# Found font: %s\n", font->name);
+          wrc_font_set = true;
+#endif
           values[i].value = font->name;
           values[i].label = NULL;
           i++;

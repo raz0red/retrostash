@@ -156,6 +156,8 @@ void wrc_update_mouse(int x, int y, int buttons) {
 extern void wrc_on_set_options(int opts);
 
 void wrc_set_options(int opts) {
+   printf("Options: %d\n", opts);
+   // printf("OPTIONS SHIFTED: %d\n", ((opts >> 14) & 0xF));
    wrc_options = opts;
    wrc_on_set_options(opts);
 }

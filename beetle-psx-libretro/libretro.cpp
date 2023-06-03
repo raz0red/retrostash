@@ -4423,8 +4423,26 @@ void retro_unload_game(void)
 static uint64_t video_frames, audio_frames;
 #define SOUND_CHANNELS 2
 
+#ifdef WRC
+#define RETRO_ENVIRONMENT_SET_VARIABLE 70
+static struct retro_variable rvar;
+static int gpu_opt = 0;
+#endif
 void retro_run(void)
 {
+#ifdef WRC
+   int gpu = (wrc_options >> 14) & 0x3;
+   if (gpu != gpu_opt) {
+      gpu_opt = gpu;
+      rvar.key = BEETLE_OPT(internal_resolution);
+      rvar.value =
+         gpu == 1 ? "2x" :
+         gpu == 2 ? "4x" :
+         gpu == 3 ? "8x" : "1x(native)";
+      printf("GPU Option changed: %s\n", rvar.value);
+      environ_cb(RETRO_ENVIRONMENT_SET_VARIABLE, &rvar);
+   }
+#endif
    bool updated = false;
    //code to implement audio and video disable is not yet implemented
    //bool disableVideo = false;

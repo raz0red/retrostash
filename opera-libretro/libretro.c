@@ -90,6 +90,14 @@ retro_vfs_initialize(void)
     filestream_vfs_init(&vfs_info);
 }
 
+
+#ifdef WRC
+#define RETRO_ENVIRONMENT_SET_VARIABLE 70
+static struct retro_variable rvar;
+static int wrc_fonts = 0;
+bool wrc_font_set = false;
+#endif
+
 void
 retro_set_environment(retro_environment_t cb_)
 {
@@ -100,6 +108,19 @@ retro_set_environment(retro_environment_t cb_)
   libretro_init_core_options();
   libretro_set_core_options();
   retro_environment_set_support_no_game();
+
+#ifdef WRC
+  if (wrc_fonts > 0 && wrc_font_set) {
+    rvar.key = "opera_font";
+    rvar.value = wrc_fonts == 1 ? "Panasonic FZ-1 (J) Kanji ROM" :
+        wrc_fonts == 2 ? "Panasonic FZ-10 (J) ANVIL Kanji ROM" :
+        wrc_fonts == 3 ? "Panasonic FZ-1 (J) Kanji ROM" : NULL;
+    if (rvar.value) {
+      printf("Using fonts: %s\n", rvar.value);
+      retro_environment_cb(RETRO_ENVIRONMENT_SET_VARIABLE, &rvar);
+    }
+  }
+#endif
 }
 
 void
@@ -626,9 +647,31 @@ retro_run(void)
 }
 
 #ifdef WRC
+static int wrcControllerCount = 1;
+
 void wrc_on_key(int key, int down) {}
 void em_cmd_savefiles() {  opera_lr_nvram_save(game_info_path_get()); }
-void wrc_on_set_options(int opts) {}
+void wrc_on_set_options(int opts) {
+  int controllerCount = ((opts >> 14) & 0x3) + 1;
+  printf("Controller count: %d\n", controllerCount);
+  if (wrcControllerCount != controllerCount) {
+    wrcControllerCount = controllerCount;
+
+    rvar.key = "opera_active_devices";
+    rvar.value = controllerCount == 2 ? "2" :
+        controllerCount == 3 ? "3" :
+        controllerCount == 4 ? "4" : "1";
+
+    printf("Controller changed: %s\n", rvar.value);
+    retro_environment_cb(RETRO_ENVIRONMENT_SET_VARIABLE, &rvar);
+  }
+
+  int fonts = ((opts >> 12) & 0x3);
+  printf("Fonts: %d\n", fonts);
+  if (fonts > 0) {
+    wrc_fonts = fonts;
+  }
+}
 void wrc_step() {}
 void wrc_save_state(char* file) {}
 void wrc_load_state(char* file) {}
