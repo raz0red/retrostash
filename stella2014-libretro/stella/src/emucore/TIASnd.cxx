@@ -1,8 +1,8 @@
 //============================================================================
 //
-//   SSSS    tt          lll  lll       
-//  SS  SS   tt           ll   ll        
-//  SS     tttttt  eeee   ll   ll   aaaa 
+//   SSSS    tt          lll  lll
+//  SS  SS   tt           ll   ll
+//  SS     tttttt  eeee   ll   ll   aaaa
 //   SSSS    tt   ee  ee  ll   ll      aa
 //      SS   tt   eeeeee  ll   ll   aaaaa  --  "An Atari 2600 VCS Emulator"
 //  SS  SS   tt   ee      ll   ll  aa  aa
@@ -366,10 +366,10 @@ void TIASound::process(Int16* buffer, uInt32 samples)
         break;
 
       case Hardware1:  // mono/stereo sampling with only 1 hardware channel
-        while((samples > 0) && (myOutputCounter >= 31400))
+        while((samples > 0) && (myOutputCounter >= 48000))
         {
           *(buffer++) = v0 + v1;
-          myOutputCounter -= 31400;
+          myOutputCounter -= 48000;
           samples--;
         }
         break;

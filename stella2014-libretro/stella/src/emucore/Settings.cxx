@@ -1,8 +1,8 @@
 //============================================================================
 //
-//   SSSS    tt          lll  lll       
-//  SS  SS   tt           ll   ll        
-//  SS     tttttt  eeee   ll   ll   aaaa 
+//   SSSS    tt          lll  lll
+//  SS  SS   tt           ll   ll
+//  SS     tttttt  eeee   ll   ll   aaaa
 //   SSSS    tt   ee  ee  ll   ll      aa
 //      SS   tt   eeeeee  ll   ll   aaaaa  --  "An Atari 2600 VCS Emulator"
 //  SS  SS   tt   ee      ll   ll  aa  aa
@@ -49,7 +49,7 @@ Settings::Settings(OSystem* osystem)
   setInternal("tia_filter", "zoom2x");
   setInternal("fullscreen", "0");
   setInternal("fullres", "auto");
-  setInternal("center", "false");
+  setInternal("center", "true");
   setInternal("grabmouse", "true");
   setInternal("palette", "standard");
   setInternal("colorloss", "true");
@@ -75,7 +75,7 @@ Settings::Settings(OSystem* osystem)
   // Sound options
   setInternal("sound", "true");
   setInternal("fragsize", "512");
-  setInternal("freq", "31400");
+  setInternal("freq", "48000");
   setInternal("volume", "100");
 
   // Input event options

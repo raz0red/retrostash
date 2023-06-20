@@ -187,14 +187,17 @@ include $(DEVKITPRO)/libnx/switch_rules
     STATIC_LINKING = 1
 
 # Lightweight PS3 Homebrew SDK
-else ifeq ($(platform), psl1ght)
-   TARGET := $(TARGET_NAME)_libretro_$(platform).a
-   CC = $(PS3DEV)/ppu/bin/ppu-gcc$
-   CXX = $(PS3DEV)/ppu/bin/ppu-g++$
-   AR = $(PS3DEV)/ppu/bin/ppu-ar$
-   STATIC_LINKING = 1
-	FLAGS += -DMSB_FIRST
+else ifneq (,$(filter $(platform), ps3 psl1ght))
+    TARGET := $(TARGET_NAME)_libretro_$(platform).a
+    CC = $(PS3DEV)/ppu/bin/ppu-$(COMMONLV)gcc$(EXE_EXT)
+    CXX = $(PS3DEV)/ppu/bin/ppu-$(COMMONLV)g++$(EXE_EXT)
+    AR = $(PS3DEV)/ppu/bin/ppu-$(COMMONLV)ar$(EXE_EXT)
+    STATIC_LINKING = 1
+    FLAGS += -DMSB_FIRST -D__PS3__
 	OLD_GCC = 1
+    ifeq ($(platform), psl1ght)
+        FLAGS += -D__PSL1GHT__ -I$(PS3DEV)/ppu/include
+    endif
 
 # PS2
 else ifeq ($(platform), ps2)
@@ -325,7 +328,7 @@ else ifeq ($(platform), classic_armv7_a7)
 else ifeq ($(platform), emscripten)
 	TARGET := $(TARGET_NAME)_libretro_$(platform).bc
 	STATIC_LINKING = 1
-
+	FLAGS += -DWRC
 # GCW0
 else ifeq ($(platform), rs90)
 	TARGET := $(TARGET_NAME)_libretro.so
@@ -628,8 +631,8 @@ ifneq (,$(findstring msvc,$(platform)))
    CFLAGS   += -MT
    CXXFLAGS += -MT
 endif
-   CFLAGS   += -O3 -DNDEBUG
-   CXXFLAGS += -O3 -DNDEBUG
+   CFLAGS   += -O2 -DNDEBUG
+   CXXFLAGS += -O2 -DNDEBUG
 endif
 
 ifeq (,$(findstring msvc,$(platform)))

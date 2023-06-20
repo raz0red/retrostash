@@ -32,6 +32,12 @@
 
 #include "Stubs.hxx"
 
+#ifdef WRC
+#include "../../../../wrc.h"
+#include "chd.h"
+#include <emscripten.h>
+#endif
+
 #ifdef _3DS
 extern "C" void* linearMemAlign(size_t size, size_t alignment);
 extern "C" void linearFree(void* mem);
@@ -219,7 +225,6 @@ static retro_input_state_t input_state_cb;
 static retro_environment_t environ_cb;
 static retro_audio_sample_t audio_cb;
 static retro_audio_sample_batch_t audio_batch_cb;
-static struct retro_system_av_info g_av_info;
 
 static bool libretro_supports_bitmasks = false;
 
@@ -666,6 +671,12 @@ static void init_paddles(void)
    }
 }
 
+#ifdef WRC
+static int was_color = 0;
+static int was_ldiff = 0;
+static int was_rdiff = 0;
+#endif
+
 static void update_input()
 {
    unsigned i;
@@ -753,6 +764,7 @@ static void update_input()
          if (i == 0)
          {
             /* Events for left player's joystick */
+#ifndef WRC
             ev.set(Event::Type(Event::JoystickZeroUp),    joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_UP));
             ev.set(Event::Type(Event::JoystickZeroDown),  joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_DOWN));
             ev.set(Event::Type(Event::JoystickZeroLeft),  joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_LEFT));
@@ -766,15 +778,88 @@ static void update_input()
             ev.set(Event::Type(Event::ConsoleBlackWhite), joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_R3));
             ev.set(Event::Type(Event::ConsoleSelect),     joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_SELECT));
             ev.set(Event::Type(Event::ConsoleReset),      joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_START));
+#else
+            unsigned int state = wrc_input_state[0];
+
+            ev.set(Event::Type(Event::JoystickZeroUp),    state & INP_UP);
+            ev.set(Event::Type(Event::JoystickZeroDown),  state & INP_DOWN);
+            ev.set(Event::Type(Event::JoystickZeroLeft),  state & INP_LEFT);
+            ev.set(Event::Type(Event::JoystickZeroRight), state & INP_RIGHT);
+            ev.set(Event::Type(Event::JoystickZeroFire),  state & INP_A);
+            // ev.set(Event::Type(Event::ConsoleLeftDiffA),  joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_L));
+            // ev.set(Event::Type(Event::ConsoleLeftDiffB),  joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_L2));
+            // ev.set(Event::Type(Event::ConsoleRightDiffA), joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_R));
+            // ev.set(Event::Type(Event::ConsoleRightDiffB), joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_R2));
+
+            if (state & INP_Y) {
+               if (!was_color) {
+                  int switches = console->switches().read();
+                  if (switches & 0x08) {
+                     console->switches().write(switches &= ~0x08);
+                     printf("## TV switch = B&W, %d\n", console->switches().read());
+                  } else {
+                     console->switches().write(switches |= 0x08);
+                     printf("## TV switch = Color, %d\n", console->switches().read());
+                  }
+               }
+               was_color = 1;
+            } else {
+               was_color = 0;
+            }
+
+            if (state & INP_LBUMP) {
+               if (!was_ldiff) {
+                  int switches = console->switches().read();
+                  if (switches & 0x40) {
+                     console->switches().write(switches &= ~0x40);
+                     printf("## Left diff = B, %d\n", console->switches().read());
+                  } else {
+                     console->switches().write(switches |= 0x40);
+                     printf("## Left diff = A, %d\n", console->switches().read());
+                  }
+               }
+               was_ldiff = 1;
+            } else {
+               was_ldiff = 0;
+            }
+
+            if (state & INP_RBUMP) {
+               if (!was_rdiff) {
+                  int switches = console->switches().read();
+                  if (switches & 0x80) {
+                     console->switches().write(switches &= ~0x80);
+                     printf("## Right diff = B, %d\n", console->switches().read());
+                  } else {
+                     console->switches().write(switches |= 0x80);
+                     printf("## Right diff = A, %d\n", console->switches().read());
+                  }
+               }
+               was_rdiff = 1;
+            } else {
+               was_rdiff = 0;
+            }
+
+            ev.set(Event::Type(Event::ConsoleSelect),     state & INP_SELECT);
+            ev.set(Event::Type(Event::ConsoleReset),      state & INP_START);
+#endif
          }
          else
          {
+#ifndef WRC
             /* Events for right player's joystick */
             ev.set(Event::Type(Event::JoystickOneUp),    joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_UP));
             ev.set(Event::Type(Event::JoystickOneDown),  joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_DOWN));
             ev.set(Event::Type(Event::JoystickOneLeft),  joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_LEFT));
             ev.set(Event::Type(Event::JoystickOneRight), joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_RIGHT));
             ev.set(Event::Type(Event::JoystickOneFire),  joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_B));
+#else
+            unsigned int state = wrc_input_state[1];
+            ev.set(Event::Type(Event::JoystickOneUp),    state & INP_UP);
+            ev.set(Event::Type(Event::JoystickOneDown),  state & INP_DOWN);
+            ev.set(Event::Type(Event::JoystickOneLeft),  state & INP_LEFT);
+            ev.set(Event::Type(Event::JoystickOneRight), state & INP_RIGHT);
+            ev.set(Event::Type(Event::JoystickOneFire),  state & INP_A);
+#endif
          }
 
          /* Read analog paddle input, if required */
@@ -1016,7 +1101,13 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 {
    memset(info, 0, sizeof(*info));
    info->timing.fps            = console->getFramerate();
-   info->timing.sample_rate    = 31400;
+#ifndef WRC
+   info->timing.sample_rate    = 48000;
+#else
+   info->timing.sample_rate    = 48000;
+   //info->timing.sample_rate    = 31400 * .5;
+   // info->timing.sample_rate    = 31400 * .995;
+#endif
    info->geometry.base_width   = 160 * 2;
    info->geometry.base_height  = videoHeight;
    info->geometry.max_width    = 320;
@@ -1100,7 +1191,7 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
    environ_cb(RETRO_ENVIRONMENT_SET_CORE_OPTIONS_DISPLAY, &option_display);
 }
 
-size_t retro_serialize_size(void) 
+size_t retro_serialize_size(void)
 {
    Serializer state;
    if(!stateManager.saveState(state))
@@ -1213,6 +1304,10 @@ bool retro_load_game(const struct retro_game_info *info)
    videoWidth = tia.width();
    videoHeight = tia.height();
 
+#ifdef WRC
+   EM_ASM({ window.emulator.setFrameRate($0); }, console->getFramerate());
+#endif
+
    return true;
 }
 
@@ -1224,7 +1319,7 @@ bool retro_load_game_special(unsigned game_type, const struct retro_game_info *i
    return false;
 }
 
-void retro_unload_game(void) 
+void retro_unload_game(void)
 {
    if (console)
    {
@@ -1333,11 +1428,17 @@ void retro_reset(void)
    console->system().reset();
 }
 
+#ifdef WRC
+static uint8_t last_switches = 0;
+#endif
+
 void retro_run(void)
 {
    static int16_t sampleBuffer[2048];
    //Get the number of samples in a frame
-   static uint32_t tiaSamplesPerFrame = (uint32_t)(31400.0f/console->getFramerate());
+//   static uint32_t tiaSamplesPerFrame = (uint32_t)(48000.0f/60 /*console->getFramerate()*/);
+
+   static uint32_t tiaSamplesPerFrame = (uint32_t)(48000.0f/console->getFramerate());
 
    //CORE OPTIONS
    bool updated = false;
@@ -1369,5 +1470,65 @@ void retro_run(void)
    if (low_pass_enabled)
       apply_low_pass_filter(sampleBuffer, tiaSamplesPerFrame);
 
+#ifndef WRC
    audio_batch_cb(sampleBuffer, tiaSamplesPerFrame);
+#else
+   EM_ASM({ window.emulator.audioCallback($0, $1); }, sampleBuffer, tiaSamplesPerFrame);
+
+   uint8_t switches = console->switches().read();
+   if (last_switches != switches) {
+      last_switches = switches;
+      EM_ASM({ window.emulator.updateSwitches($0); }, switches);
+   }
+#endif
 }
+
+#ifdef WRC
+extern "C" void em_cmd_savefiles() {}
+extern "C" void wrc_on_set_options(int opts) {
+   //  if (this.swapControllers) {
+   //    options |= this.OPT1;
+   //  }
+
+
+   //  if (this.colorSwitch === "b&w") {
+   //    options |= this.OPT2;
+   //  }
+   int switches = console->switches().read();
+   if (opts & OPT2) {
+      console->switches().write(switches &= ~0x08); // B&W
+   } else {
+      console->switches().write(switches |= 0x08); // Color
+   }
+   //  if (this.leftDifficulty === "a") {
+   //    options |= this.OPT3;
+   //  }
+   switches = console->switches().read();
+   if (opts & OPT3) {
+      console->switches().write(switches |= 0x40); // A
+   } else {
+      console->switches().write(switches &= ~0x40); // B
+   }
+   //  if (this.rightDifficulty === "a") {
+   //    options |= this.OPT4;
+   //  }
+   switches = console->switches().read();
+   if (opts & OPT4) {
+      console->switches().write(switches |= 0x80); // A
+   } else {
+      console->switches().write(switches &= ~0x80); // B
+   }
+}
+extern "C" void wrc_on_key(int key, int down) {};
+extern "C" void wrc_step() {}
+extern "C" void wrc_save_state(char* file) {}
+extern "C" void wrc_load_state(char* file) {}
+extern "C" int wrc_start(char* arg) {}
+
+const chd_header *chd_get_header(chd_file *chd) { return 0; }
+chd_error chd_get_metadata(chd_file *chd, UINT32 searchtag, UINT32 searchindex, void *output, UINT32 outputlen, UINT32 *resultlen, UINT32 *resulttag, UINT8 *resultflags) { return CHDERR_UNSUPPORTED_FORMAT; }
+chd_error chd_open(const char *filename, int mode, chd_file *parent, chd_file **chd) { return CHDERR_UNSUPPORTED_FORMAT; }
+void chd_close(chd_file *chd) {}
+chd_error chd_read(chd_file *chd, UINT32 hunknum, void *buffer) { return CHDERR_UNSUPPORTED_FORMAT; }
+#endif
+
