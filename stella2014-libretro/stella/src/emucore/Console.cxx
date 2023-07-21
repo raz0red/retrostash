@@ -537,15 +537,15 @@ void Console::setTIAProperties()
      myDisplayFormat == "SECAM60")
   {
     // Assume we've got ~262 scanlines (NTSC-like format)
-    myFramerate = 60.0;
-    //myFramerate = 59.92;
+    //myFramerate = 60.0;
+    myFramerate = 59.92;
     myConsoleInfo.InitialFrameRate = "60";
   }
   else
   {
     // Assume we've got ~312 scanlines (PAL-like format)
-    myFramerate = 50.0;
-    //myFramerate = 49.92;
+    //myFramerate = 50.0;
+    myFramerate = 49.92;
     myConsoleInfo.InitialFrameRate = "50";
 
     // PAL ROMs normally need at least 250 lines

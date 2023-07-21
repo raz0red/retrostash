@@ -36,6 +36,12 @@
 #include "../../../../wrc.h"
 #include "chd.h"
 #include <emscripten.h>
+
+static int wrc_port0 = 0;
+static int wrc_port1 = 0;
+static int wrc_paddle_vertical = 0;
+static int wrc_paddle_center = 0;
+static int wrc_paddle_sensitivity = 0;
 #endif
 
 #ifdef _3DS
@@ -702,27 +708,149 @@ static void update_input()
             joy_bits |= input_state_cb(i, RETRO_DEVICE_JOYPAD, 0, j) ? (1 << j) : 0;
       }
 
+#ifdef WRC
+      if (i == 0) {
+         unsigned int state = wrc_input_state[0];
+
+         if (state & INP_Y) {
+            if (!was_color) {
+               int switches = console->switches().read();
+               if (switches & 0x08) {
+                  console->switches().write(switches &= ~0x08);
+                  printf("## TV switch = B&W, %d\n", console->switches().read());
+               } else {
+                  console->switches().write(switches |= 0x08);
+                  printf("## TV switch = Color, %d\n", console->switches().read());
+               }
+            }
+            was_color = 1;
+         } else {
+            was_color = 0;
+         }
+
+         if (state & INP_LBUMP) {
+            if (!was_ldiff) {
+               int switches = console->switches().read();
+               if (switches & 0x40) {
+                  console->switches().write(switches &= ~0x40);
+                  printf("## Left diff = B, %d\n", console->switches().read());
+               } else {
+                  console->switches().write(switches |= 0x40);
+                  printf("## Left diff = A, %d\n", console->switches().read());
+               }
+            }
+            was_ldiff = 1;
+         } else {
+            was_ldiff = 0;
+         }
+
+         if (state & INP_RBUMP) {
+            if (!was_rdiff) {
+               int switches = console->switches().read();
+               if (switches & 0x80) {
+                  console->switches().write(switches &= ~0x80);
+                  printf("## Right diff = B, %d\n", console->switches().read());
+               } else {
+                  console->switches().write(switches |= 0x80);
+                  printf("## Right diff = A, %d\n", console->switches().read());
+               }
+            }
+            was_rdiff = 1;
+         } else {
+            was_rdiff = 0;
+         }
+
+         ev.set(Event::Type(Event::ConsoleSelect),     state & INP_SELECT);
+         ev.set(Event::Type(Event::ConsoleReset),      state & INP_START);
+      }
+#endif
+
       if (retropad_devices[i] == RETROPAD_STELLA_PADDLES)
       {
          /* Handle paddle devices */
 
          /* Read analog input */
+#ifdef WRC
+
+         int index = i == 0 ? 0 : wrc_port0 == 2 ? 2 : 1;
+         int paddle_b_available = (i == 0 && wrc_port0 == 2) || (i == 1 && wrc_port1 == 2);
+         int paddle_axis = wrc_paddle_vertical;
+
+         stelladaptor_analog_center = 13000;
+         if (wrc_paddle_center != 0) {
+            stelladaptor_analog_center += 199 * wrc_paddle_center;
+         }
+
+         stelladaptor_analog_sensitivity = .5;
+         if (wrc_paddle_sensitivity != 0) {
+            stelladaptor_analog_sensitivity += (.005 * wrc_paddle_sensitivity);
+         }
+
+         int factor = 0x7FFF;
+
+         if (wrc_paddle_vertical) {
+            factor *= -1;
+         }
+
+         int paddle_a = (wrc_input_state_analog[index][paddle_axis] * factor *
+            stelladaptor_analog_sensitivity) + stelladaptor_analog_center;
+         int paddle_b = 0;
+
+         if (paddle_b_available) {
+            paddle_b = (wrc_input_state_analog[index + 1][paddle_axis] * factor *
+               stelladaptor_analog_sensitivity) + stelladaptor_analog_center;
+         }
+
+         // if (wrc_paddle_vertical) {
+         //    paddle_a *= -1;
+         //    paddle_b *= -1;
+         // }
+#else
          int paddle_a = input_state_cb(i, RETRO_DEVICE_ANALOG,
                RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
          int paddle_b = input_state_cb(i, RETRO_DEVICE_ANALOG,
                RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
+#endif
 
          /* Apply sensitivity/offset factors */
+#ifndef WRC
          paddle_a = (int)(((float)paddle_a * stelladaptor_analog_sensitivity) +
                stelladaptor_analog_center);
+#endif
          paddle_a = (paddle_a >  0x7FFF) ?  0x7FFF : paddle_a;
          paddle_a = (paddle_a < -0x7FFF) ? -0x7FFF : paddle_a;
 
+#ifndef WRC
          paddle_b = (int)(((float)paddle_b * stelladaptor_analog_sensitivity) +
                stelladaptor_analog_center);
+#endif
          paddle_b = (paddle_b >  0x7FFF) ?  0x7FFF : paddle_b;
          paddle_b = (paddle_b < -0x7FFF) ? -0x7FFF : paddle_b;
 
+#ifdef WRC
+         if (i == 0)
+         {
+            unsigned int state = wrc_input_state[index];
+            ev.set(Event::Type(Event::SALeftAxis0Value), paddle_a);
+            ev.set(Event::Type(Event::PaddleZeroFire), state & INP_A);
+
+            if (paddle_b_available) {
+               unsigned int stateB = wrc_input_state[index + 1];
+               ev.set(Event::Type(Event::SALeftAxis1Value), paddle_b);
+               ev.set(Event::Type(Event::PaddleOneFire), stateB & INP_A);
+            }
+         } else {
+            unsigned int state = wrc_input_state[index];
+            ev.set(Event::Type(Event::SARightAxis0Value), paddle_a);
+            ev.set(Event::Type(Event::PaddleTwoFire), state & INP_A);
+
+            if (paddle_b_available) {
+               unsigned int stateB = wrc_input_state[index + 1];
+               ev.set(Event::Type(Event::SARightAxis1Value), paddle_b);
+               ev.set(Event::Type(Event::PaddleThreeFire), stateB & INP_A);
+            }
+         }
+#else
          if (i == 0)
          {
             /* Events for left player's paddles */
@@ -757,6 +885,7 @@ static void update_input()
             ev.set(Event::Type(Event::SARightAxis1Value), paddle_b);
             ev.set(Event::Type(Event::PaddleThreeFire), joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_B));
          }
+#endif
       }
       else
       {
@@ -790,57 +919,6 @@ static void update_input()
             // ev.set(Event::Type(Event::ConsoleLeftDiffB),  joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_L2));
             // ev.set(Event::Type(Event::ConsoleRightDiffA), joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_R));
             // ev.set(Event::Type(Event::ConsoleRightDiffB), joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_R2));
-
-            if (state & INP_Y) {
-               if (!was_color) {
-                  int switches = console->switches().read();
-                  if (switches & 0x08) {
-                     console->switches().write(switches &= ~0x08);
-                     printf("## TV switch = B&W, %d\n", console->switches().read());
-                  } else {
-                     console->switches().write(switches |= 0x08);
-                     printf("## TV switch = Color, %d\n", console->switches().read());
-                  }
-               }
-               was_color = 1;
-            } else {
-               was_color = 0;
-            }
-
-            if (state & INP_LBUMP) {
-               if (!was_ldiff) {
-                  int switches = console->switches().read();
-                  if (switches & 0x40) {
-                     console->switches().write(switches &= ~0x40);
-                     printf("## Left diff = B, %d\n", console->switches().read());
-                  } else {
-                     console->switches().write(switches |= 0x40);
-                     printf("## Left diff = A, %d\n", console->switches().read());
-                  }
-               }
-               was_ldiff = 1;
-            } else {
-               was_ldiff = 0;
-            }
-
-            if (state & INP_RBUMP) {
-               if (!was_rdiff) {
-                  int switches = console->switches().read();
-                  if (switches & 0x80) {
-                     console->switches().write(switches &= ~0x80);
-                     printf("## Right diff = B, %d\n", console->switches().read());
-                  } else {
-                     console->switches().write(switches |= 0x80);
-                     printf("## Right diff = A, %d\n", console->switches().read());
-                  }
-               }
-               was_rdiff = 1;
-            } else {
-               was_rdiff = 0;
-            }
-
-            ev.set(Event::Type(Event::ConsoleSelect),     state & INP_SELECT);
-            ev.set(Event::Type(Event::ConsoleReset),      state & INP_START);
 #endif
          }
          else
@@ -853,7 +931,7 @@ static void update_input()
             ev.set(Event::Type(Event::JoystickOneRight), joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_RIGHT));
             ev.set(Event::Type(Event::JoystickOneFire),  joy_bits & (1 << RETRO_DEVICE_ID_JOYPAD_B));
 #else
-            unsigned int state = wrc_input_state[1];
+            unsigned int state = wrc_input_state[wrc_port0 == 2 ? 2 : 1];
             ev.set(Event::Type(Event::JoystickOneUp),    state & INP_UP);
             ev.set(Event::Type(Event::JoystickOneDown),  state & INP_DOWN);
             ev.set(Event::Type(Event::JoystickOneLeft),  state & INP_LEFT);
@@ -1120,6 +1198,17 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
    struct retro_core_option_display option_display;
    bool show_gamepad_options;
    bool show_stelladaptor_options;
+
+
+#ifdef WRC
+   if (port == 0 && wrc_port0 > 0) {
+      device = RETROPAD_STELLA_PADDLES;
+   }
+   if (port == 1 && wrc_port1 > 0) {
+      device = RETROPAD_STELLA_PADDLES;
+   }
+   printf("### retro_set_controller_port_device: %d, %d\n", port, device);
+#endif
 
    if (port >= MAX_RETROPAD_DEVICES)
       return;
@@ -1486,32 +1575,46 @@ void retro_run(void)
 #ifdef WRC
 extern "C" void em_cmd_savefiles() {}
 extern "C" void wrc_on_set_options(int opts) {
-   //  if (this.swapControllers) {
-   //    options |= this.OPT1;
-   //  }
 
+   wrc_port0 = EM_ASM_INT({
+      return window.emulator.getPortZeroType();
+   });
+   printf("## port0: %d\n", wrc_port0);
 
-   //  if (this.colorSwitch === "b&w") {
-   //    options |= this.OPT2;
-   //  }
+   wrc_port1 = EM_ASM_INT({
+      return window.emulator.getPortOneType();
+   });
+   printf("## port1: %d\n", wrc_port1);
+
+   wrc_paddle_vertical = EM_ASM_INT({
+      return window.emulator.getPaddleVertical();
+   });
+   printf("## paddle_vertical: %d\n", wrc_paddle_vertical);
+
+   wrc_paddle_center = EM_ASM_INT({
+      return window.emulator.getPaddleCenter();
+   });
+   printf("## paddle_center: %d\n", wrc_paddle_center);
+
+   wrc_paddle_sensitivity = EM_ASM_INT({
+      return window.emulator.getPaddleSensitivity();
+   });
+   printf("## paddle_sensitivity: %d\n", wrc_paddle_sensitivity);
+
    int switches = console->switches().read();
    if (opts & OPT2) {
       console->switches().write(switches &= ~0x08); // B&W
    } else {
       console->switches().write(switches |= 0x08); // Color
    }
-   //  if (this.leftDifficulty === "a") {
-   //    options |= this.OPT3;
-   //  }
+
    switches = console->switches().read();
    if (opts & OPT3) {
       console->switches().write(switches |= 0x40); // A
    } else {
       console->switches().write(switches &= ~0x40); // B
    }
-   //  if (this.rightDifficulty === "a") {
-   //    options |= this.OPT4;
-   //  }
+
    switches = console->switches().read();
    if (opts & OPT4) {
       console->switches().write(switches |= 0x80); // A
