@@ -40,6 +40,7 @@
 static int wrc_port0 = 0;
 static int wrc_port1 = 0;
 static int wrc_paddle_vertical = 0;
+static int wrc_paddle_inverted = 0;
 static int wrc_paddle_center = 0;
 static int wrc_paddle_sensitivity = 0;
 #endif
@@ -792,6 +793,10 @@ static void update_input()
             factor *= -1;
          }
 
+         if (wrc_paddle_inverted) {
+            factor *= -1;
+         }
+
          int paddle_a = (wrc_input_state_analog[index][paddle_axis] * factor *
             stelladaptor_analog_sensitivity) + stelladaptor_analog_center;
          int paddle_b = 0;
@@ -838,6 +843,8 @@ static void update_input()
                unsigned int stateB = wrc_input_state[index + 1];
                ev.set(Event::Type(Event::SALeftAxis1Value), paddle_b);
                ev.set(Event::Type(Event::PaddleOneFire), stateB & INP_A);
+            } else {
+               ev.set(Event::Type(Event::PaddleOneFire), state & INP_B);
             }
          } else {
             unsigned int state = wrc_input_state[index];
@@ -848,6 +855,8 @@ static void update_input()
                unsigned int stateB = wrc_input_state[index + 1];
                ev.set(Event::Type(Event::SARightAxis1Value), paddle_b);
                ev.set(Event::Type(Event::PaddleThreeFire), stateB & INP_A);
+            } else {
+               ev.set(Event::Type(Event::PaddleThreeFire), state & INP_B);
             }
          }
 #else
@@ -1590,6 +1599,11 @@ extern "C" void wrc_on_set_options(int opts) {
       return window.emulator.getPaddleVertical();
    });
    printf("## paddle_vertical: %d\n", wrc_paddle_vertical);
+
+   wrc_paddle_inverted = EM_ASM_INT({
+      return window.emulator.getPaddleInverted();
+   });
+   printf("## paddle_inverted: %d\n", wrc_paddle_inverted);
 
    wrc_paddle_center = EM_ASM_INT({
       return window.emulator.getPaddleCenter();
