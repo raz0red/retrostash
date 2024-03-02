@@ -1,0 +1,7 @@
+--2024-02-19 11:30:23--  https://forums.atariage.com/applications/core/interface/file/attachment.php?id=1086974
+Loaded CA certificate '/usr/ssl/certs/ca-bundle.crt'
+Resolving forums.atariage.com (forums.atariage.com)... 99.84.66.111, 99.84.66.99, 99.84.66.106, ...
+Connecting to forums.atariage.com (forums.atariage.com)|99.84.66.111|:443... connected.
+HTTP request sent, awaiting response... 404 Not Found
+2024-02-19 11:30:23 ERROR 404: Not Found.
+
