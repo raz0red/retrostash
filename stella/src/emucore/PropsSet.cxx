@@ -126,7 +126,7 @@ bool PropertiesSet::getMD5(string_view md5, Properties& properties,
       newRom[i] = rom[offset + i];
       newRom[offset + i] = rom[i];
     }
-    memcpy((char*)rom_data, newRom, 8 * 1024);
+    memcpy((unsigned char*)rom_data, newRom, 8 * 1024);
   // Tac-Scan
   } else if (md5 == "d45ebf130ed9070ea8ebd56176e48a38") {
     properties.set(PropType::Console_SwapPorts, "YES");
@@ -140,13 +140,28 @@ bool PropertiesSet::getMD5(string_view md5, Properties& properties,
   } else if (md5 == "a4e885726af9d97b12bb5a36792eab63") {
     properties.set(PropType::Controller_Left, "JOYSTICK");
     properties.set(PropType::Controller_Right, "JOYSTICK");
-  // Astroblast
-  } else if (md5 == "170e7589a48739cfb9cc782cbb0fe25a") {
-    properties.set(PropType::Controller_SwapPaddles, "YES");
-    properties.set(PropType::Controller_Left, "PADDLES");
+  // Brik180
+  } else if (md5 == "576ec3587aafd9b068a1d955a8aa00cf") {
+    properties.set(PropType::Controller_Left, "JOYSTICK");
+    properties.set(PropType::Controller_Right, "PADDLES");
+  } else if (md5 == "0ac295096eb96229a5a757bcb8d5a66b") {
+    properties.set(PropType::Controller_Left, "JOYSTICK");
+    properties.set(PropType::Controller_Right, "PADDLES");
   // Maze Craze
   } else if (md5 == "f825c538481f9a7a46d1e9bc06200aaf") {
     force_ntsc = true;
+  // Polaris (PAL)
+  } else if (md5 == "203049f4d8290bb4521cc4402415e737") {
+    uInt8* rom = (uInt8*)stella.getROM();
+    memcpy((unsigned char*)rom_data, rom, 8 * 1024);
+    unsigned char * p = (unsigned char*)&rom_data[0x140];
+    (*p++) = 0xd8;
+    (*p++) = 0xe8;
+    (*p++) = 0x86;
+    (*p++) = 0x5b;
+    (*p++) = 0x86;
+    (*p++) = 0x5c;
+    (*p++) = 0x86;
   }
 
   properties.print();

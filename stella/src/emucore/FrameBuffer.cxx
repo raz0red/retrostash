@@ -591,9 +591,7 @@ void FrameBuffer::updateInEmulationMode(float framesPerSecond)
   // We don't worry about selective rendering here; the rendering
   // always happens at the full framerate
 
-#ifndef ATARI_SDL
   clear();  // TODO - test this: it may cause slowdowns on older systems
-#endif
   myTIASurface->render();
 
   // Show frame statistics

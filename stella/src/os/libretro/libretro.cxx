@@ -19,14 +19,6 @@
 #include "Version.hxx"
 #include "Switches.hxx"
 
-#ifdef ATARI_SDL
-#include "sdl.h"
-#endif
-
-#ifdef PROFILE
-#undef ATARI
-#endif
-
 StellaLIBRETRO stella;
 
 static retro_log_printf_t log_cb;
@@ -647,13 +639,11 @@ void retro_get_system_info(struct retro_system_info *info)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void retro_get_system_av_info(struct retro_system_av_info *info)
 {
-#ifdef ATARI_SDL
   if (force_pal) {
     stella.osystem().console().setFormat(2, true);
   } else if (force_ntsc) {
     stella.osystem().console().setFormat(1, true);
   }
-#endif
 
 #ifdef WRC
   if (force_ntsc) {
@@ -665,7 +655,6 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
     force_pal ? 50 :
     stella.getVideoNTSC() ? 60 : 50);
 #endif
-
 
   *info = retro_system_av_info{};  // reset to defaults
 
@@ -865,27 +854,8 @@ void retro_reset()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#ifdef ATARI_SDL
-static bool sdl_inited = false;
-#endif
-
-#ifdef PROFILE
-#define ATARI
-#endif
-
 void retro_run()
 {
-#ifdef ATARI_SDL
-  if (!sdl_inited) {
-#ifndef ATARI
-    sdl_init();
-#endif
-    sdl_inited = true;
-    pthread_t t;
-    pthread_create(&t, NULL, sdl_render_thread, NULL);
-  }
-  display_frame_count++;
-#endif
 
 #ifdef WRC
   if (!wrc_started) {
@@ -908,23 +878,17 @@ void retro_run()
     return;
   }
 
-
   update_input();
-
 
   stella.runFrame();
 
-#ifndef ATARI_SDL
   if(stella.getVideoResize())
     update_geometry();
-
 
   //printf("retro_run - %d %d %d - %d\n", stella.getVideoWidth(), stella.getVideoHeight(), stella.getVideoPitch(), stella.getAudioSize() );
 
   if(stella.getVideoReady())
     video_cb(reinterpret_cast<uInt32*>(stella.getVideoBuffer()) + crop_left, stella.getVideoWidth() - crop_left, stella.getVideoHeight(), stella.getVideoPitch());
-#endif
-
 
   if (stella.getAudioReady()) {
 #ifndef WRC

@@ -26,10 +26,6 @@
 #include "PaletteHandler.hxx"
 #include "TIASurface.hxx"
 
-#ifdef ATARI_SDL
-#include "sdl.h"
-#endif
-
 namespace {
   ScalingInterpolation interpolationModeFromSettings(const Settings& settings)
   {
@@ -524,61 +520,31 @@ inline uInt32 TIASurface::averageBuffers(uInt32 bufOfs)
   return (rn << 16) | (gn << 8) | bn;
 }
 
-#ifdef ATARI_SDL
-static bool sdl_inited = false;
-#endif
-
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void TIASurface::render(bool shade)
 {
-#ifdef ATARI_SDL
-  if (!sdl_inited) {
-    sdl_inited = true;
-    display_palette = &myPalette;
-    display_height = myTIA->height();
-    display_width = myTIA->width();
-  }
-#endif
   const uInt32 width = myTIA->width(), height = myTIA->height();
 
   uInt32 *out{nullptr}, outPitch{0};
   myTiaSurface->basePtr(out, outPitch);
 
-#ifndef ATARI_SDL
   switch(myFilter)
-#endif
   {
-#ifndef ATARI_SDL
     case Filter::Normal:
     {
-#endif
       const uInt8* tiaIn = myTIA->frameBuffer();
 
       uInt32 bufofs = 0, screenofsY = 0;
       for(uInt32 y = 0; y < height; ++y)
       {
-#ifndef ATARI_SDL
         uInt32 pos = screenofsY;
-#else
-        uInt32 offset = 0;
-#endif
         for (uInt32 x = width / 2; x; --x)
         {
-#ifndef ATARI_SDL
           out[pos++] = myPalette[tiaIn[bufofs++]];
           out[pos++] = myPalette[tiaIn[bufofs++]];
-#else
-          display_buffer[display_buffer_idx][y][offset++] = tiaIn[bufofs++];
-          display_buffer[display_buffer_idx][y][offset++] = tiaIn[bufofs++];
-#endif
         }
         screenofsY += outPitch;
       }
-#ifdef ATARI_SDL
-      display_count++;
-      if (display_count == 100) display_count = 0;
-      //display_buffer_idx = !display_buffer_idx;
-#else
       break;
     }
     case Filter::Phosphor:
@@ -622,10 +588,8 @@ void TIASurface::render(bool shade)
       myNTSCFilter.render(myTIA->frameBuffer(), width, height, out, outPitch << 2, myRGBFramebuffer.data());
       break;
     }
-#endif
   }
 
-#ifndef ATARI_SDL
   // Draw TIA image
   myTiaSurface->render();
 
@@ -646,7 +610,6 @@ void TIASurface::render(bool shade)
     myOSystem.png().takeSnapshot();
   #endif
   }
-#endif
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
