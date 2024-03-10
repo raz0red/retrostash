@@ -853,6 +853,12 @@ void retro_reset()
   stella.reset();
 }
 
+// Audio hack
+static int check_frames = 0;
+static int audio_hack_count = 0;
+static int audio_hack_adjust = 0;
+static bool audio_hack_enabled = false;
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void retro_run()
 {
@@ -886,6 +892,37 @@ void retro_run()
     update_geometry();
 
   //printf("retro_run - %d %d %d - %d\n", stella.getVideoWidth(), stella.getVideoHeight(), stella.getVideoPitch(), stella.getAudioSize() );
+
+  // Audio hack
+  if (stella.getAudioReady()) {
+    if (audio_hack_enabled) {
+       Int16* buff = stella.getAudioBuffer();
+       for (int i = 0; i < (int)stella.getAudioSize() << 1; i++) {
+           buff[i] -= audio_hack_adjust;
+       }
+    }
+    if (check_frames < 60) {
+      check_frames++;
+      Int16* buff = stella.getAudioBuffer();
+      for (int i = 0; i < (int)stella.getAudioSize() << 1; i++) {
+          // if (i == 0) printf("%d ", buff[i]);
+          if (buff[i] == 13796 || buff[i] == 20851 || buff[i] == 21844) {
+            if (audio_hack_adjust == 0) {
+              audio_hack_adjust = buff[i];
+            }
+            audio_hack_count++;
+          }
+      }
+      if (check_frames == 60) {
+        printf("### Hack audio count: %d\n", audio_hack_count);
+        if (audio_hack_count > 50000) {
+          printf("### Audio hack enabled: %d\n", audio_hack_adjust);
+          audio_hack_enabled = true;
+        }
+      }
+    }
+  }
+
 
   if(stella.getVideoReady())
     video_cb(reinterpret_cast<uInt32*>(stella.getVideoBuffer()) + crop_left, stella.getVideoWidth() - crop_left, stella.getVideoHeight(), stella.getVideoPitch());
