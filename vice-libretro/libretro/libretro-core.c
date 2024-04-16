@@ -8473,6 +8473,11 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 #endif
    info->timing.fps = retro_refresh;
 
+#ifdef WRC
+  printf("# FRAME RATE=%f\n", retro_refresh);
+  EM_ASM({ window.emulator.setFrameRate($0); }, retro_refresh);
+#endif
+
    retro_refresh_ms = (1 / retro_refresh * 1000000);
 }
 
@@ -9093,6 +9098,28 @@ void em_cmd_savefiles() {}
 
 int wrc_swap_joysticks = 0;
 void wrc_on_set_options(int opts) {
+   // Key event notifier
+   if (opts & (OPT15 | OPT16)) {
+      // TODO: Modifiers
+
+      // Get key code
+      int keyCode = EM_ASM_INT({
+         return window.emulator.getKeyCode();
+      });
+
+      if (opts & OPT15) {
+         //printf("Key down: %d\n", keyCode);
+         // Key down event
+         retro_key_down(keyCode);
+      }
+      else if (opts & OPT16) {
+         //printf("Key up: %d\n", keyCode);
+         // Key up event
+         retro_key_up(keyCode);
+      }
+      return;
+   }
+
    wrc_swap_joysticks = opts & OPT1;
 }
 
