@@ -1878,6 +1878,12 @@ bool retro_disk_set_eject_state(bool ejected);
 
 void reload_restart(void)
 {
+#ifdef WRC
+   int wrc_region = EM_ASM_INT({
+      return window.emulator.getRegion();
+   });
+#endif
+
    /* Clear request */
    request_reload_restart = false;
 
@@ -1958,6 +1964,9 @@ void reload_restart(void)
    if (!opt_model_auto_locked && !string_is_empty(full_path))
    {
       if (strstr(full_path, "NTSC") ||
+#ifdef WRC
+          (wrc_region == 1) ||
+#endif
           strstr(full_path, "(USA)") ||
           strstr(full_path, "(Japan)") ||
           strstr(full_path, "(Japan, USA)"))
@@ -1972,6 +1981,9 @@ void reload_restart(void)
       }
 
       if (strstr(full_path, "PAL") ||
+#ifdef WRC
+          (wrc_region == 2) ||
+#endif
           strstr(full_path, "(Europe)") ||
           strstr(full_path, "(Finland)") ||
           strstr(full_path, "(France)") ||
