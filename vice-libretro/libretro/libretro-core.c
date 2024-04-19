@@ -9126,12 +9126,13 @@ void wrc_on_set_options(int opts) {
             str[i] = p[i].charCodeAt(0);
          }
       }, path, len);
-      printf("Disk path: %s\n", pat
+      printf("Disk path: %s\n", path);
 
       retro_disk_set_eject_state(true);
       wrc_game_info.path = path;
       retro_disk_replace_image_index(0, (const struct retro_game_info*)&wrc_game_info);
       retro_disk_set_eject_state(false);
+      return;
       // free(path);
    }
 
