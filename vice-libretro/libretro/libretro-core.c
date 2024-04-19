@@ -9109,7 +9109,32 @@ int wrc_start(char* arg) {}
 void em_cmd_savefiles() {}
 
 int wrc_swap_joysticks = 0;
+
+
+struct retro_game_info wrc_game_info;
 void wrc_on_set_options(int opts) {
+
+   // Disk change
+   if (opts & OPT12) {
+      int len = 256;
+      char* path = (char*)malloc(len);
+      memset(path, 0, len);
+      EM_ASM({
+         const p = window.emulator.getMediaPath();
+         const str = new Uint8Array(window.Module.HEAP8.buffer, $0, $1);
+         for (let i = 0; i < p.length; i++) {
+            str[i] = p[i].charCodeAt(0);
+         }
+      }, path, len);
+      printf("Disk path: %s\n", pat
+
+      retro_disk_set_eject_state(true);
+      wrc_game_info.path = path;
+      retro_disk_replace_image_index(0, (const struct retro_game_info*)&wrc_game_info);
+      retro_disk_set_eject_state(false);
+      // free(path);
+   }
+
    // Key event notifier
    if (opts & (OPT15 | OPT16)) {
       // TODO: Modifiers
