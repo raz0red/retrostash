@@ -1057,6 +1057,7 @@ void retro_poll_event()
       if (state & INP_LEFT) joy_value |= JOYPAD_W;
       if (state & INP_RIGHT) joy_value |= JOYPAD_E;
       if (state & INP_A) joy_value |= JOYPAD_FIRE;
+      if (state & INP_B) joy_value |= JOYPAD_FIRE2;
 
       joystick_set_value_absolute(
          wrc_swap_joysticks ?
@@ -1112,27 +1113,27 @@ void retro_poll_event()
             process = 1;
          }
 
-         // N
-         if (state & INP_X) {
-            if (!retro_key_event_state[RETROK_n]) {
-               retro_key_event_state[RETROK_n] = 1;
-               process = 1;
-            }
-         } else if (retro_key_event_state[RETROK_n]) {
-            retro_key_event_state[RETROK_n] = 0;
-            process = 1;
-         }
+         // // N
+         // if (state & INP_X) {
+         //    if (!retro_key_event_state[RETROK_n]) {
+         //       retro_key_event_state[RETROK_n] = 1;
+         //       process = 1;
+         //    }
+         // } else if (retro_key_event_state[RETROK_n]) {
+         //    retro_key_event_state[RETROK_n] = 0;
+         //    process = 1;
+         // }
 
-         // Y
-         if (state & INP_B) {
-            if (!retro_key_event_state[RETROK_y]) {
-               retro_key_event_state[RETROK_y] = 1;
-               process = 1;
-            }
-         } else if (retro_key_event_state[RETROK_y]) {
-            retro_key_event_state[RETROK_y] = 0;
-            process = 1;
-         }
+         // // Y
+         // if (state & INP_B) {
+         //    if (!retro_key_event_state[RETROK_y]) {
+         //       retro_key_event_state[RETROK_y] = 1;
+         //       process = 1;
+         //    }
+         // } else if (retro_key_event_state[RETROK_y]) {
+         //    retro_key_event_state[RETROK_y] = 0;
+         //    process = 1;
+         // }
 
          if (process) {
             process_key(0);

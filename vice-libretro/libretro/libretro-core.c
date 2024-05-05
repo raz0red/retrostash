@@ -3,7 +3,6 @@
 #undef FILE
 #endif
 
-
 #include "libretro.h"
 #include "libretro-core.h"
 #include "libretro-mapper.h"
@@ -52,6 +51,7 @@
 #include "../../../../wrc.h"
 #include "chd.h"
 // #include <emscripten.h>
+static wrc_autostart_disabled = false;
 #endif
 
 /* Main CPU loop */
@@ -8574,8 +8574,19 @@ void emu_model_set(int model)
 
 #define AUTOLOADWARP_TAPE_DEBUG 0
 
+static bool wrc_check_autostart = true;
+
 void retro_run(void)
 {
+   if (wrc_check_autostart) {
+      wrc_check_autostart = false;
+      if (wrc_autostart_disabled) {
+         autostart_disable();
+         retro_disk_set_eject_state(true);
+         retro_disk_set_eject_state(false);
+      }
+   }
+
    /* Core options */
    bool updated = false;
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
@@ -8636,6 +8647,7 @@ void retro_run(void)
 #endif
       /* Delayed autoload for FileSystem, which isn't resolving "*"
        * as the first file available */
+
       if (autoload)
       {
          char program[48];
@@ -9110,10 +9122,8 @@ void em_cmd_savefiles() {}
 
 int wrc_swap_joysticks = 0;
 
-
 struct retro_game_info wrc_game_info;
 void wrc_on_set_options(int opts) {
-
    // Disk change
    if (opts & OPT12) {
       int len = 256;
@@ -9128,17 +9138,20 @@ void wrc_on_set_options(int opts) {
       }, path, len);
       printf("Disk path: %s\n", path);
 
-      retro_disk_set_eject_state(true);
-      wrc_game_info.path = path;
-      retro_disk_replace_image_index(0, (const struct retro_game_info*)&wrc_game_info);
-      retro_disk_set_eject_state(false);
+      // TODO: Figure out why we need to do this twice when using carts...
+      for (int i = 0; i < 2; i++) {
+         retro_disk_set_eject_state(true);
+         wrc_game_info.path = path;
+         retro_disk_replace_image_index(0, (const struct retro_game_info*)&wrc_game_info);
+         retro_disk_set_eject_state(false);
+      }
+
       return;
       // free(path);
    }
 
    // Key event notifier
    if (opts & (OPT15 | OPT16)) {
-      // TODO: Modifiers
 
       // Get key code
       int keyCode = EM_ASM_INT({
@@ -9159,6 +9172,11 @@ void wrc_on_set_options(int opts) {
    }
 
    wrc_swap_joysticks = opts & OPT1;
+
+   if (opts & OPT2) {
+      printf("## Disable autoload.\n");
+      wrc_autostart_disabled = true;
+   }
 }
 
 const chd_header *chd_get_header(chd_file *chd) { return 0; }

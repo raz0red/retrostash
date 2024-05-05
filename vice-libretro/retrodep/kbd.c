@@ -1,3 +1,8 @@
+// #ifdef WRC
+// #include <emscripten.h>
+// #undef FILE
+// #endif
+
 #include "libretro-core.h"
 
 #include "kbd.h"
@@ -8,6 +13,9 @@ extern unsigned retro_key_event_state[RETROK_LAST];
 
 static int kbd_get_modifier()
 {
+// printf("kbd_get_modifier\n");
+// #ifndef WRC
+// printf("non wrc modifier\n");
    int ret = 0;
 
    if (retro_key_event_state[RETROK_LSHIFT]) {
@@ -27,10 +35,18 @@ static int kbd_get_modifier()
    }
 
    return ret;
+// #else
+//    int ret = EM_ASM_INT({
+//       return window.emulator.getKeyMods();
+//    });
+// printf("wrc modifier: %d\n", ret);
+//    return ret;
+// #endif
 }
 
 void kbd_handle_keydown(int kcode)
 {
+// printf("kbd_handle_keydown\n");
    keyboard_key_pressed((signed long)kcode, kbd_get_modifier());
 }
 
