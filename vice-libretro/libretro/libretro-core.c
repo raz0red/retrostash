@@ -1980,6 +1980,9 @@ void reload_restart(void)
 #endif
       }
 
+#ifdef WRC
+   if (wrc_region != 1) {
+#endif
       if (strstr(full_path, "PAL") ||
 #ifdef WRC
           (wrc_region == 2) ||
@@ -1999,6 +2002,9 @@ void reload_restart(void)
          request_model_auto_set = VIC20MODEL_VIC20_PAL;
 #endif
       }
+#ifdef WRC
+   }
+#endif
 
 #if defined(__X64__) || defined(__X64SC__) || defined(__XSCPU64__)
       if (strstr(full_path, "(GS)"))
@@ -5855,6 +5861,13 @@ static void update_variables(void)
       if (retro_ui_finalized && vice_opt.DriveSoundEmulation && vice_opt.DriveTrueEmulation)
          resources_set_int("DriveSoundEmulationVolume", vice_opt.DriveSoundEmulation);
    }
+
+#ifdef WRC
+   vice_opt.DriveTrueEmulation = EM_ASM_INT({
+      return window.emulator.isTrueDriveEmulationEnabled();
+   });
+#endif
+
 #endif
 
 #if !defined(__X64DTV__)
@@ -6335,6 +6348,13 @@ static void update_variables(void)
 
       opt_reu_allow = reu_allow(full_path);
    }
+#ifdef WRC
+      vice_opt.REUsize = EM_ASM_INT({
+         return window.emulator.getRamExpansionSize();
+      });
+      printf("## Memory size: %d\n", vice_opt.REUsize);
+      opt_reu_allow = reu_allow(full_path);
+#endif
 #endif
 #endif
 
@@ -7303,9 +7323,11 @@ static void update_variables(void)
    }
 
 #ifdef WRC
-   opt_jiffydos = EM_ASM_INT({
-      return window.emulator.isJiffyDosEnabled();
-   });
+   if (vice_opt.DriveTrueEmulation) {
+      opt_jiffydos = EM_ASM_INT({
+         return window.emulator.isJiffyDosEnabled();
+      });
+   }
 #endif
 #endif
 
