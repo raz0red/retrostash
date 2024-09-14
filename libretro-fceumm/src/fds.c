@@ -18,6 +18,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/* dec-12-19                                    */
+/* 4024(w), 4025(w), 4031(r) by dink(fbneo)     */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,6 +38,8 @@
 #include "cart.h"
 #include "md5.h"
 
+#include <emscripten.h>
+
 /*	TODO:  Add code to put a delay in between the time a disk is inserted
  *	and the when it can be successfully read/written to.  This should
  *	prevent writes to wrong places OR add code to prevent disk ejects
@@ -47,12 +52,6 @@ static DECLFR(FDSRead4032);
 static DECLFR(FDSRead4033);
 
 static DECLFW(FDSWrite);
-
-static DECLFW(FDSWaveWrite);
-static DECLFR(FDSWaveRead);
-
-static DECLFR(FDSSRead);
-static DECLFW(FDSSWrite);
 
 static void FDSInit(void);
 static void FDSClose(void);
@@ -82,11 +81,6 @@ static uint8 writeskip;
 static int32 DiskPtr;
 static int32 DiskSeekIRQ;
 static uint8 SelectDisk, InDisk;
-
-/* dec-12-19                                    */
-/* 4024(w), 4025(w), 4031(r) by dink(fbneo)     */
-/* remove this and old code after testing phase */
-#define USE_DINK
 
 enum FDS_DiskBlockIDs {
 	DSK_INIT = 0,
@@ -166,7 +160,6 @@ static void FDSInit(void) {
 	InDisk = 0;
 	SelectDisk = 0;
 
-#ifdef USE_DINK
 	mapperFDS_control = 0;
 	mapperFDS_filesize = 0;
 	mapperFDS_block = 0;
@@ -174,7 +167,6 @@ static void FDSInit(void) {
 	mapperFDS_blocklen = 0;
 	mapperFDS_diskaddr = 0;
 	mapperFDS_diskaccess = 0;
-#endif
 }
 
 void FCEU_FDSInsert(int oride) {
@@ -243,25 +235,6 @@ static DECLFR(FDSRead4030) {
 	return ret;
 }
 
-#ifndef USE_DINK
-static DECLFR(FDSRead4031) {
-	static uint8 z = 0;
-	if (InDisk != 255) {
-		z = diskdata[InDisk][DiskPtr];
-		#ifdef FCEUDEF_DEBUGGER
-		if (!fceuindbg)
-		#endif
-		{
-			if (DiskPtr < 64999) DiskPtr++;
-			DiskSeekIRQ = 150;
-			X6502_IRQEnd(FCEU_IQEXT2);
-		}
-	}
-	return z;
-}
-
-#else /* USE_DISK */
-
 static DECLFR(FDSRead4031) {
 	uint8 ret = 0xff;
 
@@ -279,9 +252,6 @@ static DECLFR(FDSRead4031) {
 					break;
 				case 14:
 					mapperFDS_filesize |= ret << 8;
-					/* char fdsfile[10]; */
-					/* strncpy(fdsfile, (char*)&diskdata[InDisk][mapperFDS_blockstart + 3], 8); */
-					/* printf("Read file: %s (size: %d)\n"), fdsfile, mapperFDS_filesize); */
 					break;
 				}
 				mapperFDS_diskaddr++;
@@ -301,8 +271,6 @@ static DECLFR(FDSRead4031) {
 
 	return ret;
 }
-
-#endif /* USE_DINK */
 
 static DECLFR(FDSRead4032) {
 	uint8 ret;
@@ -348,18 +316,6 @@ static DECLFW(FDSWrite) {
 		}
 		break;
 	case 0x4024:
-#ifndef USE_DINK
-		if ((InDisk != 255) && !(FDSRegs[5] & 0x4) && (FDSRegs[3] & 0x1)) {
-			if (DiskPtr >= 0 && DiskPtr < 65500) {
-				if (writeskip)
-					writeskip--;
-				else if (DiskPtr >= 2) {
-					DiskWritten = 1;
-					diskdata[InDisk][DiskPtr - 2] = V;
-				}
-			}
-		}
-#else /* USE_DINK */
 		if (FDS_DISK_INSERTED && ~mapperFDS_control & 0x04) {
 
 			if (mapperFDS_diskaccess == 0) {
@@ -375,9 +331,6 @@ static DECLFW(FDSWrite) {
 							case 13: mapperFDS_filesize = V; break;
 							case 14:
 								mapperFDS_filesize |= V << 8;
-								/* char fdsfile[10]; */
-								/* strncpy(fdsfile, (char*)&diskdata[InDisk][mapperFDS_blockstart + 3], 8); */
-								/* printf("Write file: %s (size: %d)\n"), fdsfile, mapperFDS_filesize); */
 								break;
 						}
 						mapperFDS_diskaddr++;
@@ -392,27 +345,8 @@ static DECLFW(FDSWrite) {
 			}
 
 		}
-#endif /* USE_DINK */
 		break;
 	case 0x4025:
-#ifndef USE_DINK
-		X6502_IRQEnd(FCEU_IQEXT2);
-		if (InDisk != 255) {
-			if (!(V & 0x40)) {
-				if ((FDSRegs[5] & 0x40) && !(V & 0x10)) {
-					DiskSeekIRQ = 200;
-					DiskPtr -= 2;
-				}
-				if (DiskPtr < 0) DiskPtr = 0;
-			}
-			if (!(V & 0x4)) writeskip = 2;
-			if (V & 2) {
-				DiskPtr = 0; DiskSeekIRQ = 200;
-			}
-			if (V & 0x40) DiskSeekIRQ = 200;
-		}
-		setmirror(((V >> 3) & 1) ^ 1);
-#else /* USE_DINK */
 		X6502_IRQEnd(FCEU_IQEXT2);
 		if (FDS_DISK_INSERTED) {
 			if (V & 0x40 && ~mapperFDS_control & 0x40) {
@@ -460,7 +394,6 @@ static DECLFW(FDSWrite) {
 		}
 		mapperFDS_control = V;
 		setmirror(((V >> 3) & 1) ^ 1);
-#endif /* USE_DINK */
 		break;
 	}
 	FDSRegs[A & 7] = V;
@@ -622,7 +555,7 @@ static const char *getManufacturer(uint8 code)
 			break;
 		}
 		x++;
-	} 
+	}
 
 	return ret;
 }
@@ -710,10 +643,15 @@ int FDSLoad(const char *name, FCEUFILE *fp) {
 
 	if (!(zp = FCEU_fopen(fn, NULL, 0))) {
 		FCEU_PrintError("FDS BIOS ROM image missing!\n");
+#ifdef WRC
+		EM_ASM({ window.emulator.fdsBiosMissing(); }, 0);
+#endif
 		FCEUD_DispMessage(RETRO_LOG_ERROR, 3000, "FDS BIOS image (disksys.rom) missing");
 		free(fn);
 		return 0;
 	}
+
+	EM_ASM({ window.emulator.setFdsGame(true); }, 0);
 
 	free(fn);
 
@@ -750,7 +688,7 @@ int FDSLoad(const char *name, FCEUFILE *fp) {
 		diskdatao[x] = (uint8*)FCEU_malloc(65500);
 		memcpy(diskdatao[x], diskdata[x], 65500);
 	}
-	
+
 	DiskWritten = 1;
 
 	GameInfo->type = GIT_FDS;
@@ -783,7 +721,7 @@ int FDSLoad(const char *name, FCEUFILE *fp) {
 	AddExState(&SelectDisk, 1, 0, "SELD");
 	AddExState(&InDisk, 1, 0, "INDI");
 	AddExState(&DiskWritten, 1, 0, "DSKW");
-#ifdef USE_DINK
+
 	AddExState(&mapperFDS_control, 1, 0, "CTRG");
 	AddExState(&mapperFDS_filesize, 2 | FCEUSTATE_RLSB, 1, "FLSZ");
 	AddExState(&mapperFDS_block, 1, 0, "BLCK");
@@ -791,7 +729,6 @@ int FDSLoad(const char *name, FCEUFILE *fp) {
 	AddExState(&mapperFDS_blocklen, 2 | FCEUSTATE_RLSB, 1, "BLKL");
 	AddExState(&mapperFDS_diskaddr, 2 | FCEUSTATE_RLSB, 1, "DADR");
 	AddExState(&mapperFDS_diskaccess, 1, 0, "DACC");
-#endif
 
 	CHRRAMSize = 8192;
 	CHRRAM = (uint8*)FCEU_gmalloc(CHRRAMSize);

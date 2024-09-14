@@ -7,6 +7,10 @@
 #include <libretro.h>
 #include <retro_inline.h>
 
+#ifndef HAVE_NO_LANGEXTRA
+#include "libretro_core_options_intl.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -17,7 +21,7 @@ extern "C" {
  ********************************
 */
 
-#define MAX_CORE_OPTIONS 35
+#define MAX_CORE_OPTIONS 37
 
 /* RETRO_LANGUAGE_ENGLISH */
 
@@ -32,41 +36,41 @@ struct retro_core_option_v2_category option_cats_us[] = {
    {
       "system",
       "System",
-      "Configure region / hardware add-on parameters."
+      "Change region and hardware add-on settings."
    },
    {
       "video",
       "Video",
 #ifdef HAVE_NTSC_FILTER
-      "Configure aspect ratio / display cropping / color palette / video filter options."
+      "Change aspect ratio, display cropping, color palette and video filter options."
 #else
-      "Configure aspect ratio / display cropping / color palette options."
+      "Change aspect ratio, display cropping and color palette options."
 #endif
    },
    {
       "audio",
       "Audio",
-      "Configure sound quality / volume / channel enable settings."
+      "Change sound quality, volume, channel enable settings."
    },
    {
       "input",
       "Input",
-      "Configure turbo / light gun parameters."
+      "Change turbo, Arkanoid and light gun settings."
    },
    {
       "hacks",
       "Emulation Hacks",
-      "Configure processor overclocking and emulation accuracy parameters affecting low-level performance and compatibility."
+      "Change processor overclocking and emulation accuracy settings affecting low-level performance and compatibility."
    },
    {
       "dip_switch",
       "DIP Switches",
-      "Configure arcade game settings."
+      "Change arcade game settings."
    },
    { NULL, NULL, NULL },
 };
 
-struct retro_core_option_v2_definition option_defs_us_common[] = {
+struct retro_core_option_v2_definition option_defs[] = {
    {
       "fceumm_region",
       "Region",
@@ -85,7 +89,7 @@ struct retro_core_option_v2_definition option_defs_us_common[] = {
    },
    {
       "fceumm_game_genie",
-      "Game Genie Add-On (Restart)",
+      "Game Genie Add-On (Restart Required)",
       NULL,
       "Enable emulation of a Game Genie add-on cartridge, allowing cheat codes to be entered when launching games. The Game Genie ROM file 'gamegenie.nes' must be present in the frontend's system directory. Does not apply to FDS or arcade content.",
       NULL,
@@ -157,32 +161,76 @@ struct retro_core_option_v2_definition option_defs_us_common[] = {
    },
 #else
    {
-      "fceumm_overscan_h",
-      "Crop Horizontal Overscan",
+      "fceumm_overscan_h_left",
+      "Crop Horizontal Left Overscan",
       NULL,
-      "Removes 8 pixels from left and right sides of the screen to simulate overscan seen on standard CRT televisions.",
+      "Removes pixels from left side of the screen to simulate overscan seen on standard CRT televisions.",
       NULL,
       "video",
       {
-         { "disabled", NULL },
-         { "enabled",  NULL },
+         { "0", NULL },
+         { "4",  NULL },
+         { "8",  NULL },
+         { "12",  NULL },
+         { "16",  NULL },
          { NULL, NULL },
       },
-      "disabled",
+      "0",
    },
    {
-      "fceumm_overscan_v",
-      "Crop Vertical Overscan",
+      "fceumm_overscan_h_right",
+      "Crop Horizontal Right Overscan",
       NULL,
-      "Removes 8 pixels from the top and bottom of the screen to simulate overscan seen on standard CRT televisions.",
+      "Removes pixels from right side of the screen to simulate overscan seen on standard CRT televisions.",
       NULL,
       "video",
       {
-         { "disabled", NULL },
-         { "enabled",  NULL },
+         { "0", NULL },
+         { "4",  NULL },
+         { "8",  NULL },
+         { "12",  NULL },
+         { "16",  NULL },
          { NULL, NULL },
       },
-      "enabled",
+      "0",
+   },
+   {
+      "fceumm_overscan_v_top",
+      "Crop Vertical Top Overscan",
+      NULL,
+      "Removes pixels from the top of the screen to simulate overscan seen on standard CRT televisions.",
+      NULL,
+      "video",
+      {
+         { "0", NULL },
+         { "4",  NULL },
+         { "8",  NULL },
+         { "12",  NULL },
+         { "16",  NULL },
+         { "20",  NULL },
+         { "24",  NULL },
+         { NULL, NULL },
+      },
+      "8",
+   },
+   {
+      "fceumm_overscan_v_bottom",
+      "Crop Vertical Bottom Overscan",
+      NULL,
+      "Removes pixels from the bottom of the screen to simulate overscan seen on standard CRT televisions.",
+      NULL,
+      "video",
+      {
+         { "0", NULL },
+         { "4",  NULL },
+         { "8",  NULL },
+         { "12",  NULL },
+         { "16",  NULL },
+         { "20",  NULL },
+         { "24",  NULL },         
+         { NULL, NULL },
+      },
+      "8",
    },
 #endif /* overscan options */
    {
@@ -207,9 +255,15 @@ struct retro_core_option_v2_definition option_defs_us_common[] = {
          { "composite-direct-fbx", "FBX's Composite Direct" },
          { "pvm-style-d93-fbx",    "FBX's PVM Style D93" },
          { "ntsc-hardware-fbx",    "FBX's NTSC Hardware" },
-         { "nes-classic-fbx-fs",   "FBX's NES-Classic FS" },
+         { "nes-classic-fbx-fs",   "FBX's NES Classic (fixed)" },
          { "nescap",               "RGBSource's NESCAP" },
          { "wavebeam",             "nakedarthur's Wavebeam" },
+         { "digital-prime-fbx",    "FBX's Digital Prime" },
+         { "magnum-fbx",           "FBX's Magnum" },
+         { "smooth-v2-fbx",        "FBX's Smooth V2" },
+         { "nes-classic-fbx",      "FBX's NES Classic" },
+	 { "royaltea",             "Royaltea (PVM-2530)" },
+         { "mugicha",              "Mugicha" },
          { "raw",                  "Raw" },
          { "custom",               "Custom" },
          { NULL, NULL },
@@ -221,7 +275,7 @@ struct retro_core_option_v2_definition option_defs_us_common[] = {
       "fceumm_ntsc_filter",
       "NTSC Filter",
       NULL,
-      "Enable blargg NTSC filters.",
+      "Blargg's NTSC filters are used to replicate RF, Composite, S-Video, and RGB cable signals.",
       NULL,
       "video",
       {
@@ -249,6 +303,65 @@ struct retro_core_option_v2_definition option_defs_us_common[] = {
          { NULL, NULL },
       },
       "Low",
+   },
+   {
+      "fceumm_sndlowpass",
+      "Audio RF Filter",
+      NULL,
+      "Apply a low pass audio filter to simulate the 'muted' sound of the NES when connected to a television via the RF modulator.",
+      NULL,
+      "audio",
+      {
+         { "disabled", NULL },
+         { "enabled",  NULL },
+         { NULL, NULL },
+      },
+      "disabled",
+   },
+   {
+      "fceumm_sndstereodelay",
+      "Stereo Sound Effect",
+      NULL,
+      "Enable a fake stereo sound effect by delaying the right audio channel when upmixing the mono signal output from the NES.",
+      NULL,
+      "audio",
+      {
+         { "disabled",    NULL },
+         { "01_ms_delay", "1ms Delay" },
+         { "02_ms_delay", "2ms Delay" },
+         { "03_ms_delay", "3ms Delay" },
+         { "04_ms_delay", "4ms Delay" },
+         { "05_ms_delay", "5ms Delay" },
+         { "06_ms_delay", "6ms Delay" },
+         { "07_ms_delay", "7ms Delay" },
+         { "08_ms_delay", "8ms Delay" },
+         { "09_ms_delay", "9ms Delay" },
+         { "10_ms_delay", "10ms Delay" },
+         { "11_ms_delay", "11ms Delay" },
+         { "12_ms_delay", "12ms Delay" },
+         { "13_ms_delay", "13ms Delay" },
+         { "14_ms_delay", "14ms Delay" },
+         { "15_ms_delay", "15ms Delay (Default)" },
+         { "16_ms_delay", "16ms Delay" },
+         { "17_ms_delay", "17ms Delay" },
+         { "18_ms_delay", "18ms Delay" },
+         { "19_ms_delay", "19ms Delay" },
+         { "20_ms_delay", "20ms Delay" },
+         { "21_ms_delay", "21ms Delay" },
+         { "22_ms_delay", "22ms Delay" },
+         { "23_ms_delay", "23ms Delay" },
+         { "24_ms_delay", "24ms Delay" },
+         { "25_ms_delay", "25ms Delay" },
+         { "26_ms_delay", "26ms Delay" },
+         { "27_ms_delay", "27ms Delay" },
+         { "28_ms_delay", "28ms Delay" },
+         { "29_ms_delay", "29ms Delay" },
+         { "30_ms_delay", "30ms Delay" },
+         { "31_ms_delay", "31ms Delay" },
+         { "32_ms_delay", "32ms Delay" },
+         { NULL, NULL },
+      },
+      "disabled",
    },
    {
       "fceumm_swapduty",
@@ -397,22 +510,23 @@ struct retro_core_option_v2_definition option_defs_us_common[] = {
       "fceumm_zapper_mode",
       "Zapper Mode",
       NULL,
-      "Selects device to use for zapper games.",
+      "Selects device to use for Zapper games.",
       NULL,
       "input",
       {
-         { "lightgun",    "Lightgun" },
+         { "clightgun",   "Crosshair light gun" },
+         { "stlightgun",  "Sequential Targets light gun" },
          { "touchscreen", "Touchscreen" },
          { "mouse",       "Mouse" },
          { NULL, NULL },
       },
-      "lightgun",
+      "clightgun",
    },
    {
       "fceumm_show_crosshair",
       "Show Zapper Crosshair",
       NULL,
-      "Shows or hides on-screen crosshairs when using a zapper.",
+      "Shows or hides on-screen crosshairs when using a Zapper.",
       NULL,
       "input",
       {
@@ -456,10 +570,85 @@ struct retro_core_option_v2_definition option_defs_us_common[] = {
       "6",
    },
    {
+      "fceumm_zapper_trigger",
+      "Invert Zapper Trigger Signal",
+      NULL,
+      "Inverts trigger logic when using a Zapper. Disabling it resembles original hardware behavior.",
+      NULL,
+      "input",
+      {
+         { "enabled",  NULL },
+         { "disabled", NULL },
+         { NULL, NULL },
+      },
+      "enabled",
+   },
+   {
+      "fceumm_zapper_sensor",
+      "Invert Zapper Sensor Signal",
+      NULL,
+      "Inverts sensor logic when using a Zapper (Sequential Targets Light gun mode only). Disabling it resembles original NES/FC hardware behavior.",
+      NULL,
+      "input",
+      {
+         { "enabled",  NULL },
+         { "disabled", NULL },
+         { NULL, NULL },
+      },
+      "enabled",
+   },
+   {
+      "fceumm_arkanoid_mode",
+      "Arkanoid Mode",
+      NULL,
+      "Selects device to use for Arkanoid games.",
+      NULL,
+      "input",
+      {
+         { "abs_mouse",      "Absolute mouse" },
+         { "mouse",          "Mouse" },
+         { "stelladaptor",   "Stelladaptor" },
+         { "touchscreen",    "Touchscreen" },
+         { NULL, NULL },
+      },
+      "mouse",
+   },
+   {
+      "fceumm_mouse_sensitivity",
+      "Mouse Sensitivity",
+      NULL,
+      "Mouse sensitivity in percent.",
+      NULL,
+      "input",
+      {
+         { "20", NULL },
+         { "30", NULL },
+         { "40", NULL },
+         { "50", NULL },
+         { "60", NULL },
+         { "70", NULL },
+         { "80", NULL },
+         { "90", NULL },
+         { "100", NULL },
+         { "110", NULL },
+         { "120", NULL },
+         { "130", NULL },
+         { "140", NULL },
+         { "150", NULL },
+         { "160", NULL },
+         { "170", NULL },
+         { "180", NULL },
+         { "190", NULL },
+         { "200", NULL },
+         { NULL, NULL },
+      },
+      "100",
+   },
+   {
       "fceumm_up_down_allowed",
       "Allow Opposing Directions",
       NULL,
-      "Allows simultaneous UP+DOWN or LEFT+RIGHT button combinations which can create different effects in some games.",
+      "Allows simultaneous UP+DOWN or LEFT+RIGHT button combinations, which can create different effects in some games.",
       NULL,
       "input",
       {
@@ -487,7 +676,7 @@ struct retro_core_option_v2_definition option_defs_us_common[] = {
       "fceumm_overclocking",
       "Overclock",
       NULL,
-      "Enables or disables overclocking which can reduce slowdowns in some games. Postrender method is more compatible with every game with Vblank more effective for games like Contra Force.",
+      "Enables or disables overclocking, which can reduce slowdowns in some games. Postrender method is more compatible with every game, Vblank is more effective for games like Contra Force.",
       NULL,
       "hacks",
       {
@@ -500,9 +689,9 @@ struct retro_core_option_v2_definition option_defs_us_common[] = {
    },
    {
       "fceumm_ramstate",
-      "RAM Power-On Fill (Restart)",
+      "RAM Power-On Fill (Restart Required)",
       NULL,
-      "Choose RAM startup during power up. Some games rely on initial ram values for random generator as an example.",
+      "RAM values on power up. Some games rely on initial RAM values for random number generation as an example.",
       NULL,
       "hacks",
       {
@@ -532,24 +721,29 @@ struct retro_core_options_v2 options_us = {
 #ifndef HAVE_NO_LANGEXTRA
 struct retro_core_options_v2 *options_intl[RETRO_LANGUAGE_LAST] = {
    &options_us,    /* RETRO_LANGUAGE_ENGLISH */
-   NULL,           /* RETRO_LANGUAGE_JAPANESE */
-   NULL,           /* RETRO_LANGUAGE_FRENCH */
-   NULL,           /* RETRO_LANGUAGE_SPANISH */
-   NULL,           /* RETRO_LANGUAGE_GERMAN */
-   NULL,           /* RETRO_LANGUAGE_ITALIAN */
-   NULL,           /* RETRO_LANGUAGE_DUTCH */
-   NULL,           /* RETRO_LANGUAGE_PORTUGUESE_BRAZIL */
-   NULL,           /* RETRO_LANGUAGE_PORTUGUESE_PORTUGAL */
-   NULL,           /* RETRO_LANGUAGE_RUSSIAN */
-   NULL,           /* RETRO_LANGUAGE_KOREAN */
-   NULL,           /* RETRO_LANGUAGE_CHINESE_TRADITIONAL */
-   NULL,           /* RETRO_LANGUAGE_CHINESE_SIMPLIFIED */
-   NULL,           /* RETRO_LANGUAGE_ESPERANTO */
-   NULL,           /* RETRO_LANGUAGE_POLISH */
-   NULL,           /* RETRO_LANGUAGE_VIETNAMESE */
-   NULL,           /* RETRO_LANGUAGE_ARABIC */
-   NULL,           /* RETRO_LANGUAGE_GREEK */
-   NULL,           /* RETRO_LANGUAGE_TURKISH */
+   &options_ja,      /* RETRO_LANGUAGE_JAPANESE */
+   &options_fr,      /* RETRO_LANGUAGE_FRENCH */
+   &options_es,      /* RETRO_LANGUAGE_SPANISH */
+   &options_de,      /* RETRO_LANGUAGE_GERMAN */
+   &options_it,      /* RETRO_LANGUAGE_ITALIAN */
+   &options_nl,      /* RETRO_LANGUAGE_DUTCH */
+   &options_pt_br,   /* RETRO_LANGUAGE_PORTUGUESE_BRAZIL */
+   &options_pt_pt,   /* RETRO_LANGUAGE_PORTUGUESE_PORTUGAL */
+   &options_ru,      /* RETRO_LANGUAGE_RUSSIAN */
+   &options_ko,      /* RETRO_LANGUAGE_KOREAN */
+   &options_cht,     /* RETRO_LANGUAGE_CHINESE_TRADITIONAL */
+   &options_chs,     /* RETRO_LANGUAGE_CHINESE_SIMPLIFIED */
+   &options_eo,      /* RETRO_LANGUAGE_ESPERANTO */
+   &options_pl,      /* RETRO_LANGUAGE_POLISH */
+   &options_vn,      /* RETRO_LANGUAGE_VIETNAMESE */
+   &options_ar,      /* RETRO_LANGUAGE_ARABIC */
+   &options_el,      /* RETRO_LANGUAGE_GREEK */
+   &options_tr,      /* RETRO_LANGUAGE_TURKISH */
+   &options_sv,      /* RETRO_LANGUAGE_SLOVAK */
+   &options_fa,      /* RETRO_LANGUAGE_PERSIAN */
+   &options_he,      /* RETRO_LANGUAGE_HEBREW */
+   &options_ast,     /* RETRO_LANGUAGE_ASTURIAN */
+   &options_fi,      /* RETRO_LANGUAGE_FINNISH */
 };
 #endif
 

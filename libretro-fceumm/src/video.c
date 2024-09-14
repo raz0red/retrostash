@@ -67,8 +67,6 @@ int FCEU_InitVirtualVideo(void)
 
 #include "drawing.h"
 
-void FCEUI_SaveSnapshot(void) { }
-
 void FCEU_PutImage(void)
 {
 	if (GameInfo->type == GIT_NSF)
@@ -99,13 +97,4 @@ void FCEU_DispMessage(enum retro_log_level level, unsigned duration, const char 
    va_end(ap);
 
    FCEUD_DispMessage(level, duration, msg);
-}
-
-void FCEU_ResetMessages(void)
-{
-}
-
-int SaveSnapshot(void)
-{
-	return(0);
 }

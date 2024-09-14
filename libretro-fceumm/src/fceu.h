@@ -55,11 +55,7 @@ extern uint8 MMC50x5130;
 extern uint8 MMC5HackSPScroll;
 extern uint8 MMC5HackSPPage;
 
-#ifdef COPYFAMI
-extern uint8 RAM[0x4000];
-#else
 extern uint8 RAM[0x800];
-#endif
 
 extern readfunc ARead[0x10000];
 extern writefunc BWrite[0x10000];
@@ -73,7 +69,6 @@ extern void (*GameStateRestore)(int version);
 
 #include "git.h"
 extern FCEUGI *GameInfo;
-extern int GameAttributes;
 
 extern uint8 PAL;
 
@@ -97,7 +92,6 @@ typedef struct {
 	 */
 	int UsrFirstSLine[2];
 	int UsrLastSLine[2];
-	int SnapName;
 	uint32 SndRate;
 	int soundq;
 	int lowpass;

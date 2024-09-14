@@ -64,6 +64,14 @@ include:
     file: '/ios9.yml'
 
   ################################## CONSOLES ################################
+  # PlayStation2
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/ps2-static.yml'
+    
+  # PlayStation3
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/psl1ght-static.yml'
+    
   # PlayStation Portable
   - project: 'libretro-infrastructure/ci-templates'
     file: '/psp-static.yml'
@@ -71,10 +79,6 @@ include:
   # PlayStation Vita
   - project: 'libretro-infrastructure/ci-templates'
     file: '/vita-static.yml'
-
-  # PlayStation2
-  - project: 'libretro-infrastructure/ci-templates'
-    file: '/ps2-static.yml'
 
   # Nintendo 3DS
   - project: 'libretro-infrastructure/ci-templates'
@@ -99,6 +103,10 @@ include:
   # OpenDingux
   - project: 'libretro-infrastructure/ci-templates'
     file: '/dingux-mips32.yml'
+
+  # OpenDingux (ARM)
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/dingux-arm32.yml'
 
   # tvOS (AppleTV)
   - project: 'libretro-infrastructure/ci-templates'
@@ -165,7 +173,7 @@ libretro-build-linux-i686:
 # MacOS 64-bit
 libretro-build-osx-x64:
   extends:
-    - .libretro-osx-x64-make-default
+    - .libretro-osx-x64-make-10-7
     - .core-defs
 
 # MacOS ARM 64-bit
@@ -235,6 +243,12 @@ libretro-build-ps2:
   extends:
     - .libretro-ps2-static-retroarch-master
     - .core-defs
+    
+# PlayStation3
+libretro-build-psl1ght:
+  extends:
+    - .libretro-psl1ght-static-retroarch-master
+    - .core-defs
 
 # Nintendo 3DS
 libretro-build-ctr:
@@ -282,6 +296,12 @@ libretro-build-dingux-odbeta-mips32:
 libretro-build-retrofw-mips32:
   extends:
     - .libretro-retrofw-mips32-make-default
+    - .core-defs
+
+# Miyoo
+libretro-build-miyoo-arm32:
+  extends:
+    - .libretro-miyoo-arm32-make-default
     - .core-defs
 
 #################################### MISC ##################################

@@ -45,7 +45,7 @@ static void (*SPostSave)(void);
 /* static int SaveStateStatus[10]; */
 
 static SFORMAT SFMDATA[64];
-static int SFEXINDEX;
+int SFEXINDEX;
 
 #define RLSB     FCEUSTATE_RLSB     /* 0x80000000 */
 
@@ -61,11 +61,7 @@ SFORMAT SFCPU[] = {
    { &X.S, 1, "S\0\0" },
    { &X.P, 1, "P\0\0" },
    { &X.DB, 1, "DB"},
-#ifdef COPYFAMI
-   { RAM, 0x4000, "RAM" },
-#else
    { RAM, 0x800, "RAM" },
-#endif
    { 0 }
 };
 
@@ -286,6 +282,7 @@ void FCEUSS_Load_Mem(void)
 
    uint8 header[16];
    int stateversion;
+   int totalsize;
    int x;
 
    memstream_read(mem, header, 16);
@@ -297,8 +294,10 @@ void FCEUSS_Load_Mem(void)
       stateversion = FCEU_de32lsb(header + 8);
    else
       stateversion = header[3] * 100;
+   
+   totalsize = FCEU_de32lsb(header + 4);
 
-   x = ReadStateChunks(mem, *(uint32*)(header + 4));
+   x = ReadStateChunks(mem, totalsize);
 
    if (stateversion < 9500)
       X.IRQlow = 0;

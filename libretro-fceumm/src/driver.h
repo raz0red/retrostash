@@ -41,18 +41,8 @@ void FCEUD_Message(char *s);
 void FCEUD_DispMessage(enum retro_log_level level, unsigned duration, const char *str);
 void FCEU_DispMessage(enum retro_log_level level, unsigned duration, const char *format, ...);
 
-int FCEUI_BeginWaveRecord(char *fn);
-int FCEUI_EndWaveRecord(void);
-
 void FCEUI_ResetNES(void);
 void FCEUI_PowerNES(void);
-
-void FCEUI_NTSCSELHUE(void);
-void FCEUI_NTSCSELTINT(void);
-void FCEUI_NTSCDEC(void);
-void FCEUI_NTSCINC(void);
-void FCEUI_GetNTSCTH(int *tint, int *hue);
-void FCEUI_SetNTSCTH(int n, int tint, int hue);
 
 void FCEUI_SetInput(int port, int type, void *ptr, int attrib);
 void FCEUI_SetInputFC(int type, void *ptr, int attrib);
@@ -92,9 +82,6 @@ void FCEUI_DisableFourScore(int s);
 
 /* New interface functions */
 
-/* 0 to order screen snapshots numerically(0.png), 1 to order them file base-numerically(smb3-0.png). */
-void FCEUI_SetSnapName(int a);
-
 /* 0 to keep 8-sprites limitation, 1 to remove it */
 void FCEUI_DisableSpriteLimitation(int a);
 
@@ -109,11 +96,6 @@ void FCEUI_SetRenderDisable(int sprites, int bg);
 typedef void (*frontend_post_load_init_cb_t)(void);
 FCEUGI *FCEUI_LoadGame(const char *name, const uint8_t *databuf, size_t databufsize,
       frontend_post_load_init_cb_t frontend_post_load_init_cb);
-
-#ifdef COPYFAMI
-/* Fake UNIF board to start new CFHI instance */
-FCEUGI *FCEUI_CopyFamiStart();
-#endif
 
 /* allocates memory.  0 on failure, 1 on success. */
 int FCEUI_Initialize(void);
@@ -165,18 +147,7 @@ void FCEUI_Sound(int Rate);
 void FCEUI_SetSoundVolume(uint32 volume);
 void FCEUI_SetSoundQuality(int quality);
 
-void FCEUI_SelectState(int);
-
-/* "fname" overrides the default save state filename code if non-NULL. */
-void FCEUI_SaveState(char *fname);
-void FCEUI_LoadState(char *fname);
-
-void FCEUI_SelectMovie(int);
-void FCEUI_SaveMovie(char *fname);
-void FCEUI_LoadMovie(char *fname);
-
 int32 FCEUI_GetDesiredFPS(void);
-void FCEUI_SaveSnapshot(void);
 
 int FCEUI_DecodePAR(const char *code, uint16 *a, uint8 *v, int *c, int *type);
 int FCEUI_DecodeGG(const char *str, uint16 *a, uint8 *v, int *c);
@@ -197,17 +168,7 @@ int FCEUI_SetCheat(uint32 which, const char *name, int32 a, int32 v, int compare
 void FCEUI_CheatSearchShowExcluded(void);
 void FCEUI_CheatSearchSetCurrentAsOriginal(void);
 
-#define FCEUIOD_STATE   0
-#define FCEUIOD_SNAPS   1
-#define FCEUIOD_NV      2
-#define FCEUIOD_CHEATS  3
-#define FCEUIOD_MISC    4
-#define FCEUIOD_MOVIE  5
-
-#define FCEUIOD__COUNT  6
-
-void FCEUI_SetDirOverride(int which, char *n);
-
+#ifdef FCEUDEF_DEBUGGER
 void FCEUI_MemDump(uint16 a, int32 len, void (*callb)(uint16 a, uint8 v));
 uint8 FCEUI_MemSafePeek(uint16 A);
 void FCEUI_MemPoke(uint16 a, uint8 v, int hl);
@@ -215,10 +176,8 @@ void FCEUI_NMI(void);
 void FCEUI_IRQ(void);
 uint16 FCEUI_Disassemble(void *XA, uint16 a, char *stringo);
 void FCEUI_GetIVectors(uint16 *reset, uint16 *irq, uint16 *nmi);
+#endif
 
-uint32 FCEUI_CRC32(uint32 crc, uint8 *buf, uint32 len);
-
-/* void FCEUI_ToggleTileView(void); */
 void FCEUI_SetLowPass(int q);
 
 void FCEUI_NSFSetVis(int mode);
@@ -235,7 +194,7 @@ int FCEUI_FDSInsert(int oride);
 int FCEUI_FDSEject(void);
 void FCEUI_FDSSelect(void);
 
-int FCEUI_DatachSet(const uint8 *rcode);
+int FCEUI_DatachSet(uint8 *rcode);
 
 #ifdef  __cplusplus
 }

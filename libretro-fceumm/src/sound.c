@@ -187,7 +187,6 @@ static void SQReload(int x, uint8 V) {
 }
 
 static DECLFW(Write_PSG) {
-/* FCEU_printf("APU1 %04x:%04x\n",A,V); */
 	A &= 0x1F;
 	switch (A) {
 	case 0x0:
@@ -271,7 +270,6 @@ static DECLFW(Write_PSG) {
 }
 
 static DECLFW(Write_DMCRegs) {
-/*  FCEU_printf("APU1 %04x:%04x\n",A,V); */
 	A &= 0xF;
 
 	switch (A) {
@@ -306,7 +304,6 @@ static DECLFW(Write_DMCRegs) {
 
 static DECLFW(StatusWrite) {
 	int x;
-/*  FCEU_printf("APU1 %04x:%04x\n",A,V); */
 
 	DoSQ1();
 	DoSQ2();
@@ -552,7 +549,6 @@ static INLINE void RDoSQ(int x) {
 			amp = EnvUnits[x].Speed;
 		else
 			amp = EnvUnits[x].decvolume;
-		/*   printf("%d\n",amp); */
 
 		/* Modify Square wave volume based on channel volume modifiers
 		 * Note: the formulat x = x * y /100 does not yield exact results,
@@ -695,9 +691,7 @@ static void RDoSQLQ(void) {
 
 static void RDoTriangle(void) {
 	int32 V;
-	int32 tcout, cout;
-
-	tcout = (tristep & 0xF);
+	int32 tcout = (tristep & 0xF);
 	if (!(tristep & 0x10)) tcout ^= 0xF;
 	tcout = (tcout * 3) << 16;	/* (tcout<<1); */
 
@@ -992,8 +986,8 @@ int FlushEmulateSound(void) {
 
 		SexyFilter(Wave, WaveFinal, end >> 4);
 
-		/* if (FSettings.lowpass)
-			SexyFilter2(WaveFinal, end >> 4); */
+		if (FSettings.lowpass)
+			SexyFilter2(WaveFinal, end >> 4);
 
 		if (end & 0xF)
 			Wave[0] = Wave[(end >> 4)];
@@ -1011,9 +1005,7 @@ int FlushEmulateSound(void) {
 	}
 	inbuf = end;
 
-	/* FCEU_WriteWaveData(WaveFinal, end);	 This function will just return
-										if sound recording is off. */
-	return(end);
+	return end;
 }
 
 int GetSoundBuffer(int32 **W) {
@@ -1028,7 +1020,6 @@ due to that whole MegaMan 2 Game Genie thing.
 void FCEUSND_Reset(void) {
 	int x;
 
-	IRQFrameMode = 0x0;
 	fhcnt = fhinc;
 	fcnt = 0;
 	nreg = 1;
@@ -1079,6 +1070,7 @@ void FCEUSND_Power(void) {
 	for (x = 0; x < 5; x++)
 		ChannelBC[x] = 0;
 	soundtsoffs = 0;
+	IRQFrameMode = 0x0; /* Only initialized by power-on reset, not by soft reset */
 	LoadDMCPeriod(DMCFormat & 0xF);
 }
 
