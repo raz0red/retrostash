@@ -35,8 +35,16 @@
 #include "cross.h"
 #include "inout.h"
 
+#ifdef WRC
+extern "C" void wrc_add_file_write(const char* file);
+extern "C" void wrc_add_file_renamed(const char* oldname, const char *newname);
+extern "C" void wrc_add_file_deleted(const char* file);
+#endif
 
 bool localDrive::FileCreate(DOS_File * * file,char * name,Bit16u /*attributes*/) {
+#ifdef WRC
+printf("localDrive::FileCreate: %s\n", name);
+#endif
 //TODO Maybe care for attributes but not likely
 	char newname[CROSS_LEN];
 	strcpy(newname,basedir);
@@ -45,20 +53,20 @@ bool localDrive::FileCreate(DOS_File * * file,char * name,Bit16u /*attributes*/)
 	char* temp_name = dirCache.GetExpandName(newname); //Can only be used in till a new drive_cache action is preformed */
 	/* Test if file exists (so we need to truncate it). don't add to dirCache then */
 	bool existing_file = false;
-	
+
 	FILE * test = fopen_wrap(temp_name,"rb+");
 	if(test) {
 		fclose(test);
 		existing_file=true;
 
 	}
-	
+
 	FILE * hand = fopen_wrap(temp_name,"wb+");
 	if (!hand){
 		LOG_MSG("Warning: file creation failed: %s",newname);
 		return false;
 	}
-   
+
 	if(!existing_file) dirCache.AddEntry(newname, true);
 	/* Make the 16 bit device information */
 	*file=new localFile(name,hand);
@@ -68,6 +76,9 @@ bool localDrive::FileCreate(DOS_File * * file,char * name,Bit16u /*attributes*/)
 }
 
 bool localDrive::FileOpen(DOS_File * * file,char * name,Bit32u flags) {
+#ifdef WRC
+printf("localDrive::FileOpen: %s\n", name);
+#endif
 	const char* type;
 	switch (flags&0xf) {
 	case OPEN_READ:        type = "rb" ; break;
@@ -102,7 +113,7 @@ bool localDrive::FileOpen(DOS_File * * file,char * name,Bit32u flags) {
 
 	FILE * hand = fopen_wrap(newname,type);
 //	Bit32u err=errno;
-	if (!hand) { 
+	if (!hand) {
 		if((flags&0xf) != OPEN_READ) {
 			FILE * hmm = fopen_wrap(newname,"rb");
 			if (hmm) {
@@ -140,6 +151,11 @@ bool localDrive::GetSystemFilename(char *sysName, char const * const dosName) {
 }
 
 bool localDrive::FileUnlink(char * name) {
+#ifdef WRC
+	//printf("localDrive::FileUnlink: %s\n", name);
+	wrc_add_file_deleted(name);
+#endif
+
 	char newname[CROSS_LEN];
 	strcpy(newname,basedir);
 	strcat(newname,name);
@@ -191,10 +207,10 @@ bool localDrive::FindFirst(char * _dir,DOS_DTA & dta,bool fcb_findfirst) {
 	if (allocation.mediaid==0xF0 ) {
 		EmptyCache(); //rescan floppie-content on each findfirst
 	}
-    
+
 	char end[2]={CROSS_FILESPLIT,0};
 	if (tempDir[strlen(tempDir)-1]!=CROSS_FILESPLIT) strcat(tempDir,end);
-	
+
 	Bit16u id;
 	if (!dirCache.FindFirst(tempDir,id)) {
 		DOS_SetError(DOSERR_PATH_NOT_FOUND);
@@ -202,7 +218,7 @@ bool localDrive::FindFirst(char * _dir,DOS_DTA & dta,bool fcb_findfirst) {
 	}
 	strcpy(srchInfo[id].srch_dir,tempDir);
 	dta.SetDirID(id);
-	
+
 	Bit8u sAttr;
 	dta.GetSearchParams(sAttr,tempDir);
 
@@ -223,7 +239,7 @@ bool localDrive::FindFirst(char * _dir,DOS_DTA & dta,bool fcb_findfirst) {
 			}
 			dta.SetResult(label.GetLabel(),0,0,0,DOS_ATTR_VOLUME);
 			return true;
-		} else if ((sAttr & DOS_ATTR_VOLUME)  && (*_dir == 0) && !fcb_findfirst) { 
+		} else if ((sAttr & DOS_ATTR_VOLUME)  && (*_dir == 0) && !fcb_findfirst) {
 		//should check for a valid leading directory instead of 0
 		//exists==true if the volume label matches the searchmask and the path is valid
 			if (WildFileCmp(label.GetLabel(),tempDir)) {
@@ -257,26 +273,26 @@ again:
 
 	strcpy(full_name,srchInfo[id].srch_dir);
 	strcat(full_name,dir_ent);
-	
-	//GetExpandName might indirectly destroy dir_ent (by caching in a new directory 
+
+	//GetExpandName might indirectly destroy dir_ent (by caching in a new directory
 	//and due to its design dir_ent might be lost.)
 	//Copying dir_ent first
 	strcpy(dir_entcopy,dir_ent);
-	if (stat(dirCache.GetExpandName(full_name),&stat_block)!=0) { 
+	if (stat(dirCache.GetExpandName(full_name),&stat_block)!=0) {
 		goto again;//No symlinks and such
-	}	
+	}
 
 	if(stat_block.st_mode & S_IFDIR) find_attr=DOS_ATTR_DIRECTORY;
 	else find_attr=DOS_ATTR_ARCHIVE;
  	if (~srch_attr & find_attr & (DOS_ATTR_DIRECTORY | DOS_ATTR_HIDDEN | DOS_ATTR_SYSTEM)) goto again;
-	
+
 	/*file is okay, setup everything to be copied in DTA Block */
 	char find_name[DOS_NAMELENGTH_ASCII];Bit16u find_date,find_time;Bit32u find_size;
 
 	if(strlen(dir_entcopy)<DOS_NAMELENGTH_ASCII){
 		strcpy(find_name,dir_entcopy);
 		upcase(find_name);
-	} 
+	}
 
 	find_size=(Bit32u) stat_block.st_size;
 	struct tm *time;
@@ -284,7 +300,7 @@ again:
 		find_date=DOS_PackDate((Bit16u)(time->tm_year+1900),(Bit16u)(time->tm_mon+1),(Bit16u)time->tm_mday);
 		find_time=DOS_PackTime((Bit16u)time->tm_hour,(Bit16u)time->tm_min,(Bit16u)time->tm_sec);
 	} else {
-		find_time=6; 
+		find_time=6;
 		find_date=4;
 	}
 	dta.SetResult(find_name,find_size,find_date,find_time,find_attr);
@@ -305,7 +321,7 @@ bool localDrive::GetFileAttr(char * name,Bit16u * attr) {
 		return true;
 	}
 	*attr=0;
-	return false; 
+	return false;
 }
 
 bool localDrive::MakeDir(char * dir) {
@@ -358,12 +374,18 @@ bool localDrive::TestDir(char * dir) {
 }
 
 bool localDrive::Rename(char * oldname,char * newname) {
+
+#ifdef WRC
+	//printf("localDrive::Rename: %s, %s\n", oldname, newname);
+	wrc_add_file_renamed(oldname, newname);
+#endif
+
 	char newold[CROSS_LEN];
 	strcpy(newold,basedir);
 	strcat(newold,oldname);
 	CROSS_FILENAME(newold);
 	dirCache.ExpandName(newold);
-	
+
 	char newnew[CROSS_LEN];
 	strcpy(newnew,basedir);
 	strcat(newnew,newname);
@@ -448,9 +470,9 @@ bool localDrive::isRemovable(void) {
 	return false;
 }
 
-Bits localDrive::UnMount(void) { 
+Bits localDrive::UnMount(void) {
 	delete this;
-	return 0; 
+	return 0;
 }
 
 localDrive::localDrive(const char * startdir,Bit16u _bytes_sector,Bit8u _sectors_cluster,Bit16u _total_clusters,Bit16u _free_clusters,Bit8u _mediaid) {
@@ -484,16 +506,21 @@ bool localFile::Read(Bit8u * data,Bit16u * size) {
 }
 
 bool localFile::Write(Bit8u * data,Bit16u * size) {
+#ifdef WRC
+	//printf("localFile::Write: %s\n", GetName());
+	wrc_add_file_write(GetName());
+#endif
+
 	if (!OPEN_IS_WRITING(flags)) {	// check if file opened in read-only mode
 		DOS_SetError(DOSERR_ACCESS_DENIED);
 		return false;
 	}
 	if (last_action==READ) fseek(fhandle,ftell(fhandle),SEEK_SET);
 	last_action=WRITE;
-	if(*size==0){  
+	if(*size==0){
         return (!ftruncate(fileno(fhandle),ftell(fhandle)));
     }
-    else 
+    else
     {
 		*size=(Bit16u)fwrite(data,1,*size,fhandle);
 		return true;
@@ -512,7 +539,7 @@ bool localFile::Seek(Bit32u * pos,Bit32u type) {
 	}
 	int ret=fseek(fhandle,*reinterpret_cast<Bit32s*>(pos),seektype);
 	if (ret!=0) {
-		// Out of file range, pretend everythings ok 
+		// Out of file range, pretend everythings ok
 		// and move file pointer top end of file... ?! (Black Thorne)
 		fseek(fhandle,0,SEEK_END);
 	};
@@ -540,7 +567,7 @@ bool localFile::Close() {
 Bit16u localFile::GetInformation(void) {
 	return read_only_medium?0x40:0;
 }
-	
+
 
 localFile::localFile(const char* _name, FILE * handle) {
 	fhandle=handle;

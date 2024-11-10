@@ -37,7 +37,11 @@ enum MixerModes {
 	M_16M,M_16S
 };
 
+#ifdef WRC
+#define MIXER_BUFSIZE (32*1024)
+#else
 #define MIXER_BUFSIZE (16*1024)
+#endif
 #define MIXER_BUFMASK (MIXER_BUFSIZE-1)
 extern Bit8u MixTemp[MIXER_BUFSIZE];
 
@@ -72,7 +76,7 @@ public:
 	void AddSamples_s16u_nonnative(Bitu len, const Bit16u * data);
 	void AddSamples_m32_nonnative(Bitu len, const Bit32s * data);
 	void AddSamples_s32_nonnative(Bitu len, const Bit32s * data);
-	
+
 	void AddStretched(Bitu len,Bit16s * data);		//Strech block up into needed data
 
 	void FillUp(void);
@@ -81,7 +85,7 @@ public:
 	float volmain[2];
 	float scale;
 	Bit32s volmul[2];
-	
+
 	//This gets added the frequency counter each mixer step
 	Bitu freq_add;
 	//When this flows over a new sample needs to be read from the device
@@ -106,7 +110,7 @@ public:
 MixerChannel * MIXER_AddChannel(MIXER_Handler handler,Bitu freq,const char * name);
 MixerChannel * MIXER_FindChannel(const char * name);
 /* Find the device you want to delete with findchannel "delchan gets deleted" */
-void MIXER_DelChannel(MixerChannel* delchan); 
+void MIXER_DelChannel(MixerChannel* delchan);
 
 /* Object to maintain a mixerchannel; As all objects it registers itself with create
  * and removes itself when destroyed. */

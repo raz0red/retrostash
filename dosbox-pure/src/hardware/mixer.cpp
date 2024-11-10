@@ -225,7 +225,7 @@ void MixerChannel::AddSilence(void) {
 				mixpos++;
 				done++;
 				freq_counter = FREQ_NEXT;
-			} 
+			}
 		}
 	}
 	last_samples_were_silence = true;
@@ -818,6 +818,10 @@ void MIXER_Init(Section* sec) {
 
 	mixer.min_needed = section->Get_int("prebuffer");
 	if (mixer.min_needed > 100) mixer.min_needed = 100;
+#ifdef WRC
+mixer.min_needed = 100;
+#endif
+
 	mixer.min_needed = (mixer.freq*mixer.min_needed)/1000;
 	mixer.max_needed = mixer.blocksize * 2 + 2*mixer.min_needed;
 	mixer.needed = mixer.min_needed+1;

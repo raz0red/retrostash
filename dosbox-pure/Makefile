@@ -211,6 +211,7 @@ else
   endif
   LDFLAGS  += -O2
 endif
+#-msimd128
 
 CFLAGS  += $(CPUFLAGS) -std=gnu++11 -fomit-frame-pointer -fexceptions -Wno-address-of-packed-member -Wno-format -Wno-switch -Wno-psabi
 ifneq ($(STATIC_LINKING), 1)

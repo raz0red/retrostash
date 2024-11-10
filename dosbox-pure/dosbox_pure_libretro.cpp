@@ -43,12 +43,15 @@
 #include <chrono>
 
 #ifdef WRC
+#include <vector>
 #include "../wrc.h"
 #include "chd.h"
 #include <emscripten.h>
+static void wrc_process_files();
 #endif
 
 // RETROARCH AUDIO/VIDEO
+#ifndef WRC
 #ifdef GEKKO // From RetroArch/config.def.h
 #define DBP_DEFAULT_SAMPLERATE 44100.0
 #define DBP_DEFAULT_SAMPLERATE_STRING "44100"
@@ -59,6 +62,11 @@
 #define DBP_DEFAULT_SAMPLERATE 48000.0
 #define DBP_DEFAULT_SAMPLERATE_STRING "48000"
 #endif
+#else
+#define DBP_DEFAULT_SAMPLERATE 48000.0
+#define DBP_DEFAULT_SAMPLERATE_STRING "48000"
+#endif
+
 static retro_system_av_info av_info;
 
 // DOSBOX STATE
@@ -85,7 +93,11 @@ static const Bit32s Cycles1981to1999[1+1999-1981] = { 900, 1400, 1800, 2300, 280
 // DOSBOX AUDIO/VIDEO
 static Bit8u buffer_active, dbp_overscan;
 static struct DBP_Buffer { Bit32u video[SCALER_MAXWIDTH * SCALER_MAXHEIGHT], width, height, border_color; float ratio; } dbp_buffers[2];
+#ifndef WRC
 enum { DBP_MAX_SAMPLES = 4096 }; // twice amount of mixer blocksize (96khz @ 30 fps max)
+#else
+enum { DBP_MAX_SAMPLES = 8092 }; // twice amount of mixer blocksize (96khz @ 30 fps max)
+#endif
 static int16_t dbp_audio[DBP_MAX_SAMPLES * 2]; // stereo
 static double dbp_audio_remain;
 static void* dbp_intercept_data;
@@ -2383,6 +2395,10 @@ static void set_variables(bool force_midi_scan = false)
 	}
 }
 
+#ifdef WRC
+static char wrc_audio_rate[64];
+#endif
+
 static bool check_variables(bool is_startup = false)
 {
 	struct Variables
@@ -2434,6 +2450,16 @@ static bool check_variables(bool is_startup = false)
 					section->ExecuteDestroy(false);
 					sectionExecInit = true;
 				}
+// #ifdef WRC
+// 				int cycles = EM_ASM_INT({
+// 					return window.emulator.cycles;
+// 				});
+// 				printf("## Cycles: %s\n", cycles);
+// 				if (cycles > 0) {
+// 					DBP_CPU_ModifyCycles(cycles);
+// 				}
+// #endif
+
 			}
 			bool res = prop->SetValue(new_value);
 			DBP_ASSERT(res && prop->GetValue().ToString() == new_value);
@@ -2520,8 +2546,16 @@ static bool check_variables(bool is_startup = false)
 	Variables::DosBoxSet("dos", "xms", (mem_use_extended ? "true" : "false"), true);
 	Variables::DosBoxSet("dos", "ems", (mem_use_extended ? "true" : "false"), true);
 	Variables::DosBoxSet("dosbox", "memsize", (mem_use_extended ? mem : "16"), false, true);
-
+#ifdef WRC
+	int wrcRate = EM_ASM_INT({
+        return window.emulator.audioRate;
+    });
+	sprintf(wrc_audio_rate, "%d", wrcRate);
+	printf("## Audio rate: %s\n", wrc_audio_rate);
+	const char* audiorate = wrc_audio_rate; /* retro_get_variable("dosbox_pure_audiorate", wrc_audio_rate); */
+#else
 	const char* audiorate = retro_get_variable("dosbox_pure_audiorate", DBP_DEFAULT_SAMPLERATE_STRING);
+#endif
 	Variables::DosBoxSet("mixer", "rate", audiorate, false, true);
 	Variables::DosBoxSet("mixer", "swapstereo", retro_get_variable("dosbox_pure_swapstereo", "false"));
 	dbp_swapstereo = (bool)control->GetSection("mixer")->GetProp("swapstereo")->GetValue(); // to also get dosbox.conf override
@@ -2532,17 +2566,28 @@ static bool check_variables(bool is_startup = false)
 		Variables::DosBoxSet("speaker",  "pcrate",    audiorate);
 		Variables::DosBoxSet("speaker",  "tandyrate", audiorate);
 
+
+
 		// initiate audio buffer, we don't need SDL specific behavior, so just set a large enough buffer
+#ifndef WRC
 		Variables::DosBoxSet("mixer", "prebuffer", "0");
 		Variables::DosBoxSet("mixer", "blocksize", "2048");
+#else
+		Variables::DosBoxSet("mixer", "prebuffer", "100");
+		Variables::DosBoxSet("mixer", "blocksize", "8192");
+#endif		
 	}
 
 	// Emulation options
-#ifndef WRC
-	dbp_force60fps = (retro_get_variable("dosbox_pure_force60fps", "default")[0] == 't');
-#else
-	dbp_force60fps = true;
-#endif
+ 	dbp_force60fps = (retro_get_variable("dosbox_pure_force60fps", "default")[0] == 't');
+ #ifdef WRC
+	int  force60 = EM_ASM_INT({
+        return window.emulator.force60;
+    });
+	if (force60) {
+ 		dbp_force60fps = true;
+	}
+ #endif
 
 	const char latency = retro_get_variable("dosbox_pure_latency", "none")[0];
 	bool toggled_variable = (dbp_state != DBPSTATE_BOOT && (dbp_latency == DBP_LATENCY_VARIABLE) != (latency == 'v'));
@@ -2553,6 +2598,9 @@ static bool check_variables(bool is_startup = false)
 		case 'v': dbp_latency = DBP_LATENCY_VARIABLE; break;
 		default:  dbp_latency = DBP_LATENCY_DEFAULT;  break;
 	}
+
+dbp_latency = DBP_LATENCY_VARIABLE;
+
 	if (toggled_variable) DBP_ThreadControl(dbp_pause_events ? TCM_RESUME_FRAME : TCM_NEXT_FRAME);
 	retro_set_visibility("dosbox_pure_auto_target", (dbp_latency == DBP_LATENCY_LOW));
 
@@ -2562,6 +2610,16 @@ static bool check_variables(bool is_startup = false)
 		case 'd': dbp_perf = DBP_PERF_DETAILED; break;
 		default:  dbp_perf = DBP_PERF_NONE; break;
 	}
+
+#ifdef WRC
+    int debug = EM_ASM_INT({
+        return window.emulator.debug;
+    });
+	if (debug) {
+		dbp_perf = DBP_PERF_DETAILED;
+	}
+#endif
+
 	switch (retro_get_variable("dosbox_pure_savestate", "on")[0])
 	{
 		case 'd': dbp_serializemode = DBPSERIALIZE_DISABLED; break;
@@ -3490,6 +3548,8 @@ static bool last_game_running = false;
 void retro_run(void)
 {
 #ifdef WRC
+	wrc_process_files();
+
 	if (dbp_game_running != last_game_running) {
 		last_game_running = dbp_game_running;
 		EM_ASM({
@@ -3497,7 +3557,6 @@ void retro_run(void)
 		}, dbp_game_running);
 	}
 #endif
-
 
 	#ifdef DBP_ENABLE_FPS_COUNTERS
 	DBP_FPSCOUNT(dbp_fpscount_retro)
@@ -3737,6 +3796,80 @@ void retro_run(void)
 	for (DBP_InputBind *b = binds; b != binds_end; b++)
 	{
 		Bit16s val = input_state_cb(b->port, b->device, b->index, b->id), lastval = b->lastval;
+
+//printf("Port: %d, Device: %d, Index:%d, Id: %d\n", b->port, b->device, b->index, b->id);
+#ifdef WRC
+		if (b->port == 0 && b->device == RETRO_DEVICE_ANALOG) {
+			int controller = wrc_input_state[0];
+			if (b->index == 0) {
+				if (b->id == 0) {
+					val = 0x7fff * wrc_input_state_analog[0][0];
+				} else if (b->id == 1) {
+					val = 0x7fff * wrc_input_state_analog[0][1];
+				}
+			}
+			else if (b->index == 1) {
+				if (b->id == 0) {
+					val = 0x7fff * wrc_input_state_analog[0][2];
+				} else if (b->id == 1) {
+					val = 0x7fff * wrc_input_state_analog[0][3];
+				}
+			}
+		}
+		if (b->port == 0 && b->device == RETRO_DEVICE_JOYPAD) {
+			int controller = wrc_input_state[0];
+			int hit = -1;
+			switch (b->id) {
+				case RETRO_DEVICE_ID_JOYPAD_START:
+					if (controller & INP_START) hit = RETRO_DEVICE_ID_JOYPAD_START;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_UP:
+					if (controller & INP_UP) hit = RETRO_DEVICE_ID_JOYPAD_UP;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_DOWN:
+					if (controller & INP_DOWN) hit = RETRO_DEVICE_ID_JOYPAD_DOWN;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_LEFT:
+					if (controller & INP_LEFT) hit = RETRO_DEVICE_ID_JOYPAD_LEFT;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_RIGHT:
+					if (controller & INP_RIGHT) hit = RETRO_DEVICE_ID_JOYPAD_RIGHT;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_A:
+					if (controller & INP_B) hit = RETRO_DEVICE_ID_JOYPAD_A;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_B:
+					if (controller & INP_A) hit = RETRO_DEVICE_ID_JOYPAD_B;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_Y:
+					if (controller & INP_X) hit = RETRO_DEVICE_ID_JOYPAD_Y;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_X:
+					if (controller & INP_Y) hit = RETRO_DEVICE_ID_JOYPAD_X;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_L:
+					if (controller & INP_LBUMP) hit = RETRO_DEVICE_ID_JOYPAD_L;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_R:
+					if (controller & INP_RBUMP) hit = RETRO_DEVICE_ID_JOYPAD_R;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_L2:
+					if (controller & INP_LTRIG) hit = RETRO_DEVICE_ID_JOYPAD_L2;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_R2:
+					if (controller & INP_RTRIG) hit = RETRO_DEVICE_ID_JOYPAD_R2;
+					break;
+				case RETRO_DEVICE_ID_JOYPAD_L3:
+				case RETRO_DEVICE_ID_JOYPAD_R3:
+				default:
+					break;
+			}
+			if (hit >= 0) {
+				val = (1 << hit);
+			}
+		}
+#endif
+
 		if (val == lastval) continue;
 		b->lastval = val; // set before calling DBP_QueueEvent
 		if (b->evt <= _DBPET_JOY_AXIS_MAX)
@@ -3857,7 +3990,19 @@ void retro_run(void)
 	if (mixSamples)
 	{
 		if (dbp_swapstereo) for (int16_t *p = dbp_audio, *pEnd = p + mixSamples*2; p != pEnd; p += 2) std::swap(p[0], p[1]);
+
+#ifndef WRC
+	audio_batch_cb(dbp_audio, mixSamples);
+#else
+	static int jsAudio =  EM_ASM_INT({
+        return window.emulator.isJsAudio();
+    });
+	if (jsAudio) {
+		EM_ASM({ window.emulator.audioCallback($0, $1); }, dbp_audio, mixSamples);
+	} else {
 		audio_batch_cb(dbp_audio, mixSamples);
+	}
+#endif
 	}
 
 	if (tpfActual)
@@ -4060,6 +4205,58 @@ bool fpath_nocase(char* path)
 
 
 #ifdef WRC
+#define FILE_WRITE   "write"
+#define FILE_RENAME  "rename"
+#define FILE_DELETE  "delete"
+
+static std::mutex wrc_files_mutex;
+static std::vector<std::string> wrc_files_list;
+
+extern "C" void wrc_add_file_write(const char* file) {
+	std::lock_guard<std::mutex> lock(wrc_files_mutex);
+	wrc_files_list.push_back(FILE_WRITE);
+	wrc_files_list.push_back(file);
+}
+
+extern "C" void wrc_add_file_renamed(const char* oldname, const char *newname) {
+	std::lock_guard<std::mutex> lock(wrc_files_mutex);
+	wrc_files_list.push_back(FILE_RENAME);
+	wrc_files_list.push_back(oldname);
+	wrc_files_list.push_back(newname);
+}
+
+extern "C" void wrc_add_file_deleted(const char* file) {
+	std::lock_guard<std::mutex> lock(wrc_files_mutex);
+	wrc_files_list.push_back(FILE_DELETE);
+	wrc_files_list.push_back(file);
+}
+
+static void wrc_process_files() {
+	std::lock_guard<std::mutex> lock(wrc_files_mutex);
+	size_t size = wrc_files_list.size();
+	for (size_t i = 0; i < size; i++) {
+		std::string op = wrc_files_list[i];
+		if (op == FILE_WRITE) {
+			std::string file = wrc_files_list[++i];
+			EM_ASM({
+        		window.emulator.fileTracker.onFileModified(UTF8ToString($0));
+    		}, file.c_str());
+		} else if (op == FILE_RENAME) {
+			std::string oldName = wrc_files_list[++i];
+			std::string newName = wrc_files_list[++i];
+			EM_ASM({
+        		window.emulator.fileTracker.onFileRenamed(UTF8ToString($0), UTF8ToString($1));
+    		}, oldName.c_str(), newName.c_str());
+		} else if (op == FILE_DELETE) {
+			std::string file = wrc_files_list[++i];
+			EM_ASM({
+        		window.emulator.fileTracker.onFileDeleted(UTF8ToString($0));
+    		}, file.c_str());
+		}
+	}
+	wrc_files_list.clear();
+}
+
 extern "C" void em_cmd_savefiles() {}
 extern "C" void wrc_on_set_options(int opts) {}
 extern "C" void wrc_on_key(int key, int down) {

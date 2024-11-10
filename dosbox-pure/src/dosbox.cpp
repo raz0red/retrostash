@@ -255,7 +255,7 @@ void increaseticks() { //Make it return ticksRemain and set it in the function a
 		ticksScheduled = 0;
 		return;
 	}
-	
+
 	static Bit32s lastsleepDone = -1;
 	static Bitu sleep1count = 0;
 
@@ -289,11 +289,11 @@ void increaseticks() { //Make it return ticksRemain and set it in the function a
 			ticksDone = 0;
 		return; //0
 
-		// If we do work this tick and sleep till the next tick, then ticksDone is decreased, 
+		// If we do work this tick and sleep till the next tick, then ticksDone is decreased,
 		// despite the fact that work was done as well in this tick. Maybe make it depend on an extra parameter.
 		// What do we know: ticksRemain = 0 (condition to enter this function)
 		// ticksNew = time before sleeping
-		
+
 		// maybe keep track of sleeped time in this frame, and use sleeped and done as indicators. (and take care of the fact there
 		// are frames that have both.
 	}
@@ -310,7 +310,7 @@ void increaseticks() { //Make it return ticksRemain and set it in the function a
 
 	// Is the system in auto cycle mode guessing ? If not just exit. (It can be temporary disabled)
 	if (!CPU_CycleAutoAdjust || CPU_SkipCycleAutoAdjust) return;
-	
+
 	if (ticksScheduled >= 250 || ticksDone >= 250 || (ticksAdded > 15 && ticksScheduled >= 5) ) {
 		if(ticksDone < 1) ticksDone = 1; // Protect against div by zero
 		/* ratio we are aiming for is around 90% usage*/
@@ -869,7 +869,7 @@ void DOSBOX_Init(void) {
 
 	Pbool = secprop->Add_bool("buttonwrap",Property::Changeable::WhenIdle,false);
 	Pbool->Set_help("enable button wrapping at the number of emulated buttons.");
-	
+
 	Pbool = secprop->Add_bool("circularinput",Property::Changeable::WhenIdle,false);
 	Pbool->Set_help("enable translation of circular input to square output.\n"
 	                "Try enabling this if your left analog stick can only move in a circle.");
