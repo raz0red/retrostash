@@ -20,6 +20,8 @@
 #include "../wrc.h"
 #include "chd.h"
 #include <emscripten.h>
+
+extern int wrc_mark_for_save;
 #endif
 
 enum DBP_OSDMode { DBPOSD_CLOSED, DBPOSD_MAIN, DBPOSD_OSK, DBPOSD_MAPPER, _DBPOSD_COUNT };
@@ -1438,6 +1440,9 @@ static void DBP_StartOSD(DBP_OSDMode mode, DBP_PureMenuState* in_main)
 static void DBP_CloseOSD()
 {
 	DBP_OSD.SetMode(DBPOSD_CLOSED);
+#ifdef WRC
+	wrc_mark_for_save = 1;
+#endif
 }
 
 static void DBP_PureMenuProgram(Program** make)
@@ -1519,6 +1524,10 @@ static void DBP_PureMenuProgram(Program** make)
 				ms->DoInput(DBP_MenuState::RES_OK, ms->list[ms->sel].type, 0);
 			else if (m != M_BOOT || ms->exe_count != 0 || ms->fs_count != 0 || Drives['C'-'A'] || Drives['A'-'A'] || Drives['D'-'A'])
 				DBP_StartOSD(DBPOSD_MAIN, ms);
+
+#ifdef WRC
+			wrc_mark_for_save = 1;
+#endif
 		}
 	};
 	*make = new Menu;

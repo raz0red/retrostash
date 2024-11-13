@@ -48,6 +48,8 @@
 #include "chd.h"
 #include <emscripten.h>
 static void wrc_process_files();
+int wrc_mark_for_save = 0;
+static int wrc_toggle_vk = 0;
 #endif
 
 // RETROARCH AUDIO/VIDEO
@@ -93,11 +95,11 @@ static const Bit32s Cycles1981to1999[1+1999-1981] = { 900, 1400, 1800, 2300, 280
 // DOSBOX AUDIO/VIDEO
 static Bit8u buffer_active, dbp_overscan;
 static struct DBP_Buffer { Bit32u video[SCALER_MAXWIDTH * SCALER_MAXHEIGHT], width, height, border_color; float ratio; } dbp_buffers[2];
-#ifndef WRC
+//#ifndef WRC
 enum { DBP_MAX_SAMPLES = 4096 }; // twice amount of mixer blocksize (96khz @ 30 fps max)
-#else
-enum { DBP_MAX_SAMPLES = 8092 }; // twice amount of mixer blocksize (96khz @ 30 fps max)
-#endif
+//#else
+//enum { DBP_MAX_SAMPLES = 8092 }; // twice amount of mixer blocksize (96khz @ 30 fps max)
+//#endif
 static int16_t dbp_audio[DBP_MAX_SAMPLES * 2]; // stereo
 static double dbp_audio_remain;
 static void* dbp_intercept_data;
@@ -2075,7 +2077,14 @@ void GFX_Events()
 			case DBPET_KEYDOWN: KEYBOARD_AddKey((KBD_KEYS)e.val, true);  break;
 			case DBPET_KEYUP:   KEYBOARD_AddKey((KBD_KEYS)e.val, false); break;
 
+#ifndef WRC
 			case DBPET_ONSCREENKEYBOARD: DBP_StartOSD(DBPOSD_OSK); break;
+#else
+			case DBPET_ONSCREENKEYBOARD:
+				printf("## on screen keyboard\n");
+				wrc_toggle_vk = 1;
+				break;
+#endif
 			case DBPET_ONSCREENKEYBOARDUP: break;
 
 			case DBPET_MOUSEMOVE:
@@ -2575,7 +2584,7 @@ static bool check_variables(bool is_startup = false)
 #else
 		Variables::DosBoxSet("mixer", "prebuffer", "100");
 		Variables::DosBoxSet("mixer", "blocksize", "8192");
-#endif		
+#endif
 	}
 
 	// Emulation options
@@ -2726,7 +2735,11 @@ dbp_latency = DBP_LATENCY_VARIABLE;
 	int wkey2 = (mouse_wheel2 ? atoi(mouse_wheel2 + 1) : 0);
 	Bit16s bind_mousewheel = (wkey1 > KBD_NONE && wkey1 < KBD_LAST && wkey2 > KBD_NONE && wkey2 < KBD_LAST ? DBP_MAPPAIR_MAKE(wkey1, wkey2) : 0);
 
+#ifndef WRC
 	bool on_screen_keyboard = (retro_get_variable("dosbox_pure_on_screen_keyboard", "true")[0] != 'f');
+#else
+	bool on_screen_keyboard = 0;
+#endif
 	char mouse_input = retro_get_variable("dosbox_pure_mouse_input", "true")[0];
 	if (on_screen_keyboard != dbp_on_screen_keyboard || mouse_input != dbp_mouse_input || bind_mousewheel != dbp_bind_mousewheel)
 	{
@@ -2946,6 +2959,12 @@ static void init_dosbox_load_dos_yml(const std::string& yml, Section** ref_autoe
 
 static void init_dosbox(bool firsttime, bool forcemenu = false, void(*loadcfg)(const std::string&, Section**) = NULL, const std::string* cfg = NULL)
 {
+#ifdef WRC
+	forcemenu = EM_ASM_INT({
+		return window.emulator.isForceMenu();
+	});
+#endif
+
 	if (loadcfg)
 	{
 		DBP_ASSERT(dbp_state == DBPSTATE_BOOT && control != NULL && !first_shell);
@@ -3548,6 +3567,19 @@ static bool last_game_running = false;
 void retro_run(void)
 {
 #ifdef WRC
+	if (wrc_mark_for_save) {
+		printf("### Check files.\n");
+		EM_ASM({
+			window.emulator.onSave();
+		}, NULL);
+		wrc_mark_for_save = 0;
+	}
+
+	if (wrc_toggle_vk) {
+		wrc_toggle_vk = 0;
+		EM_ASM({ window.emulator.toggleKeyboard(); }, NULL);
+	}
+
 	wrc_process_files();
 
 	if (dbp_game_running != last_game_running) {
@@ -3860,7 +3892,11 @@ void retro_run(void)
 					if (controller & INP_RTRIG) hit = RETRO_DEVICE_ID_JOYPAD_R2;
 					break;
 				case RETRO_DEVICE_ID_JOYPAD_L3:
+					if (controller & INP_LTHUMB) hit = RETRO_DEVICE_ID_JOYPAD_L3;
+					break;
 				case RETRO_DEVICE_ID_JOYPAD_R3:
+					if (controller & INP_RTHUMB) hit = RETRO_DEVICE_ID_JOYPAD_R3;
+					break;
 				default:
 					break;
 			}
