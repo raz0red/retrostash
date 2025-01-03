@@ -451,6 +451,64 @@ static const char* DBP_MapperJoypadNames[] = { "Up", "Down", "Left", "Right", "B
 static const char* DBP_MapperJoypadNames[] = { "Up", "Down", "Left", "Right", "A", "B", "X", "Y", "SELECT", "START", "L", "R", "L2", "R2", "L3", "R3" };
 #endif
 
+#ifdef WRC
+struct Item2 { Bit8u type; Bit16s info; std::string str; INLINE Item2() {} INLINE Item2(Bit8u t, Bit16s i = 0, const char* s = "") : type(t), info(i), str(s) {} };
+void dumpControlsInfo() {
+	std::vector<Item2> list;
+	int JOYPAD_MAX = (sizeof(DBP_MapperJoypadNums)/sizeof(DBP_MapperJoypadNums[0]));
+	int IT_CANCEL, IT_CUSTOM, IT_PRESET, IT_SELECT, IT_EDIT, IT_ADD, IT_DEL, IT_DEVICE, IT_DIVIDER, IT_NONE = 0;
+
+	for (Bit8u i = 0; i != JOYPAD_MAX + 8; i++)
+	{
+		Bit8u a = (i>=JOYPAD_MAX), apart = (a ? (i-JOYPAD_MAX)%2 : 0);
+		DBP_InputBind pad = { 0, RETRO_DEVICE_JOYPAD, 0, DBP_MapperJoypadNums[i], _DBPET_MAX };
+		if (i < JOYPAD_MAX) {
+			pad = { 0, RETRO_DEVICE_JOYPAD, 0, DBP_MapperJoypadNums[i], _DBPET_MAX };
+		} else {
+			pad = { 0, RETRO_DEVICE_ANALOG, (Bit8u)((i-JOYPAD_MAX)/4), (Bit8u)(1-((i-JOYPAD_MAX)/2)%2), _DBPET_MAX };
+		}
+
+		const Bit32u padpdii = PORT_DEVICE_INDEX_ID(pad);
+		list.emplace_back(IT_NONE);
+		if (!a) list.back().str = DBP_MapperJoypadNames[i];
+		else  ((list.back().str = DBP_MapperJoypadNames[2+pad.index]) += " Analog ") += DBP_MapperJoypadNames[(i-JOYPAD_MAX)%4];
+
+		size_t numBefore = list.size();
+		for (const DBP_InputBind& b : dbp_input_binds)
+		{
+			if (PORT_DEVICE_INDEX_ID(b) != padpdii) continue;
+
+			int key = -1;
+			if (b.evt == DBPET_KEYDOWN)
+				key = b.meta;
+			else if (b.evt == DBPET_AXISMAPPAIR)
+				key = DBP_MAPPAIR_GET(apart?1:-1, b.meta);
+			else for (const DBP_SpecialMapping& sm : DBP_SpecialMappings)
+				if (sm.evt == b.evt && sm.meta == (a ? (apart ? 1 : -1) : b.meta))
+					{ key = DBP_SPECIALMAPPINGS_KEY + (int)(&sm - DBP_SpecialMappings); break; }
+			if (key < 0) { DBP_ASSERT(false); continue; }
+
+			const char *desc_dev = DBP_GETKEYDEVNAME(key);
+			list.emplace_back(IT_EDIT, (Bit16s)(((&b - &dbp_input_binds[0])<<1)|apart), "  [Edit]");
+			(((list.back().str += (desc_dev ? " " : "")) += (desc_dev ? desc_dev : "")) += ' ') += DBP_GETKEYNAME(key);
+		}
+		if (list.size() - numBefore == 0) list.emplace_back(IT_ADD, i, "  [Create Binding]");
+
+		if (const char* action = DBP_PadMapping::GetBoundAutoMapButtonLabel(padpdii, a))
+		{
+			list.emplace_back(IT_NONE, 1, "    Function: ");
+			list.back().str.append(action);
+		}
+	}
+	for (const Item2& item : list) {
+		EM_ASM({
+			var jsString = UTF8ToString($0); // Convert the C string to a JavaScript string
+			window.emulator.onControlsInfo(jsString);
+		}, item.str.c_str());
+	}
+}
+#endif
+
 struct DBP_MapperMenuState : DBP_MenuState
 {
 	enum ItemType : Bit8u { IT_CANCEL = _IT_CUSTOM, IT_PRESET, IT_SELECT, IT_EDIT, IT_ADD, IT_DEL, IT_DEVICE, IT_DIVIDER };

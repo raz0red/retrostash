@@ -3092,7 +3092,14 @@ printf("Append image: %s\n", entry.c_str());
 					static_title = "Game: ";
 					static_title += map_title + 1;
 					dbp_auto_mapping_title = static_title.c_str();
+#ifdef WRC
+					EM_ASM({
+						var jsString = UTF8ToString($0); // Convert the C string to a JavaScript string
+						window.emulator.onMapTitle(jsString);
+					}, dbp_auto_mapping_title);
 
+					DBP_PadMapping::Load();
+#endif
 					static_buf.resize(mappings_bk.mappings_size_uncompressed);
 					buf = &static_buf[0];
 					zipDrive::Uncompress(mappings_bk.mappings_compressed, mappings_bk.mappings_size_compressed, buf, mappings_bk.mappings_size_uncompressed);
@@ -3438,6 +3445,10 @@ void retro_init(void) //#3
 	set_variables();
 }
 
+#ifdef WRC
+extern void dumpControlsInfo();
+#endif
+
 bool retro_load_game(const struct retro_game_info *info) //#4
 {
 	enum retro_pixel_format pixel_format = RETRO_PIXEL_FORMAT_XRGB8888;
@@ -3562,11 +3573,18 @@ void retro_run_touchpad(bool has_press, Bit16s absx, Bit16s absy)
 
 #ifdef WRC
 static bool last_game_running = false;
+static bool first = true;
 #endif
 
 void retro_run(void)
 {
 #ifdef WRC
+	if (first) {
+		first = false;
+		dumpControlsInfo();
+		EM_ASM({ window.emulator.onResolutionChange($0, $1); }, av_info.geometry.base_width, av_info.geometry.base_height);
+	}
+
 	if (wrc_mark_for_save) {
 		printf("### Check files.\n");
 		EM_ASM({
@@ -3855,6 +3873,9 @@ void retro_run(void)
 				case RETRO_DEVICE_ID_JOYPAD_START:
 					if (controller & INP_START) hit = RETRO_DEVICE_ID_JOYPAD_START;
 					break;
+				case RETRO_DEVICE_ID_JOYPAD_SELECT:
+					if (controller & INP_SELECT) hit = RETRO_DEVICE_ID_JOYPAD_SELECT;
+					break;
 				case RETRO_DEVICE_ID_JOYPAD_UP:
 					if (controller & INP_UP) hit = RETRO_DEVICE_ID_JOYPAD_UP;
 					break;
@@ -4072,6 +4093,9 @@ void retro_run(void)
 		av_info.geometry.aspect_ratio = buf.ratio;
 		av_info.timing.fps = targetfps;
 		environ_cb((newfps ? RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO : RETRO_ENVIRONMENT_SET_GEOMETRY), &av_info);
+#ifdef WRC
+EM_ASM({ window.emulator.onResolutionChange($0, $1); }, av_info.geometry.base_width, av_info.geometry.base_height);
+#endif
 	}
 
 	// submit video

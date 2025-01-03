@@ -77,6 +77,11 @@ printf("localDrive::FileCreate: %s\n", name);
 
 bool localDrive::FileOpen(DOS_File * * file,char * name,Bit32u flags) {
 #ifdef WRC
+char *tmp = name;
+while (*tmp) {
+	*tmp = toupper((unsigned char)*tmp); // Convert each character to uppercase
+	tmp++; // Move to the next character
+}
 printf("localDrive::FileOpen: %s\n", name);
 #endif
 	const char* type;
