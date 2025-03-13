@@ -21,6 +21,13 @@
 #include "screenlayout.h"
 #include "utils.h"
 
+#ifdef WRC
+#include "../../wrc.h"
+#include "chd.h"
+#undef FILE
+#include <emscripten.h>
+#endif
+
 char retro_base_directory[4096];
 static char retro_saves_directory[4096];
 
@@ -363,8 +370,12 @@ static void check_variables(bool init)
       else
          video_settings.Soft_Threaded = false;
    }
+#ifdef WRC
+video_settings.Soft_Threaded = true;
+#endif
 #endif
 
+#ifndef WRC
    TouchMode new_touch_mode = TouchMode::Disabled;
 
    var.key = "melonds_touch_mode";
@@ -377,6 +388,9 @@ static void check_variables(bool init)
       else if (!strcmp(var.value, "Joystick"))
          new_touch_mode = TouchMode::Joystick;
    }
+#else
+   TouchMode new_touch_mode = TouchMode::Mouse;
+#endif
 
 #ifdef HAVE_OPENGL
    if(input_state.current_touch_mode != new_touch_mode) // Hide the cursor
@@ -606,9 +620,50 @@ static void render_frame(void)
 #endif
 }
 
+#ifdef WRC
+int wrc_screen_layout = 0;
+int wrc_screen_next_layout = 0;
+
+#define SCREEN_LAYOUT_TOP_BOTTOM 0
+#define SCREEN_LAYOUT_BOTTOM_TOP 1
+#define SCREEN_LAYOUT_LEFT_RIGHT 2
+#define SCREEN_LAYOUT_RIGHT_LEFT 3
+#define SCREEN_LAYOUT_TOP_ONLY 4
+#define SCREEN_LAYOUT_BOTTOM_ONLY 5
+#define SCREEN_LAYOUT_HYBRID_TOP 6
+#define SCREEN_LAYOUT_HYBRID_BOTTOM 7
+
+#endif
+
 void retro_run(void)
 {
    update_input(&input_state);
+
+#ifdef WRC
+   if (wrc_screen_layout != wrc_screen_next_layout) {
+      wrc_screen_layout = wrc_screen_next_layout;
+
+      ScreenLayout layout = ScreenLayout::TopBottom;
+      if (wrc_screen_layout == SCREEN_LAYOUT_TOP_BOTTOM) {
+         layout = ScreenLayout::TopBottom;
+      } else if (wrc_screen_layout == SCREEN_LAYOUT_BOTTOM_TOP) {
+         layout = ScreenLayout::BottomTop;
+      } else if (wrc_screen_layout == SCREEN_LAYOUT_LEFT_RIGHT) {
+         layout = ScreenLayout::LeftRight;
+      } else if (wrc_screen_layout == SCREEN_LAYOUT_RIGHT_LEFT) {
+         layout = ScreenLayout::RightLeft;
+      } else if (wrc_screen_layout == SCREEN_LAYOUT_TOP_ONLY) {
+         layout = ScreenLayout::TopOnly;
+      } else if (wrc_screen_layout == SCREEN_LAYOUT_BOTTOM_ONLY) {
+         layout = ScreenLayout::BottomOnly;
+      } else if (wrc_screen_layout == SCREEN_LAYOUT_HYBRID_TOP) {
+         layout = ScreenLayout::HybridTop;
+      } else if (wrc_screen_layout == SCREEN_LAYOUT_HYBRID_BOTTOM) {
+         layout = ScreenLayout::HybridBottom;
+      }
+      update_screenlayout(layout, &screen_layout_data, enable_opengl, swapped_screens);
+   }
+#endif
 
    if (input_state.swap_screens_btn != swapped_screens)
    {
@@ -621,11 +676,11 @@ void retro_run(void)
             refresh_opengl = true;
          }
 
-         swapped_screens = input_state.swap_screens_btn; 
+         swapped_screens = input_state.swap_screens_btn;
       }
       else
       {
-         swapped_screens = input_state.swap_screens_btn; 
+         swapped_screens = input_state.swap_screens_btn;
          update_screenlayout(current_screen_layout, &screen_layout_data, enable_opengl, swapped_screens);
          refresh_opengl = true;
       }
@@ -740,7 +795,7 @@ bool retro_load_game(const struct retro_game_info *info)
    if (environ_cb(RETRO_ENVIRONMENT_GET_LANGUAGE, &language))
    {
       Config::FirmwareOverrideSettings = true;
-      
+
       switch(language)
       {
       case RETRO_LANGUAGE_JAPANESE:
@@ -897,3 +952,53 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code)
    (void)enabled;
    (void)code;
 }
+
+#ifdef WRC
+extern "C" void em_cmd_savefiles() {}
+extern "C" void wrc_on_set_options(int opts) {
+   if (opts & OPT1) {
+      wrc_screen_next_layout = EM_ASM_INT({
+         return window.emulator.getScreenLayout();
+      });
+      printf("## screen layout: %d\n", wrc_screen_next_layout);
+      return;
+   }
+}
+extern "C" void wrc_on_key(int key, int down) {};
+extern "C" void wrc_step() {}
+extern "C" void wrc_save_state(char* file) {}
+extern "C" void wrc_load_state(char* file) {}
+extern "C" int wrc_start(char* arg) {}
+
+extern "C" const chd_header *chd_get_header(chd_file *chd) { return 0; }
+extern "C" chd_error chd_get_metadata(chd_file *chd, UINT32 searchtag, UINT32 searchindex, void *output, UINT32 outputlen, UINT32 *resultlen, UINT32 *resulttag, UINT8 *resultflags) { return CHDERR_UNSUPPORTED_FORMAT; }
+extern "C" chd_error chd_open(const char *filename, int mode, chd_file *parent, chd_file **chd) { return CHDERR_UNSUPPORTED_FORMAT; }
+extern "C" void chd_close(chd_file *chd) {}
+extern "C" chd_error chd_read(chd_file *chd, UINT32 hunknum, void *buffer) { return CHDERR_UNSUPPORTED_FORMAT; }
+#endif
+
+// update_screenlayout(current_screen_layout, &screen_layout_data, enable_opengl, swap_screen_toggled);
+// case ScreenLayout::BottomOnly:
+//     layout = ScreenLayout::TopOnly;
+//     break;
+// case ScreenLayout::TopOnly:
+//     layout = ScreenLayout::BottomOnly;
+//     break;
+// case ScreenLayout::BottomTop:
+//     layout = ScreenLayout::TopBottom;
+//     break;
+// case ScreenLayout::TopBottom:
+//     layout = ScreenLayout::BottomTop;
+//     break;
+// case ScreenLayout::LeftRight:
+//     layout = ScreenLayout::RightLeft;
+//     break;
+// case ScreenLayout::RightLeft:
+//     layout = ScreenLayout::LeftRight;
+//     break;
+// case ScreenLayout::HybridTop:
+//     layout = ScreenLayout::HybridBottom;
+//     break;
+// case ScreenLayout::HybridBottom:
+//     layout = ScreenLayout::HybridTop;
+//     break;

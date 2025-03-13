@@ -4,6 +4,12 @@
 
 #include "NDS.h"
 
+#ifdef WRC
+#include "../../wrc.h"
+#undef FILE
+#include <emscripten.h>
+#endif
+
 InputState input_state;
 u32 input_mask = 0xFFF;
 static bool has_touched = false;
@@ -17,6 +23,22 @@ bool cursor_enabled(InputState *state)
 
 void update_input(InputState *state)
 {
+#ifdef WRC
+   int controller = wrc_input_state[0];
+   if (controller & INP_B)  input_mask &= ~(1 << 0); else input_mask |= (1 << 0);
+   if (controller & INP_A)  input_mask &= ~(1 << 1); else input_mask |= (1 << 1);
+   if (controller & INP_SELECT) input_mask &= ~(1 << 2); else input_mask |= (1 << 2);
+   if (controller & INP_START) input_mask &= ~(1 << 3); else input_mask |= (1 << 3);
+   if (controller & INP_RIGHT) input_mask &= ~(1 << 4); else input_mask |= (1 << 4);
+   if (controller & INP_LEFT) input_mask &= ~(1 << 5); else input_mask |= (1 << 5);
+   if (controller & INP_UP) input_mask &= ~(1 << 6); else input_mask |= (1 << 6);
+   if (controller & INP_DOWN) input_mask &= ~(1 << 7); else input_mask |= (1 << 7);
+   if (controller & INP_RBUMP) input_mask &= ~(1 << 8); else input_mask |= (1 << 8);
+   if (controller & INP_LBUMP) input_mask &= ~(1 << 9); else input_mask |= (1 << 9);
+   if (controller & INP_Y) input_mask &= ~(1 << 10); else input_mask |= (1 << 10);
+   if (controller & INP_X) input_mask &= ~(1 << 11); else input_mask |= (1 << 11);
+   NDS::SetKeyMask(input_mask);
+#else
    input_poll_cb();
 
    ADD_KEY_TO_MASK(RETRO_DEVICE_ID_JOYPAD_A,      0);
@@ -43,6 +65,7 @@ void update_input(InputState *state)
 
    state->holding_noise_btn = !!input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L2);
    state->swap_screens_btn = !!input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R2);
+#endif
 
    if(current_screen_layout != ScreenLayout::TopOnly)
    {
@@ -51,15 +74,30 @@ void update_input(InputState *state)
          case TouchMode::Disabled:
             state->touching = false;
             break;
+
          case TouchMode::Mouse:
             {
+#ifndef WRC
                int16_t mouse_x = input_state_cb(0, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_X);
                int16_t mouse_y = input_state_cb(0, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_Y);
-
                state->touching = input_state_cb(0, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_LEFT);
-
+#else
+#if 0
+               int16_t mouse_x = wrc_mouse_x;
+               int16_t mouse_y = wrc_mouse_y;
                state->touch_x = Clamp(state->touch_x + mouse_x, 0, VIDEO_WIDTH - 1);
                state->touch_y = Clamp(state->touch_y + mouse_y, 0, VIDEO_HEIGHT - 1);
+#else
+               state->touch_x = EM_ASM_INT({
+                  return window.emulator.getMouseAbsX();
+               });
+               state->touch_y = EM_ASM_INT({
+                  return window.emulator.getMouseAbsY();
+               });
+#endif
+               state->touching = wrc_buttons & MOUSE_LEFT;
+#endif
+//printf("x:%d y:%d touching:%d\n", state->touch_x, state->touch_y, state->touching);
             }
 
             break;

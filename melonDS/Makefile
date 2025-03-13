@@ -172,9 +172,16 @@ else ifneq (,$(findstring qnx,$(platform)))
 else ifeq ($(platform), emscripten)
    TARGET := $(TARGET_NAME)_libretro_emscripten.bc
    fpic := -fPIC
-   SHARED := -shared -Wl,--version-script=$(CORE_DIR)/link.T -Wl,--no-undefined
-   HAVE_THREADS = 0
-   HAVE_OPENGL = 0
+   SHARED := -shared -Wl,--version-script=$(CORE_DIR)/link.T -Wl
+   STATIC_LINKING = 0
+   HAVE_THREADS = 1
+   #HAVE_OPENGL = 1
+   HAVE_OPENGLES3 = 1
+   HAVE_WIFI = 0
+   CFLAGS += -pthread -DEMSCRIPTEN -DWRC
+   CXXFLAGS += -pthread -DEMSCRIPTEN -DWRC
+   LDFLAGS += -pthread
+
 else ifeq ($(platform), vita)
    TARGET := $(TARGET_NAME)_vita.a
    CC = arm-vita-eabi-gcc
@@ -242,7 +249,7 @@ else ifeq ($(platform), rpi4_64)
    HAVE_OPENGLES3 = 1
    HAVE_THREADS = 1
    JIT_ARCH = aarch64
-   
+
 # Odroid C4
 else ifeq ($(platform), odroidc4)
    EXT ?= so
@@ -281,7 +288,7 @@ else ifeq ($(platform), odroidn2)
    HAVE_OPENGLES3 = 1
    HAVE_THREADS = 1
    JIT_ARCH = aarch64
-   
+
 # Rockchip RK3399
 else ifeq ($(platform), RK3399)
    EXT ?= so

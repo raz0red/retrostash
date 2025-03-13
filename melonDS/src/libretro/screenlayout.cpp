@@ -3,6 +3,11 @@
 
 #include "Config.h"
 
+#ifdef WRC
+#undef FILE
+#include <emscripten.h>
+#endif
+
 ScreenLayout current_screen_layout = ScreenLayout::TopBottom;
 ScreenLayoutData screen_layout_data;
 
@@ -191,6 +196,12 @@ void update_screenlayout(ScreenLayout layout, ScreenLayoutData *data, bool openg
 
             break;
     }
+
+#ifdef WRC
+    EM_ASM_({
+        window.emulator.setScreenWidthAndHeight($0, $1);
+    }, data->buffer_width, data->buffer_height);
+#endif
 
     data->displayed_layout = layout;
 
