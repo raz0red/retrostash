@@ -21,6 +21,10 @@ bool cursor_enabled(InputState *state)
    return state->current_touch_mode == TouchMode::Mouse || state->current_touch_mode == TouchMode::Joystick;
 }
 
+#ifdef WRC
+int wrc_blow = 0;
+#endif
+
 void update_input(InputState *state)
 {
 #ifdef WRC
@@ -37,6 +41,9 @@ void update_input(InputState *state)
    if (controller & INP_LBUMP) input_mask &= ~(1 << 9); else input_mask |= (1 << 9);
    if (controller & INP_Y) input_mask &= ~(1 << 10); else input_mask |= (1 << 10);
    if (controller & INP_X) input_mask &= ~(1 << 11); else input_mask |= (1 << 11);
+
+   wrc_blow = (controller & INP_LTRIG);
+
    NDS::SetKeyMask(input_mask);
 #else
    input_poll_cb();

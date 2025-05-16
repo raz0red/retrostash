@@ -283,8 +283,13 @@ void micCallback(void* data, Uint8* stream, int len)
     }
 }
 
+#ifdef WRC
+extern int wrc_blow = 0;
+#endif
+
 void micProcess()
 {
+#ifndef WRC
     int type = Config::MicInputType;
     bool cmd = Input::HotkeyDown(HK_Mic);
 
@@ -308,6 +313,11 @@ void micProcess()
         Frontend::Mic_FeedNoise();
         break;
     }
+#else
+    if (wrc_blow) {
+        Frontend::Mic_FeedNoise();
+    }
+#endif
 }
 
 

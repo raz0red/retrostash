@@ -623,6 +623,9 @@ static void render_frame(void)
 #ifdef WRC
 int wrc_screen_layout = 0;
 int wrc_screen_next_layout = 0;
+int wrc_screen_gap = 0;
+int wrc_screen_next_gap = 0;
+
 
 #define SCREEN_LAYOUT_TOP_BOTTOM 0
 #define SCREEN_LAYOUT_BOTTOM_TOP 1
@@ -635,13 +638,20 @@ int wrc_screen_next_layout = 0;
 
 #endif
 
+#ifdef WRC
+extern int wrc_blow;
+#endif
+
 void retro_run(void)
 {
    update_input(&input_state);
 
 #ifdef WRC
-   if (wrc_screen_layout != wrc_screen_next_layout) {
+   if (wrc_screen_layout != wrc_screen_next_layout || wrc_screen_gap != wrc_screen_next_gap) {
       wrc_screen_layout = wrc_screen_next_layout;
+      wrc_screen_gap = wrc_screen_next_gap;
+
+      screen_layout_data.screen_gap_unscaled = wrc_screen_gap;
 
       ScreenLayout layout = ScreenLayout::TopBottom;
       if (wrc_screen_layout == SCREEN_LAYOUT_TOP_BOTTOM) {
@@ -686,11 +696,16 @@ void retro_run(void)
       }
    }
 
+#ifndef WRC
    if (input_state.holding_noise_btn)
+#else
+   if (wrc_blow)
+#endif
    {
       s16 tmp[735];
       for (int i = 0; i < 735; i++) tmp[i] = rand() & 0xFFFF;
       NDS::MicInputFrame(tmp, 735);
+      // printf("MicInputFrame\n");
    }
    else
    {
@@ -956,6 +971,14 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code)
 #ifdef WRC
 extern "C" void em_cmd_savefiles() {}
 extern "C" void wrc_on_set_options(int opts) {
+   if (opts & OPT2) {
+      wrc_screen_next_gap = 75;
+      printf("#### SCREEN GAP: %d\n", wrc_screen_next_gap);
+   } else  {
+      wrc_screen_next_gap = 0;
+      printf("#### SCREEN GAP: %d\n", wrc_screen_next_gap);
+   }
+
    if (opts & OPT1) {
       wrc_screen_next_layout = EM_ASM_INT({
          return window.emulator.getScreenLayout();

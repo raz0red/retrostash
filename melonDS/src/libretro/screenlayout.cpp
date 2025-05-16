@@ -199,8 +199,8 @@ void update_screenlayout(ScreenLayout layout, ScreenLayoutData *data, bool openg
 
 #ifdef WRC
     EM_ASM_({
-        window.emulator.setScreenWidthAndHeight($0, $1);
-    }, data->buffer_width, data->buffer_height);
+        window.emulator.setScreenWidthAndHeight($0, $1, $2);
+    }, data->buffer_width, data->buffer_height, screen_layout_data.screen_gap_unscaled);
 #endif
 
     data->displayed_layout = layout;
