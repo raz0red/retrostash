@@ -10,6 +10,7 @@
 #include "Config.h"
 #include "Platform.h"
 #include "NDS.h"
+#include "NDSCart.h"
 #include "NDSCart_SRAMManager.h"
 #include "GPU.h"
 #include "SPU.h"
@@ -860,6 +861,20 @@ bool retro_load_game(const struct retro_game_info *info)
    SPU::SetInterpolation(Config::AudioInterp);
    NDS::SetConsoleType(Config::ConsoleType);
    Frontend::LoadBIOS();
+
+#ifdef WRC
+   uint32_t jsPtr = EM_ASM_INT({
+      return window.emulator.getRomPointer() | 0;
+   });
+
+   uint32_t jsLen = EM_ASM_INT({
+      return window.emulator.getRomPointerLength();
+   });
+
+   if (jsPtr > 0) {
+      NDSCart::SetRomPointerInfo(jsPtr, jsLen);
+   }
+#endif
    NDS::LoadROM(rom_path.c_str(), save_path.c_str(), Config::DirectBoot);
 
    (void)info;

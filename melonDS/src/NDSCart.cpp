@@ -1663,12 +1663,47 @@ bool LoadROMCommon(u32 filelength, const char *sram, bool direct)
     return true;
 }
 
+
+#ifdef WRC
+static uint32_t romPointer = 0;
+static uint32_t romPointerLength = 0;
+
+void SetRomPointerInfo(uint32_t pointer, uint32_t length) {
+    romPointer = pointer;
+    romPointerLength = length;
+}
+#endif
+
 bool LoadROM(const char* path, const char* sram, bool direct)
 {
     // TODO: streaming mode? for really big ROMs or systems with limited RAM
     // for now we're lazy
     // also TODO: validate what we're loading!!
+#ifdef WRC
+    uint32_t jsPtr = romPointer;
+    uint32_t jsLen = romPointerLength;
 
+printf("JS POINTER: %d\n", jsPtr);
+
+if (jsPtr)
+{
+printf("Using rom pointer...");
+    NDS::Reset();
+
+    CartROMSize = 0x200;
+    while (CartROMSize < jsLen)
+        CartROMSize <<= 1;
+    CartROM = (u8*)jsPtr;
+/*
+    CartROM = new u8[CartROMSize];
+    memset(CartROM, 0, CartROMSize);
+    memcpy(CartROM, (void*)jsPtr, jsLen);
+*/
+
+    return LoadROMCommon(jsLen, sram, direct);
+}
+else
+{
     FILE* f = Platform::OpenFile(path, "rb");
     if (!f)
     {
@@ -1692,6 +1727,32 @@ bool LoadROM(const char* path, const char* sram, bool direct)
     fclose(f);
 
     return LoadROMCommon(len, sram, direct);
+}
+#else
+    FILE* f = Platform::OpenFile(path, "rb");
+    if (!f)
+    {
+        return false;
+    }
+
+    NDS::Reset();
+
+    fseek(f, 0, SEEK_END);
+    u32 len = (u32)ftell(f);
+
+    CartROMSize = 0x200;
+    while (CartROMSize < len)
+        CartROMSize <<= 1;
+
+    CartROM = new u8[CartROMSize];
+    memset(CartROM, 0, CartROMSize);
+    fseek(f, 0, SEEK_SET);
+    fread(CartROM, 1, len, f);
+
+    fclose(f);
+
+    return LoadROMCommon(len, sram, direct);
+#endif
 }
 
 bool LoadROM(const u8* romdata, u32 filelength, const char *sram, bool direct)
@@ -1985,3 +2046,6 @@ void WriteSPIData(u8 val)
 }
 
 }
+
+
+

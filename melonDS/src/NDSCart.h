@@ -207,6 +207,10 @@ void DecryptSecureArea(u8* out);
 bool LoadROM(const char* path, const char* sram, bool direct);
 bool LoadROM(const u8* romdata, u32 filelength, const char *sram, bool direct);
 
+#ifdef WRC
+void SetRomPointerInfo(uint32_t pointer, uint32_t length);
+#endif
+
 void FlushSRAMFile();
 
 void RelocateSave(const char* path, bool write);
