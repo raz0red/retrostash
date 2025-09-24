@@ -97,7 +97,7 @@ else ifneq (,$(findstring CortexA73_G12B,$(platform)))
 # OS X
 else ifeq ($(platform), osx)
    CFLAGS += $(LTO)
-   CXXFLAGS += $(LTO)
+   CXXFLAGS += -std=c++14 $(LTO)
    LDFLAGS += $(LTO)
    TARGET := $(TARGET_NAME)_libretro.dylib
    fpic := -fPIC
@@ -161,8 +161,8 @@ else ifeq ($(platform), libnx)
 # Platform affix = classic_<ISA>_<µARCH>
 # Help at https://modmyclassic.com/comp
 
-# (armv7 a7, hard point, neon based) ### 
-# NESC, SNESC, C64 mini 
+# (armv7 a7, hard point, neon based) ###
+# NESC, SNESC, C64 mini
 else ifeq ($(platform), classic_armv7_a7)
 	TARGET := $(TARGET_NAME)_libretro.so
 	fpic := -fPIC
@@ -189,9 +189,9 @@ else ifeq ($(platform), classic_armv7_a7)
 	    LDFLAGS += -static-libgcc -static-libstdc++
 	  endif
 	endif
- 
- # (armv8 a35, hard point, neon based) ### 
-# Playstation Classic 
+
+ # (armv8 a35, hard point, neon based) ###
+# Playstation Classic
 else ifeq ($(platform), classic_armv8_a35)
 	TARGET := $(TARGET_NAME)_libretro.so
 	fpic := -fPIC
@@ -219,11 +219,11 @@ else ifeq ($(platform), classic_armv8_a35)
 	  endif
 	endif
 #######################################
-   
+
 # iOS
 else ifneq (,$(findstring ios,$(platform)))
    CFLAGS += $(LTO)
-   CXXFLAGS += $(LTO)
+   CXXFLAGS += -std=c++11 $(LTO)
    LDFLAGS += $(LTO)
    TARGET := $(TARGET_NAME)_libretro_ios.dylib
    fpic := -fPIC
@@ -248,11 +248,12 @@ else ifneq (,$(findstring ios,$(platform)))
    endif
    CFLAGS   += $(MINVERSION)
    CXXFLAGS += $(MINVERSION)
+   LDFLAGS  += $(MINVERSION)
 
 #tvOS
 else ifeq ($(platform), tvos-arm64)
    CFLAGS += $(LTO)
-   CXXFLAGS += $(LTO)
+   CXXFLAGS += -std=c++11 $(LTO)
    LDFLAGS += $(LTO)
    TARGET := $(TARGET_NAME)_libretro_tvos.dylib
    fpic := -fPIC
@@ -264,6 +265,10 @@ else ifeq ($(platform), tvos-arm64)
    CXXFLAGS += -DARM
    CC = cc -arch arm64 -isysroot $(IOSSDK)
    CXX = c++ -arch arm64 -isysroot $(IOSSDK)
+   MINVERSION = -mappletvos-version-min=11.0
+   CFLAGS   += $(MINVERSION)
+   CXXFLAGS += $(MINVERSION)
+   LDFLAGS  += $(MINVERSION)
 
 # Theos
 else ifeq ($(platform), theos_ios)
@@ -317,7 +322,7 @@ else ifneq (,$(filter $(platform), ps3 psl1ght))
    STATIC_LINKING=1
    STATIC_LINKING_LINK=1
    HAVE_STRINGS_H = 0
-   
+
 # Xbox 360
 else ifeq ($(platform), xenon)
    CFLAGS += $(LTO)
@@ -338,13 +343,12 @@ else ifneq (,$(filter $(platform), ngc wii wiiu))
    CXX = $(DEVKITPPC)/bin/powerpc-eabi-g++$(EXE_EXT)
    AR = $(DEVKITPPC)/bin/powerpc-eabi-ar$(EXE_EXT)
    CXXFLAGS += -mcpu=750 -meabi -mhard-float -DBLARGG_BIG_ENDIAN=1 -D__ppc__
-   CXXFLAGS += -U__INT32_TYPE__ -U __UINT32_TYPE__ -D__INT32_TYPE__=int
    STATIC_LINKING=1
    STATIC_LINKING_LINK=1
-   
-   # Nintendo WiiU	
-   ifneq (,$(findstring wiiu,$(platform)))	
-      CXXFLAGS += -mwup
+
+   # Nintendo WiiU
+   ifneq (,$(findstring wiiu,$(platform)))
+      CXXFLAGS += -ffunction-sections -fdata-sections -D__wiiu__ -D__wut__
 
    # Nintendo Wii
    else ifneq (,$(findstring wii,$(platform)))
@@ -357,9 +361,12 @@ else ifneq (,$(filter $(platform), ngc wii wiiu))
 
 # Emscripten
 else ifeq ($(platform), emscripten)
+   CXXFLAGS += -std=c++11
    TARGET := $(TARGET_NAME)_libretro_$(platform).bc
    STATIC_LINKING=1
    STATIC_LINKING_LINK=1
+   CFLAGS += -DWRC
+   CXXFLAGS += -DWRC
 
 # Windows MSVC 2003 Xbox 1
 else ifeq ($(platform), xbox1_msvc2003)
@@ -622,8 +629,8 @@ ifeq ($(DEBUG), 1)
    endif
 else
 ifneq (,$(findstring msvc,$(platform)))
-   CFLAGS += -O3 -DNDEBUG
-   CXXFLAGS += -O3 -DNDEBUG
+   CFLAGS += -O2 -DNDEBUG
+   CXXFLAGS += -O2 -DNDEBUG
 else
    CFLAGS += -O3 -DNDEBUG
    CXXFLAGS += -O3 -DNDEBUG
@@ -657,14 +664,15 @@ endif
 
 CXXFLAGS	+= $(CODE_DEFINES) $(WARNINGS_DEFINES) $(fpic)
 CXXFLAGS	+= -DRIGHTSHIFT_IS_SAR -D__LIBRETRO__ -DALLOW_CPU_OVERCLOCK
-CFLAGS		:= $(CXXFLAGS)
+CFLAGS		+= $(CODE_DEFINES) $(WARNINGS_DEFINES) $(fpic)
+CFLAGS		+= -DRIGHTSHIFT_IS_SAR -D__LIBRETRO__ -DALLOW_CPU_OVERCLOCK
 CFLAGS          += -DHAVE_STDINT_H
 CXXFLAGS        += -DHAVE_STDINT_H
 ifeq (,$(findstring msvc,$(platform)))
 ifeq ($(HAVE_STRINGS_H), 1)
 CXXFLAGS += -DHAVE_STRINGS_H
 endif
-CXXFLAGS += -fno-rtti -pedantic 
+CXXFLAGS += -fno-rtti -pedantic
 ifneq ($(HAVE_EXCEPTIONS), 1)
    CXXFLAGS += -fno-exceptions
 endif
@@ -675,7 +683,7 @@ ifneq (,$(findstring uwp,$(PlatformSuffix)))
 endif
 
 OBJOUT   = -o
-LINKOUT  = -o 
+LINKOUT  = -o
 
 ifneq (,$(findstring msvc,$(platform)))
 	OBJOUT = -Fo
@@ -710,7 +718,7 @@ else
 	$(LD) $(fpic) $(SHARED) $(LINKOUT)$@ $(OBJECTS) $(LDFLAGS) $(LIBS)
 endif
 
-%.o: %.cpp 
+%.o: %.cpp
 	$(CXX) $(INCFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(OBJOUT)$@ $<
 
 %.o: %.c

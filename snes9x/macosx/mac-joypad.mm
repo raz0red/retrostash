@@ -282,7 +282,10 @@ void findControls(struct JoypadDevice &device, NSDictionary *properties, NSMutab
 
     int usagePage = [properties[@kIOHIDElementUsagePageKey] intValue];
     int usage = [properties[@kIOHIDElementUsageKey] intValue];
-    if (usagePage == kHIDPage_Button)
+    if (usagePage == kHIDPage_Button ||
+        usagePage == kHIDPage_Consumer ||
+        (usagePage == kHIDPage_GenericDesktop && (usage == kHIDUsage_GD_DPadUp || usage == kHIDUsage_GD_DPadDown || usage == kHIDUsage_GD_DPadLeft || usage == kHIDUsage_GD_DPadRight ||
+                                                  usage == kHIDUsage_GD_Start || usage == kHIDUsage_GD_Select || usage == kHIDUsage_GD_SystemMainMenu)))
     {
         [buttons addObject:properties];
     }
@@ -519,6 +522,11 @@ void AddDevice (IOHIDDeviceRef device)
         deviceStruct.index += 1;
     }
 
+	if (name == nil)
+	{
+		name = @"Unknown Device";
+	}
+
     allDevices.insert(deviceStruct);
     std::string s = std::string(name.UTF8String);
 
@@ -676,7 +684,7 @@ void ClearJoypad(uint32 vendorID, uint32 productID, uint32 index)
     }
 }
 
-std::unordered_map<struct JoypadInput, S9xButtonCode> GetJuypadButtons(uint32 vendorID, uint32 productID, uint32 index)
+std::unordered_map<struct JoypadInput, S9xButtonCode> GetJoypadButtons(uint32 vendorID, uint32 productID, uint32 index)
 {
     struct JoypadDevice device;
     device.vendorID = vendorID;
@@ -704,7 +712,50 @@ void SetUpHID (void)
     {
         IOHIDManagerRegisterInputValueCallback(hidManager, gamepadAction, NULL);
         IOHIDManagerScheduleWithRunLoop(hidManager, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
-        IOHIDManagerSetDeviceMatching(hidManager, NULL);
+
+		CFMutableArrayRef matching = CFArrayCreateMutable(kCFAllocatorDefault, 4, &kCFTypeArrayCallBacks);
+		
+		uint32 page = kHIDPage_GenericDesktop;
+		uint32 usage = kHIDUsage_GD_Joystick;
+		CFNumberRef pageRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &page);
+		CFNumberRef usageRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &usage);
+		
+		CFMutableDictionaryRef entry = CFDictionaryCreateMutable(kCFAllocatorDefault, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(entry, CFSTR(kIOHIDDeviceUsagePageKey), (void *)pageRef);
+		CFDictionarySetValue(entry, CFSTR(kIOHIDDeviceUsageKey), (void *)usageRef);
+		CFArrayAppendValue(matching, entry);
+		CFRelease(usageRef);
+		CFRelease(entry);
+
+		usage = kHIDUsage_GD_GamePad;
+		usageRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &usage);
+		entry = CFDictionaryCreateMutable(kCFAllocatorDefault, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(entry, CFSTR(kIOHIDDeviceUsagePageKey), (void *)pageRef);
+		CFDictionarySetValue(entry, CFSTR(kIOHIDDeviceUsageKey), (void *)usageRef);
+		CFArrayAppendValue(matching, entry);
+		CFRelease(usageRef);
+		CFRelease(entry);
+
+		usage = kHIDUsage_GD_MultiAxisController;
+		usageRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &usage);
+		entry = CFDictionaryCreateMutable(kCFAllocatorDefault, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(entry, CFSTR(kIOHIDDeviceUsagePageKey), (void *)pageRef);
+		CFDictionarySetValue(entry, CFSTR(kIOHIDDeviceUsageKey), (void *)usageRef);
+		CFArrayAppendValue(matching, entry);
+		CFRelease(usageRef);
+		CFRelease(pageRef);
+		CFRelease(entry);
+
+		uint32 vendor = 0x28DE; // Valve, apparently
+		CFNumberRef vendorRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &vendor);
+		entry = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		CFDictionarySetValue(entry, CFSTR(kIOHIDVendorIDKey), (void *)pageRef);
+		CFArrayAppendValue(matching, entry);
+		CFRelease(vendorRef);
+		CFRelease(entry);
+
+		IOHIDManagerSetDeviceMatchingMultiple(hidManager, matching);
+		CFRelease(matching);
 
         ParseDefaults();
 

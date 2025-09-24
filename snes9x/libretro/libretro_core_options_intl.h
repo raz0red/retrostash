@@ -118,6 +118,7 @@ struct retro_core_option_v2_definition option_defs_tr[] = {
       NULL,
       {
          { "4:3",         NULL },
+         { "4:3 scaled",  "4:3 (Korunmuş)" },
          { "uncorrected", "Düzeltilmemiş" },
          { "auto",        "Otomatik" },
          { "ntsc",        "NTSC" },
@@ -139,18 +140,6 @@ struct retro_core_option_v2_definition option_defs_tr[] = {
          { "16_pixels",    "16 piksel" },
          { "auto",         "Otomatik (~8 piksel)" },
          { "disabled",     NULL },
-         { NULL, NULL },
-      },
-      NULL
-   },
-   {
-      "snes9x_gfx_hires",
-      "Hi-Res Modunu Etkinleştir",
-      NULL,
-      "Oyunların hi-res moduna (512x448) geçmesine izin verir veya tüm içeriği 256x224'te (ezilmiş piksellerle) çıkmaya zorlar.",
-      NULL,
-      NULL,
-      {
          { NULL, NULL },
       },
       NULL

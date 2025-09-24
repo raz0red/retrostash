@@ -70,6 +70,12 @@
 #define RETRO_DEVICE_JUSTIFIERS           RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_LIGHTGUN, 2)
 #define RETRO_DEVICE_GRAPHIC_BOARD        RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_POINTER, 0)
 
+
+#ifdef WRC
+#include "../../../../wrc.h"
+#include <emscripten.h>
+#endif
+
 #include <libretro.h>
 #include <streams/file_stream.h>
 
@@ -1048,6 +1054,7 @@ static void config_default(void)
    /* input options */
    input.system[0] = SYSTEM_GAMEPAD;
    input.system[1] = SYSTEM_GAMEPAD;
+
    for (i=0; i<MAX_INPUTS; i++)
    {
      config.input[i].padtype = DEVICE_PAD2B | DEVICE_PAD3B | DEVICE_PAD6B;
@@ -1405,33 +1412,6 @@ static void check_variables(bool first_run)
       config.system = SYSTEM_MD;
     else
       config.system = 0;
-
-    if (orig_value != config.system)
-    {
-      if (system_hw)
-      {
-        switch (config.system)
-        {
-          case 0:
-            system_hw = romtype; /* AUTO */
-            break;
-
-          case SYSTEM_MD:
-            system_hw = (romtype & SYSTEM_MD) ? romtype : SYSTEM_PBC;
-            break;
-
-          case SYSTEM_GG:
-            system_hw = (romtype == SYSTEM_GG) ? SYSTEM_GG : SYSTEM_GGMS;
-            break;
-
-          default:
-            system_hw = config.system;
-            break;
-        }
-
-        reinit = true;
-      }
-    }
   }
 
   var.key = "genesis_plus_gx_bios";
@@ -1464,6 +1444,17 @@ static void check_variables(bool first_run)
       config.region_detect = 3;
     else
       config.region_detect = 0;
+
+// WRC: PAL
+#ifdef WRC
+    bool isPal = EM_ASM_INT({
+       return window.emulator.isPal();
+    });
+    if (isPal) {
+      printf("## Forcing PAL\n");
+      config.region_detect = 2;
+    }
+#endif
 
     if (orig_value != config.region_detect)
     {
@@ -1598,6 +1589,17 @@ static void check_variables(bool first_run)
       config.ym2413 = 0;
     else
       config.ym2413 = 2;
+
+// WRC: YM
+#ifdef WRC
+    bool isYm2413 = EM_ASM_INT({
+       return window.emulator.isYm2413();
+    });
+    if (isYm2413) {
+      printf("## Forcing YM2413\n");
+      config.ym2413 = 1;
+    }
+#endif
 
     if (orig_value != config.ym2413)
     {
@@ -3556,6 +3558,10 @@ extern int8 audio_hard_disable;
 
 extern void sound_update_fm_function_pointers(void);
 
+#ifdef WRC
+static bool first = true;
+#endif
+
 void retro_run(void)
 {
    bool okay = false;
@@ -3565,6 +3571,32 @@ void retro_run(void)
    int vwoffset = 0;
    int bmdoffset = 0;
    is_running = true;
+
+#ifdef WRC
+   if (first) {
+      first = false;
+
+      bool is2Button = EM_ASM_INT({
+         return window.emulator.is2Button();
+      });
+
+      bool is3Button = EM_ASM_INT({
+         return window.emulator.is3Button();
+      });
+
+      int buttons = (
+         is2Button ? RETRO_DEVICE_MSPAD_2B :
+            is3Button ?
+               RETRO_DEVICE_MDPAD_3B : RETRO_DEVICE_MDPAD_6B
+      );
+
+      for (int i = 0; i < MAX_INPUTS; i++)
+      {
+         printf("### Setting pad %d to %d\n", i, buttons);
+         retro_set_controller_port_device(i, buttons);
+      }
+   }
+#endif
 
 #ifdef HAVE_OVERCLOCK
   /* update overclock delay */

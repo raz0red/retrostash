@@ -15,13 +15,21 @@
   (c) Copyright 2004         Alexander and Sander
   (c) Copyright 2004 - 2005  Steven Seeger
   (c) Copyright 2005         Ryan Vogt
-  (c) Copyright 2019         Michael Donald Buckley
+  (c) Copyright 2019 - 2022  Michael Donald Buckley
  ***********************************************************************************/
 
 #import <Carbon/Carbon.h>
 #import "AppDelegate.h"
+#import "S9xPreferencesConstants.h"
+#import "S9xCheatFinderViewController.h"
+#import "S9xOpenMultipleViewController.h"
 
 NSWindowFrameAutosaveName const kMainWindowIdentifier = @"s9xMainWindow";
+NSWindowFrameAutosaveName const kCheatsWindowIdentifier = @"s9xCheatsWindow";
+NSWindowFrameAutosaveName const kCheatFinderWindowIdentifier = @"s9xCheatFinderWindow";
+
+@interface AppDelegate () <S9xCheatFinderDelegate>
+@end
 
 @implementation AppDelegate
 
@@ -37,7 +45,6 @@ NSWindowFrameAutosaveName const kMainWindowIdentifier = @"s9xMainWindow";
     gameWindow.contentView.layer.backgroundColor = NSColor.blackColor.CGColor;
 
     gameWindow.title = @"Snes9x";
-    gameWindow.restorationClass = [self class];
     gameWindow.frameAutosaveName = kMainWindowIdentifier;
     gameWindow.releasedWhenClosed = NO;
     gameWindow.backgroundColor = NSColor.clearColor;
@@ -53,6 +60,8 @@ NSWindowFrameAutosaveName const kMainWindowIdentifier = @"s9xMainWindow";
     {
         [self.s9xEngine quit];
     }];
+
+    [self resetWindow];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -107,9 +116,18 @@ NSWindowFrameAutosaveName const kMainWindowIdentifier = @"s9xMainWindow";
             @(kKeyEsc).stringValue : @(kVK_Escape),
             @(kKeyTC).stringValue : @(kVK_ANSI_Comma)
         },
-        kShowFPSPref: @(NO),
-        kVideoModePref:@(VIDEOMODE_BLOCKY),
-        kMacFrameSkipPref:@(macFrameSkip)
+        kShowFPSPref : @(NO),
+        kVideoModePref : @(VIDEOMODE_BLOCKY),
+        kMacFrameSkipPref : @(macFrameSkip),
+
+        kSuperFXClockSpeedPercentPref : @(100),
+        kSoundInterpolationTypePref: @(2),
+        kCPUOverclockPref : @(0),
+
+        kApplyGameSpecificHacksPref : (@YES),
+        kAllowInvalidVRAMAccessPref : @(NO),
+        kSeparateEchoBufferFromRAMPref : @(NO),
+        kDisableSpriteLimitPref : @(NO),
     };
 
     [defaults registerDefaults:defaultSettings];
@@ -183,6 +201,10 @@ NSWindowFrameAutosaveName const kMainWindowIdentifier = @"s9xMainWindow";
 
     [self importKeySettings];
     [self importGraphicsSettings];
+    [self applyEmulationSettings];
+
+    self.s9xEngine.cheatsEnabled = [defaults boolForKey:kEnableCheatsPref];
+
     [defaults synchronize];
 }
 
@@ -212,7 +234,7 @@ NSWindowFrameAutosaveName const kMainWindowIdentifier = @"s9xMainWindow";
 {
     [self.s9xEngine clearButton:button forPlayer:player];
     NSMutableDictionary *keyDict = [[NSUserDefaults.standardUserDefaults objectForKey:kKeyboardPrefs] mutableCopy];
-    [keyDict removeObjectForKey:@(button).stringValue];
+    [keyDict removeObjectForKey:@(button + (kNumButtons * player)).stringValue];
     [NSUserDefaults.standardUserDefaults setObject:[keyDict copy] forKey:kKeyboardPrefs];
     [NSUserDefaults.standardUserDefaults synchronize];
 }
@@ -430,6 +452,9 @@ NSWindowFrameAutosaveName const kMainWindowIdentifier = @"s9xMainWindow";
 - (IBAction)openDocument:(id)sender
 {
     NSOpenPanel* panel = [NSOpenPanel new];
+    panel.canChooseDirectories = NO;
+    panel.allowsMultipleSelection = NO;
+
     NSModalResponse response = [panel runModal];
 
     if ( response == NSModalResponseOK )
@@ -442,23 +467,60 @@ NSWindowFrameAutosaveName const kMainWindowIdentifier = @"s9xMainWindow";
 {
     if ([self.s9xEngine loadROM:url])
     {
-		[self.s9xEngine recreateS9xView];
-		
-		NSWindow *gameWindow = self.gameWindow;
-		[gameWindow.contentView addSubview:s9xView];
-		[s9xView.topAnchor constraintEqualToAnchor:gameWindow.contentView.topAnchor].active = YES;
-		[s9xView.bottomAnchor constraintEqualToAnchor:gameWindow.contentView.bottomAnchor].active = YES;
-		[s9xView.centerXAnchor constraintEqualToAnchor:gameWindow.contentView.centerXAnchor].active = YES;
-		[s9xView.leftAnchor constraintGreaterThanOrEqualToAnchor:gameWindow.contentView.leftAnchor].active = YES;
-		[s9xView.rightAnchor constraintLessThanOrEqualToAnchor:gameWindow.contentView.rightAnchor].active = YES;
-
-		
-        [gameWindow makeKeyAndOrderFront:self];
+        [self resetWindow];
         [NSDocumentController.sharedDocumentController noteNewRecentDocumentURL:url];
         return YES;
     }
 
     return NO;
+}
+
+- (IBAction)openMultiple:(id)sender
+{
+    S9xOpenMultipleViewController *vc = [[S9xOpenMultipleViewController alloc] initWithNibName:@"S9xOpenMultipleViewController" bundle:nil];
+    vc.completionBlock = ^(NSArray<NSURL *> *fileURLs)
+    {
+        [self openMultipleURLs:fileURLs];
+    };
+
+    NSWindow *window = [NSWindow windowWithContentViewController:vc];
+    window.title = NSLocalizedString(@"Open MultiCart", @"");
+    window.styleMask = NSWindowStyleMaskTitled;
+    [window makeKeyAndOrderFront:self];
+
+    [NSApp runModalForWindow:window];
+}
+
+- (BOOL)openMultipleURLs:(NSArray<NSURL *> *)urls
+{
+    if ([self.s9xEngine loadMultiple:urls])
+    {
+        [self resetWindow];
+        return YES;
+    }
+
+    return NO;
+}
+
+- (void)resetWindow
+{
+    [self.s9xEngine recreateS9xView];
+
+    NSWindow *gameWindow = self.gameWindow;
+    [gameWindow.contentView addSubview:s9xView];
+    [s9xView.topAnchor constraintEqualToAnchor:gameWindow.contentView.topAnchor].active = YES;
+    [s9xView.bottomAnchor constraintEqualToAnchor:gameWindow.contentView.bottomAnchor].active = YES;
+    [s9xView.centerXAnchor constraintEqualToAnchor:gameWindow.contentView.centerXAnchor].active = YES;
+    [s9xView.leftAnchor constraintGreaterThanOrEqualToAnchor:gameWindow.contentView.leftAnchor].active = YES;
+    [s9xView.rightAnchor constraintLessThanOrEqualToAnchor:gameWindow.contentView.rightAnchor].active = YES;
+
+    if (self.cheatsWindowController != nil)
+    {
+        [((S9xCheatsViewController *)self.cheatsWindowController.contentViewController) deselectAll];
+        [((S9xCheatsViewController *)self.cheatsWindowController.contentViewController) reloadData];
+    }
+
+    [gameWindow makeKeyAndOrderFront:self];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
@@ -470,6 +532,17 @@ NSWindowFrameAutosaveName const kMainWindowIdentifier = @"s9xMainWindow";
 	else if (action == @selector(updateDeviceSetting:)) {
 		menuItem.state = (self.deviceSetting == (S9xDeviceSetting)menuItem.tag) ? NSOnState : NSOffState;
 	}
+    else if (action == @selector(toggleCheats:))
+    {
+        if (self.s9xEngine.cheatsEnabled)
+        {
+            menuItem.title = NSLocalizedString(@"Disable Cheats", nil);
+        }
+        else
+        {
+            menuItem.title = NSLocalizedString(@"Enable Cheats", nil);
+        }
+    }
 
     return !self.isRunningEmulation;
 }
@@ -519,6 +592,21 @@ NSWindowFrameAutosaveName const kMainWindowIdentifier = @"s9xMainWindow";
     [NSUserDefaults.standardUserDefaults synchronize];
 }
 
+- (void)applyEmulationSettings
+{
+    S9xEngine *engine = self.s9xEngine;
+    NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+
+    [engine setSuperFXClockSpeedPercent:(uint32_t)[defaults integerForKey:kSuperFXClockSpeedPercentPref]];
+    [engine setSoundInterpolationType:(int)[defaults integerForKey:kSoundInterpolationTypePref]];
+    [engine setCPUOverclockMode:(int)[defaults integerForKey:kCPUOverclockPref]];
+
+    [engine setApplySpecificGameHacks:[defaults boolForKey:kApplyGameSpecificHacksPref]];
+    [engine setAllowInvalidVRAMAccess:[defaults boolForKey:kAllowInvalidVRAMAccessPref]];
+    [engine setSeparateEchoBufferFromRAM:[defaults boolForKey:kSeparateEchoBufferFromRAMPref]];
+    [engine setDisableSpriteLimit:[defaults boolForKey:kDisableSpriteLimitPref]];
+}
+
 - (IBAction)resume:(id)sender
 {
     [self.s9xEngine resume];
@@ -549,7 +637,7 @@ NSWindowFrameAutosaveName const kMainWindowIdentifier = @"s9xMainWindow";
 {
     if (NSApp.keyWindow != nil && NSApp.keyWindow == self.preferencesWindowController.window)
     {
-        return [((S9xPreferencesWindowController *) self.preferencesWindowController.contentViewController) handleInput:input fromJoypad:joypad];
+        return [((S9xPreferencesWindowController *) self.preferencesWindowController) handleInput:input fromJoypad:joypad];
     }
 
     return NO;
@@ -560,5 +648,69 @@ NSWindowFrameAutosaveName const kMainWindowIdentifier = @"s9xMainWindow";
     _deviceSetting = deviceSetting;
 }
 
+
+- (IBAction)openCheatsWindow:(id)sender
+{
+    if (self.cheatsWindowController == nil)
+    {
+        NSWindow *window = [NSWindow windowWithContentViewController:[[S9xCheatsViewController alloc] initWithNibName:@"S9xCheatsViewController" bundle:nil]];
+        self.cheatsWindowController = [[NSWindowController alloc] initWithWindow:window];
+
+        window = self.cheatsWindowController.window;
+
+        window.title = NSLocalizedString(@"Cheats", nil);
+        window.frameAutosaveName = kCheatsWindowIdentifier;
+        window.releasedWhenClosed = NO;
+
+        if ( ![window setFrameUsingName:kCheatsWindowIdentifier] )
+        {
+            [window center];
+        }
+    }
+
+    [self.cheatsWindowController showWindow:nil];
+    [self.cheatsWindowController.window makeKeyAndOrderFront:nil];
+    [self.cheatsWindowController.window makeKeyWindow];
+}
+
+- (IBAction)toggleCheats:(id)sender
+{
+    self.s9xEngine.cheatsEnabled = !self.s9xEngine.cheatsEnabled;
+    [NSUserDefaults.standardUserDefaults setBool:self.s9xEngine.cheatsEnabled forKey:kEnableCheatsPref];
+}
+
+- (IBAction)openCheatFinderWindow:(id)sender
+{
+    if ( self.cheatFinderWindowController == nil )
+    {
+        S9xCheatFinderViewController *vc = [[S9xCheatFinderViewController alloc] initWithNibName:@"S9xCheatFinderViewController" bundle:nil];
+        vc.engine = self.s9xEngine;
+        vc.delegate = self;
+
+        NSWindow *window = [NSWindow windowWithContentViewController:vc];
+        self.cheatFinderWindowController = [[NSWindowController alloc] initWithWindow:window];
+
+        window = self.cheatFinderWindowController.window;
+
+        window.title = NSLocalizedString(@"Cheat Finder", nil);
+        window.frameAutosaveName = kCheatFinderWindowIdentifier;
+        window.releasedWhenClosed = NO;
+
+        if ( ![window setFrameUsingName:kCheatFinderWindowIdentifier] )
+        {
+            [window center];
+        }
+    }
+
+    [self.cheatFinderWindowController showWindow:nil];
+    [self.cheatFinderWindowController.window makeKeyAndOrderFront:nil];
+    [self.cheatFinderWindowController.window makeKeyWindow];
+}
+
+- (void)addedCheat
+{
+    [((S9xCheatsViewController *)self.cheatsWindowController.contentViewController) deselectAll];
+    [((S9xCheatsViewController *)self.cheatsWindowController.contentViewController) reloadData];
+}
 
 @end

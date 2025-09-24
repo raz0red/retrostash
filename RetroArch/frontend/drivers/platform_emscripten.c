@@ -112,6 +112,12 @@ void wrc_force_aspect_ratio(int enable) {
    video_driver_reinit(DRIVER_VIDEO_MASK);
 }
 
+bool wrc_set_shader(const char *shader_path)
+{
+    printf("Shader path received: %s\n", shader_path);
+    command_set_shader(NULL, shader_path);
+}
+
 extern void rcheevos_file_reader_init();
 static bool rcheevos_init = false;
 
