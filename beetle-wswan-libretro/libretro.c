@@ -18,13 +18,24 @@
 #include "mednafen/wswan/rtc.h"
 #include "mednafen/wswan/eeprom.h"
 
+#ifdef WRC
+#include "../../../wrc.h"
+#include "chd.h"
+#include <emscripten.h>
+#endif
+
+#if defined(_3DS)
+void* linearMemAlign(size_t size, size_t alignment);
+void linearFree(void* mem);
+#endif
+
 #define MEDNAFEN_CORE_NAME_MODULE "wswan"
 #define MEDNAFEN_CORE_NAME "Beetle WonderSwan"
 #define MEDNAFEN_CORE_VERSION "v0.9.35.1"
 #define MEDNAFEN_CORE_EXTENSIONS "ws|wsc|pc2"
-#define MEDNAFEN_CORE_TIMING_FPS 75.47
-#define MEDNAFEN_CORE_GEOMETRY_BASE_W (EmulatedWSwan.nominal_width)
-#define MEDNAFEN_CORE_GEOMETRY_BASE_H (EmulatedWSwan.nominal_height)
+#define MEDNAFEN_CORE_TIMING_FPS (3072000.0 / (159.0 * 256.0))
+#define MEDNAFEN_CORE_GEOMETRY_BASE_W 224
+#define MEDNAFEN_CORE_GEOMETRY_BASE_H 144
 #define MEDNAFEN_CORE_GEOMETRY_MAX_W 224
 #define MEDNAFEN_CORE_GEOMETRY_MAX_H 144
 #define MEDNAFEN_CORE_GEOMETRY_ASPECT_RATIO (14.0 / 9.0)
@@ -43,7 +54,6 @@ static int RETRO_PIX_BYTES = 2;
 static int RETRO_PIX_DEPTH = 15;
 
 struct retro_perf_callback perf_cb;
-retro_get_cpu_features_t perf_get_cpu_features_cb = NULL;
 retro_log_printf_t log_cb;
 static retro_video_refresh_t video_cb;
 static retro_audio_sample_t audio_cb;
@@ -53,9 +63,6 @@ static retro_input_poll_t input_poll_cb;
 static retro_input_state_t input_state_cb;
 
 static bool libretro_supports_bitmasks = false;
-
-static bool overscan;
-static double last_sound_rate;
 
 typedef enum
 {
@@ -85,6 +92,120 @@ static uint16_t *rotate_buf = NULL;
             *(out_ptr + y + (((width - 1) - x) * height)) = *(in_ptr + x + (y * width)); \
    }
 
+static int16_t *audio_samples_buf     = NULL;
+static int32_t audio_samples_buf_size = 0;
+
+#define RETRO_60HZ_FPS         ((4.0 * MEDNAFEN_CORE_TIMING_FPS) / 5.0)
+#define RETRO_60HZ_CYCLE_INDEX 4
+
+typedef struct
+{
+   int16_t *samples_buf;
+   int32_t samples_buf_size;
+   int32_t samples_buf_pos;
+   int32_t samples_per_frame;
+} retro_60hz_audio_t;
+
+static bool retro_60hz_enabled             = false;
+static uint16_t retro_60hz_counter         = 0;
+static retro_60hz_audio_t retro_60hz_audio = {0};
+
+static void retro_60hz_deinit(void)
+{
+   if (retro_60hz_audio.samples_buf)
+      free(retro_60hz_audio.samples_buf);
+
+   retro_60hz_audio.samples_buf       = NULL;
+   retro_60hz_audio.samples_buf_size  = 0;
+   retro_60hz_audio.samples_buf_pos   = 0;
+   retro_60hz_audio.samples_per_frame = 0;
+
+   retro_60hz_counter = 0;
+}
+
+static void retro_60hz_init(void)
+{
+   retro_60hz_deinit();
+
+   if (retro_60hz_enabled)
+   {
+      /* Get expected number of samples per 60Hz
+       * frame
+       * > Round down - any excess samples will be read
+       *   out at the end of each 4/5 frame cycle */
+      retro_60hz_audio.samples_per_frame = ((int32_t)(RETRO_SAMPLE_RATE /
+            RETRO_60HZ_FPS));
+
+      /* Initial buffer size should be *twice* that of
+       * the expected number of samples per 75Hz frame */
+      retro_60hz_audio.samples_buf_size  = ((int32_t)(RETRO_SAMPLE_RATE /
+            MEDNAFEN_CORE_TIMING_FPS) + 1) << 2;
+      retro_60hz_audio.samples_buf       = (int16_t*)malloc(
+            retro_60hz_audio.samples_buf_size * sizeof(int16_t));
+
+      if (!retro_60hz_audio.samples_buf)
+      {
+         retro_60hz_deinit();
+         retro_60hz_enabled = false;
+      }
+   }
+}
+
+static void retro_60hz_cache_audio_samples(int16_t *samples, int32_t frames)
+{
+   int32_t buffer_capacity  = retro_60hz_audio.samples_buf_size -
+         retro_60hz_audio.samples_buf_pos;
+   int32_t samples_to_write = frames << 1;
+
+   /* Resize buffer if necessary */
+   if (buffer_capacity < samples_to_write)
+   {
+      int16_t *tmp_buffer = NULL;
+      int32_t tmp_buffer_size;
+
+      tmp_buffer_size = retro_60hz_audio.samples_buf_size +
+            (samples_to_write - buffer_capacity);
+      tmp_buffer_size = (tmp_buffer_size << 1) - (tmp_buffer_size >> 1);
+      tmp_buffer      = (int16_t *)malloc(tmp_buffer_size * sizeof(int16_t));
+
+      memcpy(tmp_buffer, retro_60hz_audio.samples_buf,
+            retro_60hz_audio.samples_buf_pos * sizeof(int16_t));
+
+      free(retro_60hz_audio.samples_buf);
+      retro_60hz_audio.samples_buf      = tmp_buffer;
+      retro_60hz_audio.samples_buf_size = tmp_buffer_size;
+   }
+
+   /* Copy samples */
+   memcpy(retro_60hz_audio.samples_buf +
+               retro_60hz_audio.samples_buf_pos,
+         samples, samples_to_write * sizeof(int16_t));
+   retro_60hz_audio.samples_buf_pos += samples_to_write;
+}
+
+static bool audio_low_pass_enabled      = false;
+static int64_t audio_low_pass_acc_left  = 0;
+static int64_t audio_low_pass_acc_right = 0;
+
+static void audio_low_pass_apply(int16_t *samples, int32_t frames)
+{
+   while (frames-- > 0)
+   {
+      int64_t drop_current_left;
+      int64_t drop_current_right;
+
+      /* Left channel */
+      drop_current_left        = ((*samples << 16) - audio_low_pass_acc_left) >> 3;
+      audio_low_pass_acc_left += drop_current_left;
+      *samples++               = (int16_t)((audio_low_pass_acc_left >> 16) & 0xFFFF);
+
+      /* Right channel */
+      drop_current_right        = ((*samples << 16) - audio_low_pass_acc_right) >> 3;
+      audio_low_pass_acc_right += drop_current_right;
+      *samples++                = (int16_t)((audio_low_pass_acc_right >> 16) & 0xFFFF);
+   }
+}
+
 /* Mono palettes */
 
 struct ws_mono_palette
@@ -94,7 +215,7 @@ struct ws_mono_palette
    uint32 end;
 };
 
-struct ws_mono_palette ws_mono_palettes[] = {
+static struct ws_mono_palette ws_mono_palettes[] = {
    { "default",                0x000000, 0xFFFFFF },
    { "wonderswan",             0x3E3D20, 0x9B9D66 },
    { "wondeswan_color",        0x1B201E, 0xD7D49D },
@@ -198,21 +319,36 @@ static void init_frameskip(void)
       }
       else
       {
+         float fps;
+         float latency_factor;
+         float frame_time_msec;
+
+         if (retro_60hz_enabled)
+         {
+            fps            = (float)RETRO_60HZ_FPS;
+            latency_factor = 6.0f;
+         }
+         else
+         {
+            fps            = (float)MEDNAFEN_CORE_TIMING_FPS;
+            latency_factor = 8.0f;
+         }
+
          /* Frameskip is enabled - increase frontend
           * audio latency to minimise potential
           * buffer underruns */
-         float frame_time_msec = 1000.0f / ((float)MEDNAFEN_CORE_TIMING_FPS);
+         frame_time_msec = 1000.0f / fps;
 
-         /* Set latency to 8x current frame time...
-          * (for 60Hz cores we normally use a 6x
-          * multiplier - but the WonderSwan runs
-          * at an unusually high frame rate, which
-          * seems to place greater demands on the
-          * frontend. Increasing the multiplier to
-          * 8x gives the frontend more room to
-          * manoeuvre, and improves the efficacy of
-          * the 'Auto' frameskip setting) */
-         audio_latency = (unsigned)((8.0f * frame_time_msec) + 0.5f);
+         /* Set latency to an integer multiple of
+          * the current frame time...
+          * > At 60Hz we normally use a 6x multiplier
+          * > The native (unusually high) 75Hz of the
+          *   WonderSwan seems to place greater demands
+          *   on the frontend, so we increase the
+          *   multiplier to 8x; this gives the frontend
+          *   more room to manoeuvre, and improves the
+          *   efficacy of the 'Auto' frameskip setting */
+         audio_latency = (unsigned)((latency_factor * frame_time_msec) + 0.5f);
 
          /* ...then round up to nearest multiple of 32 */
          audio_latency = (audio_latency + 0x1F) & ~0x1F;
@@ -252,28 +388,9 @@ uint32		rom_size;
 
 uint16 WSButtonStatus;
 
-static uint8 WSRCurrentSong;
-
-MDFNGI EmulatedWSwan =
-{
- MDFN_MASTERCLOCK_FIXED(3072000),
- 0,
- 224,   /* lcm_width */
- 144,   /* lcm_height */
-
- 224,	  /* Nominal width */
- 144,	  /* Nominal height */
-
- 224,	  /* Framebuffer width */
- 144,	  /* Framebuffer height */
-
- 2,     /* Number of output sound channels */
-};
-
-
 static void Reset(void)
 {
-   int		u0;
+   int u0;
 
    v30mz_reset();				/* Reset CPU */
    WSwan_MemoryReset();
@@ -293,38 +410,37 @@ static void Reset(void)
    v30mz_set_reg(NEC_SP,0x2000);
 }
 
-static uint8 *chee;
+static uint8 *chee = NULL;
 
-static void Emulate(EmulateSpecStruct *espec, int16_t *sndbuf)
+static void Emulate(EmulateSpecStruct *espec,
+      int skip_frame, int update_sample_rate)
 {
-   uint16 butt_data;
+   espec->surface          = surf;
+   espec->DisplayRect.w    = 224;
+   espec->DisplayRect.h    = 144;
+   espec->skip             = skip_frame;
+   espec->SoundBufSize     = 0;
 
-   espec->DisplayRect.x = 0;
-   espec->DisplayRect.y = 0;
-   espec->DisplayRect.w = 224;
-   espec->DisplayRect.h = 144;
-
-   if(espec->VideoFormatChanged)
-      WSwan_SetPixelFormat(espec->surface->depth,
-            mono_pal_start, mono_pal_end);
-
-   if(espec->SoundFormatChanged)
+   if (update_sample_rate)
       WSwan_SetSoundRate(RETRO_SAMPLE_RATE);
 
-   butt_data = chee[0] | (chee[1] << 8);
-
-   WSButtonStatus = butt_data;
+   WSButtonStatus          = chee[0] | (chee[1] << 8);
 
    MDFNMP_ApplyPeriodicCheats();
 
-   while(!wsExecuteLine(espec->surface, espec->skip));
+   while (!wsExecuteLine(espec->surface, espec->skip));
 
-   espec->SoundBufSize = WSwan_SoundFlush(sndbuf, espec->SoundBufMaxSize);
+   espec->SoundBufSize = WSwan_SoundFlush(&audio_samples_buf,
+         &audio_samples_buf_size);
 
-   espec->MasterCycles = v30mz_timestamp;
+   if (audio_low_pass_enabled)
+      audio_low_pass_apply(audio_samples_buf,
+            espec->SoundBufSize);
+
    v30mz_timestamp = 0;
 }
 
+#if 0
 typedef struct
 {
  const uint8 id;
@@ -376,6 +492,7 @@ static const DLEntry Developers[] =
  { 0x33, "Wiz" },
  { 0x36, "Capcom" }
 };
+#endif
 
 static uint32 SRAMSize;
 
@@ -386,7 +503,7 @@ static int Load(const uint8_t *data, size_t size)
    uint8 header[10];
 
    if(size < 65536)
-      return(0);
+      return 0;
 
    real_rom_size = (size + 0xFFFF) & ~0xFFFF;
    pow_size      = next_pow2(real_rom_size);
@@ -394,7 +511,7 @@ static int Load(const uint8_t *data, size_t size)
 
    wsCartROM     = (uint8 *)calloc(1, rom_size);
 
-   /* This real_rom_size vs rom_size funny business 
+   /* This real_rom_size vs rom_size funny business
     * is intended primarily for handling
     * WSR files. */
    if(real_rom_size < rom_size)
@@ -430,15 +547,25 @@ static int Load(const uint8_t *data, size_t size)
       wsCartROM[0xfffec]=0x20;
    }
 
+#if 0
    if(header[6] & 0x1)
       EmulatedWSwan.rotated = MDFN_ROTATE90;
+#endif
 
    MDFNMP_Init(16384, (1 << 20) / 1024);
 
    v30mz_init(WSwan_readmem20, WSwan_writemem20, WSwan_readport, WSwan_writeport);
+
+#ifdef WRC
+   int japanese = EM_ASM_INT({
+      return window.emulator.isJapanese();
+   });
+   printf("Language: %d\n", japanese);
+   WSwan_MemoryInit(japanese ? false : true, wsc, SRAMSize, false); /* EEPROM and SRAM are loaded in this func. */
+#else
    WSwan_MemoryInit(MDFN_GetSettingB("wswan.language"), wsc, SRAMSize, false); /* EEPROM and SRAM are loaded in this func. */
+#endif
    WSwan_GfxInit();
-   EmulatedWSwan.fps = (uint32)((uint64)3072000 * 65536 * 256 / (159*256));
 
    WSwan_SoundInit();
 
@@ -446,7 +573,7 @@ static int Load(const uint8_t *data, size_t size)
 
    Reset();
 
-   return(1);
+   return 1;
 }
 
 static void CloseGame(void)
@@ -462,36 +589,24 @@ static void CloseGame(void)
    }
 }
 
-static void SetInput(int port, const char *type, void *ptr)
-{
- if(!port) chee = (uint8 *)ptr;
-}
-
 int StateAction(StateMem *sm, int load, int data_only)
 {
    if(!v30mz_StateAction(sm, load, data_only))
-      return(0);
-
+      return 0;
    /* Call MemoryStateAction before others StateActions... */
    if(!WSwan_MemoryStateAction(sm, load, data_only))
-      return(0);
-
+      return 0;
    if(!WSwan_GfxStateAction(sm, load, data_only))
-      return(0);
-
+      return 0;
    if(!WSwan_RTCStateAction(sm, load, data_only))
-      return(0);
-
+      return 0;
    if(!WSwan_InterruptStateAction(sm, load, data_only))
-      return(0);
-
+      return 0;
    if(!WSwan_SoundStateAction(sm, load, data_only))
-      return(0);
-
+      return 0;
    if(!WSwan_EEPROMStateAction(sm, load, data_only))
-      return(0);
-
-   return(1);
+      return 0;
+   return 1;
 }
 
 static void DoSimpleCommand(int cmd)
@@ -505,47 +620,8 @@ static void DoSimpleCommand(int cmd)
    }
 }
 
-static const InputDeviceInputInfoStruct IDII[] =
-{
- { "up-x", "UP ↑, X Cursors", 0, IDIT_BUTTON, "down-x",				{ "right-x", "down-x", "left-x" } },
- { "right-x", "RIGHT →, X Cursors", 3, IDIT_BUTTON, "left-x",			{ "down-x", "left-x", "up-x" } },
- { "down-x", "DOWN ↓, X Cursors", 1, IDIT_BUTTON, "up-x", 			{ "left-x", "up-x", "right-x" } },
- { "left-x", "LEFT ←, X Cursors", 2, IDIT_BUTTON, "right-x",			{ "up-x", "right-x", "down-x" } },
-
- { "up-y", "UP ↑, Y Cur: MUST NOT = X CURSORS", 4, IDIT_BUTTON, "down-y",	{ "right-y", "down-y", "left-y" } },
- { "right-y", "RIGHT →, Y Cur: MUST NOT = X CURSORS", 7, IDIT_BUTTON, "left-y",	{ "down-y", "left-y", "up-y" } },
- { "down-y", "DOWN ↓, Y Cur: MUST NOT = X CURSORS", 5, IDIT_BUTTON, "up-y",	{ "left-y", "up-y", "right-y" } },
- { "left-y", "LEFT ←, Y Cur: MUST NOT = X CURSORS", 6, IDIT_BUTTON, "right-y",	{ "up-y", "right-y", "down-y" } },
-
- { "start", "Start", 8, IDIT_BUTTON, NULL },
- { "a", "A", 10, IDIT_BUTTON_CAN_RAPID,  NULL },
- { "b", "B", 9, IDIT_BUTTON_CAN_RAPID, NULL },
-};
-
-static InputDeviceInfoStruct InputDeviceInfo[] =
-{
- {
-  "gamepad",
-  "Gamepad",
-  NULL,
-  NULL,
-  sizeof(IDII) / sizeof(InputDeviceInputInfoStruct),
-  IDII,
- }
-};
-
-static const InputPortInfoStruct PortInfo[] =
-{
- { "builtin", "Built-In", sizeof(InputDeviceInfo) / sizeof(InputDeviceInfoStruct), InputDeviceInfo, "gamepad" }
-};
-
-static InputInfoStruct InputInfo =
-{
- sizeof(PortInfo) / sizeof(InputPortInfoStruct),
- PortInfo
-};
-
-static bool update_video, update_audio;
+static bool update_audio = false;
+static bool update_video = false;
 
 static bool MDFNI_LoadGame(
       const char *force_module, const uint8_t *data,
@@ -645,6 +721,7 @@ static void check_variables(int startup)
    uint32 prev_mono_pal_start;
    uint32 prev_mono_pal_end;
    unsigned prev_frameskip_type;
+   bool update_60hz_mode = false;
 
    var.key = "wswan_rotate_display",
    var.value = NULL;
@@ -727,9 +804,24 @@ static void check_variables(int startup)
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
       frameskip_threshold = strtol(var.value, NULL, 10);
 
-   /* (Re)Initialise frameskipping, if required */
-   if (startup || (frameskip_type != prev_frameskip_type))
-      init_frameskip();
+   var.key = "wswan_60hz_mode";
+   var.value = NULL;
+
+   if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
+   {
+      bool old_value = retro_60hz_enabled;
+
+      if (!strcmp(var.value, "disabled"))
+         retro_60hz_enabled = false;
+      else if (!strcmp(var.value, "enabled"))
+         retro_60hz_enabled = true;
+
+      if (!startup && (old_value != retro_60hz_enabled))
+      {
+         update_video = true;
+         update_60hz_mode = true;
+      }
+   }
 
    var.key = "wswan_sound_sample_rate";
    var.value = NULL;
@@ -739,32 +831,60 @@ static void check_variables(int startup)
       int old_value = RETRO_SAMPLE_RATE;
 
       RETRO_SAMPLE_RATE = atoi(var.value);
+      RETRO_SAMPLE_RATE = (RETRO_SAMPLE_RATE < 11025) ?
+            11025 : RETRO_SAMPLE_RATE;
+      RETRO_SAMPLE_RATE = (RETRO_SAMPLE_RATE > 48000) ?
+            48000 : RETRO_SAMPLE_RATE;
 
-      if (old_value != RETRO_SAMPLE_RATE)
+      if (!startup && (old_value != RETRO_SAMPLE_RATE))
+      {
          update_audio = true;
+         /* If audio sample rate changes, must reinitialise
+          * 60Hz mode (will be a no-op if 60Hz mode is
+          * currently inactive) */
+         update_60hz_mode = true;
+      }
    }
 
-   var.key = "wswan_gfx_colors";
+   var.key = "wswan_sound_low_pass";
    var.value = NULL;
 
-   if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value && startup)
+   if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
    {
-      unsigned old_value = RETRO_PIX_BYTES;
-
-      if (!strcmp(var.value, "16bit"))
-      {
-         RETRO_PIX_BYTES = 2;
-         RETRO_PIX_DEPTH = 16;
-      }
-      else if (!strcmp(var.value, "24bit"))
-      {
-         RETRO_PIX_BYTES = 4;
-         RETRO_PIX_DEPTH = 24;
-      }
-
-      if (old_value != RETRO_PIX_BYTES)
-         update_video = true;
+      if (!strcmp(var.value, "disabled"))
+         audio_low_pass_enabled = false;
+      else if (!strcmp(var.value, "enabled"))
+         audio_low_pass_enabled = true;
    }
+
+   if (startup)
+   {
+      var.key = "wswan_gfx_colors";
+      var.value = NULL;
+
+      if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
+      {
+         if (!strcmp(var.value, "16bit"))
+         {
+            RETRO_PIX_BYTES = 2;
+            RETRO_PIX_DEPTH = 16;
+         }
+         else if (!strcmp(var.value, "24bit"))
+         {
+            RETRO_PIX_BYTES = 4;
+            RETRO_PIX_DEPTH = 24;
+         }
+      }
+   }
+
+   if (update_60hz_mode)
+      retro_60hz_init();
+
+   /* (Re)Initialise frameskipping, if required */
+   if (startup ||
+       (frameskip_type != prev_frameskip_type) ||
+       update_60hz_mode)
+      init_frameskip();
 }
 
 void retro_init(void)
@@ -772,13 +892,8 @@ void retro_init(void)
    struct retro_log_callback log;
    if (environ_cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &log))
       log_cb = log.log;
-   else 
-      log_cb = NULL;
-
-   if (environ_cb(RETRO_ENVIRONMENT_GET_PERF_INTERFACE, &perf_cb))
-      perf_get_cpu_features_cb = perf_cb.get_cpu_features;
    else
-      perf_get_cpu_features_cb = NULL;
+      log_cb = NULL;
 
    frameskip_type             = 0;
    frameskip_threshold        = 0;
@@ -788,6 +903,9 @@ void retro_init(void)
    retro_audio_buff_underrun  = false;
    audio_latency              = 0;
    update_audio_latency       = false;
+   audio_low_pass_enabled     = false;
+   audio_low_pass_acc_left    = 0;
+   audio_low_pass_acc_right   = 0;
 
    check_system_specs();
    check_variables(true);
@@ -805,16 +923,6 @@ void retro_reset(void)
 bool retro_load_game_special(unsigned a, const struct retro_game_info *b, size_t c)
 {
    return false;
-}
-
-static void set_volume (uint32_t *ptr, unsigned number)
-{
-   switch(number)
-   {
-      default:
-         *ptr = number;
-         break;
-   }
 }
 
 #define MAX_PLAYERS 1
@@ -843,37 +951,33 @@ bool retro_load_game(const struct retro_game_info *info)
    };
 
    if (!info)
-      return false;
+      goto error;
 
    environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 
-   overscan = false;
-   environ_cb(RETRO_ENVIRONMENT_GET_OVERSCAN, &overscan);
-
    if (!MDFNI_LoadGame(MEDNAFEN_CORE_NAME_MODULE,
          (const uint8_t*)info->data, info->size))
-      return false;
+      goto error;
 
-   SetInput(0, "gamepad", &input_buf);
-
+   chee = (uint8 *)&input_buf;
    surf = (MDFN_Surface*)calloc(1, sizeof(*surf));
-   
+
    if (!surf)
-      return false;
-   
+      goto error;
+
    surf->width  = FB_WIDTH;
    surf->height = FB_HEIGHT;
    surf->pitch  = FB_WIDTH;
    surf->depth  = RETRO_PIX_DEPTH;
 
+#if defined(_3DS)
+   surf->pixels = (uint16_t*)linearMemAlign(FB_WIDTH * FB_HEIGHT * sizeof(uint32_t), 128);
+#else
    surf->pixels = (uint16_t*)calloc(1, FB_WIDTH * FB_HEIGHT * sizeof(uint32_t));
+#endif
 
    if (!surf->pixels)
-   {
-      free(surf);
-      surf = NULL;
-      return false;
-   }
+      goto error;
 
    /* Check whether 'hardware' rotation (via frontend
     * gfx driver) is supported */
@@ -881,14 +985,14 @@ bool retro_load_game(const struct retro_game_info *info)
 
    if (!hw_rotate_enabled && !rotate_buf)
    {
+#if defined(_3DS)
+      rotate_buf = (uint16_t*)linearMemAlign(FB_WIDTH * FB_HEIGHT * sizeof(uint32_t), 128);
+#else
       rotate_buf = (uint16_t*)calloc(1, FB_WIDTH * FB_HEIGHT * sizeof(uint32_t));
+#endif
+
       if (!rotate_buf)
-      {
-         free(surf->pixels);
-         free(surf);
-         surf = NULL;
-         return false;
-      }
+         goto error;
    }
 
    rotate_tall = false;
@@ -897,13 +1001,52 @@ bool retro_load_game(const struct retro_game_info *info)
 
    check_variables(false);
 
+   /* Allocate an audio buffer of sufficient size
+    * for the expected number of samples per frame
+    * (size will be increased automatically if
+    * configuration changes) */
+   audio_samples_buf_size = ((int32_t)(RETRO_SAMPLE_RATE /
+         MEDNAFEN_CORE_TIMING_FPS) + 1) << 1;
+   audio_samples_buf      = (int16_t*)malloc(audio_samples_buf_size * sizeof(int16_t));
+
+   if (!audio_samples_buf)
+      goto error;
+
+   retro_60hz_init();
+
    WSwan_SetPixelFormat(RETRO_PIX_DEPTH,
          mono_pal_start, mono_pal_end);
-
-   update_video = false;
-   update_audio = true;
+   WSwan_SetSoundRate(RETRO_SAMPLE_RATE);
 
    return true;
+
+error:
+   if (surf)
+   {
+      if (surf->pixels)
+#if defined(_3DS)
+         linearFree(surf->pixels);
+#else
+         free(surf->pixels);
+#endif
+      free(surf);
+   }
+   surf = NULL;
+
+   if (rotate_buf)
+#if defined(_3DS)
+      linearFree(rotate_buf);
+#else
+      free(rotate_buf);
+#endif
+   rotate_buf = NULL;
+
+   if (audio_samples_buf)
+      free(audio_samples_buf);
+   audio_samples_buf      = NULL;
+   audio_samples_buf_size = 0;
+
+   return false;
 }
 
 void retro_unload_game(void)
@@ -913,18 +1056,98 @@ void retro_unload_game(void)
    if (surf)
    {
       if (surf->pixels)
+#if defined(_3DS)
+         linearFree(surf->pixels);
+#else
          free(surf->pixels);
+#endif
       free(surf);
    }
    surf = NULL;
 
    if (rotate_buf)
+#if defined(_3DS)
+      linearFree(rotate_buf);
+#else
       free(rotate_buf);
+#endif
    rotate_buf = NULL;
+
+   if (audio_samples_buf)
+      free(audio_samples_buf);
+   audio_samples_buf      = NULL;
+   audio_samples_buf_size = 0;
+
+   retro_60hz_deinit();
 }
 
 static void update_input(void)
 {
+#ifdef WRC
+   input_buf = 0;
+   bool rot = rotate_tall;
+
+   /* Emulator internal buttons: 0..10 (MAX_BUTTONS = 11)
+      0: X cursor UP
+      1: X cursor RIGHT
+      2: X cursor DOWN
+      3: X cursor LEFT
+      4: Y cursor UP
+      5: Y cursor RIGHT
+      6: Y cursor DOWN
+      7: Y cursor LEFT
+      8: Start
+      9: A button
+      10: B button
+   */
+
+   /* Horizontal layout (rotate_tall = false) */
+   if (!rot)
+   {
+       if (wrc_input_state[0] & INP_UP)     input_buf |= 1 << 0;  // X UP → RA: RETRO_DEVICE_ID_JOYPAD_UP
+       if (wrc_input_state[0] & INP_RIGHT)  input_buf |= 1 << 1;  // X RIGHT → RA: RETRO_DEVICE_ID_JOYPAD_RIGHT
+       if (wrc_input_state[0] & INP_DOWN)   input_buf |= 1 << 2;  // X DOWN → RA: RETRO_DEVICE_ID_JOYPAD_DOWN
+       if (wrc_input_state[0] & INP_LEFT)   input_buf |= 1 << 3;  // X LEFT → RA: RETRO_DEVICE_ID_JOYPAD_LEFT
+
+       if (wrc_input_state[0] & INP_RTRIG)  input_buf |= 1 << 4;  // Y UP → RA: RETRO_DEVICE_ID_JOYPAD_R2
+       if (wrc_input_state[0] & INP_RBUMP)  input_buf |= 1 << 5;  // Y RIGHT → RA: RETRO_DEVICE_ID_JOYPAD_R
+       if (wrc_input_state[0] & INP_LTRIG)  input_buf |= 1 << 6;  // Y DOWN → RA: RETRO_DEVICE_ID_JOYPAD_L2
+       if (wrc_input_state[0] & INP_LBUMP)  input_buf |= 1 << 7;  // Y LEFT → RA: RETRO_DEVICE_ID_JOYPAD_L
+
+       if ((wrc_input_state[0] & INP_A) || (wrc_input_state[0] & INP_Y))
+           input_buf |= 1 << 10;            // B → RA: RETRO_DEVICE_ID_JOYPAD_B
+       if ((wrc_input_state[0] & INP_B) || (wrc_input_state[0] & INP_X))
+           input_buf |= 1 << 9;             // A → RA: RETRO_DEVICE_ID_JOYPAD_A
+
+       if (wrc_input_state[0] & INP_START)  input_buf |= 1 << 8;  // Start → RA: RETRO_DEVICE_ID_JOYPAD_START
+   }
+   /* Vertical layout (rotate_tall = true) */
+   else
+   {
+      float analogX = wrc_input_state_analog[0][2];
+      float analogY = wrc_input_state_analog[0][3];
+
+      bool isLeft = analogX > 0.1 ? (analogX < .3 ? true : false) : false;
+      bool isRight = analogX > 0.1 ? (analogX > .3 ? true : false) : false;
+      bool isUp = analogY > 0.1 ? (analogY < .3 ? true : false) : false;
+      bool isDown = analogY > 0.1 ? (analogY > .3 ? true : false) : false;
+
+       if (wrc_input_state[0] & INP_UP)     input_buf |= 1 << 5;  // X UP → RA: RETRO_DEVICE_ID_JOYPAD_R
+       if (wrc_input_state[0] & INP_RIGHT)  input_buf |= 1 << 6;  // X RIGHT → RA: RETRO_DEVICE_ID_JOYPAD_L2
+       if (wrc_input_state[0] & INP_DOWN)   input_buf |= 1 << 7;  // X DOWN → RA: RETRO_DEVICE_ID_JOYPAD_L
+       if (wrc_input_state[0] & INP_LEFT)   input_buf |= 1 << 4;  // X LEFT → RA: RETRO_DEVICE_ID_JOYPAD_R2
+
+       if (wrc_input_state[0] & INP_RBUMP)  input_buf |= 1 << 10; // B → RA: RETRO_DEVICE_ID_JOYPAD_B
+       if (wrc_input_state[0] & INP_LBUMP)  input_buf |= 1 << 9;  // A → RA: RETRO_DEVICE_ID_JOYPAD_A
+
+       if ((wrc_input_state[0] & INP_X) || isLeft)    input_buf |= 1 << 0;  // X → RA: RETRO_DEVICE_ID_JOYPAD_UP
+       if ((wrc_input_state[0] & INP_Y) || isUp)      input_buf |= 1 << 1;  // Y → RA: RETRO_DEVICE_ID_JOYPAD_RIGHT
+       if ((wrc_input_state[0] & INP_A) || isDown)    input_buf |= 1 << 3;  // A → RA: RETRO_DEVICE_ID_JOYPAD_LEFT
+       if ((wrc_input_state[0] & INP_B) || isRight)   input_buf |= 1 << 2;  // B → RA: RETRO_DEVICE_ID_JOYPAD_DOWN
+
+       if (wrc_input_state[0] & INP_START)  input_buf |= 1 << 8;  // Start → RA: RETRO_DEVICE_ID_JOYPAD_START
+   }
+#else
    static unsigned map[2][11] = {
       {
          RETRO_DEVICE_ID_JOYPAD_UP,    /* X Cursor horizontal-layout games */
@@ -988,6 +1211,7 @@ static void update_input(void)
 
    for (i = 0; i < MAX_BUTTONS; i++)
       input_buf |= map[joymap][i] != -1u && ((1 << map[joymap][i]) & bitmask) ? (1 << i) : 0;
+#endif
 
 #ifdef MSB_FIRST
    u.s = input_buf;
@@ -995,21 +1219,29 @@ static void update_input(void)
 #endif
 }
 
-static uint64_t video_frames, audio_frames;
-
 void retro_run(void)
 {
    int total;
    unsigned width, height;
-   static MDFN_Rect rects[FB_MAX_HEIGHT];
-   static int16_t sound_buf[0x10000];
    int32 SoundBufSize;
    EmulateSpecStruct spec;
    bool updated   = false;
    int skip_frame = 0;
+   int update_sample_rate;
 
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
       check_variables(false);
+   update_sample_rate = update_audio;
+
+#ifdef WRC
+   int rot = EM_ASM_INT({
+      return window.emulator.isRotated();
+   });
+   if (rot != rotate_tall) {
+      rotate_tall = rot;
+      rotate_display();
+   }
+#endif
 
    input_poll_cb();
 
@@ -1051,52 +1283,43 @@ void retro_run(void)
       update_audio_latency = false;
    }
 
-   rects[0].w = ~0;
-
-   spec.surface            = surf;
-   spec.VideoFormatChanged = update_video;
-   spec.DisplayRect.x      = 0;
-   spec.DisplayRect.y      = 0;
-   spec.DisplayRect.w      = 0;
-   spec.DisplayRect.h      = 0;
-   spec.LineWidths         = rects;
-   spec.skip               = skip_frame;
-   spec.SoundFormatChanged = update_audio;
-   spec.SoundBufMaxSize    = sizeof(sound_buf) >> 1;
-   spec.SoundBufSize       = 0;
-   spec.SoundBufSizeALMS   = 0;
-   spec.MasterCycles       = 0;
-   spec.MasterCyclesALMS   = 0;
-
-   if (update_video || update_audio)
+   if (retro_60hz_enabled)
    {
-      struct retro_system_av_info system_av_info;
+      /* If we are running in 60Hz mode, then:
+       * - Audio data must be buffered
+       * - On every 4th call of retro_run(), an
+       *   extra frame must be emulated */
 
-      if (update_video)
+      /* Emulate 'force skipped frame' */
+      if (retro_60hz_counter == 0)
       {
-         memset(&system_av_info, 0, sizeof(system_av_info));
-         environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &system_av_info);
+         Emulate(&spec, 1, update_sample_rate);
+         update_sample_rate = 0;
+         retro_60hz_cache_audio_samples(audio_samples_buf,
+               spec.SoundBufSize);
       }
 
+      /* Run 'regular' frame */
+      Emulate(&spec, skip_frame, update_sample_rate);
+      retro_60hz_cache_audio_samples(audio_samples_buf,
+            spec.SoundBufSize);
+
+      retro_60hz_counter++;
+   }
+   else
+      Emulate(&spec, skip_frame, update_sample_rate);
+
+   if (update_audio || update_video)
+   {
+      struct retro_system_av_info system_av_info;
       retro_get_system_av_info(&system_av_info);
       environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &system_av_info);
-
-      if (update_video)
-	     rotate_display();
-
-      surf->depth = RETRO_PIX_DEPTH;
-
-      update_video = false;
       update_audio = false;
+      update_video = false;
    }
 
-   Emulate(&spec, sound_buf);
-
-   SoundBufSize      = spec.SoundBufSize - spec.SoundBufSizeALMS;
-   spec.SoundBufSize = spec.SoundBufSizeALMS + SoundBufSize;
-
-   width             = spec.DisplayRect.w;
-   height            = spec.DisplayRect.h;
+   width  = spec.DisplayRect.w;
+   height = spec.DisplayRect.h;
 
    if (hw_rotate_enabled || !rotate_tall)
    {
@@ -1123,12 +1346,45 @@ void retro_run(void)
          video_cb(NULL, height, width, FB_HEIGHT * RETRO_PIX_BYTES);
    }
 
-   video_frames++;
-   audio_frames += spec.SoundBufSize;
+   if (retro_60hz_enabled)
+   {
+      /* If we are running in 60Hz mode, then
+       * read out the expected number of samples
+       * on each frame plus empty the buffer at
+       * the end of each 4/5 frame cycle */
+      int32_t frames_available = retro_60hz_audio.samples_buf_pos >> 1;
+      int32_t frames_to_read   = retro_60hz_audio.samples_per_frame;
+      int32_t samples_to_read;
 
-   for (total = 0; total < spec.SoundBufSize; )
-      total += audio_batch_cb(sound_buf + total*2,
-            spec.SoundBufSize - total);
+      frames_to_read = (frames_to_read > frames_available) ?
+            frames_available : frames_to_read;
+
+      if (retro_60hz_counter >= RETRO_60HZ_CYCLE_INDEX)
+      {
+         frames_to_read     = frames_available;
+         retro_60hz_counter = 0;
+      }
+      samples_to_read  = frames_to_read << 1;
+
+      for (total = 0; total < frames_to_read; )
+         total += audio_batch_cb(
+               retro_60hz_audio.samples_buf + (total << 1),
+               frames_to_read - total);
+
+      /* Remove uploaded samples from the buffer */
+      if (frames_to_read < frames_available)
+         memmove(retro_60hz_audio.samples_buf,
+               retro_60hz_audio.samples_buf + samples_to_read,
+               (retro_60hz_audio.samples_buf_pos - samples_to_read) *
+                     sizeof(int16_t));
+
+      retro_60hz_audio.samples_buf_pos -= samples_to_read;
+   }
+   else
+      for (total = 0; total < spec.SoundBufSize; )
+         total += audio_batch_cb(
+               audio_samples_buf + (total << 1),
+               spec.SoundBufSize - total);
 }
 
 void retro_get_system_info(struct retro_system_info *info)
@@ -1148,7 +1404,8 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 {
    memset(info, 0, sizeof(*info));
 
-   info->timing.fps               = MEDNAFEN_CORE_TIMING_FPS;
+   info->timing.fps               = retro_60hz_enabled ?
+         RETRO_60HZ_FPS : MEDNAFEN_CORE_TIMING_FPS;
    info->timing.sample_rate       = RETRO_SAMPLE_RATE;
 
    if (hw_rotate_enabled || !rotate_tall)
@@ -1172,8 +1429,6 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
       info->geometry.aspect_ratio = 1.0f / MEDNAFEN_CORE_GEOMETRY_ASPECT_RATIO;
    else
       info->geometry.aspect_ratio = MEDNAFEN_CORE_GEOMETRY_ASPECT_RATIO;
-
-   check_depth();
 }
 
 void retro_deinit(void)
@@ -1181,29 +1436,37 @@ void retro_deinit(void)
    if (surf)
    {
       if (surf->pixels)
+#if defined(_3DS)
+         linearFree(surf->pixels);
+#else
          free(surf->pixels);
+#endif
       free(surf);
    }
    surf = NULL;
 
    if (rotate_buf)
+#if defined(_3DS)
+      linearFree(rotate_buf);
+#else
       free(rotate_buf);
+#endif
    rotate_buf = NULL;
 
-   if (log_cb)
-   {
-      log_cb(RETRO_LOG_INFO, "[%s]: Samples / Frame: %.5f\n",
-            MEDNAFEN_CORE_NAME, (double)audio_frames / video_frames);
-      log_cb(RETRO_LOG_INFO, "[%s]: Estimated FPS: %.5f\n",
-            MEDNAFEN_CORE_NAME, (double)video_frames * 44100 / audio_frames);
-   }
+   if (audio_samples_buf)
+      free(audio_samples_buf);
+   audio_samples_buf      = NULL;
+   audio_samples_buf_size = 0;
+
+   retro_60hz_deinit();
+   retro_60hz_enabled = false;
 
    libretro_supports_bitmasks = false;
 }
 
 unsigned retro_get_region(void)
 {
-   return RETRO_REGION_NTSC; /* FIXME: Regions for other cores. */
+   return RETRO_REGION_NTSC; /* No real regions of sorts for this handheld, so just set to NTSC. */
 }
 
 unsigned retro_api_version(void)
@@ -1215,9 +1478,12 @@ void retro_set_controller_port_device(unsigned in_port, unsigned device) { }
 
 void retro_set_environment(retro_environment_t cb)
 {
+   bool option_cats_supported = false;
+
    environ_cb = cb;
 
-   libretro_set_core_options(environ_cb);
+   libretro_set_core_options(environ_cb,
+      &option_cats_supported);
 }
 
 void retro_set_audio_sample(retro_audio_sample_t cb)
@@ -1340,5 +1606,18 @@ size_t retro_get_memory_size(unsigned type)
 void retro_cheat_reset(void) { }
 void retro_cheat_set(unsigned a, bool b, const char *c) { }
 
-void MDFND_MidSync(const EmulateSpecStruct *a) { }
-void MDFN_MidLineUpdate(EmulateSpecStruct *espec, int y) { }
+#ifdef WRC
+void em_cmd_savefiles() {}
+void wrc_on_set_options(int opts) {}
+void wrc_on_key(int key, int down) {};
+void wrc_step() {}
+void wrc_save_state(char* file) {}
+void wrc_load_state(char* file) {}
+int wrc_start(char* arg) {}
+
+const chd_header *chd_get_header(chd_file *chd) { return 0; }
+chd_error chd_get_metadata(chd_file *chd, UINT32 searchtag, UINT32 searchindex, void *output, UINT32 outputlen, UINT32 *resultlen, UINT32 *resulttag, UINT8 *resultflags) { return CHDERR_UNSUPPORTED_FORMAT; }
+chd_error chd_open(const char *filename, int mode, chd_file *parent, chd_file **chd) { return CHDERR_UNSUPPORTED_FORMAT; }
+void chd_close(chd_file *chd) {}
+chd_error chd_read(chd_file *chd, UINT32 hunknum, void *buffer) { return CHDERR_UNSUPPORTED_FORMAT; }
+#endif

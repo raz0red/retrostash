@@ -15,15 +15,20 @@ unixcygpath = /$(subst :,,$(call unixpath,$1))
 # system platform
 ifeq ($(platform),)
    platform = unix
-   ifeq ($(shell uname -a),)
+   ifeq ($(shell uname -s),)
       EXE_EXT = .exe
       platform = win
-   else ifneq ($(findstring MINGW,$(shell uname -a)),)
-      platform = win
-   else ifneq ($(findstring win,$(shell uname -a)),)
-      platform = win
-   else ifneq ($(findstring Darwin,$(shell uname -a)),)
+   else ifneq ($(findstring Darwin,$(shell uname -s)),)
       platform = osx
+      arch = intel
+      ifeq ($(shell uname -p),arm64)
+         arch = arm
+      endif
+      ifeq ($(shell uname -p),powerpc)
+         arch = ppc
+      endif
+   else ifneq ($(findstring MINGW,$(shell uname -s)),)
+      platform = win
    endif
 else ifneq (,$(findstring armv,$(platform)))
    ifeq (,$(findstring classic_,$(platform)))
@@ -32,13 +37,6 @@ else ifneq (,$(findstring armv,$(platform)))
 else ifneq (,$(findstring rpi,$(platform)))
    override platform += unix
 endif
-
-ifeq ($(shell uname -p),powerpc)
-   arch = ppc
-else
-   arch = intel
-endif
-
 
 NEED_BPP = 16
 NEED_BLIP = 1
@@ -80,9 +78,9 @@ ifneq (,$(findstring unix,$(platform)))
          FLAGS += -mcpu=cortex-a72 -mtune=cortex-a72
       endif
    endif
-   
+
 # (armv8 a35, hard point, neon based) ###
-# PlayStation Classic 
+# PlayStation Classic
 else ifeq ($(platform), classic_armv8_a35)
 	TARGET := $(TARGET_NAME)_libretro.so
 	fpic := -fPIC
@@ -111,12 +109,18 @@ else ifeq ($(platform), osx)
    endif
    OSXVER = `sw_vers -productVersion | cut -d. -f 2`
    OSX_LT_MAVERICKS = `(( $(OSXVER) <= 9)) && echo "YES"`
+   MINVERSION += -mmacosx-version-min=10.7
 ifeq ($(OSX_LT_MAVERICKS),"YES")
-   fpic += -mmacosx-version-min=10.1
 else
-   fpic += -mmacosx-version-min=10.7 -stdlib=libc++
+   fpic += -stdlib=libc++
 endif
-
+   ifeq ($(CROSS_COMPILE),1)
+	TARGET_RULE = -target $(LIBRETRO_APPLE_PLATFORM) -isysroot $(LIBRETRO_APPLE_ISYSROOT)
+	CFLAGS      += $(TARGET_RULE)
+	CXXFLAGS    += $(TARGET_RULE)
+	LDFLAGS     += $(TARGET_RULE)
+   endif
+   	fpic += $(MINVERSION)
 # iOS
 else ifneq (,$(findstring ios,$(platform)))
    TARGET := $(TARGET_NAME)_libretro_ios.dylib
@@ -152,6 +156,11 @@ ifeq ($(IOSSDK),)
 endif
    CC = cc -arch arm64 -isysroot $(IOSSDK)
    CXX = c++ -arch arm64 -isysroot $(IOSSDK)
+   MINVER = -mappletvos-version-min=11.0
+   LDFLAGS += $(MINVER)
+   FLAGS += $(MINVER)
+   CC += $(MINVER)
+   CXX += $(MINVER)
 
 # QNX
 else ifeq ($(platform), qnx)
@@ -163,37 +172,29 @@ else ifeq ($(platform), qnx)
    AR = QCC -Vgcc_ntoarmv7le
    FLAGS += -D__BLACKBERRY_QNX__ -marm -mcpu=cortex-a9 -mfpu=neon -mfloat-abi=softfp
 
-# PS3
-else ifneq (,$(filter $(platform), ps3 sncps3 psl1ght))
+# Lightweight PS3 Homebrew SDK
+else ifneq (,$(filter $(platform), ps3 psl1ght))
    TARGET := $(TARGET_NAME)_libretro_$(platform).a
    ENDIANNESS_DEFINES := -DMSB_FIRST
    STATIC_LINKING = 1
-
-   # sncps3
-   ifneq (,$(findstring sncps3,$(platform)))
-      TARGET := $(TARGET_NAME)_libretro_ps3.a
-      CC = $(CELL_SDK)/host-win32/sn/bin/ps3ppusnc.exe
-      CXX = $(CC)
-      AR = $(CELL_SDK)/host-win32/sn/bin/ps3snarl.exe
-      OLD_GCC := 1
-      NO_GCC := 1
-      CXXFLAGS += -Xc+=exceptions
-      FLAGS += -DARCH_POWERPC_ALTIVEC
-
-   # PS3
-   else ifneq (,$(findstring ps3,$(platform)))
-      CC = $(CELL_SDK)/host-win32/ppu/bin/ppu-lv2-gcc.exe
-      CXX = $(CELL_SDK)/host-win32/ppu/bin/ppu-lv2-g++.exe
-      AR = $(CELL_SDK)/host-win32/ppu/bin/ppu-lv2-ar.exe
-      OLD_GCC := 1
-      FLAGS += -DARCH_POWERPC_ALTIVEC
-
-   # Lightweight PS3 Homebrew SDK
-   else ifneq (,$(findstring psl1ght,$(platform)))
-      CC = $(PS3DEV)/ppu/bin/ppu-gcc$(EXE_EXT)
-      CXX = $(PS3DEV)/ppu/bin/ppu-g++$(EXE_EXT)
-      AR = $(PS3DEV)/ppu/bin/ppu-ar$(EXE_EXT)
+   CC = $(PS3DEV)/ppu/bin/ppu-$(COMMONLV)gcc$(EXE_EXT)
+   CXX = $(PS3DEV)/ppu/bin/ppu-$(COMMONLV)g++$(EXE_EXT)
+   AR = $(PS3DEV)/ppu/bin/ppu-$(COMMONLV)ar$(EXE_EXT)
+   ifeq ($(platform), psl1ght)
+		FLAGS += -D__PSL1GHT__
    endif
+   OLD_GCC := 1
+   FLAGS += -D__PS3__ -DARCH_POWERPC_ALTIVEC
+
+# PS2
+else ifeq ($(platform), ps2)
+   TARGET := $(TARGET_NAME)_libretro_$(platform).a
+   CC =  mips64r5900el-ps2-elf-gcc$(EXE_EXT)
+   CXX =  mips64r5900el-ps2-elf-g++$(EXE_EXT)
+   AR =  mips64r5900el-ps2-elf-ar$(EXE_EXT)
+   FLAGS += -DPS2 -G0 -DABGR1555
+   STATIC_LINKING = 1
+   OLD_GCC = 1
 
 # PSP
 else ifeq ($(platform), psp1)
@@ -244,13 +245,12 @@ else ifneq (,$(filter $(platform), ngc wii wiiu))
    CXX = $(DEVKITPPC)/bin/powerpc-eabi-g++$(EXE_EXT)
    AR = $(DEVKITPPC)/bin/powerpc-eabi-ar$(EXE_EXT)
    ENDIANNESS_DEFINES += -DGEKKO -mcpu=750 -meabi -mhard-float -DMSB_FIRST
-   FLAGS += -U__INT32_TYPE__ -U __UINT32_TYPE__ -D__INT32_TYPE__=int
    EXTRA_INCLUDES := -I$(DEVKITPRO)/libogc/include
    STATIC_LINKING = 1
 
    # Nintendo WiiU
    ifneq (,$(findstring wiiu,$(platform)))
-      ENDIANNESS_DEFINES += -DWIIU -DHW_RVL -mwup
+      ENDIANNESS_DEFINES += -DWIIU -DHW_RVL -ffunction-sections -fdata-sections -D__wiiu__ -D__wut__
 
    # Nintendo Wii
    else ifneq (,$(findstring wii,$(platform)))
@@ -279,9 +279,9 @@ include $(DEVKITPRO)/libnx/switch_rules
 # Classic Platforms ####################
 # Platform affix = classic_<ISA>_<µARCH>
 # Help at https://modmyclassic.com/comp
-	
-# (armv7 a7, hard point, neon based) ### 
-# NESC, SNESC, C64 mini 
+
+# (armv7 a7, hard point, neon based) ###
+# NESC, SNESC, C64 mini
 else ifeq ($(platform), classic_armv7_a7)
       TARGET := $(TARGET_NAME)_libretro.so
       fpic := -fPIC
@@ -312,6 +312,9 @@ else ifeq ($(platform), classic_armv7_a7)
 else ifeq ($(platform), emscripten)
    TARGET := $(TARGET_NAME)_libretro_$(platform).bc
    STATIC_LINKING = 1
+   # WRC
+   CFLAGS   += -DWRC -DWRC_INPUT
+   CXXFLAGS += -DWRC -DWRC_INPUT
 
 #GCW 0
 else ifeq ($(platform), gcw0)
@@ -420,9 +423,8 @@ else ifneq (,$(findstring windows_msvc2017,$(platform)))
 	export INCLUDE := $(INCLUDE);$(WindowsSDKSharedIncludeDir);$(WindowsSDKUCRTIncludeDir);$(WindowsSDKUMIncludeDir)
 	export LIB := $(LIB);$(WindowsSDKUCRTLibDir);$(WindowsSDKUMLibDir)
 	TARGET := $(TARGET_NAME)_libretro.dll
-	PSS_STYLE :=2
 	LDFLAGS += -DLL
-      
+
 # Windows MSVC 2010 x64
 else ifeq ($(platform), windows_msvc2010_x64)
 	CC  = cl.exe
@@ -507,7 +509,6 @@ LD   = lib.exe
 export INCLUDE := $(XDK)/xbox/include
 export LIB := $(XDK)/xbox/lib
 PATH := $(call unixcygpath,$(XDK)/xbox/bin/vc71):$(PATH)
-PSS_STYLE :=2
 CFLAGS   += -D_XBOX -D_XBOX1
 CXXFLAGS += -D_XBOX -D_XBOX1
 STATIC_LINKING=1
@@ -528,7 +529,6 @@ WindowsSdkDir := $(INETSDK)
 export INCLUDE := $(INCLUDE);$(INETSDK)/Include;libretro-common/include/compat/msvc
 export LIB := $(LIB);$(WindowsSdkDir);$(INETSDK)/Lib
 TARGET := $(TARGET_NAME)_libretro.dll
-PSS_STYLE :=2
 LDFLAGS += -DLL
 CFLAGS += -D_CRT_SECURE_NO_DEPRECATE
 WINDOWS_VERSION=1
@@ -569,7 +569,7 @@ all: $(TARGET)
 ifeq ($(DEBUG),1)
    FLAGS += -O0 -g
 else
-   FLAGS += -O3 -DNDEBUG $(EXTRA_GCC_FLAGS)
+   FLAGS += -O2 -DNDEBUG $(EXTRA_GCC_FLAGS)
 endif
 
 ifneq (,$(findstring msvc,$(platform)))
@@ -586,7 +586,7 @@ LDFLAGS += $(fpic) $(SHARED)
 FLAGS += $(fpic) $(NEW_GCC_FLAGS)
 FLAGS += $(INCFLAGS) $(INCFLAGS_PLATFORM)
 
-FLAGS += $(ENDIANNESS_DEFINES) -DSIZEOF_DOUBLE=8 $(WARNINGS) -DMEDNAFEN_VERSION=\"0.9.31\" -DPACKAGE=\"mednafen\" -DMEDNAFEN_VERSION_NUMERIC=931 -DPSS_STYLE=1 -DMPC_FIXED_POINT -DSTDC_HEADERS -D__STDC_LIMIT_MACROS -D__LIBRETRO__ -D_LOW_ACCURACY_ $(EXTRA_INCLUDES)
+FLAGS += $(ENDIANNESS_DEFINES) -DSIZEOF_DOUBLE=8 $(WARNINGS) -DMEDNAFEN_VERSION_NUMERIC=931 -DMPC_FIXED_POINT -DSTDC_HEADERS -D__STDC_LIMIT_MACROS -D__LIBRETRO__ -D_LOW_ACCURACY_ $(EXTRA_INCLUDES)
 
 ifneq (,$(findstring msvc,$(platform)))
 FLAGS += -DINLINE="_inline"
@@ -597,8 +597,8 @@ endif
 CXXFLAGS += $(FLAGS)
 CFLAGS += $(FLAGS)
 
-OBJOUT   = -o 
-LINKOUT  = -o 
+OBJOUT   = -o
+LINKOUT  = -o
 
 ifneq (,$(findstring msvc,$(platform)))
 	OBJOUT = -Fo
@@ -614,9 +614,7 @@ else
 endif
 
 $(TARGET): $(OBJECTS)
-ifeq ($(platform), emscripten)
-	$(CXX) $(CXXFLAGS) $(OBJOUT)$@ $^
-else ifeq ($(STATIC_LINKING), 1)
+ifeq ($(STATIC_LINKING), 1)
 	$(AR) rcs $@ $(OBJECTS)
 else
 	$(LD) $(LINKOUT)$@ $^ $(LDFLAGS) $(LIBS)

@@ -6,15 +6,20 @@ CORE_DIR := .
 # system platform
 ifeq ($(platform),)
    platform = unix
-   ifeq ($(shell uname -a),)
+   ifeq ($(shell uname -s),)
       EXE_EXT = .exe
       platform = win
+   else ifneq ($(findstring Darwin,$(shell uname -s)),)
+      platform = osx
+      arch = intel
+      ifeq ($(shell uname -p),arm64)
+	arch = arm
+      endif
+      ifeq ($(shell uname -p),powerpc)
+	arch = ppc
+      endif
    else ifneq ($(findstring MINGW,$(shell uname -a)),)
       platform = win
-   else ifneq ($(findstring win,$(shell uname -a)),)
-      platform = win
-   else ifneq ($(findstring Darwin,$(shell uname -a)),)
-      platform = osx
    endif
 else ifneq (,$(findstring armv,$(platform)))
    ifeq (,$(findstring classic_,$(platform)))
@@ -23,13 +28,6 @@ else ifneq (,$(findstring armv,$(platform)))
 else ifneq (,$(findstring rpi,$(platform)))
    override platform += unix
 endif
-
-ifeq ($(shell uname -p),powerpc)
-   arch = ppc
-else
-   arch = intel
-endif
-
 
 NEED_BPP = 32
 NEED_BLIP = 1
@@ -84,8 +82,8 @@ ifneq (,$(findstring unix,$(platform)))
 # Platform affix = classic_<ISA>_<µARCH>
 # Help at https://modmyclassic.com/comp
 
-# (armv7 a7, hard point, neon based) ### 
-# NESC, SNESC, C64 mini 
+# (armv7 a7, hard point, neon based) ###
+# NESC, SNESC, C64 mini
 else ifeq ($(platform), classic_armv7_a7)
 	TARGET := $(TARGET_NAME)_libretro.so
 	fpic := -fPIC
@@ -100,7 +98,7 @@ else ifeq ($(platform), classic_armv7_a7)
 	-marm -mtune=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard
 	HAVE_NEON = 1
 	ARCH = arm
-	LDFLAGS += -marm -mtune=cortex-a7 -mfpu=neon-vfpv4            
+	LDFLAGS += -marm -mtune=cortex-a7 -mfpu=neon-vfpv4
 	ifeq ($(shell echo `$(CC) -dumpversion` "< 4.9" | bc -l), 1)
 	  CFLAGS += -march=armv7-a
 	else
@@ -113,7 +111,7 @@ else ifeq ($(platform), classic_armv7_a7)
 #######################################
 
 # (armv8 a35, hard point, neon based) ###
-# PlayStation Classic 
+# PlayStation Classic
 else ifeq ($(platform), classic_armv8_a35)
 	TARGET := $(TARGET_NAME)_libretro.so
 	fpic := -fPIC
@@ -195,6 +193,13 @@ else ifeq ($(platform), tvos-arm64)
 ifeq ($(IOSSDK),)
    IOSSDK := $(shell xcodebuild -version -sdk appletvos Path)
 endif
+   CC = clang -arch arm64 -isysroot $(IOSSDK)
+   CXX = clang++ -arch arm64 -isysroot $(IOSSDK)
+   MINVER = -mappletvos-version-min=11.0
+   LDFLAGS += $(MINVER)
+   FLAGS += $(MINVER)
+   CC += $(MINVER)
+   CXX += $(MINVER)
 
 # QNX
 else ifeq ($(platform), qnx)
@@ -206,18 +211,18 @@ else ifeq ($(platform), qnx)
    AR = QCC -Vgcc_ntoarmv7le
    FLAGS += -D__BLACKBERRY_QNX__ -marm -mcpu=cortex-a9 -mfpu=neon -mfloat-abi=softfp
 
-# PS3
-else ifneq (,$(filter $(platform), psl1ght))
+# Lightweight PS3 Homebrew SDK
+else ifneq (,$(filter $(platform), ps3 psl1ght))
    TARGET := $(TARGET_NAME)_libretro_$(platform).a
    ENDIANNESS_DEFINES := -DMSB_FIRST
    STATIC_LINKING = 1
-
-   # Lightweight PS3 Homebrew SDK
-   ifneq (,$(findstring psl1ght,$(platform)))
-      CC = $(PS3DEV)/ppu/bin/ppu-gcc$(EXE_EXT)
-      CXX = $(PS3DEV)/ppu/bin/ppu-g++$(EXE_EXT)
-      AR = $(PS3DEV)/ppu/bin/ppu-ar$(EXE_EXT)
+   CC = $(PS3DEV)/ppu/bin/ppu-$(COMMONLV)gcc$(EXE_EXT)
+   CXX = $(PS3DEV)/ppu/bin/ppu-$(COMMONLV)g++$(EXE_EXT)
+   AR = $(PS3DEV)/ppu/bin/ppu-$(COMMONLV)ar$(EXE_EXT)
+   ifeq ($(platform), psl1ght)
+		FLAGS += -D__PSL1GHT__
    endif
+   FLAGS += -D__PS3__
 
 # PSP
 else ifeq ($(platform), psp1)
@@ -288,13 +293,12 @@ else ifneq (,$(filter $(platform), ngc wii wiiu))
    CXX = $(DEVKITPPC)/bin/powerpc-eabi-g++$(EXE_EXT)
    AR = $(DEVKITPPC)/bin/powerpc-eabi-ar$(EXE_EXT)
    ENDIANNESS_DEFINES += -DGEKKO -mcpu=750 -meabi -mhard-float -DMSB_FIRST
-   FLAGS += -U__INT32_TYPE__ -U __UINT32_TYPE__ -D__INT32_TYPE__=int
    EXTRA_INCLUDES := -I$(DEVKITPRO)/libogc/include
    STATIC_LINKING = 1
 
    # Nintendo WiiU
    ifneq (,$(findstring wiiu,$(platform)))
-      ENDIANNESS_DEFINES += -DWIIU -DHW_RVL -mwup
+      ENDIANNESS_DEFINES += -DWIIU -DHW_RVL -ffunction-sections -fdata-sections -D__wiiu__ -D__wut__
 
    # Nintendo Wii
    else ifneq (,$(findstring wii,$(platform)))
@@ -309,6 +313,9 @@ else ifneq (,$(filter $(platform), ngc wii wiiu))
 else ifeq ($(platform), emscripten)
    TARGET := $(TARGET_NAME)_libretro_$(platform).bc
    STATIC_LINKING = 1
+   # WRC
+   CFLAGS   += -DWRC -DWRC_INPUT
+   CXXFLAGS += -DWRC -DWRC_INPUT
 
 # GCW0
 else ifeq ($(platform), gcw0)
@@ -516,7 +523,7 @@ else ifneq (,$(findstring windows_msvc2017,$(platform)))
 	ifneq (,$(findstring uwp,$(PlatformSuffix)))
 		LIB := $(LIB)/store;$(LIB)
 	endif
-    
+
 	export INCLUDE := $(INCLUDE);$(WindowsSDKSharedIncludeDir);$(WindowsSDKUCRTIncludeDir);$(WindowsSDKUMIncludeDir)
 	export LIB := $(LIB);$(WindowsSDKUCRTLibDir);$(WindowsSDKUMLibDir)
 	TARGET := $(TARGET_NAME)_libretro.dll
@@ -537,6 +544,7 @@ ifneq (,$(findstring msvc,$(platform)))
 WARNINGS :=
 else
 WARNINGS := -Wall \
+	-Wno-missing-braces \
 	-Wno-sign-compare \
 	-Wno-unused-variable \
 	-Wno-unused-function \
@@ -558,7 +566,7 @@ all: $(TARGET)
 ifeq ($(DEBUG),1)
    FLAGS += -O0 -g
 else
-   FLAGS += -O3 -DNDEBUG $(EXTRA_GCC_FLAGS)
+   FLAGS += -O2 -DNDEBUG $(EXTRA_GCC_FLAGS)
 endif
 
 ifneq (,$(findstring msvc,$(platform)))
@@ -574,7 +582,7 @@ LDFLAGS += $(fpic) $(SHARED)
 FLAGS   += $(fpic) $(NEW_GCC_FLAGS)
 FLAGS   += $(INCFLAGS) $(INCFLAGS_PLATFORM)
 
-FLAGS += $(ENDIANNESS_DEFINES) -DSIZEOF_DOUBLE=8 $(WARNINGS) -DMEDNAFEN_VERSION=\"0.9.31\" -DPACKAGE=\"mednafen\" -DMEDNAFEN_VERSION_NUMERIC=931 -DSTDC_HEADERS -D__STDC_LIMIT_MACROS -D__LIBRETRO__ $(EXTRA_INCLUDES)
+FLAGS += $(ENDIANNESS_DEFINES) $(WARNINGS) -DMEDNAFEN_VERSION=\"0.9.31\" -DMEDNAFEN_VERSION_NUMERIC=931 -DSTDC_HEADERS -D__STDC_LIMIT_MACROS -D__LIBRETRO__ $(EXTRA_INCLUDES)
 
 ifneq (,$(findstring msvc,$(platform)))
 FLAGS += -DINLINE="_inline"
@@ -585,8 +593,8 @@ endif
 CXXFLAGS += $(FLAGS)
 CFLAGS += $(FLAGS)
 
-OBJOUT   = -o 
-LINKOUT  = -o 
+OBJOUT   = -o
+LINKOUT  = -o
 
 ifneq (,$(findstring msvc,$(platform)))
 	OBJOUT = -Fo
@@ -597,9 +605,7 @@ else
 endif
 
 $(TARGET): $(OBJECTS)
-ifeq ($(platform), emscripten)
-	$(CXX) $(CXXFLAGS) $(OBJOUT)$@ $^
-else ifeq ($(STATIC_LINKING), 1)
+ifeq ($(STATIC_LINKING), 1)
 	$(AR) rcs $@ $(OBJECTS)
 else
 	$(LD) $(LINKOUT)$@ $^ $(LDFLAGS)

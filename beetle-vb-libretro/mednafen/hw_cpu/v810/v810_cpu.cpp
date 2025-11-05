@@ -43,7 +43,6 @@ found freely through public domain sources.
  */
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <algorithm>
 
 #include <boolean.h>
@@ -57,11 +56,6 @@ found freely through public domain sources.
 
 V810::V810()
 {
-#ifdef WANT_DEBUGGER
-   CPUHook    = NULL;
-   ADDBT      = NULL;
-#endif
-
    MemRead8   = NULL;
    MemRead16  = NULL;
    MemRead32  = NULL;
@@ -237,21 +231,9 @@ INLINE uint32 V810::RDCACHE(v810_timestamp_t &timestamp, uint32 addr)
          timestamp++;
          Cache[CI].data[SBI] = MemRead16(timestamp, addr & ~0x3) | ((MemRead16(timestamp, (addr & ~0x3) | 0x2) << 16));
       }
-#if 0
-      Cache[CI].data[SBI] = MemRead32(timestamp, addr & ~0x3);
-#endif
       Cache[CI].data_valid[SBI] = true;
       Cache[CI].data_valid[SBI ^ 1] = false;
    }
-
-#if 0
-   {
-      /* Caution: This can mess up DRAM page change penalty timings */
-      uint32 dummy_timestamp = 0;
-      if(Cache[CI].data[SBI] != mem_rword(addr & ~0x3, dummy_timestamp))
-         printf("Cache/Real Memory Mismatch: %08x %08x/%08x\n", addr & ~0x3, Cache[CI].data[SBI], mem_rword(addr & ~0x3, dummy_timestamp));
-   }
-#endif
 
    return Cache[CI].data[SBI];
 }
@@ -278,10 +260,6 @@ INLINE uint16 V810::RDOP(v810_timestamp_t &timestamp, uint32 addr, uint32 meow)
 /* Reinitialize the defaults in the CPU */
 void V810::Reset() 
 {
-#ifdef WANT_DEBUGGER
-   if(ADDBT)
-      ADDBT(GetPC(), 0xFFFFFFF0, 0xFFF0);
-#endif
    memset(&Cache, 0, sizeof(Cache));
 
    memset(P_REG, 0, sizeof(P_REG));
@@ -424,49 +402,6 @@ INLINE void V810::SetSZ(uint32 value)
    SetFlag(PSW_S, value & 0x80000000);
 }
 
-#ifdef WANT_DEBUGGER
-void V810::CheckBreakpoints(void (*callback)(int type, uint32 address, uint32 value, unsigned int len), uint16 MDFN_FASTCALL (*peek16)(const v810_timestamp_t, uint32), uint32 MDFN_FASTCALL (*peek32)(const v810_timestamp_t, uint32))
-{
-   int32 ws_dummy      = v810_timestamp;
-   uint32 tmp_PC       = GetPC();
-
-   uint16 tmpop        = peek16(ws_dummy, tmp_PC);
-   uint16 tmpop_high   = peek16(ws_dummy, tmp_PC + 2);
-
-   unsigned int opcode = tmpop >> 10;
-
-   /* Uncomment this out later if necessary. */
-#if 0
-   if((tmpop & 0xE000) == 0x8000)        /* Special opcode format for */
-      opcode = (tmpop >> 9) & 0x7F;       * type III instructions.    */
-#endif
-
-   switch(opcode)
-   {
-      case CAXI: break;
-
-      default: break;
-
-      case LD_B: callback(BPOINT_READ, (sign_16(tmpop_high)+P_REG[tmpop & 0x1F])&0xFFFFFFFF, 0, 1); break;
-      case LD_H: callback(BPOINT_READ, (sign_16(tmpop_high)+P_REG[tmpop & 0x1F])&0xFFFFFFFE, 0, 2); break;
-      case LD_W: callback(BPOINT_READ, (sign_16(tmpop_high)+P_REG[tmpop & 0x1F])&0xFFFFFFFC, 0, 4); break;
-
-      case ST_B: callback(BPOINT_WRITE, (sign_16(tmpop_high)+P_REG[tmpop & 0x1F])&0xFFFFFFFF, P_REG[(tmpop >> 5) & 0x1F] & 0x00FF, 1); break;
-      case ST_H: callback(BPOINT_WRITE, (sign_16(tmpop_high)+P_REG[tmpop & 0x1F])&0xFFFFFFFE, P_REG[(tmpop >> 5) & 0x1F] & 0xFFFF, 2); break;
-      case ST_W: callback(BPOINT_WRITE, (sign_16(tmpop_high)+P_REG[tmpop & 0x1F])&0xFFFFFFFC, P_REG[(tmpop >> 5) & 0x1F], 4); break;
-
-      case IN_B: callback(BPOINT_IO_READ, (sign_16(tmpop_high)+P_REG[tmpop & 0x1F])&0xFFFFFFFF, 0, 1); break;
-      case IN_H: callback(BPOINT_IO_READ, (sign_16(tmpop_high)+P_REG[tmpop & 0x1F])&0xFFFFFFFE, 0, 2); break;
-      case IN_W: callback(BPOINT_IO_READ, (sign_16(tmpop_high)+P_REG[tmpop & 0x1F])&0xFFFFFFFC, 0, 4); break;
-
-      case OUT_B: callback(BPOINT_IO_WRITE, (sign_16(tmpop_high)+P_REG[tmpop & 0x1F])&0xFFFFFFFF, P_REG[(tmpop >> 5) & 0x1F] & 0xFF, 1); break; 
-      case OUT_H: callback(BPOINT_IO_WRITE, (sign_16(tmpop_high)+P_REG[tmpop & 0x1F])&0xFFFFFFFE, P_REG[(tmpop >> 5) & 0x1F] & 0xFFFF, 2); break;
-      case OUT_W: callback(BPOINT_IO_WRITE, (sign_16(tmpop_high)+P_REG[tmpop & 0x1F])&0xFFFFFFFC, P_REG[(tmpop >> 5) & 0x1F], 4); break;
-   }
-
-}
-#endif
-
 #define SetPREG(n, val) { P_REG[n] = val; }
 
 INLINE void V810::SetSREG(v810_timestamp_t &timestamp, unsigned int which, uint32 value)
@@ -574,32 +509,6 @@ void V810::Run_Accurate(int32 MDFN_FASTCALL (*event_handler)(const v810_timestam
  #undef RB_ADDBT
 }
 
-#ifdef WANT_DEBUGGER
-
-/* Make sure class member variable v810_timestamp is synchronized to our local copy, since we'll read it externally if a system
-   reset/power occurs when in step mode or similar.
-*/
-#define RB_CPUHOOK_DBG(n) { if(CPUHook) { v810_timestamp = timestamp_rl; CPUHook(timestamp_rl, n); } }
-
-void V810::Run_Accurate_Debug(int32 MDFN_FASTCALL (*event_handler)(const v810_timestamp_t timestamp))
-{
- const bool RB_AccurateMode = true;
-
- #define RB_ADDBT(n,o,p) { if(ADDBT) ADDBT(n,o,p); }
- /* Make sure class member variable v810_timestamp is synchronized to our local copy, since we'll read it externally if a system
-    reset/power occurs when in step mode or similar.
- */
- #define RB_CPUHOOK(n) RB_CPUHOOK_DBG(n)
- #define RB_DEBUGMODE
-
- #include "v810_oploop.inc"
-
- #undef RB_DEBUGMODE
- #undef RB_CPUHOOK
- #undef RB_ADDBT
-}
-#endif
-
 /*
  * Undefine accurate mode defines
  */
@@ -632,23 +541,6 @@ void V810::Run_Fast(int32 MDFN_FASTCALL (*event_handler)(const v810_timestamp_t 
  #undef RB_ADDBT
 }
 
-#ifdef WANT_DEBUGGER
-void V810::Run_Fast_Debug(int32 MDFN_FASTCALL (*event_handler)(const v810_timestamp_t timestamp))
-{
- const bool RB_AccurateMode = false;
-
- #define RB_ADDBT(n,o,p) { if(ADDBT) ADDBT(n,o,p); }
- #define RB_CPUHOOK(n) RB_CPUHOOK_DBG(n)
- #define RB_DEBUGMODE
-
- #include "v810_oploop.inc"
-
- #undef RB_DEBUGMODE
- #undef RB_CPUHOOK
- #undef RB_ADDBT
-}
-#endif
-
 /*
  * Undefine fast mode defines
  */
@@ -659,16 +551,6 @@ v810_timestamp_t V810::Run(int32 MDFN_FASTCALL (*event_handler)(const v810_times
 {
    Running = true;
 
-#ifdef WANT_DEBUGGER
-   if(CPUHook || ADDBT)
-   {
-      if(EmuMode == V810_EMU_MODE_FAST)
-         Run_Fast_Debug(event_handler);
-      else
-         Run_Accurate_Debug(event_handler);
-   }
-   else
-#endif
    {
       if(EmuMode == V810_EMU_MODE_FAST)
          Run_Fast(event_handler);
@@ -682,14 +564,6 @@ void V810::Exit(void)
 {
    Running = false;
 }
-
-#ifdef WANT_DEBUGGER
-void V810::SetCPUHook(void (*newhook)(const v810_timestamp_t timestamp, uint32 PC), void (*new_ADDBT)(uint32 old_PC, uint32 new_PC, uint32))
-{
-   CPUHook = newhook;
-   ADDBT = new_ADDBT;
-}
-#endif
 
 uint32 V810::GetPC(void)
 {
@@ -725,13 +599,6 @@ void V810::SetPR(const unsigned int which, uint32 value)
 uint32 V810::GetSR(const unsigned int which)
 {
    return GetSREG(which);
-}
-
-void V810::SetSR(const unsigned int which, uint32 value)
-{
-#if 0
-   SetSREG(timestamp, which, value);
-#endif
 }
 
 #define BSTR_OP_MOV dst_cache &= ~(1 << dstoff); dst_cache |= ((src_cache >> srcoff) & 1) << dstoff;
@@ -890,10 +757,6 @@ bool V810::bstr_subop(v810_timestamp_t &timestamp, int sub_op, int arg1)
 
       return(false);
    }
-
-#if 0
-   printf("BSTR: %02x, %02x %02x; src: %08x, dst: %08x, len: %08x\n", sub_op, P_REG[27], P_REG[26], P_REG[30], P_REG[29], P_REG[28]);
-#endif
 
    if(sub_op & 0x08)
    {
@@ -1060,10 +923,6 @@ INLINE void V810::FPU_Math_Template(float32 (*func)(float32, float32), uint32 ar
          float_exception_flags |= float_flag_underflow;
          float_exception_flags |= float_flag_inexact;
       }
-
-#if 0
-      printf("Result: %08x, %02x; %02x\n", result, (result >> 23) & 0xFF, float_exception_flags);
-#endif
 
       if(!FPU_DoesExceptionKillResult())
       {
@@ -1253,19 +1112,6 @@ void V810::Exception(uint32 handler, uint16 eCode)
 {
    /* Exception overhead is unknown. */
 
-#ifdef WANT_DEBUGGER
-   if(ADDBT)
-   {
-      uint32 old_PC = GetPC();
-
-      if((eCode & 0xFFE0) == 0xFFA0) /* Trap instruction(PC is pointing to next
-                                        instruction at this point) */
-         old_PC -= 2;
-
-      ADDBT(old_PC, handler, eCode);
-   }
-#endif
-
    /* Invalidate our bitstring state(forces the instruction to be re-read, and
     * the r/w buffers reloaded). */
    in_bstr        = false;
@@ -1306,15 +1152,17 @@ void V810::Exception(uint32 handler, uint16 eCode)
 
 int V810::StateAction(StateMem *sm, int load, int data_only)
 {
-   uint32 *cache_tag_temp = NULL;
-   uint32 *cache_data_temp = NULL;
+   int ret;
+   int32 next_event_ts_delta;
+   uint32 *cache_tag_temp      = NULL;
+   uint32 *cache_data_temp     = NULL;
    bool *cache_data_valid_temp = NULL;
-   uint32 PC_tmp = GetPC();
+   uint32 PC_tmp               = GetPC();
 
    if(EmuMode == V810_EMU_MODE_ACCURATE)
    {
-      cache_tag_temp = (uint32 *)malloc(sizeof(uint32 *) * 128);
-      cache_data_temp = (uint32 *)malloc(sizeof(uint32 *) * 128 * 2);
+      cache_tag_temp        = (uint32 *)malloc(sizeof(uint32 *) * 128);
+      cache_data_temp       = (uint32 *)malloc(sizeof(uint32 *) * 128 * 2);
       cache_data_valid_temp = (bool *)malloc(sizeof(bool *) * 128 * 2);
 
       if(!cache_tag_temp || !cache_data_temp || !cache_data_valid_temp)
@@ -1355,7 +1203,7 @@ int V810::StateAction(StateMem *sm, int load, int data_only)
       }
    }
 
-   int32 next_event_ts_delta = next_event_ts - v810_timestamp;
+   next_event_ts_delta = next_event_ts - v810_timestamp;
 
    SFORMAT StateRegs[] =
    {
@@ -1384,7 +1232,7 @@ int V810::StateAction(StateMem *sm, int load, int data_only)
       SFEND
    };
 
-   int ret = MDFNSS_StateAction(sm, load, data_only, StateRegs, "V810", false);
+   ret = MDFNSS_StateAction(sm, load, data_only, StateRegs, "V810", false);
 
    if(load)
    {
@@ -1400,7 +1248,8 @@ int V810::StateAction(StateMem *sm, int load, int data_only)
       SetPC(PC_tmp);
       if(EmuMode == V810_EMU_MODE_ACCURATE)
       {
-         for(int i = 0; i < 128; i++)
+         int i;
+         for(i = 0; i < 128; i++)
          {
             Cache[i].tag = cache_tag_temp[i];
 

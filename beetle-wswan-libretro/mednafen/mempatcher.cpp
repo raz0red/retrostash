@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <errno.h>
 #include <vector>
 
 #include "mempatcher.h"
@@ -44,25 +43,20 @@ typedef struct __CHEATF
 
            unsigned int length;
            bool bigendian;
-           unsigned int icount; // Instance count
+           unsigned int icount; /* Instance count */
            char type;   /* 'R' for replace, 'S' for substitute(GG), 'C' for substitute with compare */
            int status;
 } CHEATF;
 
 static std::vector<CHEATF> cheats;
-static int savecheats;
-static uint32 resultsbytelen = 1;
-static bool resultsbigendian = 0;
 static bool CheatsActive = true;
 
-bool SubCheatsOn = 0;
-std::vector<SUBCHEAT> SubCheats[8];
+static std::vector<SUBCHEAT> SubCheats[8];
 
 static void RebuildSubCheats(void)
 {
  std::vector<CHEATF>::iterator chit;
 
- SubCheatsOn = 0;
  for(int x = 0; x < 8; x++)
   SubCheats[x].clear();
 
@@ -89,7 +83,6 @@ static void RebuildSubCheats(void)
     else
      tmpsub.compare = -1;
     SubCheats[(chit->addr + x) & 0x7].push_back(tmpsub);
-    SubCheatsOn = 1;
    }
   }
  }
@@ -124,7 +117,7 @@ extern "C" void MDFNMP_AddRAM(uint32 size, uint32 A, uint8 *RAM)
  for(unsigned int x = 0; x < size; x++)
  {
   RAMPtrs[AB + x] = RAM;
-  if(RAM) // Don't increment the RAM pointer if we're passed a NULL pointer
+  if(RAM) /* Don't increment the RAM pointer if we're passed a NULL pointer */
    RAM += PageSize;
  }
 }
@@ -186,8 +179,6 @@ int MDFNI_AddCheat(const char *name, uint32 addr, uint64 val, uint64 compare, ch
       return(0);
    }
 
-   savecheats = 1;
-
    MDFNMP_RemoveReadPatches();
    RebuildSubCheats();
    MDFNMP_InstallReadPatches();
@@ -199,8 +190,6 @@ int MDFNI_DelCheat(uint32 which)
 {
    free(cheats[which].name);
    cheats.erase(cheats.begin() + which);
-
-   savecheats=1;
 
    MDFNMP_RemoveReadPatches();
    RebuildSubCheats();
@@ -225,11 +214,11 @@ int MDFNI_DelCheat(uint32 which)
    <
    ==
    !=
-   &	// Result of AND between two values is nonzero
-   !&   // Result of AND between two values is zero
-   ^    // same, XOR
+   &	Result of AND between two values is nonzero
+   !&   Result of AND between two values is zero
+   ^    same, XOR
    !^
-   |	// same, OR
+   |	same, OR
    !|
 
   Full example:
@@ -247,7 +236,6 @@ static bool TestConditions(const char *string)
    unsigned int bytelen;
    bool passed = 1;
 
-   //printf("TR: %s\n", string);
    while(sscanf(string, "%u %c %63s %63s %63s", &bytelen, &endian, address, operation, value) == 5 && passed)
    {
       uint64 v_value;
@@ -260,7 +248,6 @@ static bool TestConditions(const char *string)
 
       value_at_address = 0;
 
-      //printf("A: %08x, V: %08llx, VA: %08llx, OP: %s\n", v_address, v_value, value_at_address, operation);
       if(!strcmp(operation, ">="))
       {
          if(!(value_at_address >= v_value))
@@ -322,11 +309,9 @@ static bool TestConditions(const char *string)
             passed = 0;
       }
       string = strchr(string, ',');
-      if(string == NULL)
+      if(!string)
          break;
-      else
-         string++;
-      //printf("Foo: %s\n", string);
+      string++;
    }
 
    return(passed);
@@ -443,7 +428,6 @@ int MDFNI_SetCheat(uint32 which, const char *name, uint32 a, uint64 v, uint64 co
    next->bigendian = bigendian;
 
    RebuildSubCheats();
-   savecheats=1;
 
    return(1);
 }
@@ -452,7 +436,6 @@ int MDFNI_SetCheat(uint32 which, const char *name, uint32 a, uint64 v, uint64 co
 int MDFNI_ToggleCheat(uint32 which)
 {
  cheats[which].status = !cheats[which].status;
- savecheats = 1;
  RebuildSubCheats();
 
  return(cheats[which].status);

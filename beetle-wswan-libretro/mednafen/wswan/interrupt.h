@@ -26,19 +26,6 @@ uint8 WSwan_InterruptRead(uint32 A);
 void WSwan_InterruptCheck(void);
 int WSwan_InterruptStateAction(StateMem *sm, int load, int data_only);
 void WSwan_InterruptReset(void);
-void WSwan_InterruptDebugForce(unsigned int level);
-
-#ifdef WANT_DEBUGGER
-enum
-{
- INT_GSREG_ISTATUS = 0,
- INT_GSREG_IENABLE,
- INT_GSREG_IVECTORBASE
-};
-uint32 WSwan_InterruptGetRegister(const unsigned int id, char *special, const uint32 special_len);
-void WSwan_InterruptSetRegister(const unsigned int id, uint32 value);
-
-#endif
 
 #ifdef __cplusplus
 }

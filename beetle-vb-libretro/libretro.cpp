@@ -9,6 +9,12 @@
 #include "mednafen/masmem.h"
 #include "mednafen/settings.h"
 
+#ifdef WRC
+#include "../../../wrc.h"
+#include "chd.h"
+#include <emscripten.h>
+#endif
+
 /* Forward declarations */
 void MDFN_LoadGameCheats(void *override);
 void MDFN_FlushGameCheats(int nosave);
@@ -26,7 +32,6 @@ static retro_input_state_t input_state_cb;
 static bool libretro_supports_bitmasks = false;
 
 static bool overscan;
-static double last_sound_rate;
 static struct MDFN_PixelFormat last_pixel_format;
 
 static struct MDFN_Surface surf;
@@ -52,9 +57,6 @@ static struct MDFN_Surface surf;
 #include "mednafen/vb/timer.h"
 #include "mednafen/vb/vsu.h"
 #include "mednafen/vb/vip.h"
-#ifdef WANT_DEBUGGER
-#include "mednafen/vb/debug.h"
-#endif
 #include "mednafen/vb/input.h"
 #include "mednafen/mempatcher.h"
 #include "mednafen/hw_cpu/v810/v810_cpu.h"
@@ -69,7 +71,7 @@ enum
  ANAGLYPH_PRESET_RED_ELECTRICCYAN,
  ANAGLYPH_PRESET_RED_GREEN,
  ANAGLYPH_PRESET_GREEN_MAGENTA,
- ANAGLYPH_PRESET_YELLOW_BLUE,
+ ANAGLYPH_PRESET_YELLOW_BLUE
 };
 
 static const uint32 AnaglyphPreset_Colors[][2] =
@@ -110,23 +112,6 @@ static uint8 WCR;
 static int32 next_vip_ts, next_timer_ts, next_input_ts;
 
 static uint32 IRQ_Asserted;
-
-MDFNGI EmulatedVB =
-{
-   MDFN_MASTERCLOCK_FIXED(VB_MASTER_CLOCK),
-   0,
-
-   0,   // lcm_width
-   0,   // lcm_height
-
-   384,   // Nominal width
-   224,   // Nominal height
-
-   384,   // Framebuffer width
-   256,   // Framebuffer height
-
-   2,     // Number of output sound channels
-};
 
 static INLINE void RecalcIntLevel(void)
 {
@@ -272,9 +257,6 @@ void MDFN_FASTCALL MemWrite8(v810_timestamp_t &timestamp, uint32 A, uint8 V)
       case 2:
          HWCTRL_Write(timestamp, A, V);
          break;
-      case 3:
-      case 4:
-         break;
       case 5:
          WRAM[A & 0xFFFF] = V;
          break;
@@ -285,6 +267,8 @@ void MDFN_FASTCALL MemWrite8(v810_timestamp_t &timestamp, uint32 A, uint8 V)
 
       case 7:
          // ROM, no writing allowed!
+      case 3:
+      case 4:
          break;
    }
 }
@@ -304,9 +288,6 @@ void MDFN_FASTCALL MemWrite16(v810_timestamp_t &timestamp, uint32 A, uint16 V)
       case 2:
          HWCTRL_Write(timestamp, A, V);
          break;
-      case 3:
-      case 4:
-         break;
       case 5:
          StoreU16_LE((uint16 *)&WRAM[A & 0xFFFF], V);
          break;
@@ -314,6 +295,8 @@ void MDFN_FASTCALL MemWrite16(v810_timestamp_t &timestamp, uint32 A, uint16 V)
          if(GPRAM)
             StoreU16_LE((uint16 *)&GPRAM[A & GPRAM_Mask], V);
          break;
+      case 3:
+      case 4:
       case 7:
          /* ROM, no writing allowed! */
          break;
@@ -323,7 +306,7 @@ void MDFN_FASTCALL MemWrite16(v810_timestamp_t &timestamp, uint32 A, uint16 V)
 static void FixNonEvents(void)
 {
    if(next_vip_ts & 0x40000000)
-      next_vip_ts = VB_EVENT_NONONO;
+      next_vip_ts   = VB_EVENT_NONONO;
 
    if(next_timer_ts & 0x40000000)
       next_timer_ts = VB_EVENT_NONONO;
@@ -448,9 +431,7 @@ static void SettingChanged(const char *name)
       VIP_SetDefaultColor(MDFN_GetSettingUI("vb.default_color"));
    }
    else if(!strcmp(name, "vb.input.instant_read_hack"))
-   {
       VBINPUT_SetInstantReadHack(MDFN_GetSettingB("vb.input.instant_read_hack"));
-   }
    else if(!strcmp(name, "vb.instant_display_hack"))
       VIP_SetInstantDisplayHack(MDFN_GetSettingB("vb.instant_display_hack"));
    else if(!strcmp(name, "vb.allow_draw_skip"))
@@ -1787,7 +1768,7 @@ static const struct VBGameEntry VBGames[] =
        0x07000ac8,
  } },
 
- { { 0x44C2B723 } , "Space Pinball (Prototype)", { 
+ { { 0x44C2B723 } , "Space Pinball (Prototype)", {
        0x0702EA7A
  }},
 };
@@ -1819,15 +1800,15 @@ static int Load(const uint8_t *data, size_t size)
 
    /* VB ROM image size is not a power of 2??? */
    if(size != round_up_pow2(size))
-      return(0);
+      return 0;
 
    /* VB ROM image size is too small?? */
    if(size < 256)
-      return(0);
+      return 0;
 
    /* VB ROM image size is too large?? */
    if(size > (1 << 24))
-      return(0);
+      return 0;
 
    VB_V810 = new V810();
    VB_V810->Init(cpu_mode, true);
@@ -1849,9 +1830,7 @@ static int Load(const uint8_t *data, size_t size)
    for(uint64 A = 0; A < 1ULL << 32; A += (1 << 27))
    {
       for(uint64 sub_A = 5 << 24; sub_A < (6 << 24); sub_A += 65536)
-      {
          Map_Addresses[map_size++] = A + sub_A;
-      }
    }
    WRAM = VB_V810->SetFastMap(Map_Addresses, 65536, map_size, "WRAM");
 
@@ -1862,13 +1841,11 @@ static int Load(const uint8_t *data, size_t size)
    for(uint64 A = 0; A < 1ULL << 32; A += (1 << 27))
    {
       for(uint64 sub_A = 7 << 24; sub_A < (8 << 24); sub_A += GPROM_Mask + 1)
-      {
          Map_Addresses[map_size++] = A + sub_A;
-      }
    }
 
-	GPROM = VB_V810->SetFastMap(Map_Addresses, GPROM_Mask + 1, map_size, "Cart ROM");
-	map_size = 0;
+   GPROM = VB_V810->SetFastMap(Map_Addresses, GPROM_Mask + 1, map_size, "Cart ROM");
+   map_size = 0;
 
    // Mirror ROM images < 64KiB to 64KiB
    for(uint64 i = 0; i < 65536; i += size)
@@ -1879,9 +1856,7 @@ static int Load(const uint8_t *data, size_t size)
    for(uint64 A = 0; A < 1ULL << 32; A += (1 << 27))
    {
       for(uint64 sub_A = 6 << 24; sub_A < (7 << 24); sub_A += GPRAM_Mask + 1)
-      {
          Map_Addresses[map_size++] = A + sub_A;
-      }
    }
    GPRAM = VB_V810->SetFastMap(Map_Addresses, GPRAM_Mask + 1, map_size, "Cart RAM");
 
@@ -1903,7 +1878,6 @@ static int Load(const uint8_t *data, size_t size)
 
    VIP_Set3DMode(VB3DMode, MDFN_GetSettingUI("vb.3dreverse"), prescale, sbs_separation);
 
-
    SettingChanged("vb.3dmode");
    SettingChanged("vb.disable_parallax");
    SettingChanged("vb.anaglyph.lcolor");
@@ -1916,57 +1890,7 @@ static int Load(const uint8_t *data, size_t size)
 
    SettingChanged("vb.input.instant_read_hack");
 
-   EmulatedVB.fps = (int64)20000000 * 65536 * 256 / (259 * 384 * 4);
-
-
    VB_Power();
-
-
-#ifdef WANT_DEBUGGER
-   VBDBG_Init();
-#endif
-
-
-   EmulatedVB.nominal_width        = 384;
-   EmulatedVB.nominal_height       = 224;
-   EmulatedVB.fb_width             = 384;
-   EmulatedVB.fb_height            = 224;
-
-   switch(VB3DMode)
-   {
-      case VB3DMODE_VLI:
-         EmulatedVB.nominal_width  = 768 * prescale;
-         EmulatedVB.nominal_height = 224;
-         EmulatedVB.fb_width       = 768 * prescale;
-         EmulatedVB.fb_height      = 224;
-         break;
-
-      case VB3DMODE_HLI:
-         EmulatedVB.nominal_width  = 384;
-         EmulatedVB.nominal_height = 448 * prescale;
-         EmulatedVB.fb_width       = 384;
-         EmulatedVB.fb_height      = 448 * prescale;
-         break;
-
-      case VB3DMODE_CSCOPE:
-         EmulatedVB.nominal_width  = 512;
-         EmulatedVB.nominal_height = 384;
-         EmulatedVB.fb_width       = 512;
-         EmulatedVB.fb_height      = 384;
-         break;
-
-      case VB3DMODE_SIDEBYSIDE:
-         EmulatedVB.nominal_width  = 384 * 2 + sbs_separation;
-         EmulatedVB.nominal_height = 224;
-         EmulatedVB.fb_width       = 384 * 2 + sbs_separation;
-         EmulatedVB.fb_height      = 224;
-         break;
-      default:
-         break;
-   }
-   EmulatedVB.lcm_width            = EmulatedVB.fb_width;
-   EmulatedVB.lcm_height           = EmulatedVB.fb_height;
-
 
    MDFNMP_Init(32768, ((uint64)1 << 27) / 32768);
    MDFNMP_AddRAM(65536, 5 << 24, WRAM);
@@ -2016,17 +1940,6 @@ static void Emulate(EmulateSpecStruct *espec, int16_t *sound_buf)
 
    VBINPUT_Frame();
 
-   if(espec->SoundFormatChanged)
-   {
-      int y;
-      for(y = 0; y < 2; y++)
-      {
-         Blip_Buffer_set_sample_rate(&sbuf[y], espec->SoundRate ? espec->SoundRate : 44100, 50);
-         Blip_Buffer_set_clock_rate(&sbuf[y], (long)(VB_MASTER_CLOCK / 4));
-         Blip_Buffer_bass_freq(&sbuf[y], 20);
-      }
-   }
-
    VIP_StartFrame(espec);
 
    v810_timestamp = VB_V810->Run(EventHandler);
@@ -2048,8 +1961,6 @@ static void Emulate(EmulateSpecStruct *espec, int16_t *sound_buf)
 
    VSU_CycleFix = (v810_timestamp + VSU_CycleFix) & 3;
 
-   espec->MasterCycles = v810_timestamp;
-
    TIMER_ResetTS();
    VBINPUT_ResetTS();
    VIP_ResetTS();
@@ -2058,32 +1969,6 @@ static void Emulate(EmulateSpecStruct *espec, int16_t *sound_buf)
 
    VB_V810->ResetTS(0);
 }
-
-#ifdef WANT_DEBUGGER
-static DebuggerInfoStruct DBGInfo =
-{
-   "shift_jis",
-   4,
-   2,             // Instruction alignment(bytes)
-   32,
-   32,
-   0x00000000,
-   ~0U,
-
-   VBDBG_MemPeek,
-   VBDBG_Disassemble,
-   NULL,
-   NULL,  //ForceIRQ,
-   NULL,
-   VBDBG_FlushBreakPoints,
-   VBDBG_AddBreakPoint,
-   VBDBG_SetCPUCallback,
-   VBDBG_EnableBranchTrace,
-   VBDBG_GetBranchTrace,
-   NULL,  //KING_SetGraphicsDecode,
-   VBDBG_SetLogFunc,
-};
-#endif
 
 extern "C" int StateAction(StateMem *sm, int load, int data_only)
 {
@@ -2109,83 +1994,21 @@ extern "C" int StateAction(StateMem *sm, int load, int data_only)
    ret &= VBINPUT_StateAction(sm, load, data_only);
    ret &= VIP_StateAction(sm, load, data_only);
 
+   // Needed to recalculate next_*_ts since we don't bother storing their deltas in save states.
    if(load)
-   {
-      // Needed to recalculate next_*_ts since we don't bother storing their deltas in save states.
       ForceEventUpdates(timestamp);
-   }
-   return(ret);
+   return ret;
 }
-
-static void SetLayerEnableMask(uint64 mask) { }
-
-static void DoSimpleCommand(int cmd)
-{
-   switch(cmd)
-   {
-      case MDFN_MSC_POWER:
-      case MDFN_MSC_RESET:
-         VB_Power();
-         break;
-   }
-}
-
-static const InputDeviceInputInfoStruct IDII[] =
-{
- { "a", "A", 7, IDIT_BUTTON_CAN_RAPID,  NULL },
- { "b", "B", 6, IDIT_BUTTON_CAN_RAPID, NULL },
- { "rt", "Right-Back", 13, IDIT_BUTTON, NULL },
- { "lt", "Left-Back", 12, IDIT_BUTTON, NULL },
-
- { "up-r", "UP ↑ (Right D-Pad)", 8, IDIT_BUTTON, "down-r" },
- { "right-r", "RIGHT → (Right D-Pad)", 11, IDIT_BUTTON, "left-r" },
-
- { "right-l", "RIGHT → (Left D-Pad)", 3, IDIT_BUTTON, "left-l" },
- { "left-l", "LEFT ← (Left D-Pad)", 2, IDIT_BUTTON, "right-l" },
- { "down-l", "DOWN ↓ (Left D-Pad)", 1, IDIT_BUTTON, "up-l" },
- { "up-l", "UP ↑ (Left D-Pad)", 0, IDIT_BUTTON, "down-l" },
-
- { "start", "Start", 5, IDIT_BUTTON, NULL },
- { "select", "Select", 4, IDIT_BUTTON, NULL },
-
- { "left-r", "LEFT ← (Right D-Pad)", 10, IDIT_BUTTON, "right-r" },
- { "down-r", "DOWN ↓ (Right D-Pad)", 9, IDIT_BUTTON, "up-r" },
-};
-
-static InputDeviceInfoStruct InputDeviceInfo[] =
-{
- {
-  "gamepad",
-  "Gamepad",
-  NULL,
-  NULL,
-  sizeof(IDII) / sizeof(InputDeviceInputInfoStruct),
-  IDII,
- }
-};
-
-static const InputPortInfoStruct PortInfo[] =
-{
- { "builtin", "Built-In", sizeof(InputDeviceInfo) / sizeof(InputDeviceInfoStruct), InputDeviceInfo, "gamepad" }
-};
-
-static InputInfoStruct InputInfo =
-{
- sizeof(PortInfo) / sizeof(InputPortInfoStruct),
- PortInfo
-};
-
-static bool initial_ports_hookup = false;
 
 #define MEDNAFEN_CORE_NAME_MODULE "vb"
 #define MEDNAFEN_CORE_NAME "Beetle VB"
-#define MEDNAFEN_CORE_VERSION "v1.27.1"
+#define MEDNAFEN_CORE_VERSION "v1.31.0"
 #define MEDNAFEN_CORE_EXTENSIONS "vb|vboy|bin"
 #define MEDNAFEN_CORE_TIMING_FPS 50.27
-#define MEDNAFEN_CORE_GEOMETRY_BASE_W (EmulatedVB.nominal_width)
-#define MEDNAFEN_CORE_GEOMETRY_BASE_H (EmulatedVB.nominal_height)
-#define MEDNAFEN_CORE_GEOMETRY_MAX_W 384 * 2
-#define MEDNAFEN_CORE_GEOMETRY_MAX_H 224 * 2
+#define MEDNAFEN_CORE_GEOMETRY_BASE_W 384
+#define MEDNAFEN_CORE_GEOMETRY_BASE_H 224
+#define MEDNAFEN_CORE_GEOMETRY_MAX_W (384 * 2)
+#define MEDNAFEN_CORE_GEOMETRY_MAX_H (224 * 2)
 #define MEDNAFEN_CORE_GEOMETRY_ASPECT_RATIO (12.0 / 7.0)
 #define FB_WIDTH 384 * 2
 #define FB_HEIGHT 224 * 2
@@ -2209,7 +2032,7 @@ void retro_init(void)
 #endif
    if (environ_cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &log))
       log_cb = log.log;
-   else 
+   else
       log_cb = NULL;
 
 #if defined(WANT_16BPP) && defined(FRONTEND_SUPPORTS_RGB565)
@@ -2230,7 +2053,7 @@ void retro_init(void)
 
 void retro_reset(void)
 {
-   DoSimpleCommand(MDFN_MSC_RESET);
+   VB_Power();
 }
 
 bool retro_load_game_special(unsigned, const struct retro_game_info *, size_t)
@@ -2273,7 +2096,7 @@ static void check_variables(void)
       {
          SettingChanged("vb.3dmode");
 
-         log_cb(RETRO_LOG_INFO, "[%s]: 3D mode changed: %s .\n", mednafen_core_str, var.value);  
+         log_cb(RETRO_LOG_INFO, "[%s]: 3D mode changed: %s .\n", mednafen_core_str, var.value);
       }
    }
 
@@ -2289,7 +2112,7 @@ static void check_variables(void)
          setting_vb_anaglyph_preset = 1;
       else if (strcmp(var.value, "red & cyan") == 0)
          setting_vb_anaglyph_preset = 2;
-      else if (strcmp(var.value, "red & electric cyan") == 0)    
+      else if (strcmp(var.value, "red & electric cyan") == 0)
          setting_vb_anaglyph_preset = 3;
       else if (strcmp(var.value, "red & green") == 0)
          setting_vb_anaglyph_preset = 4;
@@ -2302,7 +2125,7 @@ static void check_variables(void)
       {
          SettingChanged("vb.anaglyph.preset");
 
-         log_cb(RETRO_LOG_INFO, "[%s]: Palette changed: %s .\n", mednafen_core_str, var.value);  
+         log_cb(RETRO_LOG_INFO, "[%s]: Palette changed: %s .\n", mednafen_core_str, var.value);
       }
    }
 
@@ -2319,37 +2142,37 @@ static void check_variables(void)
       }
       else if (strcmp(var.value, "black & white") == 0)
       {
-         setting_vb_lcolor = 0xFFFFFF;      
+         setting_vb_lcolor = 0xFFFFFF;
          setting_vb_rcolor = 0x000000;
       }
       else if (strcmp(var.value, "black & blue") == 0)
       {
-         setting_vb_lcolor = 0x0000FF;      
+         setting_vb_lcolor = 0x0000FF;
          setting_vb_rcolor = 0x000000;
       }
       else if (strcmp(var.value, "black & cyan") == 0)
       {
-         setting_vb_lcolor = 0x00B7EB;      
+         setting_vb_lcolor = 0x00B7EB;
          setting_vb_rcolor = 0x000000;
       }
       else if (strcmp(var.value, "black & electric cyan") == 0)
       {
-         setting_vb_lcolor = 0x00FFFF;      
+         setting_vb_lcolor = 0x00FFFF;
          setting_vb_rcolor = 0x000000;
       }
       else if (strcmp(var.value, "black & green") == 0)
       {
-         setting_vb_lcolor = 0x00FF00;      
+         setting_vb_lcolor = 0x00FF00;
          setting_vb_rcolor = 0x000000;
       }
       else if (strcmp(var.value, "black & magenta") == 0)
       {
-         setting_vb_lcolor = 0xFF00FF;      
+         setting_vb_lcolor = 0xFF00FF;
          setting_vb_rcolor = 0x000000;
       }
       else if (strcmp(var.value, "black & yellow") == 0)
       {
-         setting_vb_lcolor = 0xFFFF00;      
+         setting_vb_lcolor = 0xFFFF00;
          setting_vb_rcolor = 0x000000;
       }
       setting_vb_default_color = setting_vb_lcolor;
@@ -2358,9 +2181,9 @@ static void check_variables(void)
       {
          SettingChanged("vb.default_color");
 
-         log_cb(RETRO_LOG_INFO, "[%s]: Palette changed: %s .\n", mednafen_core_str, var.value);  
+         log_cb(RETRO_LOG_INFO, "[%s]: Palette changed: %s .\n", mednafen_core_str, var.value);
       }
-   }   
+   }
 
    var.key = "vb_right_analog_to_digital";
 
@@ -2400,8 +2223,8 @@ static void check_variables(void)
 
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
    {
-      setting_vb_cpu_emulation = !strcmp(var.value, "accurate") 
-         ? V810_EMU_MODE_ACCURATE 
+      setting_vb_cpu_emulation = !strcmp(var.value, "accurate")
+         ? V810_EMU_MODE_ACCURATE
          : V810_EMU_MODE_FAST;
    }
 }
@@ -2410,18 +2233,6 @@ static void check_variables(void)
 #define MAX_BUTTONS 14
 static uint16_t input_buf[MAX_PLAYERS];
 static uint16_t low_battery;
-
-static void hookup_ports(bool force)
-{
-   if (initial_ports_hookup && !force)
-      return;
-
-   /* Possible endian bug ... */
-   VBINPUT_SetInput(0, "gamepad", &input_buf[0]);
-   VBINPUT_SetInput(1, "gamepad", &low_battery);
-
-   initial_ports_hookup = true;
-}
 
 bool retro_load_game(const struct retro_game_info *info)
 {
@@ -2511,9 +2322,21 @@ bool retro_load_game(const struct retro_game_info *info)
    surf.h                       = FB_HEIGHT;
    surf.pitchinpix              = FB_WIDTH;
 
-   hookup_ports(true);
+   /* Possible endian bug ... */
+   VBINPUT_SetInput(0, "gamepad", &input_buf[0]);
+   VBINPUT_SetInput(1, "gamepad", &low_battery);
 
    check_variables();
+
+   {
+      int y;
+      for(y = 0; y < 2; y++)
+      {
+         Blip_Buffer_set_sample_rate(&sbuf[y], 44100, 50);
+         Blip_Buffer_set_clock_rate(&sbuf[y], (long)(VB_MASTER_CLOCK / 4));
+         Blip_Buffer_bass_freq(&sbuf[y], 20);
+      }
+   }
 
    return true;
 }
@@ -2531,6 +2354,76 @@ static void update_input(void)
    int16_t joy_bits[MAX_PLAYERS] = {0};
 
    input_buf[0] = 0;
+
+
+   #ifdef WRC
+   /* --- WebRcade / Xbox-style input mapping --- */
+   for (j = 0; j < MAX_PLAYERS; j++)
+   {
+      unsigned controller = wrc_input_state[j];
+      input_buf[j] = 0;
+
+      /*
+         Mapping rules:
+         - A/Y → VB B  (map to RETRO_DEVICE_ID_JOYPAD_B)
+         - B/X → VB A  (map to RETRO_DEVICE_ID_JOYPAD_A)
+         - D-pad → same directions (map to RETRO_DEVICE_ID_JOYPAD_UP/DOWN/LEFT/RIGHT)
+         - LB/RB → L/R  (map to RETRO_DEVICE_ID_JOYPAD_L / RETRO_DEVICE_ID_JOYPAD_R)
+         - Start/Select → START/SELECT
+         - Right stick → Right D-pad (mapped to RETRO_DEVICE_ID_JOYPAD_L2/L3/R2/R3)
+      */
+
+      /* Left D-Pad */
+      if (controller & INP_UP)
+         input_buf[j] |= (1 << 9);   // RETRO_DEVICE_ID_JOYPAD_UP
+      if (controller & INP_DOWN)
+         input_buf[j] |= (1 << 8);   // RETRO_DEVICE_ID_JOYPAD_DOWN
+      if (controller & INP_LEFT)
+         input_buf[j] |= (1 << 7);   // RETRO_DEVICE_ID_JOYPAD_LEFT
+      if (controller & INP_RIGHT)
+         input_buf[j] |= (1 << 6);   // RETRO_DEVICE_ID_JOYPAD_RIGHT
+
+      /* A/Y -> B */
+      if ((controller & INP_A) || (controller & INP_Y))
+         input_buf[j] |= (1 << 1);   // RETRO_DEVICE_ID_JOYPAD_B
+
+      /* B/X -> A */
+      if ((controller & INP_B) || (controller & INP_X))
+         input_buf[j] |= (1 << 0);   // RETRO_DEVICE_ID_JOYPAD_A
+
+      /* L/R bumpers */
+      if (controller & INP_LBUMP)
+         input_buf[j] |= (1 << 3);   // RETRO_DEVICE_ID_JOYPAD_L
+      if (controller & INP_RBUMP)
+         input_buf[j] |= (1 << 2);   // RETRO_DEVICE_ID_JOYPAD_R
+
+      /* Start / Select */
+      if (controller & INP_START)
+         input_buf[j] |= (1 << 10);  // RETRO_DEVICE_ID_JOYPAD_START
+      if (controller & INP_SELECT)
+         input_buf[j] |= (1 << 11);  // RETRO_DEVICE_ID_JOYPAD_SELECT
+
+
+      float analogX = wrc_input_state_analog[0][2];
+      float analogY = wrc_input_state_analog[0][3];
+
+      bool isLeft = analogX > 0.1 ? (analogX < .3 ? true : false) : false;
+      bool isRight = analogX > 0.1 ? (analogX > .3 ? true : false) : false;
+      bool isUp = analogY > 0.1 ? (analogY < .3 ? true : false) : false;
+      bool isDown = analogY > 0.1 ? (analogY > .3 ? true : false) : false;
+
+      /* Right stick -> right d-pad */
+      if (isUp)
+         input_buf[j] |= (1 << 4);   // RETRO_DEVICE_ID_JOYPAD_L2 (right pad UP)
+      if (isRight)
+         input_buf[j] |= (1 << 5);   // RETRO_DEVICE_ID_JOYPAD_R3 (right pad RIGHT)
+      if (isLeft)
+         input_buf[j] |= (1 << 12);  // RETRO_DEVICE_ID_JOYPAD_R2 (right pad LEFT)
+      if (isDown)
+         input_buf[j] |= (1 << 13);  // RETRO_DEVICE_ID_JOYPAD_L3 (right pad DOWN)
+   }
+
+#else  /* --- RetroArch / default input mapping --- */
 
    static unsigned map[] = {
       RETRO_DEVICE_ID_JOYPAD_A,
@@ -2586,6 +2479,8 @@ static void update_input(void)
 #endif
    }
 
+#endif
+
    /* For low-battery mode switch */
    {
       static int pressed;
@@ -2618,29 +2513,25 @@ static void update_geometry(unsigned width, unsigned height)
    environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &info);
 }
 
-static uint64_t video_frames, audio_frames;
-
 void retro_run(void)
 {
    static int16_t sound_buf[0x10000];
-   static MDFN_Rect rects[FB_MAX_HEIGHT];
+   EmulateSpecStruct spec;
    static unsigned width   = 0, height = 0;
-   EmulateSpecStruct spec  = {0};
    bool resolution_changed = false;
 
    input_poll_cb();
 
    update_input();
 
-   rects[0].w              = ~0;
-
    spec.surface            = &surf;
-   spec.SoundRate          = 44100;
-   spec.LineWidths         = rects;
+   spec.VideoFormatChanged = false;
+   spec.DisplayRect.x      = 0;
+   spec.DisplayRect.y      = 0;
+   spec.DisplayRect.w      = 0;
+   spec.DisplayRect.h      = 0;
    spec.SoundBufMaxSize    = sizeof(sound_buf) / 2;
    spec.SoundBufSize       = 0;
-   spec.VideoFormatChanged = false;
-   spec.SoundFormatChanged = false;
 
    if (memcmp(&last_pixel_format, &spec.surface->format, sizeof(struct MDFN_PixelFormat)))
    {
@@ -2648,19 +2539,7 @@ void retro_run(void)
       last_pixel_format       = spec.surface->format;
    }
 
-   if (spec.SoundRate != last_sound_rate)
-   {
-      spec.SoundFormatChanged = true;
-      last_sound_rate         = spec.SoundRate;
-   }
-
    Emulate(&spec, sound_buf);
-
-   int16 *const SoundBuf       = sound_buf            + spec.SoundBufSizeALMS * EmulatedVB.soundchan;
-   int32 SoundBufSize          = spec.SoundBufSize    - spec.SoundBufSizeALMS;
-   const int32 SoundBufMaxSize = spec.SoundBufMaxSize - spec.SoundBufSizeALMS;
-
-   spec.SoundBufSize           = spec.SoundBufSizeALMS + SoundBufSize;
 
    if (width != spec.DisplayRect.w || height != spec.DisplayRect.h)
       resolution_changed = true;
@@ -2675,9 +2554,6 @@ void retro_run(void)
    const uint16_t *pix = surf.pixels16;
    video_cb(pix, width, height, FB_WIDTH << 1);
 #endif
-
-   video_frames++;
-   audio_frames += spec.SoundBufSize;
 
    audio_batch_cb(sound_buf, spec.SoundBufSize);
 
@@ -2736,20 +2612,12 @@ void retro_deinit(void)
    surf.format.Bshift     = 0;
    surf.format.Ashift     = 0;
 
-   if (log_cb)
-   {
-      log_cb(RETRO_LOG_INFO, "[%s]: Samples / Frame: %.5f\n",
-            mednafen_core_str, (double)audio_frames / video_frames);
-      log_cb(RETRO_LOG_INFO, "[%s]: Estimated FPS: %.5f\n",
-            mednafen_core_str, (double)video_frames * 44100 / audio_frames);
-   }
-
    libretro_supports_bitmasks = false;
 }
 
 unsigned retro_get_region(void)
 {
-   return RETRO_REGION_NTSC; // FIXME: Regions for other cores.
+   return RETRO_REGION_PAL; /* 50fps so default this to PAL 50Hz */
 }
 
 unsigned retro_api_version(void)
@@ -2874,6 +2742,22 @@ size_t retro_get_memory_size(unsigned type)
 void retro_cheat_reset(void) { }
 void retro_cheat_set(unsigned a, bool b, const char *c) { }
 
-void MDFND_MidSync(const EmulateSpecStruct *) { }
+#ifdef WRC
+extern "C" {
 
-void MDFN_MidLineUpdate(EmulateSpecStruct *espec, int y) { }
+void em_cmd_savefiles() {}
+void wrc_on_set_options(int opts) {}
+void wrc_on_key(int key, int down) {};
+void wrc_step() {}
+void wrc_save_state(char* file) {}
+void wrc_load_state(char* file) {}
+int wrc_start(char* arg) {}
+
+}
+
+const chd_header *chd_get_header(chd_file *chd) { return 0; }
+chd_error chd_get_metadata(chd_file *chd, UINT32 searchtag, UINT32 searchindex, void *output, UINT32 outputlen, UINT32 *resultlen, UINT32 *resulttag, UINT8 *resultflags) { return CHDERR_UNSUPPORTED_FORMAT; }
+chd_error chd_open(const char *filename, int mode, chd_file *parent, chd_file **chd) { return CHDERR_UNSUPPORTED_FORMAT; }
+void chd_close(chd_file *chd) {}
+chd_error chd_read(chd_file *chd, UINT32 hunknum, void *buffer) { return CHDERR_UNSUPPORTED_FORMAT; }
+#endif

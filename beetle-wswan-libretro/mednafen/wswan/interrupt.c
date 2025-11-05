@@ -14,26 +14,20 @@ static uint32 IVector_Cache;
 static void RecalcInterrupt(void)
 {
    unsigned i;
-
-   IOn_Cache = false;
-   IOn_Which = 0;
+   IOn_Cache     = false;
+   IOn_Which     = 0;
    IVector_Cache = 0;
 
    for(i = 0; i < 8; i++)
    {
       if(IStatus & IEnable & (1 << i))
       {
-         IOn_Cache = true;
-         IOn_Which = i;
+         IOn_Cache     = true;
+         IOn_Which     = i;
          IVector_Cache = (IVectorBase + i) * 4;
          break;
       }
    }
-}
-
-void WSwan_InterruptDebugForce(unsigned int level)
-{
-   v30mz_int((IVectorBase + level) * 4, true);
 }
 
 void WSwan_Interrupt(int which)
@@ -49,10 +43,13 @@ void WSwan_InterruptWrite(uint32 A, uint8 V)
    switch(A)
    {
       case 0xB0:
-         IVectorBase = V; RecalcInterrupt();
+         IVectorBase = V;
+         RecalcInterrupt();
          break;
       case 0xB2:
-         IEnable = V; IStatus &= IEnable; RecalcInterrupt();
+         IEnable = V;
+         IStatus &= IEnable;
+         RecalcInterrupt();
          break;
       case 0xB6:
          IStatus &= ~V;
@@ -90,45 +87,6 @@ void WSwan_InterruptReset(void)
    RecalcInterrupt();
 }
 
-#ifdef WANT_DEBUGGER
-static const char *PrettyINames[8] = { "Serial Send", "Key Press", "RTC Alarm", "Serial Recv", "Line Hit", "VBlank Timer", "VBlank", "HBlank Timer" };
-
-uint32 WSwan_InterruptGetRegister(const unsigned int id, char *special, const uint32 special_len)
-{
-   switch(id)
-   {
-      case INT_GSREG_ISTATUS:
-         return IStatus;
-      case INT_GSREG_IENABLE:
-         return IEnable;
-      case INT_GSREG_IVECTORBASE:
-         return IVectorBase;
-   }
-
-   return 0;
-}
-
-void WSwan_InterruptSetRegister(const unsigned int id, uint32 value)
-{
-   switch(id)
-   {
-      case INT_GSREG_ISTATUS:
-         IStatus = value;
-         break;
-
-      case INT_GSREG_IENABLE:
-         IEnable = value;
-         break;
-
-      case INT_GSREG_IVECTORBASE:
-         IVectorBase = value;
-         break;
-   }
-
-   RecalcInterrupt();
-}
-#endif
-
 int WSwan_InterruptStateAction(StateMem *sm, int load, int data_only)
 {
    SFORMAT StateRegs[] =
@@ -140,10 +98,10 @@ int WSwan_InterruptStateAction(StateMem *sm, int load, int data_only)
    };
 
    if(!MDFNSS_StateAction(sm, load, data_only, StateRegs, "INTR", false))
-      return(0);
+      return 0;
 
    if(load)
       RecalcInterrupt();
 
-   return(1);
+   return 1;
 }

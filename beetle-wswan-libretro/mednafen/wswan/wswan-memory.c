@@ -202,7 +202,6 @@ uint8 WSwan_readport(uint32 number)
       return(WSwan_RTCRead(number));
    else switch(number)
    {
-      //default: printf("Read: %04x\n", number); break;
       case 0x40: return(DMASource >> 0);
       case 0x41: return(DMASource >> 8);
       case 0x42: return(DMASource >> 16);
@@ -270,8 +269,6 @@ void WSwan_writeport(uint32 IOPort, uint8 V)
       WSwan_RTCWrite(IOPort, V);
    else switch(IOPort)
    {
-      //default: printf("%04x %02x\n", IOPort, V); break;
-
       case 0x40: DMASource &= 0xFFFF00; DMASource |= (V << 0) & ~1; break;
       case 0x41: DMASource &= 0xFF00FF; DMASource |= (V << 8); break;
       case 0x42: DMASource &= 0x00FFFF; DMASource |= ((V & 0x0F) << 16); break;
@@ -295,7 +292,6 @@ void WSwan_writeport(uint32 IOPort, uint8 V)
       case 0x50: SoundDMALength &= 0x00FFFF; SoundDMALength |= ((V & 0xF) << 16); SoundDMALengthSaved = SoundDMALength; break;
       //case 0x51: break; // Unused?
       case 0x52: SoundDMAControl = V & ~0x20;
-                 //if(V & 0x80) printf("Sound DMA: %02x, %08x %08x\n", V, SoundDMASource, SoundDMALength);
                  break;
 
       case 0xB0:
@@ -325,178 +321,6 @@ void WSwan_writeport(uint32 IOPort, uint8 V)
    }
 }
 
-#ifdef WANT_DEBUGGER
-static void GetAddressSpaceBytes(const char *name, uint32 Address, uint32 Length, uint8 *Buffer)
-{
-   if(!strcmp(name, "ram"))
-   {
-      while(Length--)
-      {
-         Address &= wsRAMSize - 1;
-         *Buffer = wsRAM[Address];
-         Address++;
-         Buffer++;
-      }
-   }
-   else if(!strcmp(name, "physical"))
-   {
-      while(Length--)
-      {
-         Address &= 0xFFFFF;
-         *Buffer = WSwan_readmem20(Address);
-         Address++;
-         Buffer++;
-      }
-   }
-   else if(!strcmp(name, "cs") || !strcmp(name, "ds") || !strcmp(name, "ss") || !strcmp(name, "es"))
-   {
-      uint32 segment;
-      uint32 phys_address;
-
-      if(!strcmp(name, "cs"))
-         segment = v30mz_get_reg(NEC_PS);
-      else if(!strcmp(name, "ss"))
-         segment = v30mz_get_reg(NEC_SS);
-      else if(!strcmp(name, "ds"))
-         segment = v30mz_get_reg(NEC_DS0);
-      else if(!strcmp(name, "es"))
-         segment = v30mz_get_reg(NEC_DS1);
-
-      phys_address = (Address + (segment << 4)) & 0xFFFFF;
-
-      GetAddressSpaceBytes("physical", phys_address, Length, Buffer);
-   }
-}
-
-static void PutAddressSpaceBytes(const char *name, uint32 Address, uint32 Length, uint32 Granularity, bool hl, const uint8 *Buffer)
-{
-   if(!strcmp(name, "ram"))
-   {
-      while(Length--)
-      {
-         Address &= wsRAMSize - 1;
-         wsRAM[Address] = *Buffer;
-         WSWan_TCacheInvalidByAddr(Address);
-         if(Address >= 0xfe00)
-            WSwan_GfxWSCPaletteRAMWrite(Address, *Buffer);
-
-         Address++;
-         Buffer++;
-      }
-   }
-   else if(!strcmp(name, "physical"))
-   {
-      while(Length--)
-      {
-         uint32 offset, bank;
-
-         Address &= 0xFFFFF;
-
-         offset = Address & 0xFFFF;
-         bank = (Address >> 16) & 0xF;
-
-         switch(bank)
-         {
-            case 0:  wsRAM[offset & (wsRAMSize - 1)] = *Buffer;
-                     WSWan_TCacheInvalidByAddr(offset & (wsRAMSize - 1));
-                     if(Address >= 0xfe00)
-                        WSwan_GfxWSCPaletteRAMWrite(offset & (wsRAMSize - 1), *Buffer);
-                     break;
-            case 1:  if(sram_size)
-                        wsSRAM[(offset | (BankSelector[1] << 16)) & (sram_size - 1)] = *Buffer;
-                     break;
-            case 2:
-            case 3:  wsCartROM[offset+((BankSelector[bank]&((rom_size>>16)-1))<<16)] = *Buffer;
-                     break;
-
-            default:
-                     {
-                        uint8 bank_num = ((BankSelector[0] & 0xF) << 4) | (bank & 0xf);
-                        bank_num &= (rom_size >> 16) - 1;
-                        wsCartROM[(bank_num << 16) | offset] = *Buffer;
-                     }
-                     break;
-         }
-
-         Address++;
-         Buffer++;
-      }
-   }
-   else if(!strcmp(name, "cs") || !strcmp(name, "ds") || !strcmp(name, "ss") || !strcmp(name, "es"))
-   {
-      uint32 segment;
-      uint32 phys_address;
-
-      if(!strcmp(name, "cs"))
-         segment = v30mz_get_reg(NEC_PS);
-      else if(!strcmp(name, "ss"))
-         segment = v30mz_get_reg(NEC_SS);
-      else if(!strcmp(name, "ds"))
-         segment = v30mz_get_reg(NEC_DS0);
-      else if(!strcmp(name, "es"))
-         segment = v30mz_get_reg(NEC_DS1);
-
-      phys_address = (Address + (segment << 4)) & 0xFFFFF;
-
-      PutAddressSpaceBytes("physical", phys_address, Length, Granularity, hl, Buffer);
-   }
-}
-
-uint32 WSwan_MemoryGetRegister(const unsigned int id, char *special, const uint32 special_len)
-{
-   uint32 ret = 0;
-
-   switch(id)
-   {
-      case MEMORY_GSREG_ROMBBSLCT:
-         ret = BankSelector[0];
-
-         if(special)
-         {
-            snprintf(special, special_len, "((0x%02x * 0x100000) %% 0x%08x) + 20 bit address = 0x%08x + 20 bit address", BankSelector[0], rom_size, (BankSelector[0] * 0x100000) & (rom_size - 1));
-         }
-         break;
-
-      case MEMORY_GSREG_BNK1SLCT:
-         ret = BankSelector[1];
-         break;
-
-      case MEMORY_GSREG_BNK2SLCT:
-         ret = BankSelector[2];
-         break;
-
-      case MEMORY_GSREG_BNK3SLCT:
-         ret = BankSelector[3];
-         break;
-   }
-
-   return(ret);
-}
-
-void WSwan_MemorySetRegister(const unsigned int id, uint32 value)
-{
-   switch(id)
-   {
-      case MEMORY_GSREG_ROMBBSLCT:
-         BankSelector[0] = value;
-         break;
-
-      case MEMORY_GSREG_BNK1SLCT:
-         BankSelector[1] = value;
-         break;
-
-      case MEMORY_GSREG_BNK2SLCT:
-         BankSelector[2] = value;
-         break;
-
-      case MEMORY_GSREG_BNK3SLCT:
-         BankSelector[3] = value;
-         break;
-   }
-}
-
-#endif
-
 void WSwan_MemoryKill(void)
 {
    if(wsSRAM)
@@ -508,27 +332,15 @@ void WSwan_MemoryInit(bool lang, bool IsWSC, uint32 ssize, bool SkipSaveLoad)
 {
    const uint16 byear = MDFN_GetSettingUI("wswan.byear");
    const uint8 bmonth = MDFN_GetSettingUI("wswan.bmonth");
-   const uint8 bday = MDFN_GetSettingUI("wswan.bday");
-   const uint8 sex = MDFN_GetSettingI("wswan.sex");
-   const uint8 blood = MDFN_GetSettingI("wswan.blood");
+   const uint8 bday   = MDFN_GetSettingUI("wswan.bday");
+   const uint8 sex    = MDFN_GetSettingI("wswan.sex");
+   const uint8 blood  = MDFN_GetSettingI("wswan.blood");
 
-   language = lang;
-   SkipSL = SkipSaveLoad;
+   language           = lang;
+   SkipSL             = SkipSaveLoad;
 
-   wsRAMSize = 65536;
-   sram_size = ssize;
-
-#ifdef WANT_DEBUGGER
-   {
-      ASpace_Add(GetAddressSpaceBytes, PutAddressSpaceBytes, "physical", "CPU Physical", 20);
-      ASpace_Add(GetAddressSpaceBytes, PutAddressSpaceBytes, "ram", "RAM", (int)(log(wsRAMSize) / log(2)));
-
-      ASpace_Add(GetAddressSpaceBytes, PutAddressSpaceBytes, "cs", "Code Segment", 16);
-      ASpace_Add(GetAddressSpaceBytes, PutAddressSpaceBytes, "ss", "Stack Segment", 16);
-      ASpace_Add(GetAddressSpaceBytes, PutAddressSpaceBytes, "ds", "Data Segment", 16);
-      ASpace_Add(GetAddressSpaceBytes, PutAddressSpaceBytes, "es", "Extra Segment", 16);
-   }
-#endif
+   wsRAMSize          = 65536;
+   sram_size          = ssize;
 
    // WSwan_EEPROMInit() will also clear wsEEPROM
    WSwan_EEPROMInit(MDFN_GetSettingS("wswan.name"), byear, bmonth, bday, sex, blood);
