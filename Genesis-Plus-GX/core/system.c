@@ -103,10 +103,10 @@ int audio_init(int samplerate, double framerate)
 
 void audio_set_rate(int samplerate, double framerate)
 {
-#ifdef WRC
-  // Tweak to eliminate audio pops (minor FPS adjust)
-  samplerate *= 1.005;
-#endif
+// #ifdef WRC
+//   // Tweak to eliminate audio pops (minor FPS adjust)
+//   samplerate *= 1.005;
+// #endif
 
   /* Number of M-cycles executed per second. */
   /* All emulated chips are kept in sync by using a common oscillator (MCLOCK)            */

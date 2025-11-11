@@ -1019,6 +1019,7 @@ static void update_video(void)
 
 static void update_audio(void)
 {
+#ifndef WRC
    uint8_t *samples_ptr = audio_samples_buffer;
    int16_t *out_ptr   = audio_out_buffer;
    size_t i;
@@ -1066,6 +1067,7 @@ static void update_audio(void)
    }
 
    audio_batch_cb(audio_out_buffer, A5200_AUDIO_BUFFER_SIZE);
+#endif
 }
 
 /************************************
@@ -1210,9 +1212,27 @@ bool retro_load_game(const struct retro_game_info *info)
    environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS,
          input_descriptors);
 
+#ifdef WRC
+   int bios_read = 0;
+   RFILE* bios_file = NULL;
+   int64_t bytes_read = 0;
+
+   bios_file = filestream_open("/bios.bin", RETRO_VFS_FILE_ACCESS_READ,
+                              RETRO_VFS_FILE_ACCESS_HINT_NONE);
+   if (bios_file) {
+      bytes_read = filestream_read(bios_file, atari_os, A5200_BIOS_SIZE);
+      filestream_close(bios_file);
+      bios_read = (bytes_read == A5200_BIOS_SIZE);
+   }
+
+   if(!bios_read) {
+      memcpy(atari_os, ROM_altirra_5200_os, A5200_BIOS_SIZE);
+   }
+#else
    /* Load bios */
    check_bios_variable();
    load_bios();
+#endif
 
    /* Load game */
    if (!Atari800_OpenFile(rom_data, rom_size))
@@ -1377,6 +1397,8 @@ void retro_reset(void)
    Warmstart();
 }
 
+void wrc_step();
+
 void retro_run(void)
 {
    bool options_updated = false;
@@ -1386,12 +1408,14 @@ void retro_run(void)
        options_updated)
       check_variables();
 
+#ifndef WRC
    /* Update input */
    input_poll_cb();
    if (input_show_osk)
       update_input_osk();
    else
       update_input();
+#endif
 
    /* Run emulator */
    Atari800_Frame();
@@ -1399,13 +1423,19 @@ void retro_run(void)
    /* Output video */
    update_video();
 
+#ifndef WRC
    /* Output audio */
    update_audio();
+#else
+   wrc_step();
+#endif
 }
 
 #ifdef WRC
 void em_cmd_savefiles() {}
 void wrc_on_set_options(int opts) {}
+void wrc_on_key(int key, int down) {};
+int wrc_start(char* arg) {}
 
 const chd_header *chd_get_header(chd_file *chd) { return 0; }
 chd_error chd_get_metadata(chd_file *chd, UINT32 searchtag, UINT32 searchindex, void *output, UINT32 outputlen, UINT32 *resultlen, UINT32 *resulttag, UINT8 *resultflags) { return 0; }
@@ -1420,76 +1450,6 @@ chd_error chd_read(chd_file *chd, UINT32 hunknum, void *buffer) { return 0; }
 
 static unsigned char* audio_samples = NULL;
 static unsigned char vidBuf[512 * 512];
-
-//a5200_screen_buffer
-
-int wrc_start(char* arg) {
-   char* filename = arg;
-   unsigned long filesize, done = 0;
-   unsigned char* buffer;
-
-   int bios_read = 0;
-   RFILE* bios_file = NULL;
-   int64_t bytes_read = 0;
-
-   bios_file = filestream_open("/bios.bin", RETRO_VFS_FILE_ACCESS_READ,
-                              RETRO_VFS_FILE_ACCESS_HINT_NONE);
-   if (bios_file) {
-      bytes_read = filestream_read(bios_file, atari_os, A5200_BIOS_SIZE);
-      filestream_close(bios_file);
-      bios_read = (bytes_read == A5200_BIOS_SIZE);
-   }
-
-   if(!bios_read) {
-      memcpy(atari_os, ROM_altirra_5200_os, A5200_BIOS_SIZE);
-   }
-
-   /* Open file */
-   FILE* fp = fopen(filename, "rb");
-   if (!fp) {
-         return 0;
-   }
-
-   /* Get file size */
-   fseek(fp, 0, SEEK_END);
-   filesize = ftell(fp);
-   fseek(fp, 0, SEEK_SET);
-
-   /* allocate buffer */
-   buffer = (unsigned char*)malloc(filesize);
-   if (!buffer) {
-         fclose(fp);
-         return 0;
-   }
-
-   /* Read into buffer (2k blocks) */
-   while (filesize > CHUNKSIZE) {
-         fread(buffer + done, CHUNKSIZE, 1, fp);
-         done += CHUNKSIZE;
-         filesize -= CHUNKSIZE;
-   }
-
-   /* Read remaining bytes */
-   fread(buffer + done, filesize, 1, fp);
-   done += filesize;
-
-   /* Close file */
-   fclose(fp);
-
-   // load card game if ok
-   if (Atari800_OpenFile(buffer, done) == AFILE_ERROR) {
-         return 0;
-   }
-
-   a5200_screen_buffer = vidBuf;
-
-   Atari800_Initialise();
-   audio_samples = malloc(SAMPLES);
-
-   printf("Init succeeded.\n");
-
-   return 1;
-}
 
 #define JST_UP 0x0100
 #define JST_RIGHT 0x0200
@@ -1797,15 +1757,15 @@ void wrc_step() {
 
     wrc_update_input();
 
-    Atari800_Frame();
+   //  Atari800_Frame();
 
-    int W = 320;
-    int H = 240;
+   //  int W = 320;
+   //  int H = 240;
 
-    EM_ASM({ window.emulator.drawScreen($0, $1, $2); }, vidBuf, W, H);
+   //  EM_ASM({ window.emulator.drawScreen($0, $1, $2); }, vidBuf, W, H);
 
+    if (!audio_samples) audio_samples = malloc(SAMPLES);
     Pokey_process(audio_samples, SAMPLES);
-
     EM_ASM({ window.emulator.audioCallback($0, $1); }, audio_samples, SAMPLES);
 }
 

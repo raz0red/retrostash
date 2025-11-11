@@ -203,7 +203,11 @@ static uint32_t overclock_delay;
 static bool libretro_supports_option_categories = false;
 static bool libretro_supports_bitmasks          = false;
 
+#ifndef WRC
 #define SOUND_FREQUENCY 44100
+#else
+#define SOUND_FREQUENCY 48000
+#endif
 
 /* Hide the EQ settings for now */
 /*#define HAVE_EQ*/
@@ -1479,7 +1483,11 @@ static void check_variables(bool first_run)
           };
 
           /* framerate might have changed, reinitialize audio timings */
+#ifndef WRC
           audio_set_rate(44100, 0);
+#else
+          audio_set_rate(48000, 0);
+#endif
 
           /* reinitialize I/O region register */
           if (system_hw == SYSTEM_MD)
@@ -2880,6 +2888,27 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
    }
    info->geometry.aspect_ratio  = vaspect_ratio;
    info->timing.fps             = (double)(system_clock) / (double)lines_per_frame / (double)MCYCLES_PER_LINE;
+
+printf("FPS: %f\n", round(info->timing.fps));
+
+int newAudioRate = SOUND_FREQUENCY * (info->timing.fps / round(info->timing.fps));
+
+// Fix for PAL audio not filling appropriately
+if (info->timing.fps < 52.0) {
+   printf("Audio set rate: %d\n", newAudioRate);
+   audio_set_rate(newAudioRate, 0);
+} else {
+   // newAudioRate = newAudioRate * 1.00;
+   printf("Audio set rate: %d\n", newAudioRate);
+   audio_set_rate(newAudioRate, 0);
+}
+
+#ifdef WRC
+   EM_ASM({
+      window.emulator.setRefreshRate($0);
+   }, round(info->timing.fps));
+#endif
+
    info->timing.sample_rate     = SOUND_FREQUENCY;
 }
 
@@ -3742,7 +3771,11 @@ void retro_run(void)
 		video_cb(NULL, vwidth - vwoffset, vheight, 720 * 2);
    }
 
+#ifdef WRC
+   EM_ASM({ window.emulator.audioCallback($0, $1); }, soundbuffer, audio_update(soundbuffer));
+#else
    audio_cb(soundbuffer, audio_update(soundbuffer));
+#endif
 }
 
 #undef  CHUNKSIZE

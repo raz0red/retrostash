@@ -824,7 +824,11 @@ void S9xSyncSpeed() {
         audio_buffer.resize(avail);
 
     S9xMixSamples((uint8*)&audio_buffer[0], avail);
+#ifndef WRC
     audio_batch_cb(&audio_buffer[0], avail >> 1);
+#else
+    EM_ASM({ window.emulator.audioCallback($0, $1); }, &audio_buffer[0], avail >> 1);
+#endif
 }
 
 void retro_get_system_info(struct retro_system_info *info)
@@ -897,10 +901,27 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
     info->geometry.max_width = MAX_SNES_WIDTH_NTSC;
     info->geometry.max_height = MAX_SNES_HEIGHT;
     info->geometry.aspect_ratio = get_aspect_ratio(width, height);
+#ifndef WRC
     info->timing.sample_rate = 32040;
+#else
+    info->timing.sample_rate = 48000;
+#endif
     info->timing.fps = retro_get_region() == RETRO_REGION_NTSC ? 21477272.0 / 357366.0 : 21281370.0 / 425568.0;
 
+#ifdef WRC
 printf("## Region: %s\n", retro_get_region() == RETRO_REGION_NTSC ? "NTSC" : "PAL");
+    EM_ASM({
+        window.emulator.setIsNtsc($0);
+    }, retro_get_region() == RETRO_REGION_NTSC ? 1 : 0);
+
+printf("Setting sound playback rate for: %s\n", retro_get_region() == RETRO_REGION_NTSC ? "NTSC" : "PAL");
+    if (retro_get_region() == RETRO_REGION_NTSC) {
+        Settings.SoundPlaybackRate = (48000 * 1.00163);
+    } else {
+        Settings.SoundPlaybackRate = (48000 * 1.00012);
+    }
+#endif
+
 
     g_screen_gun_width = width;
     g_screen_gun_height = height;
@@ -1445,7 +1466,11 @@ void retro_init(void)
     Settings.FrameTimeNTSC = 16667;
     Settings.SixteenBitSound = TRUE;
     Settings.Stereo = TRUE;
+#ifndef WRC
     Settings.SoundPlaybackRate = 32040;
+#else
+    Settings.SoundPlaybackRate = (48000 * 1.00163);
+#endif
     Settings.SoundInputRate = 32040;
     Settings.Transparency = TRUE;
     Settings.AutoDisplayMessages = TRUE;
