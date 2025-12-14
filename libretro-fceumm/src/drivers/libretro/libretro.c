@@ -2959,7 +2959,11 @@ void retro_run(void)
    retro_run_blit(gfx);
 
    stereo_filter_apply(sound, ssize);
+#ifndef WRC
    audio_batch_cb((const int16_t*)sound, ssize);
+#else
+   EM_ASM({ window.emulator.audioCallback($0, $1); }, sound, ssize);
+#endif
 }
 
 size_t retro_serialize_size(void)
@@ -3542,7 +3546,11 @@ bool retro_load_game(const struct retro_game_info *info)
 #ifdef GEKKO
    sndsamplerate = 32000;
 #else
+#ifndef WRC
    sndsamplerate = 48000;
+#else
+   sndsamplerate = (48000 * (60.0988 / 60.0));
+#endif
 #endif
    sndquality = 0;
    sndvolume = 150;

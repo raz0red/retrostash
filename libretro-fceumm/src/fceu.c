@@ -47,6 +47,10 @@
 #include  "crc32.h"
 #include  "vsuni.h"
 
+#ifdef WRC
+#include <emscripten.h>
+#endif
+
 uint64 timestampbase;
 
 FCEUGI *GameInfo = NULL;
@@ -499,6 +503,13 @@ void FCEUI_SetRenderedLines(int ntscf, int ntscl, int palf, int pall)
 void FCEUI_SetVidSystem(int a)
 {
 	FSettings.PAL = a ? 1 : 0;
+
+printf("### PAL: %d\n", FSettings.PAL);
+#ifdef WRC
+	EM_ASM({
+		window.emulator.setIsNtsc($0);
+	}, (FSettings.PAL ? 0 : 1));
+#endif
 
 	if (!GameInfo)
       return;

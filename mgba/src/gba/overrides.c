@@ -11,6 +11,10 @@
 
 #include <mgba-util/configuration.h>
 
+#ifdef WRC
+#include <emscripten.h>
+#endif
+
 static const struct GBACartridgeOverride _overrides[] = {
 	// Advance Wars
 	{ "AWRE", GBA_SAVEDATA_FLASH512, HW_NONE, 0x8038810 },
@@ -374,6 +378,8 @@ void GBAOverrideApply(struct GBA* gba, const struct GBACartridgeOverride* overri
 }
 
 void GBAOverrideApplyDefaults(struct GBA* gba, const struct Configuration* overrides) {
+
+printf("### GBAOverrideApplyDefaults\n");
 	struct GBACartridgeOverride override = { .idleLoop = GBA_IDLE_LOOP_NONE };
 	const struct GBACartridge* cart = (const struct GBACartridge*) gba->memory.rom;
 	if (cart) {
@@ -429,7 +435,74 @@ void GBAOverrideApplyDefaults(struct GBA* gba, const struct Configuration* overr
 			override.vbaBugCompat = true;
 			GBAOverrideApply(gba, &override);
 		} else if (GBAOverrideFind(overrides, &override)) {
-			GBAOverrideApply(gba, &override);
+printf("### Found game.\n");
+			int disableLookup = EM_ASM_INT({
+				return window.emulator.isDisableLookup();
+			});
+printf("### DisableLookup: %d\n", disableLookup ? true : false );
+			if (!disableLookup) {
+printf("### Applying found game values...\n");
+				GBAOverrideApply(gba, &override);
+			}
 		}
+
+#ifdef WRC
+	bool overridesUpdated = false;
+	int enableRTC = EM_ASM_INT({
+		return window.emulator.enableRTC();
+	});
+	if (enableRTC) {
+printf("### Enable RTC\n");
+		override.hardware = override.hardware | HW_RTC;
+		overridesUpdated = true;
+	}
+
+	int saveType = EM_ASM_INT({
+		return window.emulator.saveType();
+	});
+	// 0 : Auto Detect
+	if (saveType != 0)  {
+		// * case GBA_SAVEDATA_SRAM:
+		// case GBA_SAVEDATA_SRAM512:
+		// * case GBA_SAVEDATA_EEPROM:
+		// case GBA_SAVEDATA_EEPROM512:
+		// * case GBA_SAVEDATA_FLASH512:
+		// * case GBA_SAVEDATA_FLASH1M:
+		// * case GBA_SAVEDATA_FORCE_NONE:
+		// * case GBA_SAVEDATA_AUTODETECT:
+
+		// 1 : EEPROM // 4 : EEPROM + Sensor
+		if (saveType == 1 || saveType == 4) {
+			override.savetype = GBA_SAVEDATA_EEPROM;
+		// 2 : SRAM
+		} else if (saveType == 2) {
+			override.savetype = GBA_SAVEDATA_SRAM;
+		// 3 : Flash
+		} else if (saveType == 3) {
+			int flashSize = EM_ASM_INT({
+				return window.emulator.flashSize();
+			});
+			if (flashSize == (64 * 1024)) {
+				override.savetype = GBA_SAVEDATA_FLASH512;
+			} else {
+				override.savetype = GBA_SAVEDATA_FLASH1M;
+			}
+		// 5 : None
+		} else if (saveType == 5) {
+
+			override.savetype = GBA_SAVEDATA_FORCE_NONE;
+		}
+		overridesUpdated = true;
+	}
+
+	if (overridesUpdated) {
+printf("### Applying overrides.\n");
+		GBAOverrideApply(gba, &override);
+	}
+
+#endif
+
+printf("### Save type: %d\n", override.savetype);
+printf("### RTC: %d\n", override.hardware & HW_RTC);
 	}
 }
