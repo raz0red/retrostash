@@ -529,7 +529,11 @@ void retro_run(void)
    update_input();
 
    spec.surface            = surf;
+// #ifdef WRC
+//    spec.SoundRate          = 48000;
+// #else
    spec.SoundRate          = 44100;
+// #endif
    spec.SoundBuf           = sound_buf;
    spec.SoundBufMaxSize    = sizeof(sound_buf) / 2;
    spec.SoundBufSize       = 0;
@@ -549,7 +553,11 @@ void retro_run(void)
 
    video_cb(surf->pixels, width, height, pitch);
 
+#ifdef WRC
+   EM_ASM({ window.emulator.audioCallback($0, $1); }, spec.SoundBuf, spec.SoundBufSize);
+#else
    audio_batch_cb(spec.SoundBuf, spec.SoundBufSize);
+#endif
 
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE,
 			   &updated) && updated)
@@ -576,7 +584,11 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
       info->timing.fps            = MEDNAFEN_CORE_TIMING_FPS;
    else
       info->timing.fps            = 60.0;
+// #ifdef WRC
+//    info->timing.sample_rate    = 48000.0;
+// #else
    info->timing.sample_rate    = 44100.0;
+// #endif
    info->geometry.base_width   = MEDNAFEN_CORE_GEOMETRY_BASE_W;
    info->geometry.base_height  = MEDNAFEN_CORE_GEOMETRY_BASE_H;
    info->geometry.max_width    = MEDNAFEN_CORE_GEOMETRY_MAX_W;

@@ -2332,7 +2332,11 @@ bool retro_load_game(const struct retro_game_info *info)
       int y;
       for(y = 0; y < 2; y++)
       {
+#ifdef WRC
+         Blip_Buffer_set_sample_rate(&sbuf[y], 44100 * 1.00578, 50);
+#else
          Blip_Buffer_set_sample_rate(&sbuf[y], 44100, 50);
+#endif
          Blip_Buffer_set_clock_rate(&sbuf[y], (long)(VB_MASTER_CLOCK / 4));
          Blip_Buffer_bass_freq(&sbuf[y], 20);
       }
@@ -2503,7 +2507,11 @@ static void update_geometry(unsigned width, unsigned height)
 
    memset(&info, 0, sizeof(info));
    info.timing.fps            = MEDNAFEN_CORE_TIMING_FPS;
+#ifdef WRC
+   info.timing.sample_rate    = 48000;
+#else
    info.timing.sample_rate    = 44100;
+#endif
    info.geometry.base_width   = width;
    info.geometry.base_height  = height;
    info.geometry.max_width    = MEDNAFEN_CORE_GEOMETRY_MAX_W;
@@ -2512,6 +2520,89 @@ static void update_geometry(unsigned width, unsigned height)
 
    environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &info);
 }
+
+#ifdef WRC
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdio.h>
+
+// ----------------------------
+// Tunables
+// ----------------------------
+#define DECAY 180    // 0..255, controls trail length (smaller = faster fade)
+#define MIN_VAL 0    // minimum brightness for moving pixels
+
+// ----------------------------
+// Persistence buffer
+// ----------------------------
+static uint32_t* accumFrame = NULL;
+static int fb_width = 0;
+static int fb_height = 0;
+
+// ----------------------------
+// Drop-in persistence function
+// ----------------------------
+void blend_with_prev_frame(uint32_t* pix,
+                           unsigned width,
+                           unsigned height,
+                           size_t pitch_bytes)
+{
+    if (!accumFrame || width != fb_width || height != fb_height) {
+        free(accumFrame);
+        fb_width = width;
+        fb_height = height;
+        accumFrame = (uint32_t*)malloc(width * height * sizeof(uint32_t));
+        memset(accumFrame, 0, width * height * sizeof(uint32_t));
+    }
+
+    const size_t row_pitch = pitch_bytes / 4;
+
+    for (unsigned y = 0; y < height; y++) {
+        uint32_t* src_row = pix + y * row_pitch;
+        uint32_t* acc_row = accumFrame + y * width;
+
+        for (unsigned x = 0; x < width; x++) {
+            uint32_t c = src_row[x];
+            uint32_t a = acc_row[x];
+
+            // Extract RGB
+            uint8_t cr = (c >> 16) & 0xFF;
+            uint8_t cg = (c >> 8)  & 0xFF;
+            uint8_t cb =  c        & 0xFF;
+
+            uint8_t ar = (a >> 16) & 0xFF;
+            uint8_t ag = (a >> 8)  & 0xFF;
+            uint8_t ab =  a        & 0xFF;
+
+            uint8_t r, g, b;
+
+            if (cr != 0 || cg != 0 || cb != 0) {
+                // Apply proportional decay towards current pixel
+                r = cr + (((ar - cr) * DECAY) >> 8);
+                g = cg + (((ag - cg) * DECAY) >> 8);
+                b = cb + (((ab - cb) * DECAY) >> 8);
+
+                // Optional minimum brightness (if desired)
+                r = (r < MIN_VAL) ? MIN_VAL : r;
+                g = (g < MIN_VAL) ? MIN_VAL : g;
+                b = (b < MIN_VAL) ? MIN_VAL : b;
+            } else {
+                // Pure black stays black
+                r = cr;
+                g = cg;
+                b = cb;
+            }
+
+            uint32_t out = (0xFF << 24) | (r << 16) | (g << 8) | b;
+
+            // Write output and update accumulation
+            src_row[x] = out;
+            acc_row[x] = out;
+        }
+    }
+}
+#endif
 
 void retro_run(void)
 {
@@ -2548,14 +2639,22 @@ void retro_run(void)
    height = spec.DisplayRect.h;
 
 #if defined(WANT_32BPP)
-   const uint32_t *pix = surf.pixels;
+   uint32_t *pix = surf.pixels;
+#ifdef WRC
+   //blend_with_prev_frame(pix, width, height, FB_WIDTH << 2); // pitch in bytes (4 bytes per pixel)
+#endif
    video_cb(pix, width, height, FB_WIDTH << 2);
 #elif defined(WANT_16BPP)
    const uint16_t *pix = surf.pixels16;
    video_cb(pix, width, height, FB_WIDTH << 1);
 #endif
 
+
+#ifdef WRC
+   EM_ASM({ window.emulator.audioCallback($0, $1); }, sound_buf, spec.SoundBufSize);
+#else
    audio_batch_cb(sound_buf, spec.SoundBufSize);
+#endif
 
    bool updated = false;
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
@@ -2582,7 +2681,11 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 {
    memset(info, 0, sizeof(*info));
    info->timing.fps            = MEDNAFEN_CORE_TIMING_FPS;
+#ifdef WRC
+   info->timing.sample_rate    = 48000;
+#else
    info->timing.sample_rate    = 44100;
+#endif
    info->geometry.base_width   = MEDNAFEN_CORE_GEOMETRY_BASE_W;
    info->geometry.base_height  = MEDNAFEN_CORE_GEOMETRY_BASE_H;
    info->geometry.max_width    = MEDNAFEN_CORE_GEOMETRY_MAX_W;

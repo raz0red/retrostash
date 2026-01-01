@@ -47,7 +47,11 @@
 #define FB_WIDTH 512
 #define FB_HEIGHT 243
 
+// #ifdef WRC
+// #define SAMPLE_RATE 48000.0
+// #else
 #define SAMPLE_RATE 44100.0
+// #endif
 
 static bool libretro_supports_option_categories = false;
 static bool geometry_changed = false;
@@ -1766,7 +1770,11 @@ void retro_run(void)
 
    video_cb(surf->pixels16 + surf->pitchinpix * spec.DisplayRect.y, width, height, FB_WIDTH << 1);
 
+#ifdef WRC
+   EM_ASM({ window.emulator.audioCallback($0, $1); }, spec.SoundBuf, spec.SoundBufSize);
+#else
    audio_batch_cb(spec.SoundBuf, spec.SoundBufSize);
+#endif
 
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
       check_variables(true);
