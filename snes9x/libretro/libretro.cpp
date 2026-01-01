@@ -916,9 +916,9 @@ printf("## Region: %s\n", retro_get_region() == RETRO_REGION_NTSC ? "NTSC" : "PA
 
 printf("Setting sound playback rate for: %s\n", retro_get_region() == RETRO_REGION_NTSC ? "NTSC" : "PAL");
     if (retro_get_region() == RETRO_REGION_NTSC) {
-        Settings.SoundPlaybackRate = (48000 * 1.00163);
+        Settings.SoundPlaybackRate = (48000 * 1.00163 * 1.0003125);
     } else {
-        Settings.SoundPlaybackRate = (48000 * 1.00012);
+        Settings.SoundPlaybackRate = (48000 * 1.00012 * 1.0003125);
     }
 #endif
 
@@ -1469,7 +1469,7 @@ void retro_init(void)
 #ifndef WRC
     Settings.SoundPlaybackRate = 32040;
 #else
-    Settings.SoundPlaybackRate = (48000 * 1.00163);
+    Settings.SoundPlaybackRate = (48000 * 1.00163 * 1.0003125);
 #endif
     Settings.SoundInputRate = 32040;
     Settings.Transparency = TRUE;

@@ -49,6 +49,7 @@
 
 #ifdef WRC
 #include <emscripten.h>
+extern unsigned sndsamplerate;
 #endif
 
 uint64 timestampbase;
@@ -516,6 +517,11 @@ printf("### PAL: %d\n", FSettings.PAL);
 
    FCEU_ResetVidSys();
    FCEU_ResetPalette();
+#ifdef WRC
+	if (FSettings.PAL) {
+   		FCEUI_Sound(sndsamplerate * 0.9985);
+	}
+#endif
 }
 
 int FCEUI_GetCurrentVidSystem(int *slstart, int *slend)

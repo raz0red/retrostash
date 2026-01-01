@@ -1056,7 +1056,7 @@ static void init_for_current_model(unsigned id)
     // head hit tail: GB_set_sample_rate(&gameboy[i], WIIU_SAMPLE_RATE * (59.90/60.0)); ~ 4hims
     // head hit tail: GB_set_sample_rate(&gameboy[i], WIIU_SAMPLE_RATE * (59.85/60.0));
     // head hit tail: GB_set_sample_rate(&gameboy[i], WIIU_SAMPLE_RATE * (59.82/60.0));
-    GB_set_sample_rate(&gameboy[i], WIIU_SAMPLE_RATE * (59.82/60.0));
+    GB_set_sample_rate(&gameboy[i], WIIU_SAMPLE_RATE * (59.82/60.0) * 0.998772);
 #else
     GB_set_sample_rate(&gameboy[i], GB_get_clock_rate(&gameboy[i]) / 2);
 #endif

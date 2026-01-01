@@ -1443,7 +1443,11 @@ chd_error chd_open(const char *filename, int mode, chd_file *parent, chd_file **
 void chd_close(chd_file *chd) {}
 chd_error chd_read(chd_file *chd, UINT32 hunknum, void *buffer) { return 0; }
 
+// #ifdef WRC
+// #define SAMPLE_RATE (48000 * 1.0003125)
+// #else
 #define SAMPLE_RATE 48000
+// #endif
 #define FPS 60
 #define SAMPLES (SAMPLE_RATE / FPS)
 #define CHUNKSIZE 2048

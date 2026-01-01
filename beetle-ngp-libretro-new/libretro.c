@@ -512,7 +512,7 @@ bool retro_load_game(const struct retro_game_info *info)
 
 #ifdef WRC
    flash_read();
-#endif   
+#endif
 
    return true;
 }
@@ -646,9 +646,13 @@ void retro_run(void)
 
    video_cb(surf->pixels, width, height, FB_WIDTH * 2);
 
+
+#ifdef WRC
+   EM_ASM({ window.emulator.audioCallback($0, $1); }, sound_buf, spec.SoundBufSize);
+#else
    for (total = 0; total < spec.SoundBufSize; )
       total += audio_batch_cb(sound_buf + total*2, spec.SoundBufSize - total);
-
+#endif
 }
 
 void retro_get_system_info(struct retro_system_info *info)
@@ -669,7 +673,11 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 {
    memset(info, 0, sizeof(*info));
    info->timing.fps            = MEDNAFEN_CORE_TIMING_FPS;
+//#ifdef WRC
+//   info->timing.sample_rate    = (48000 * 0.99916);
+//#else
    info->timing.sample_rate    = 44100;
+//#endif
    info->geometry.base_width   = MEDNAFEN_CORE_GEOMETRY_BASE_W;
    info->geometry.base_height  = MEDNAFEN_CORE_GEOMETRY_BASE_H;
    info->geometry.max_width    = MEDNAFEN_CORE_GEOMETRY_MAX_W;

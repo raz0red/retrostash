@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
 
 /* Copyright (C) 2003-2006 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -50,6 +51,8 @@ void Blip_Buffer::clear( int entire_buffer )
 
 int Blip_Buffer::set_sample_rate( long new_rate, int msec )
 {
+
+printf("#### SampleRate: %d\n", new_rate);
 	// start with maximum length that resampled time can represent
 	int64_t new_size = (ULLONG_MAX >> BLIP_BUFFER_ACCURACY) - blip_buffer_extra_ - 64;
 
@@ -63,7 +66,7 @@ int Blip_Buffer::set_sample_rate( long new_rate, int msec )
 		if ( s < new_size )
 			new_size = s;
 	}
-	
+
 	if ( buffer_size_ != new_size )
 	{
 		void* p = realloc( buffer_, (new_size + blip_buffer_extra_) * sizeof *buffer_ );
@@ -72,23 +75,28 @@ int Blip_Buffer::set_sample_rate( long new_rate, int msec )
 
 		buffer_ = (int32_t*) p;
 	}
-	
+
 	buffer_size_ = new_size;
-	
+
 	// update things based on the sample rate
 	length_      = new_size * 1000 / 44100 - 1;
 	if ( clock_rate_ )
 		clock_rate( clock_rate_ );
 	bass_freq( bass_freq_ );
-	
+
 	clear();
-	
+
 	return 0; // success
 }
 
 uint64_t Blip_Buffer::clock_rate_factor( long rate ) const
 {
+	//double ratio   = (double) (48000 * 0.99916) / rate;
+#ifdef WRC
+	double ratio   = (double) ((44100 * 0.99916) * 1.00034) / rate;
+#else
 	double ratio   = (double) 44100 / rate;
+#endif
 	int64_t factor = (int64_t) floor( ratio * (1LL << BLIP_BUFFER_ACCURACY) + 0.5 );
 	return (uint64_t) factor;
 }
@@ -116,7 +124,7 @@ void Blip_Buffer::remove_samples( long count )
 	if ( count )
 	{
 		offset_ -= (uint64_t) count << BLIP_BUFFER_ACCURACY;
-		
+
 		// copy remaining samples to beginning and clear old samples
 		long remain = samples_avail() + blip_buffer_extra_;
 		memmove( buffer_, buffer_ + count, remain * sizeof *buffer_ );
@@ -143,12 +151,12 @@ long Blip_Buffer::read_samples( int16_t* BLIP_RESTRICT out, long max_samples)
 	long count = samples_avail();
 	if ( count > max_samples )
 		count = max_samples;
-	
+
 	if ( count )
 	{
 		int const bass = BLIP_READER_BASS( *this );
 		BLIP_READER_BEGIN( reader, *this );
-		
+
 		for ( int32_t n = count; n; --n )
 		{
 			int32_t s = BLIP_READER_READ( reader );
@@ -159,7 +167,7 @@ long Blip_Buffer::read_samples( int16_t* BLIP_RESTRICT out, long max_samples)
 			BLIP_READER_NEXT( reader, bass );
 		}
 		BLIP_READER_END( reader, *this );
-		
+
 		remove_samples( count );
 	}
 	return count;

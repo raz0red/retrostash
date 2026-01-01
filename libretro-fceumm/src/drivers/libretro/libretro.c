@@ -212,7 +212,7 @@ static uint16_t* fceu_video_out;
 #endif
 
 /* Some timing-related variables. */
-static unsigned sndsamplerate;
+unsigned sndsamplerate;
 static unsigned sndquality;
 static unsigned sndvolume;
 unsigned swapDuty;
@@ -3549,7 +3549,7 @@ bool retro_load_game(const struct retro_game_info *info)
 #ifndef WRC
    sndsamplerate = 48000;
 #else
-   sndsamplerate = (48000 * (60.0988 / 60.0));
+   sndsamplerate = (48000 * (60.13 / 60.0) * 0.99985);
 #endif
 #endif
    sndquality = 0;

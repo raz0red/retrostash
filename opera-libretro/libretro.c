@@ -31,6 +31,10 @@
 #include "opera_lr_opts.h"
 #include "retro_cdimage.h"
 
+#ifdef WRC
+#include <emscripten.h>
+#endif
+
 #define CDIMAGE_SECTOR_SIZE 2048
 
 static cdimage_t  CDIMAGE;
@@ -519,7 +523,14 @@ retro_get_system_av_info(struct retro_system_av_info *info_)
 {
   memset(info_,0,sizeof(*info_));
 
-  info_->timing.fps            = 60.4; //opera_region_field_rate();
+
+#ifdef WRC
+	EM_ASM({
+		window.emulator.setRate($0);
+	}, opera_region_field_rate());
+#endif
+
+  info_->timing.fps            = opera_region_field_rate();
   info_->timing.sample_rate    = 44100;
   info_->geometry.base_width   = g_OPT_VIDEO_WIDTH;
   info_->geometry.base_height  = g_OPT_VIDEO_HEIGHT;

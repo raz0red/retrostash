@@ -51,7 +51,7 @@ FS_Archive sdmcArchive;
 
 #ifdef WRC
 //#define GBA_RESAMPLED_RATE (48000 * 0.9954583333333333)
-#define GBA_RESAMPLED_RATE 47782
+#define GBA_RESAMPLED_RATE (47782 * 1.00125 * 0.999063)
 #else
 #define GBA_RESAMPLED_RATE 65536
 #endif

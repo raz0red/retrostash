@@ -34,6 +34,10 @@
 using namespace std;
 #endif
 
+#ifdef WRC
+#include <emscripten.h>
+#endif
+
 std::string retro_base_directory;
 
 #define MEDNAFEN_CORE_NAME_MODULE "pce_fast"
@@ -2112,7 +2116,7 @@ bool retro_load_game(const struct retro_game_info *info)
      Blip_Buffer_set_sample_rate(&sbuf[y],
 #ifdef WRC
             // Minor tweak to eliminate audio pops (minor FPS adjust)
-            44100 * 1.005, 50);
+            44100 * 1.005 * 1.084 * 1.0003125, 50);
 #else
             44100, 50);
 #endif
@@ -2381,7 +2385,11 @@ void retro_run(void)
 #endif
    }
 
+#ifdef WRC
+   EM_ASM({ window.emulator.audioCallback($0, $1); }, spec.SoundBuf, spec.SoundBufSize);
+#else
    audio_batch_cb(spec.SoundBuf, spec.SoundBufSize);
+#endif
 
    bool updated = false;
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)

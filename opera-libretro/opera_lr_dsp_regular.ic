@@ -3,6 +3,9 @@
 #include "opera_lr_callbacks.h"
 
 #include <stdint.h>
+#ifdef WRC
+#include <emscripten.h>
+#endif
 
 /* MACROS */
 #define DSP_BUF_SIZE      1024
@@ -24,7 +27,11 @@ opera_lr_dsp_process(void)
 void
 opera_lr_dsp_upload(void)
 {
+#ifdef WRC
+  EM_ASM({ window.emulator.audioCallback($0, $1); },(int16_t*)g_DSP_BUF,g_DSP_BUF_IDX);
+#else
   retro_audio_sample_batch_cb((int16_t*)g_DSP_BUF,g_DSP_BUF_IDX);
+#endif
   g_DSP_BUF_IDX = 0;
 }
 

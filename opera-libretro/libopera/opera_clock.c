@@ -6,7 +6,11 @@
 
 #define DEFAULT_CPU_FREQ     12500000UL
 #define MIN_CPU_FREQ         1000000UL
+#ifdef WRC
+#define SND_FREQ             44238UL
+#else
 #define SND_FREQ             44100UL
+#endif
 #define NTSC_FIELD_SIZE      263UL
 #define PAL_FIELD_SIZE       312UL
 #define NTSC_FIELD_RATE_1616 3928227UL
