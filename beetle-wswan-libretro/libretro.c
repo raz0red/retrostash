@@ -48,7 +48,11 @@ void MDFN_LoadGameCheats(void *override_ptr);
 void MDFN_FlushGameCheats(int nosave);
 
 /* core options */
+// #ifdef WRC
+// static int RETRO_SAMPLE_RATE = 48000;
+// #else
 static int RETRO_SAMPLE_RATE = 44100;
+// #endif
 
 static int RETRO_PIX_BYTES = 2;
 static int RETRO_PIX_DEPTH = 15;
@@ -1366,10 +1370,24 @@ void retro_run(void)
       }
       samples_to_read  = frames_to_read << 1;
 
+#ifdef WRC
+      EM_ASM(
+        { window.emulator.audioCallback($0, $1); },
+        retro_60hz_audio.samples_buf,
+        frames_to_read
+      );
+#else
       for (total = 0; total < frames_to_read; )
-         total += audio_batch_cb(
-               retro_60hz_audio.samples_buf + (total << 1),
-               frames_to_read - total);
+          total += audio_batch_cb(
+              retro_60hz_audio.samples_buf + (total << 1),
+              frames_to_read - total
+          );
+#endif
+
+      // for (total = 0; total < frames_to_read; )
+      //    total += audio_batch_cb(
+      //          retro_60hz_audio.samples_buf + (total << 1),
+      //          frames_to_read - total);
 
       /* Remove uploaded samples from the buffer */
       if (frames_to_read < frames_available)
@@ -1381,10 +1399,16 @@ void retro_run(void)
       retro_60hz_audio.samples_buf_pos -= samples_to_read;
    }
    else
+#ifdef WRC
+      EM_ASM({ window.emulator.audioCallback($0, $1); },
+         audio_samples_buf,
+         spec.SoundBufSize);
+#else
       for (total = 0; total < spec.SoundBufSize; )
          total += audio_batch_cb(
-               audio_samples_buf + (total << 1),
-               spec.SoundBufSize - total);
+            audio_samples_buf + (total << 1),
+            spec.SoundBufSize - total);
+#endif
 }
 
 void retro_get_system_info(struct retro_system_info *info)

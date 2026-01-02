@@ -266,7 +266,7 @@ void WSwan_SoundWrite(uint32 A, uint8 V)
    else if(A == 0x92)
       nreg = (nreg & 0xFF00) | (V << 0);
    else if(A == 0x93)
-      nreg = (nreg & 0x00FF) | ((V & 0x7F) << 8);  
+      nreg = (nreg & 0x00FF) | ((V & 0x7F) << 8);
    else if(A == 0x94)
       voice_volume = V & 0xF;
    else switch(A)
@@ -370,7 +370,11 @@ void WSwan_SoundInit(void)
    for(i = 0; i < 2; i++)
    {
       Blip_Buffer_init(&sbuf[i]);
+// #ifdef WRC
+//        Blip_Buffer_set_sample_rate(&sbuf[i], 48000, 60);
+//  #else
       Blip_Buffer_set_sample_rate(&sbuf[i], 44100, 60);
+//  #endif
       Blip_Buffer_set_clock_rate(&sbuf[i], (long)(3072000));
       Blip_Buffer_bass_freq(&sbuf[i], 20);
    }
@@ -390,8 +394,14 @@ void WSwan_SoundKill(void)
 bool WSwan_SetSoundRate(uint32 rate)
 {
    unsigned i;
+#ifdef WRC
+   rate = 44100 * 1.00628 * 1.00033334;
    for(i = 0; i < 2; i++)
       Blip_Buffer_set_sample_rate(&sbuf[i], rate ? rate : 44100, 60);
+#else
+   for(i = 0; i < 2; i++)
+      Blip_Buffer_set_sample_rate(&sbuf[i], rate ? rate : 44100, 60);
+#endif
 
    return(true);
 }
