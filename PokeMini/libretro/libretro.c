@@ -255,7 +255,7 @@ static void InitialiseAudio(void)
 	// > Round down - any excess samples will be read
 	//   out at the end of each 5/6 frame cycle
 	retro_audio.samples_per_frame_60hz = ((uint16_t)(MINX_AUDIOFREQ /
-			RETRO_60HZ_FPS));
+		RETRO_60HZ_FPS));
 
 	// - At native 72Hz, mono buffer must be large enough
 	//   to hold AUDIO_SAMPLES_PER_FRAME_MAX samples
@@ -1211,8 +1211,12 @@ void retro_run (void)
 			AudioUpmix(retro_audio.samples_mono,
 					retro_audio.samples_stereo, samples_to_read);
 
+#ifdef WRC
+		EM_ASM({ window.emulator.audioCallback($0, $1); }, retro_audio.samples_stereo, samples_to_read);
+#else
 		audio_batch_cb(retro_audio.samples_stereo,
 				samples_to_read);
+#endif
 
 		// Remove uploaded samples from the mono buffer
 		if (samples_to_read < samples_available)

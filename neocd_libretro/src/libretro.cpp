@@ -18,6 +18,10 @@
 #endif
 
 #ifdef WRC
+#include <emscripten.h>
+#endif
+
+#ifdef WRC
 extern "C" void wrc_on_key(int key, int down) {}
 extern "C" void em_cmd_savefiles() {}
 extern "C" void wrc_on_set_options(int opts) {}
@@ -261,11 +265,20 @@ void retro_run(void)
     {
         neocd->fastForward = true;
 
+#ifdef WRC
+        EM_ASM({ window.emulator.audioProcessor.pause(1); window.emulator.audioProcessor.reset(); });
+#endif
+
         while (neocd->cdSectorDecodedThisFrame)
         {
             neocd->cdSectorDecodedThisFrame = false;
             neocd->runOneFrame();
         }
+
+#ifdef WRC
+        EM_ASM({ window.emulator.audioProcessor.pause(0); });
+#endif
+
 
         neocd->fastForward = false;
     }
@@ -275,7 +288,11 @@ void retro_run(void)
     neocd->runOneFrame();
 
     // Send audio and video to the frontend
+#ifdef WRC
+    EM_ASM({ window.emulator.audioCallback($0, $1); }, reinterpret_cast<const int16_t*>(&neocd->audio.buffer.ymSamples[0]), neocd->audio.buffer.sampleCount);
+#else
     libretro.audioBatch(reinterpret_cast<const int16_t*>(&neocd->audio.buffer.ymSamples[0]), neocd->audio.buffer.sampleCount);
+#endif
     libretro.video(neocd->video.frameBuffer, Video::FRAMEBUFFER_WIDTH, Video::FRAMEBUFFER_HEIGHT, Video::FRAMEBUFFER_WIDTH * sizeof(uint16_t));
 }
 

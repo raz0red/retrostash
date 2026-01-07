@@ -40,6 +40,10 @@
 
 #include "libretro_core_options.h"
 
+#ifdef WRC
+#include <emscripten.h>
+#endif
+
 struct retro_perf_callback perf_cb;
 retro_get_cpu_features_t perf_get_cpu_features_cb = NULL;
 retro_log_printf_t log_cb;
@@ -1396,7 +1400,11 @@ bool retro_load_game(const struct retro_game_info *info)
    for (unsigned i = 0; i < MAX_PLAYERS; i++)
       FXINPUT_SetInput(i, "gamepad", &input_buf[i]);
 
+#ifdef WRC
+   SoundBox_SetSoundRate(44100.0 * 0.997445);
+#else
    SoundBox_SetSoundRate(44100.0);
+#endif
 
    return true;
 }
@@ -1557,7 +1565,11 @@ void retro_run(void)
    if (resolution_changed)
       update_geometry(width, height);
 
+#ifdef WRC
+   EM_ASM({ window.emulator.audioCallback($0, $1); }, spec.SoundBuf, spec.SoundBufSize);
+#else
    audio_batch_cb(spec.SoundBuf, spec.SoundBufSize);
+#endif
 }
 
 void retro_get_system_info(struct retro_system_info *info)

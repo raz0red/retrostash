@@ -14,8 +14,12 @@ class AudioBuffer
 {
 public:
     /// The sample rate of generated audio
+#ifdef WRC
+    static constexpr uint32_t SAMPLE_RATE = 44100 * 0.99367;
+#else
     static constexpr uint32_t SAMPLE_RATE = 44100;
-    
+#endif
+
     /// How many samples to generate for each frame
     static constexpr double SAMPLES_PER_FRAME = static_cast<double>(SAMPLE_RATE) / Timer::FRAME_RATE;
 
@@ -43,7 +47,7 @@ public:
     {
         reset();
     }
-    
+
     void reset()
     {
         sampleCount = 0;
@@ -114,10 +118,10 @@ public:
 
     /// This bool is true if there is cd audio to mix for this frame
     bool hasCdAudio;
-    
+
     /// Buffer for the generated audio
     std::array<Sample, CD_BUFFER_SIZE> cdSamples;
-    
+
     /// Buffer for the generated audio
     std::array<Sample, YM_BUFFER_SIZE> ymSamples;
 

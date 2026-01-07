@@ -1,5 +1,5 @@
 /*
-  PokeMini - Pokémon-Mini Emulator
+  PokeMini - Pokï¿½mon-Mini Emulator
   Copyright (C) 2009-2015  JustBurn
 
   This program is free software: you can redistribute it and/or modify
