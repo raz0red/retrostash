@@ -34,6 +34,10 @@
 #include "movie.h"
 #include "osdcore.h"
 
+#ifdef WRC
+#include <emscripten.h>
+#endif
+
 u8 * Vdp2Ram;
 u8 * Vdp2ColorRam;
 Vdp2 * Vdp2Regs;
@@ -135,6 +139,7 @@ void FASTCALL Vdp2ColorRamWriteLong(u32 addr, u32 val) {
    T2WriteLong(Vdp2ColorRam, addr, val);
 }
 
+#ifndef WRC_OPT
 //////////////////////////////////////////////////////////////////////////////
 
 u8 FASTCALL Sh2Vdp2RamReadByte(SH2_struct *sh, u32 addr) {
@@ -206,6 +211,74 @@ void FASTCALL Sh2Vdp2ColorRamWriteWord(SH2_struct *sh, u32 addr, u16 val) {
 void FASTCALL Sh2Vdp2ColorRamWriteLong(SH2_struct *sh, u32 addr, u32 val) {
    Vdp2ColorRamWriteLong(addr, val);
 }
+#else
+// ===========================================================================
+//  HYBRID OPTIMIZATION: Fast VRAM, Safe Color RAM
+// ===========================================================================
+
+#define FAST_INLINE inline __attribute__((always_inline))
+
+// ---------------------------------------------------------------------------
+// 1. FAST PATH: VDP2 RAM (The Speed Booster)
+// We keep these Direct Access + BSWAP because VRAM is the bottleneck.
+// ---------------------------------------------------------------------------
+
+u8 FAST_INLINE FASTCALL Sh2Vdp2RamReadByte(SH2_struct *sh, u32 addr) {
+   // Direct access: No function call overhead
+   return Vdp2Ram[addr & 0x7FFFF];
+}
+
+u16 FAST_INLINE FASTCALL Sh2Vdp2RamReadWord(SH2_struct *sh, u32 addr) {
+   // Fast Intrinsic Swap
+   return __builtin_bswap16(*(u16 *)&Vdp2Ram[addr & 0x7FFFF]);
+}
+
+u32 FAST_INLINE FASTCALL Sh2Vdp2RamReadLong(SH2_struct *sh, u32 addr) {
+   return __builtin_bswap32(*(u32 *)&Vdp2Ram[addr & 0x7FFFF]);
+}
+
+void FAST_INLINE FASTCALL Sh2Vdp2RamWriteByte(SH2_struct *sh, u32 addr, u8 val) {
+   Vdp2Ram[addr & 0x7FFFF] = val;
+}
+
+void FAST_INLINE FASTCALL Sh2Vdp2RamWriteWord(SH2_struct *sh, u32 addr, u16 val) {
+   *(u16 *)&Vdp2Ram[addr & 0x7FFFF] = __builtin_bswap16(val);
+}
+
+void FAST_INLINE FASTCALL Sh2Vdp2RamWriteLong(SH2_struct *sh, u32 addr, u32 val) {
+   *(u32 *)&Vdp2Ram[addr & 0x7FFFF] = __builtin_bswap32(val);
+}
+
+// ---------------------------------------------------------------------------
+// 2. SAFE PATH: COLOR RAM (Fixes the "Wrong Colors" bug)
+// We revert these to call the original functions.
+// The bandwidth here is low, so we don't lose much speed, but we regain accuracy.
+// ---------------------------------------------------------------------------
+
+u8 FAST_INLINE FASTCALL Sh2Vdp2ColorRamReadByte(SH2_struct *sh, u32 addr) {
+   return Vdp2ColorRamReadByte(addr);
+}
+
+u16 FAST_INLINE FASTCALL Sh2Vdp2ColorRamReadWord(SH2_struct *sh, u32 addr) {
+   return Vdp2ColorRamReadWord(addr);
+}
+
+u32 FAST_INLINE FASTCALL Sh2Vdp2ColorRamReadLong(SH2_struct *sh, u32 addr) {
+   return Vdp2ColorRamReadLong(addr);
+}
+
+void FAST_INLINE FASTCALL Sh2Vdp2ColorRamWriteByte(SH2_struct *sh, u32 addr, u8 val) {
+   Vdp2ColorRamWriteByte(addr, val);
+}
+
+void FAST_INLINE FASTCALL Sh2Vdp2ColorRamWriteWord(SH2_struct *sh, u32 addr, u16 val) {
+   Vdp2ColorRamWriteWord(addr, val);
+}
+
+void FAST_INLINE FASTCALL Sh2Vdp2ColorRamWriteLong(SH2_struct *sh, u32 addr, u32 val) {
+   Vdp2ColorRamWriteLong(addr, val);
+}
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -365,10 +438,25 @@ void Vdp2HBlankOUT(void) {
       u32 cell_scroll_table_start_addr = (Vdp2Regs->VCSTA.all & 0x7FFFE) << 1;
       memcpy(Vdp2Lines + yabsys.LineCount, Vdp2Regs, sizeof(Vdp2));
 
-      for (i = 0; i < 88; i++)
+#ifndef WRC_OPT
+      // -----------------------------------------------------------------
+      // THE FIX: Only read scroll data if Scroll Control (SCRCTL) is active
+      // -----------------------------------------------------------------
+      if (Vdp2Regs->SCRCTL != 0)
       {
-         cell_scroll_data[yabsys.LineCount].data[i] = T1ReadLong(Vdp2Ram, cell_scroll_table_start_addr + i * 4);
+#endif
+          for (i = 0; i < 88; i++)
+          {
+             cell_scroll_data[yabsys.LineCount].data[i] = T1ReadLong(Vdp2Ram, cell_scroll_table_start_addr + i * 4);
+          }
+#ifndef WRC_OPT
       }
+#endif
+      // ---------------------------------------------------------------
+      // for (i = 0; i < 88; i++)
+      // {
+      //    cell_scroll_data[yabsys.LineCount].data[i] = T1ReadLong(Vdp2Ram, cell_scroll_table_start_addr + i * 4);
+      // }
    }
 }
 
@@ -483,6 +571,59 @@ void Vdp2VBlankOUT(void) {
    //when in frame advance, disable frame skipping
    else if (autoframeskipenab && FrameAdvanceVariable == 0)
    {
+#ifndef WRC_OPT
+yabsys.OneFrameTime = ((1000 * 1000) / (yabsys.IsPal ? 50 : 60));
+
+      framecount++;
+
+      if (framecount > (yabsys.IsPal ? 50 : 60))
+      {
+         framecount = 1;
+         onesecondticks = 0;
+      }
+
+      #if 0
+      curticks = YabauseGetTicks();
+      #endif
+      curticks = (u64)(emscripten_get_now() * 1000.0);
+      // curticks = EM_ASM_DOUBLE({
+      //   return performance.now() * 1000; // returns milliseconds with fractions
+      // });
+
+      diffticks = curticks-lastticks;
+
+      //if ((onesecondticks+diffticks) > (((yabsys.OneFrameTime * 1.04) * (u64)framecount) + ((yabsys.OneFrameTime * 1.04) / 2)) &&
+      if ((onesecondticks+diffticks) > (((yabsys.OneFrameTime) * (u64)framecount) + ((yabsys.OneFrameTime) / 2)) &&
+          framesskipped < 3)
+      {
+         // Skip the next frame
+         skipnextframe = 1;
+
+         // How many frames should we skip?
+         framestoskip = 1;
+      }
+      else if ((onesecondticks+diffticks) < ((yabsys.OneFrameTime * (u64)framecount) - (yabsys.OneFrameTime / 2)))
+      {
+         // Check to see if we need to limit speed at all
+         for (;;)
+         {
+            #if 0
+            curticks = YabauseGetTicks();
+            #endif
+            curticks = (u64)(emscripten_get_now() * 1000.0);
+            // curticks = EM_ASM_DOUBLE({
+            // return performance.now() * 1000; // returns milliseconds with fractions
+            // });
+
+            diffticks = curticks-lastticks;
+            if ((onesecondticks+diffticks) >= (yabsys.OneFrameTime * (u64)framecount))
+               break;
+         }
+      }
+
+      onesecondticks += diffticks;
+      lastticks = curticks;
+#else
       framecount++;
 
       if (framecount > (yabsys.IsPal ? 50 : 60))
@@ -517,10 +658,11 @@ void Vdp2VBlankOUT(void) {
 
       onesecondticks += diffticks;
       lastticks = curticks;
+#endif
    }
 
    ScuSendVBlankOUT();
-   
+
    if (Vdp2Regs->EXTEN & 0x200) // Should be revised for accuracy(should occur only occur on the line it happens at, etc.)
    {
       // Only Latch if EXLTEN is enabled
@@ -578,7 +720,7 @@ u16 FASTCALL Vdp2ReadWord(u32 addr) {
          else
             return (tvstat | 0x8);
       }
-      case 0x006:         
+      case 0x006:
          return Vdp2Regs->VRSIZE;
       case 0x008:
          return Vdp2Regs->HCNT;
@@ -965,7 +1107,7 @@ void FASTCALL Vdp2WriteWord(u32 addr, u16 val) {
          return;
       case 0x0E6:
          Vdp2Regs->CRAOFB = val;
-         return;     
+         return;
       case 0x0E8:
          Vdp2Regs->LNCLEN = val;
          return;
@@ -974,7 +1116,7 @@ void FASTCALL Vdp2WriteWord(u32 addr, u16 val) {
          return;
       case 0x0EC:
          Vdp2Regs->CCCTL = val;
-         return;     
+         return;
       case 0x0EE:
          Vdp2Regs->SFCCMD = val;
          return;
@@ -1061,7 +1203,7 @@ void FASTCALL Vdp2WriteWord(u32 addr, u16 val) {
 //////////////////////////////////////////////////////////////////////////////
 
 void FASTCALL Vdp2WriteLong(u32 addr, u32 val) {
-   
+
    Vdp2WriteWord(addr,val>>16);
    Vdp2WriteWord(addr+2,val&0xFFFF);
    return;
@@ -1108,7 +1250,7 @@ void FASTCALL Sh2Vdp2WriteLong(SH2_struct *sh, u32 addr, u32 val) {
 int Vdp2SaveState(void ** stream)
 {
    int offset;
-   
+
    offset = MemStateWriteHeader(stream, "VDP2", 1);
 
    // Write registers

@@ -445,7 +445,7 @@ static INLINE void libretro_set_core_options(retro_environment_t environ_cb)
          variables[i].key   = key;
          variables[i].value = values_buf[i];
       }
-      
+
       /* Set variables */
       environ_cb(RETRO_ENVIRONMENT_SET_VARIABLES, variables);
 

@@ -35,6 +35,7 @@ static pthread_cond_t thread_cond[YAB_NUM_THREADS];
 
 //////////////////////////////////////////////////////////////////////////////
 
+#if 0
 int YabThreadStart(unsigned int id, void (*func)(void *), void *arg)
 {
    if (thread_handle[id])
@@ -59,6 +60,47 @@ int YabThreadStart(unsigned int id, void (*func)(void *), void *arg)
 
    return 0;
 }
+#endif
+
+#if 1
+int YabThreadStart(unsigned int id, void (*func)(void *), void *arg)
+{
+   if (thread_handle[id])
+   {
+      // Logging commented out to prevent Emscripten deadlocks
+      // fprintf(stderr, "YabThreadStart: thread %u is already started!\n", id);
+      return -1;
+   }
+
+   pthread_mutex_init(&thread_mutex[id], NULL);
+
+   if (pthread_cond_init(&thread_cond[id], NULL) != 0)
+   {
+      // perror("pthread_cond_init");
+      return -1;
+   }
+
+   // --- EMSCRIPTEN STACK FIX START ---
+   pthread_attr_t attr;
+   pthread_attr_init(&attr);
+
+   // Set thread stack to 5MB (default is often 2MB or less on old Emscripten)
+   // This prevents silent crashes in the Video/Sound threads during heavy load.
+   pthread_attr_setstacksize(&attr, 5242880);
+
+   if ((errno = pthread_create(&thread_handle[id], &attr, (void *)func, arg)) != 0)
+   {
+      // perror("pthread_create");
+      pthread_attr_destroy(&attr);
+      return -1;
+   }
+
+   pthread_attr_destroy(&attr);
+   // --- EMSCRIPTEN STACK FIX END ---
+
+   return 0;
+}
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 

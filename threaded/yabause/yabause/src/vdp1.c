@@ -40,6 +40,26 @@ VideoInterface_struct *VIDCore=NULL;
 extern VideoInterface_struct *VIDCoreList[];
 int VideoUseGL = 1;
 
+#ifdef WRC_OPT
+// Add FORCE_INLINE if you haven't defined it yet
+#define FORCE_INLINE inline __attribute__((always_inline))
+
+// Force these to inline so the Texture Mapper can eat them raw
+u8 FORCE_INLINE FASTCALL Vdp1RamReadByte(u32 addr) {
+   addr &= 0x7FFFF;
+   return T1ReadByte(Vdp1Ram, addr);
+}
+
+u16 FORCE_INLINE FASTCALL Vdp1RamReadWord(u32 addr) {
+   addr &= 0x7FFFF;
+   return T1ReadWord(Vdp1Ram, addr);
+}
+
+u32 FORCE_INLINE FASTCALL Vdp1RamReadLong(u32 addr) {
+   addr &= 0x7FFFF;
+   return T1ReadLong(Vdp1Ram, addr);
+}
+#else
 //////////////////////////////////////////////////////////////////////////////
 
 u8 FASTCALL Vdp1RamReadByte(u32 addr) {
@@ -60,6 +80,7 @@ u32 FASTCALL Vdp1RamReadLong(u32 addr) {
    addr &= 0x7FFFF;
    return T1ReadLong(Vdp1Ram, addr);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -82,6 +103,69 @@ void FASTCALL Vdp1RamWriteLong(u32 addr, u32 val) {
    T1WriteLong(Vdp1Ram, addr, val);
 }
 
+#ifdef WRC_OPT
+// ===========================================================================
+// OPTIMIZATION: Branch Prediction Hints for Framebuffer Access
+// ===========================================================================
+
+u8 FASTCALL Vdp1FrameBufferReadByte(u32 addr) {
+   addr &= 0x3FFFF;
+   // Hint: The callback is almost NEVER present. Optimize for the T1ReadByte path.
+   if (__builtin_expect(VIDCore->Vdp1ReadFrameBuffer != NULL, 0)){
+     u8 val;
+     VIDCore->Vdp1ReadFrameBuffer(0, addr, &val);
+     return val;
+   }
+   return T1ReadByte(Vdp1FrameBuffer, addr);
+}
+
+u16 FASTCALL Vdp1FrameBufferReadWord(u32 addr) {
+   addr &= 0x3FFFF;
+   if (__builtin_expect(VIDCore->Vdp1ReadFrameBuffer != NULL, 0)){
+     u16 val;
+     VIDCore->Vdp1ReadFrameBuffer(1, addr, &val);
+     return val;
+   }
+   return T1ReadWord(Vdp1FrameBuffer, addr);
+}
+
+u32 FASTCALL Vdp1FrameBufferReadLong(u32 addr) {
+   addr &= 0x3FFFF;
+   if (__builtin_expect(VIDCore->Vdp1ReadFrameBuffer != NULL, 0)){
+     u32 val;
+     VIDCore->Vdp1ReadFrameBuffer(2, addr, &val);
+     return val;
+   }
+   return T1ReadLong(Vdp1FrameBuffer, addr);
+}
+
+void FASTCALL Vdp1FrameBufferWriteByte(u32 addr, u8 val) {
+   addr &= 0x3FFFF;
+   if (__builtin_expect(VIDCore->Vdp1WriteFrameBuffer != NULL, 0)) {
+      VIDCore->Vdp1WriteFrameBuffer(0, addr, val);
+      return;
+   }
+   T1WriteByte(Vdp1FrameBuffer, addr, val);
+}
+
+void FASTCALL Vdp1FrameBufferWriteWord(u32 addr, u16 val) {
+   addr &= 0x3FFFF;
+   if (__builtin_expect(VIDCore->Vdp1WriteFrameBuffer != NULL, 0)) {
+      VIDCore->Vdp1WriteFrameBuffer(1, addr, val);
+      return;
+   }
+   T1WriteWord(Vdp1FrameBuffer, addr, val);
+}
+
+void FASTCALL Vdp1FrameBufferWriteLong(u32 addr, u32 val) {
+   addr &= 0x3FFFF;
+   if (__builtin_expect(VIDCore->Vdp1WriteFrameBuffer != NULL, 0)) {
+      VIDCore->Vdp1WriteFrameBuffer(2, addr, val);
+      return;
+   }
+   T1WriteLong(Vdp1FrameBuffer, addr, val);
+}
+#else
 //////////////////////////////////////////////////////////////////////////////
 
 u8 FASTCALL Vdp1FrameBufferReadByte(u32 addr) {
@@ -159,7 +243,67 @@ void FASTCALL Vdp1FrameBufferWriteLong(u32 addr, u32 val) {
 
    T1WriteLong(Vdp1FrameBuffer, addr, val);
 }
+#endif
 
+#ifdef WRC_OPT
+// ===========================================================================
+// OPTIMIZATION: Bypass function chain. Direct T1 Macro Access.
+// ===========================================================================
+#define FORCE_INLINE inline __attribute__((always_inline))
+
+u8 FORCE_INLINE FASTCALL Sh2Vdp1RamReadByte(SH2_struct *sh, u32 addr) {
+   return T1ReadByte(Vdp1Ram, addr & 0x7FFFF);
+}
+
+u16 FORCE_INLINE FASTCALL Sh2Vdp1RamReadWord(SH2_struct *sh, u32 addr) {
+   return T1ReadWord(Vdp1Ram, addr & 0x7FFFF);
+}
+
+u32 FORCE_INLINE FASTCALL Sh2Vdp1RamReadLong(SH2_struct *sh, u32 addr) {
+   return T1ReadLong(Vdp1Ram, addr & 0x7FFFF);
+}
+
+void FORCE_INLINE FASTCALL Sh2Vdp1RamWriteByte(SH2_struct *sh, u32 addr, u8 val) {
+   T1WriteByte(Vdp1Ram, addr & 0x7FFFF, val);
+}
+
+void FORCE_INLINE FASTCALL Sh2Vdp1RamWriteWord(SH2_struct *sh, u32 addr, u16 val) {
+   T1WriteWord(Vdp1Ram, addr & 0x7FFFF, val);
+}
+
+void FORCE_INLINE FASTCALL Sh2Vdp1RamWriteLong(SH2_struct *sh, u32 addr, u32 val) {
+   T1WriteLong(Vdp1Ram, addr & 0x7FFFF, val);
+}
+
+// ---------------------------------------------------------------------------
+// OPTIMIZATION: Framebuffer Access (Heavily used in software rendering)
+// ---------------------------------------------------------------------------
+
+u8 FORCE_INLINE FASTCALL Sh2Vdp1FrameBufferReadByte(SH2_struct *sh, u32 addr) {
+   return Vdp1FrameBufferReadByte(addr); // Keep wrapper here, logic is complex
+}
+
+u16 FORCE_INLINE FASTCALL Sh2Vdp1FrameBufferReadWord(SH2_struct *sh, u32 addr) {
+   return Vdp1FrameBufferReadWord(addr);
+}
+
+u32 FORCE_INLINE FASTCALL Sh2Vdp1FrameBufferReadLong(SH2_struct *sh, u32 addr) {
+   return Vdp1FrameBufferReadLong(addr);
+}
+
+void FORCE_INLINE FASTCALL Sh2Vdp1FrameBufferWriteByte(SH2_struct *sh, u32 addr, u8 val) {
+   Vdp1FrameBufferWriteByte(addr, val);
+}
+
+void FORCE_INLINE FASTCALL Sh2Vdp1FrameBufferWriteWord(SH2_struct *sh, u32 addr, u16 val) {
+   Vdp1FrameBufferWriteWord(addr, val);
+}
+
+void FORCE_INLINE FASTCALL Sh2Vdp1FrameBufferWriteLong(SH2_struct *sh, u32 addr, u32 val) {
+   Vdp1FrameBufferWriteLong(addr, val);
+}
+
+#else
 //////////////////////////////////////////////////////////////////////////////
 
 u8 FASTCALL Sh2Vdp1RamReadByte(SH2_struct *sh, u32 addr) {
@@ -231,6 +375,7 @@ void FASTCALL Sh2Vdp1FrameBufferWriteWord(SH2_struct *sh, u32 addr, u16 val) {
 void FASTCALL Sh2Vdp1FrameBufferWriteLong(SH2_struct *sh, u32 addr, u32 val) {
    Vdp1FrameBufferWriteLong(addr, val);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -461,6 +606,99 @@ void FASTCALL Sh2Vdp1WriteLong(SH2_struct *sh, u32 addr, UNUSED u32 val) {
 
 //////////////////////////////////////////////////////////////////////////////
 
+#ifdef WRC_OPT
+void Vdp1DrawCommands(u8 * ram, Vdp1 * regs, u8* back_framebuffer)
+{
+   // OPTIMIZATION: Cache addr in a local register to avoid heap indirection
+   u32 localAddr = regs->addr;
+   u16 command = T1ReadWord(ram, localAddr);
+   u32 commandCounter = 0;
+   u32 returnAddr = 0xffffffff;
+
+   while (!(command & 0x8000) && commandCounter < 2000) {
+
+      // Sync local back to struct just in case drawing functions need it
+      regs->addr = localAddr;
+
+      // First, process the command
+      if (!(command & 0x4000)) { // if (!skip)
+         switch (command & 0x000F) {
+         case 0: // normal sprite draw
+            VIDCore->Vdp1NormalSpriteDraw(ram, regs, back_framebuffer);
+            break;
+         case 1: // scaled sprite draw
+            VIDCore->Vdp1ScaledSpriteDraw(ram, regs, back_framebuffer);
+            break;
+         case 2: // distorted sprite draw
+         case 3:
+            VIDCore->Vdp1DistortedSpriteDraw(ram, regs, back_framebuffer);
+            break;
+         case 4: // polygon draw
+            VIDCore->Vdp1PolygonDraw(ram, regs, back_framebuffer);
+            break;
+         case 5: // polyline draw
+         case 7:
+            VIDCore->Vdp1PolylineDraw(ram, regs, back_framebuffer);
+            break;
+         case 6: // line draw
+            VIDCore->Vdp1LineDraw(ram, regs, back_framebuffer);
+            break;
+         case 8: // user clipping coordinates
+         case 11:
+            VIDCore->Vdp1UserClipping(ram, regs);
+            break;
+         case 9: // system clipping coordinates
+            VIDCore->Vdp1SystemClipping(ram, regs);
+            break;
+         case 10: // local coordinate
+            VIDCore->Vdp1LocalCoordinate(ram, regs);
+            break;
+         default: // Abort
+            VDP1LOG("vdp1\t: Bad command: %x\n", command);
+            regs->EDSR |= 2;
+            VIDCore->Vdp1DrawEnd();
+            regs->LOPR = localAddr >> 3;
+            regs->COPR = localAddr >> 3;
+            // Update the struct before returning
+            regs->addr = localAddr;
+            return;
+         }
+      }
+
+      // OPTIMIZATION: Use the local variable
+      switch ((command & 0x3000) >> 12) {
+      case 0: // NEXT
+         localAddr += 0x20;
+         break;
+      case 1: // ASSIGN
+         localAddr = T1ReadWord(ram, localAddr + 2) * 8;
+         break;
+      case 2: // CALL
+         if (returnAddr == 0xFFFFFFFF)
+            returnAddr = localAddr + 0x20;
+
+         localAddr = T1ReadWord(ram, localAddr + 2) * 8;
+         break;
+      case 3: // RETURN
+         if (returnAddr != 0xFFFFFFFF) {
+            localAddr = returnAddr;
+            returnAddr = 0xFFFFFFFF;
+         }
+         else
+            localAddr += 0x20;
+         break;
+      }
+
+      // Update for next loop
+      command = T1ReadWord(ram, localAddr);
+      commandCounter++;
+   }
+
+   // Final sync
+   regs->addr = localAddr;
+}
+
+#else 
 void Vdp1DrawCommands(u8 * ram, Vdp1 * regs, u8* back_framebuffer)
 {
    u16 command = T1ReadWord(ram, regs->addr);
@@ -540,8 +778,9 @@ void Vdp1DrawCommands(u8 * ram, Vdp1 * regs, u8* back_framebuffer)
       commandCounter++;
    }
 }
+#endif
 
-//ensure that registers are set correctly 
+//ensure that registers are set correctly
 void Vdp1FakeDrawCommands(u8 * ram, Vdp1 * regs)
 {
    u16 command = T1ReadWord(ram, regs->addr);
@@ -611,7 +850,7 @@ void Vdp1FakeDrawCommands(u8 * ram, Vdp1 * regs)
    }
 }
 
-void Vdp1Draw(void) 
+void Vdp1Draw(void)
 {
    if (!Vdp1External.disptoggle)
    {
@@ -756,7 +995,7 @@ static u32 Vdp1DebugGetCommandNumberAddr(u32 number)
          case 2: // CALL, call a subroutine
             if (returnAddr == 0xFFFFFFFF)
                returnAddr = addr + 0x20;
-	
+
             addr = T1ReadWord(Vdp1Ram, addr + 2) * 8;
             break;
          case 3: // RETURN, return from subroutine
@@ -772,7 +1011,7 @@ static u32 Vdp1DebugGetCommandNumberAddr(u32 number)
       if (addr > 0x7FFE0)
          return 0xFFFFFFFF;
       command = T1ReadWord(Vdp1Ram, addr);
-      commandCounter++;    
+      commandCounter++;
    }
 
    if (commandCounter == number)
@@ -1000,7 +1239,7 @@ void Vdp1DebugCommand(u32 number, char *outstring)
             AddString(outstring, "Reversed horizontal and vertical\r\n");
             break;
          default: break;
-      }      
+      }
    }
 
    // Only draw commands use CMDPMOD
@@ -1202,7 +1441,7 @@ u32 *Vdp1DebugTexture(u32 number, int *w, int *h)
    u32 dot;
    u8 SPD;
    u32 alpha;
-   u32 *textdata;   
+   u32 *textdata;
    int isendcode=0;
    int code=0;
    int ret;

@@ -138,7 +138,11 @@ extern SoundInterface_struct *SNDCoreList[];  // Defined by each port
 // Limit on execution time for a single thread loop (in SCSP clock cycles);
 // if the thread's delay exceeds this value, we stop in the main loop to
 // let the SCSP catch up
+#ifndef WRC_OPT
 #define SCSP_CLOCK_MAX_EXEC     (SCSP_CLOCK_FREQ / 1000)
+#else
+#define SCSP_CLOCK_MAX_EXEC     (SCSP_CLOCK_FREQ / 60)
+#endif
 
 // Sound RAM size
 #define SCSP_RAM_SIZE           0x80000
@@ -1651,7 +1655,7 @@ void FASTCALL ScspWriteLong(u32 address, u32 data)
 void ScspReceiveCDDA(const u8 *sector)
 {
    const u32 next_in = cdda_next_in;  // Save volatile value locally
-   const u32 next_next_in = 
+   const u32 next_next_in =
       (next_in + 1) % (sizeof(cdda_buf.sectors) / sizeof(cdda_buf.sectors[0]));
 
    // Make sure we have room for the new sector first

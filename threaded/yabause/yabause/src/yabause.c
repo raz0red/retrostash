@@ -75,11 +75,17 @@
 #include "psp/common.h"
 #endif
 
+#ifdef WRC
+#include <emscripten.h>
+#define DONT_PROFILE
+#include "profile.h"
+#else
 #ifdef SYS_PROFILE_H
  #include SYS_PROFILE_H
 #else
  #define DONT_PROFILE
  #include "profile.h"
+#endif
 #endif
 
 #if defined(SH2_DYNAREC)
@@ -207,6 +213,8 @@ int YabauseInit(yabauseinit_struct *init)
 
    bupfilename = init->buppath;
 
+printf("## BUP Filename: %s\n", bupfilename);
+
    if (CartInit(init->cartpath, init->carttype) != 0)
    {
       YabSetError(YAB_ERR_CANNOTINIT, _("Cartridge"));
@@ -235,7 +243,7 @@ int YabauseInit(yabauseinit_struct *init)
    if ((SH1MpegRom = T2MemoryInit(0x80000)) == NULL)
       return -1;
 
-   // Initialize CD Block 
+   // Initialize CD Block
    if (init->use_cd_block_lle)
    {
 #if defined(SH2_DYNAREC)
@@ -445,6 +453,7 @@ void YabFlushBackups(void)
 {
    if (BupRam)
    {
+printf("### YabFlushBackups\n");
       if (T123Save(BupRam, 0x10000, 1, bupfilename) != 0)
          YabSetError(YAB_ERR_FILEWRITE, (void *)bupfilename);
    }
@@ -558,8 +567,9 @@ void YabauseResetButton(void) {
 
 int YabauseExec(void) {
 
+#ifndef WRC
 	//automatically advance lag frames, this should be optional later
-	if (FrameAdvanceVariable > 0 && LagFrameFlag == 1){ 
+	if (FrameAdvanceVariable > 0 && LagFrameFlag == 1){
 		FrameAdvanceVariable = NeedAdvance; //advance a frame
 		YabauseEmulate();
 		FrameAdvanceVariable = Paused; //pause next time
@@ -570,17 +580,22 @@ int YabauseExec(void) {
 		ScspMuteAudio(SCSP_MUTE_SYSTEM);
 		return(0);
 	}
-  
+
 	if (FrameAdvanceVariable == NeedAdvance){  //advance a frame
 		FrameAdvanceVariable = Paused; //pause next time
 		ScspUnMuteAudio(SCSP_MUTE_SYSTEM);
 		YabauseEmulate();
 	}
-	
+
 	if (FrameAdvanceVariable == RunNormal ) { //run normally
-		ScspUnMuteAudio(SCSP_MUTE_SYSTEM);	
+		ScspUnMuteAudio(SCSP_MUTE_SYSTEM);
 		YabauseEmulate();
 	}
+#else
+   ScspUnMuteAudio(SCSP_MUTE_SYSTEM);
+   YabauseEmulate();
+#endif
+
 	return 0;
 }
 
@@ -651,7 +666,7 @@ int YabauseEmulate(void) {
       }
    }
 #endif
-   
+
    DoMovie();
 
    #if defined(SH2_DYNAREC)
@@ -802,7 +817,7 @@ int YabauseEmulate(void) {
       Cs2Exec(yabsys.UsecFrac >> YABSYS_TIMING_BITS);
       PROFILE_STOP("CDB");
       yabsys.UsecFrac &= YABSYS_TIMING_MASK;
-      
+
 #ifndef USE_SCSP2
       if(!use_new_scsp)
       {
@@ -841,7 +856,7 @@ int YabauseEmulate(void) {
          //sh1_exec(&sh1_cxt, sh1_integer_part);
          SH2Exec(SH1, sh1_integer_part);
          saved_sh1_cycles -= sh1_integer_part << SCSP_FRACTIONAL_BITS;
-         
+
          saved_cdd_cycles += cdd_cycles_per_deciline;
          cdd_integer_part = saved_cdd_cycles >> SCSP_FRACTIONAL_BITS;
          cd_drive_exec(&cdd_cxt, cdd_integer_part);
@@ -926,7 +941,7 @@ u64 YabauseGetTicks(void) {
    return ticks;
 #elif defined(_arch_dreamcast)
    return (u64) timer_ms_gettime64();
-#elif defined(GEKKO)  
+#elif defined(GEKKO)
    return gettime();
 #elif defined(PSP)
    return sceKernelGetSystemTimeWide();
@@ -1029,7 +1044,7 @@ void YabauseSpeedySetup(void)
    Cs2Area->reg.CR1 = (Cs2Area->status << 8) | ((Cs2Area->options & 0xF) << 4) | (Cs2Area->repcnt & 0xF);
    Cs2Area->reg.CR2 = (Cs2Area->ctrladdr << 8) | Cs2Area->track;
    Cs2Area->reg.CR3 = (Cs2Area->index << 8) | ((Cs2Area->FAD >> 16) & 0xFF);
-   Cs2Area->reg.CR4 = (u16) Cs2Area->FAD; 
+   Cs2Area->reg.CR4 = (u16) Cs2Area->FAD;
    Cs2Area->satauth = 4;
 
    // Set Master SH2 registers accordingly
@@ -1126,7 +1141,7 @@ int YabauseQuickLoadGame(void)
              (buffer[0xE2] << 8) |
               buffer[0xE3];
       blocks = size >> 11;
-      if ((size % 2048) != 0) 
+      if ((size % 2048) != 0)
          blocks++;
 
 

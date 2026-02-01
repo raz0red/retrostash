@@ -37,6 +37,11 @@
 #include "sh2_jit.h"
 #endif
 
+#ifdef WRC
+#include <emscripten.h>
+#include "../../../../wrc.h"
+#endif
+
 yabauseinit_struct yinit;
 
 static char slash = PATH_DEFAULT_SLASH_C();
@@ -216,6 +221,11 @@ static int PERLIBRETROHandleEvents(void)
          uint16_t l_trigger, r_trigger;
          libretro_input_bitmask[i] = -1;
 
+#ifdef WRC
+         uint16_t state = 0;
+         if (players < 4) state = wrc_input_state[i];
+#endif
+
          switch(pad_type[i])
          {
             case RETRO_DEVICE_3DPAD:
@@ -246,7 +256,75 @@ static int PERLIBRETROHandleEvents(void)
                PerAxisValue((i << 8) + PERANALOG_AXIS1, (u8)((analog_left_x + 0x8000) >> 8));
 
             case RETRO_DEVICE_JOYPAD:
+#ifdef WRC
+               /* D-Pad */
+               if (state & INP_UP)
+                  PerKeyDown((i << 8) + PERPAD_UP);
+               else
+                  PerKeyUp((i << 8) + PERPAD_UP);
 
+               if (state & INP_DOWN)
+                  PerKeyDown((i << 8) + PERPAD_DOWN);
+               else
+                  PerKeyUp((i << 8) + PERPAD_DOWN);
+
+               if (state & INP_LEFT)
+                  PerKeyDown((i << 8) + PERPAD_LEFT);
+               else
+                  PerKeyUp((i << 8) + PERPAD_LEFT);
+
+               if (state & INP_RIGHT)
+                  PerKeyDown((i << 8) + PERPAD_RIGHT);
+               else
+                  PerKeyUp((i << 8) + PERPAD_RIGHT);
+
+               if (state & INP_X)
+                  PerKeyDown((i << 8) + PERPAD_A);
+               else
+                  PerKeyUp((i << 8) + PERPAD_A);
+
+               if (state & INP_A)
+                  PerKeyDown((i << 8) + PERPAD_B);
+               else
+                  PerKeyUp((i << 8) + PERPAD_B);
+
+               if (state & INP_B)   /* RA A */
+                  PerKeyDown((i << 8) + PERPAD_C);
+               else
+                  PerKeyUp((i << 8) + PERPAD_C);
+
+               if (state & INP_Y)   /* RA X */
+                  PerKeyDown((i << 8) + PERPAD_X);
+               else
+                  PerKeyUp((i << 8) + PERPAD_X);
+
+               if (state & INP_LBUMP)
+                  PerKeyDown((i << 8) + PERPAD_Y);
+               else
+                  PerKeyUp((i << 8) + PERPAD_Y);
+
+               if (state & INP_RBUMP)
+                  PerKeyDown((i << 8) + PERPAD_Z);
+               else
+                  PerKeyUp((i << 8) + PERPAD_Z);
+
+               /* Start */
+               if (state & INP_START)
+                  PerKeyDown((i << 8) + PERPAD_START);
+               else
+                  PerKeyUp((i << 8) + PERPAD_START);
+
+               /* Triggers */
+               if (state & INP_LTRIG)
+                  PerKeyDown((i << 8) + PERPAD_LEFT_TRIGGER);
+               else
+                  PerKeyUp((i << 8) + PERPAD_LEFT_TRIGGER);
+
+               if (state & INP_RTRIG)
+                  PerKeyDown((i << 8) + PERPAD_RIGHT_TRIGGER);
+               else
+                  PerKeyUp((i << 8) + PERPAD_RIGHT_TRIGGER);
+#else
                if (input_state_cb_wrapper(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP))
                   PerKeyDown((i << 8) + PERPAD_UP);
                else
@@ -309,6 +387,7 @@ static int PERLIBRETROHandleEvents(void)
                else
                   PerKeyUp((i << 8) + PERPAD_RIGHT_TRIGGER);
                break;
+#endif
 
             case RETRO_DEVICE_MOUSE:
 
@@ -424,8 +503,13 @@ static void sdlConvert32uto16s(int32_t *srcL, int32_t *srcR, int16_t *dst, size_
 
 static void SNDLIBRETROUpdateAudio(u32 *leftchanbuffer, u32 *rightchanbuffer, u32 num_samples)
 {
+#ifndef WRC
    sdlConvert32uto16s((int32_t*)leftchanbuffer, (int32_t*)rightchanbuffer, sound_buf, num_samples);
    audio_batch_cb(sound_buf, num_samples);
+#else
+   sdlConvert32uto16s((int32_t*)leftchanbuffer, (int32_t*)rightchanbuffer, sound_buf, num_samples);
+   EM_ASM({ window.emulator.audioCallback($0, $1); }, sound_buf, num_samples);
+#endif
 
    audio_size -= num_samples;
 }
@@ -683,6 +767,11 @@ static void check_variables(void)
       }
    }
 
+#ifdef WRC
+EnableAutoFrameSkip();
+frameskip_enable = true;
+#endif
+
    var.key = "yabause_force_hle_bios";
    var.value = NULL;
 
@@ -705,6 +794,17 @@ static void check_variables(void)
       else if (strcmp(var.value, "4M_ram") == 0)
          addon_cart_type = CART_DRAM32MBIT;
    }
+
+#ifdef WRC
+   int expansion = EM_ASM_INT({
+      return window.emulator.getRamExpansion();
+   });
+   if (expansion == 1) {
+      addon_cart_type = CART_DRAM8MBIT;
+   } else if (expansion == 2) {
+      addon_cart_type = CART_DRAM32MBIT;
+   }
+#endif
 
    var.key = "yabause_multitap_port1";
    var.value = NULL;
@@ -743,7 +843,9 @@ static void check_variables(void)
       else if (strcmp(var.value, "32") == 0)
          numthreads = 32;
    }
-
+#ifdef WRC
+   numthreads = 4;
+#endif
 }
 
 static int does_file_exist(const char *filename)
@@ -1222,9 +1324,9 @@ void retro_run(void)
          PERCore->Init();
    }
 
-   //YabauseExec(); runs from handle events
-   if(PERCore)
-      PERCore->HandleEvents();
+   // YabauseExec(); // runs from handle events
+  if(PERCore)
+     PERCore->HandleEvents();
 
    // If no frame rendered, dupe
    if(!one_frame_rendered)
@@ -1251,7 +1353,9 @@ size_t wcstombs(char *s, const wchar_t *pwcs, size_t n)
 
 #ifdef WRC
 void wrc_on_key(int key, int down) {}
-void em_cmd_savefiles() { }
+void em_cmd_savefiles() {
+   //YabFlushBackups();
+ }
 void wrc_on_set_options(int opts) {}
 void wrc_step() {}
 void wrc_save_state(char* file) {}

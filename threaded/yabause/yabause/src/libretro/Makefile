@@ -378,9 +378,9 @@ else ifeq ($(platform), emscripten)
         fpic := -fPIC
         SHARED := -shared -Wl,--no-undefined -Wl,--version-script=link.T
         HAVE_CDROM = 0
-        CFLAGS += -pthread -DWRC
-        CXXFLAGS += -pthread -DWRC
-        LDFLAGS += -pthread
+        CFLAGS += -pthread -DWRC -fno-strict-aliasing -flto -O3 -ffast-math -DNDEBUG
+        CXXFLAGS += -pthread -DWRC -fno-strict-aliasing -flto -O3 -ffast-math -DNDEBUG
+		LDFLAGS += -pthread -flto -O3 -s ASSERTIONS=0 -s DISABLE_EXCEPTION_CATCHING=1
 
 # GCW0
 else ifeq ($(platform), gcw0)

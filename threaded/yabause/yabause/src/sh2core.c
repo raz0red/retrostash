@@ -255,7 +255,7 @@ void SH2Reset(SH2_struct *context)
 
    context->frc.leftover = 0;
    context->frc.shift = 3;
- 
+
    context->wdt.isenable = 0;
    context->wdt.isinterval = 1;
    context->wdt.shift = 1;
@@ -352,7 +352,7 @@ int SH2StepOver(SH2_struct *context, void (*func)(void *, u32, void *))
       u16 inst= context->MappedMemoryReadWord(context, context->regs.PC);
 
       // If instruction is jsr, bsr, or bsrf, step over it
-      if ((inst & 0xF000) == 0xB000 || // BSR 
+      if ((inst & 0xF000) == 0xB000 || // BSR
          (inst & 0xF0FF) == 0x0003 || // BSRF
          (inst & 0xF0FF) == 0x400B)   // JSR
       {
@@ -756,7 +756,7 @@ static int CheckForMemoryBreakpointDupes(SH2_struct *context, u32 addr, u32 flag
             *which = i;
             return 1;
          }
-      }                
+      }
    }
 
    return 0;
@@ -910,9 +910,9 @@ int SH2DelMemoryBreakpoint(SH2_struct *context, u32 addr) {
                {
                   // Clear the flags
                   context->bp.memorybreakpoint[i].flags &= ~context->bp.memorybreakpoint[i2].flags;
-               }                
+               }
             }
-            
+
             if (context->bp.memorybreakpoint[i].flags & BREAK_BYTEREAD)
                context->ReadByteList[(addr >> 16) & 0xFFF] = context->bp.memorybreakpoint[i].oldreadbyte;
 
@@ -971,7 +971,7 @@ void SH2ClearMemoryBreakpoints(SH2_struct *context) {
 void SH2HandleBackTrace(SH2_struct *context)
 {
    u16 inst = context->instruction;
-   if ((inst & 0xF000) == 0xB000 || // BSR 
+   if ((inst & 0xF000) == 0xB000 || // BSR
       (inst & 0xF0FF) == 0x0003 || // BSRF
       (inst & 0xF0FF) == 0x400B)   // JSR
    {
@@ -1024,7 +1024,7 @@ void SH2HandleStepOverOut(SH2_struct *context)
 
             inst = context->instruction;;
 
-            if ((inst & 0xF000) == 0xB000 || // BSR 
+            if ((inst & 0xF000) == 0xB000 || // BSR
                (inst & 0xF0FF) == 0x0003 || // BSRF
                (inst & 0xF0FF) == 0x400B)   // JSR
                context->stepOverOut.levels++;
@@ -1047,9 +1047,9 @@ void SH2HandleTrackInfLoop(SH2_struct *context)
    {
       // Look for specific bf/bt/bra instructions that branch to address < PC
       if ((context->instruction & 0x8B80) == 0x8B80 || // bf
-          (context->instruction & 0x8F80) == 0x8F80 || // bf/s 
+          (context->instruction & 0x8F80) == 0x8F80 || // bf/s
           (context->instruction & 0x8980) == 0x8980 || // bt
-          (context->instruction & 0x8D80) == 0x8D80 || // bt/s 
+          (context->instruction & 0x8D80) == 0x8D80 || // bt/s
           (context->instruction & 0xA800) == 0xA800)   // bra
       {
          int i;
@@ -1179,7 +1179,7 @@ u8 FASTCALL OnchipReadByte(SH2_struct *sh, u32 addr) {
          return sh->onchip.TIER;
       case 0x011:
          return sh->onchip.FTCSR;
-      case 0x012:         
+      case 0x012:
          return sh->onchip.FRC.part.H;
       case 0x013:
          return sh->onchip.FRC.part.L;
@@ -1386,7 +1386,7 @@ void FASTCALL OnchipWriteByte(SH2_struct *sh, u32 addr, u8 val) {
          return;
       case 0x004:
 //         LOG("Serial Status Register write: %02X\n", val);
-         
+
          if (sh->onchip.SCR & 0x20)
          {
             // Transmitter Mode
@@ -1413,7 +1413,7 @@ void FASTCALL OnchipWriteByte(SH2_struct *sh, u32 addr, u8 val) {
       case 0x014:
          if (!(sh->onchip.TOCR & 0x10))
             sh->onchip.OCRA = (val << 8) | (sh->onchip.OCRA & 0xFF);
-         else                  
+         else
             sh->onchip.OCRB = (val << 8) | (sh->onchip.OCRB & 0xFF);
          return;
       case 0x015:
@@ -1754,10 +1754,10 @@ void FASTCALL OnchipWriteLong(SH2_struct *sh, u32 addr, u32 val)  {
          sh->onchip.DVDNTUL = val;
          return;
       case 0x140:
-         sh->onchip.BARA.all = val;         
+         sh->onchip.BARA.all = val;
          return;
       case 0x144:
-         sh->onchip.BAMRA.all = val;         
+         sh->onchip.BAMRA.all = val;
          return;
       case 0x180:
          sh->onchip.SAR0 = val;
@@ -1984,7 +1984,7 @@ void FRTExec(SH2_struct *sh, u32 cycles)
 
    frcold = frctemp = (u32)sh->onchip.FRC.all;
    mask = (1 << sh->frc.shift) - 1;
-   
+
    // Increment FRC
    frctemp += ((cycles + sh->frc.leftover) >> sh->frc.shift);
    sh->frc.leftover = (cycles + sh->frc.leftover) & mask;
