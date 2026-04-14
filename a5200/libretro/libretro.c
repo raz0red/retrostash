@@ -25,6 +25,7 @@
 #include "atari.h"
 #include "cartridge.h"
 #include "input.h"
+#include "memory.h"
 #include "pia.h"
 #include "pokeysnd.h"
 #include "statesav.h"
@@ -1288,11 +1289,15 @@ unsigned retro_api_version(void)
 
 void *retro_get_memory_data(unsigned id)
 {
+   if (id == RETRO_MEMORY_SYSTEM_RAM)
+      return memory;
    return NULL;
 }
 
 size_t retro_get_memory_size(unsigned id)
 {
+   if (id == RETRO_MEMORY_SYSTEM_RAM)
+      return 65536;
    return 0;
 }
 

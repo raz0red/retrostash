@@ -40,6 +40,10 @@
 #include "cheevos/cheevos.h"
 #endif
 
+#ifdef WRC
+#include <emscripten/emscripten.h>
+#endif
+
 #include "cheat_manager.h"
 
 #include "msg_hash.h"
@@ -88,7 +92,7 @@ void cheat_manager_apply_cheats(void)
 
    for (i = 0; i < cheat_st->size; i++)
    {
-      if (     cheat_st->cheats[i].state 
+      if (     cheat_st->cheats[i].state
             && cheat_st->cheats[i].handler == CHEAT_HANDLER_TYPE_EMU)
       {
          retro_ctx_cheat_info_t cheat_info;
@@ -520,7 +524,7 @@ bool cheat_manager_load(const char *path, bool append)
    }
 
    cheat_st->loading_cheat_offset            = orig_size;
-   cb.config_file_new_entry_cb               = 
+   cb.config_file_new_entry_cb               =
       cheat_manager_load_cb_second_pass;
    conf = config_file_new_with_callback(path, &cb);
 
@@ -606,8 +610,8 @@ void cheat_manager_update(cheat_manager_t *handle, unsigned handle_idx)
          "Cheat: #%u [%s]: %s",
          handle_idx,
          handle->cheats[handle_idx].state ? "ON" : "OFF",
-         handle->cheats[handle_idx].desc 
-         ? (handle->cheats[handle_idx].desc) 
+         handle->cheats[handle_idx].desc
+         ? (handle->cheats[handle_idx].desc)
          : (handle->cheats[handle_idx].code)
          );
    runloop_msg_queue_push(msg, 1, 180, true, NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
@@ -706,6 +710,14 @@ static bool cheat_manager_get_game_specific_filename(
    core_name = system_info.library_name;
    game_name = path_basename_nocompression(runloop_st->name.cheatfile);
 
+#ifdef WRC
+   if (string_is_empty(path_cheat_database) ||
+         string_is_empty(game_name))
+      return false;
+
+   s[0] = '\0';
+   fill_pathname_join(s, path_cheat_database, game_name, len);
+#else
    if (string_is_empty(path_cheat_database) ||
          string_is_empty(core_name) ||
          string_is_empty(game_name))
@@ -725,6 +737,7 @@ static bool cheat_manager_get_game_specific_filename(
    }
 
    fill_pathname_join(s, s1, game_name, len);
+#endif
 
    return true;
 }
@@ -739,9 +752,41 @@ void cheat_manager_load_game_specific_cheats(const char *path_cheat_database)
             false))
    {
       if (cheat_manager_load(cheat_file, true))
+      {
          RARCH_LOG("[Cheats]: Load game-specific cheatfile: %s\n", cheat_file);
+#ifdef WRC
+         {
+            unsigned j;
+            cheat_manager_t *cheat_st = &cheat_manager_state;
+            EM_ASM({ window.emulator.onCheatsLoadStart($0); }, cheat_st->size);
+            for (j = 0; j < cheat_st->size; j++)
+            {
+               const char *desc = cheat_st->cheats[j].desc
+                  ? cheat_st->cheats[j].desc : "";
+               const char *code = cheat_st->cheats[j].code
+                  ? cheat_st->cheats[j].code : "";
+               EM_ASM({
+                  window.emulator.onCheatAdded($0, UTF8ToString($1), $2, UTF8ToString($3));
+               }, j, desc, cheat_st->cheats[j].state ? 1 : 0, code);
+            }
+            EM_ASM({ window.emulator.onCheatsLoadEnd(); });
+         }
+#endif
+      }
    }
 }
+
+#ifdef WRC
+void wrc_cheat_toggle(unsigned idx, int enabled)
+{
+   cheat_manager_t *cheat_st = &cheat_manager_state;
+   if (idx < cheat_st->size)
+   {
+      cheat_st->cheats[idx].state = enabled ? true : false;
+      cheat_manager_apply_cheats();
+   }
+}
+#endif
 
 void cheat_manager_save_game_specific_cheats(const char *path_cheat_database)
 {
@@ -801,7 +846,7 @@ int cheat_manager_initialize_memory(rarch_setting_t *setting, size_t idx, bool w
    {
       for (i = 0; i < system->mmaps.num_descriptors; i++)
       {
-         if ((system->mmaps.descriptors[i].core.flags 
+         if ((system->mmaps.descriptors[i].core.flags
                   & RETRO_MEMDESC_SYSTEM_RAM) != 0 &&
                system->mmaps.descriptors[i].core.ptr &&
                system->mmaps.descriptors[i].core.len > 0)
