@@ -786,6 +786,29 @@ void wrc_cheat_toggle(unsigned idx, int enabled)
       cheat_manager_apply_cheats();
    }
 }
+
+void wrc_load_cheats_file(const char *filepath)
+{
+   unsigned j;
+   cheat_manager_t *cheat_st = &cheat_manager_state;
+
+   cheat_manager_alloc_if_empty();
+   if (!cheat_manager_load(filepath, true))
+      return;
+
+   EM_ASM({ window.emulator.onCheatsLoadStart($0); }, cheat_st->size);
+   for (j = 0; j < cheat_st->size; j++)
+   {
+      const char *desc = cheat_st->cheats[j].desc
+         ? cheat_st->cheats[j].desc : "";
+      const char *code = cheat_st->cheats[j].code
+         ? cheat_st->cheats[j].code : "";
+      EM_ASM({
+         window.emulator.onCheatAdded($0, UTF8ToString($1), $2, UTF8ToString($3));
+      }, j, desc, cheat_st->cheats[j].state ? 1 : 0, code);
+   }
+   EM_ASM({ window.emulator.onCheatsLoadEnd(); });
+}
 #endif
 
 void cheat_manager_save_game_specific_cheats(const char *path_cheat_database)

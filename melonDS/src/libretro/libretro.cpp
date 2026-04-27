@@ -21,6 +21,8 @@
 #include "opengl.h"
 #include "screenlayout.h"
 #include "utils.h"
+#include "../AREngine.h"
+#include "../ARCodeFile.h"
 
 #ifdef WRC
 #include "../../wrc.h"
@@ -643,6 +645,10 @@ int wrc_screen_next_gap = 0;
 extern int wrc_blow;
 #endif
 
+// Forward declarations for AR cheat storage (defined after retro_run)
+static ARCode wrc_ar_codes[256];
+static int    wrc_ar_code_count = 0;
+
 void retro_run(void)
 {
    update_input(&input_state);
@@ -714,6 +720,10 @@ void retro_run(void)
    }
 
    if (current_renderer != CurrentRenderer::None) NDS::RunFrame();
+
+   // Apply AR cheats every frame
+   for (int i = 0; i < wrc_ar_code_count; i++)
+      AREngine::RunCheat(wrc_ar_codes[i]);
 
    render_frame();
 
@@ -973,14 +983,47 @@ size_t retro_get_memory_size(unsigned type)
       return 0;
 }
 
+// ---- AR cheat storage (populated by retro_cheat_set) ----
+
 void retro_cheat_reset(void)
-{}
+{
+   wrc_ar_code_count = 0;
+}
 
 void retro_cheat_set(unsigned index, bool enabled, const char *code)
 {
-   (void)index;
-   (void)enabled;
-   (void)code;
+   if (!enabled || !code || index >= 256) return;
+
+   ARCode ac;
+   memset(&ac, 0, sizeof(ac));
+   snprintf(ac.Name, sizeof(ac.Name), "cheat%u", index);
+   ac.Enabled = true;
+   ac.CodeLen = 0;
+
+   // Parse "+"-separated 32-bit hex words into pairs
+   const char *p = code;
+   while (*p && ac.CodeLen < 2 * 64)
+   {
+      while (*p == '+' || *p == ' ') p++;
+      if (!*p) break;
+      char *end;
+      u32 word = (u32)strtoul(p, &end, 16);
+      if (end == p) break;
+      ac.Code[ac.CodeLen++] = word;
+      p = end;
+   }
+
+   // CodeLen must be even (pairs)
+   ac.CodeLen &= ~1u;
+   if (ac.CodeLen == 0) return;
+
+   // Store by slot index (RetroArch sends sequential indices starting at 0)
+   if ((int)index < 256)
+   {
+      wrc_ar_codes[index] = ac;
+      if ((int)index >= wrc_ar_code_count)
+         wrc_ar_code_count = (int)index + 1;
+   }
 }
 
 #ifdef WRC

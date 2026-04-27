@@ -2321,13 +2321,41 @@ size_t retro_get_memory_size(unsigned type)
 }
 
 void retro_cheat_reset(void)
-{}
+{
+    for (unsigned i = 0; i < emulated_devices; i++) {
+        GB_remove_all_cheats(&gameboy[i]);
+        GB_set_cheats_enabled(&gameboy[i], false);
+    }
+}
 
 void retro_cheat_set(unsigned index, bool enabled, const char *code)
 {
     (void)index;
-    (void)enabled;
-    (void)code;
+    log_cb(RETRO_LOG_INFO, "[SameBoy] retro_cheat_set: index=%u enabled=%d code='%s'\n", index, enabled, code ? code : "(null)");
+    if (!code || code[0] == '\0') return;
+
+    /* libretro-db can join multiple codes with '+' — split and apply each */
+    char buf[256];
+    strncpy(buf, code, sizeof(buf) - 1);
+    buf[sizeof(buf) - 1] = '\0';
+
+    char *token = strtok(buf, "+");
+    while (token) {
+        /* Strip leading whitespace */
+        while (*token == ' ' || *token == '\t') token++;
+        /* Strip leading '$' (libretro-db GameShark format) */
+        if (*token == '$') token++;
+
+        log_cb(RETRO_LOG_INFO, "[SameBoy] retro_cheat_set: importing token='%s'\n", token);
+        for (unsigned i = 0; i < emulated_devices; i++) {
+            const GB_cheat_t *cheat = GB_import_cheat(&gameboy[i], token, "", enabled);
+            log_cb(RETRO_LOG_INFO, "[SameBoy] retro_cheat_set: device=%u import %s\n", i, cheat ? "OK" : "FAILED");
+            if (cheat) {
+                GB_set_cheats_enabled(&gameboy[i], true);
+            }
+        }
+        token = strtok(NULL, "+");
+    }
 }
 
 

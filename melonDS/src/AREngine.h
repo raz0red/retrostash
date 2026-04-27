@@ -30,6 +30,7 @@ void Reset();
 
 void SetCodeFile(ARCodeFile* file);
 
+void RunCheat(ARCode& arcode);
 void RunCheats();
 
 }
