@@ -207,8 +207,8 @@ endif
 # Platform affix = classic_<ISA>_<µARCH>
 # Help at https://modmyclassic.com/comp
 
-# (armv7 a7, hard point, neon based) ### 
-# NESC, SNESC, C64 mini 
+# (armv7 a7, hard point, neon based) ###
+# NESC, SNESC, C64 mini
 else ifeq ($(platform), classic_armv7_a7)
 	TARGET := $(TARGET_NAME)_libretro.so
 	fpic := -fPIC
@@ -236,7 +236,7 @@ else ifeq ($(platform), classic_armv7_a7)
 	    LDFLAGS += -static-libgcc -static-libstdc++
 	  endif
 	endif
-	
+
 # (armv8 a35, hard point, neon based) ###
 # Playstation Classic
 else ifeq ($(platform), classic_armv8_a35)
@@ -312,7 +312,7 @@ else ifneq (,$(findstring psp1,$(platform)))
 	CC_AS = $(CC)
 	CXX = psp-g++$(EXE_EXT)
 	AR = psp-ar$(EXE_EXT)
-	ENDIANNESS_DEFINES += -DPSP -G0 
+	ENDIANNESS_DEFINES += -DPSP -G0
 	STATIC_LINKING = 1
 	HAVE_SSE = 0
 
@@ -372,14 +372,23 @@ else ifeq ($(platform), libnx)
 
 # Emscripten
 else ifeq ($(platform), emscripten)
+        # TARGET := $(TARGET_NAME)_libretro_$(platform).bc
+        # STATIC_LINKING = 1
+        # HAVE_THREADS = 0
+        # HAVE_SSE = 0
+        # fpic := -fPIC
+        # SHARED := -shared -Wl,--no-undefined -Wl,--version-script=link.T
+        # HAVE_CDROM = 0
+		# CFLAGS += -DWRC
         TARGET := $(TARGET_NAME)_libretro_$(platform).bc
         STATIC_LINKING = 1
-        HAVE_THREADS = 0
         HAVE_SSE = 0
         fpic := -fPIC
         SHARED := -shared -Wl,--no-undefined -Wl,--version-script=link.T
         HAVE_CDROM = 0
-		CFLAGS += -DWRC
+        CFLAGS += -pthread -DWRC -DWRC_OPT
+        CXXFLAGS += -pthread -DWRC -DWRC_OPT
+        LDFLAGS += -pthread
 
 # GCW0
 else ifeq ($(platform), gcw0)
@@ -481,7 +490,7 @@ else ifneq (,$(findstring windows_msvc2017,$(platform)))
 	ifneq (,$(findstring uwp,$(PlatformSuffix)))
 		LIB := $(shell IFS=$$'\n'; cygpath -w "$(LIB)/store")
 	endif
-    
+
 	export INCLUDE := $(INCLUDE);$(WindowsSDKSharedIncludeDir);$(WindowsSDKUCRTIncludeDir);$(WindowsSDKUMIncludeDir)
 	export LIB := $(LIB);$(WindowsSDKUCRTLibDir);$(WindowsSDKUMLibDir)
 	TARGET := $(TARGET_NAME)_libretro.dll
@@ -545,7 +554,7 @@ else
 endif
 
 OBJOUT   = -o
-LINKOUT  = -o 
+LINKOUT  = -o
 
 ifneq (,$(findstring msvc,$(platform)))
 	OBJOUT = -Fo

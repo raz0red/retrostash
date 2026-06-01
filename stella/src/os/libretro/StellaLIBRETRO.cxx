@@ -78,18 +78,30 @@ bool StellaLIBRETRO::create(bool logging)
   settings.setValue("tv.phosphor", video_phosphor);
   settings.setValue("tv.phosblend", video_phosphor_blend);
 
+#ifdef WRC
+  /*
+  48000 rate (resampled from native TIA ~31440 Hz)
+
+  fs:128 hz:50 bs:7.5 -- lowest supported, 0-1 frame lag measured
+  */
+#else
   /*
   31440 rate
 
-  fs:2 hz:50 bs:314.4 -- not supported,      0 frame lag ideal
+  fs:2 hz:50 bs:314.4 -- not supported,   0 frame lag ideal
   fs:128 hz:50 bs:4.9 -- lowest supported, 0-1 frame lag measured
   */
+#endif // WRC
   settings.setValue(AudioSettings::SETTING_PRESET, static_cast<int>(AudioSettings::Preset::custom));
+#ifdef WRC
+  settings.setValue(AudioSettings::SETTING_SAMPLE_RATE, 48000);
+#else
   settings.setValue(AudioSettings::SETTING_SAMPLE_RATE, getAudioRate());
+#endif // WRC
   settings.setValue(AudioSettings::SETTING_FRAGMENT_SIZE, 128);
   settings.setValue(AudioSettings::SETTING_BUFFER_SIZE, 8);
   settings.setValue(AudioSettings::SETTING_HEADROOM, 0);
-  settings.setValue(AudioSettings::SETTING_RESAMPLING_QUALITY, static_cast<int>(AudioSettings::ResamplingQuality::nearestNeightbour));
+  settings.setValue(AudioSettings::SETTING_RESAMPLING_QUALITY, static_cast<int>(AudioSettings::ResamplingQuality::lanczos_2));
   settings.setValue(AudioSettings::SETTING_VOLUME, 100);
   settings.setValue(AudioSettings::SETTING_STEREO, audio_mode);
 

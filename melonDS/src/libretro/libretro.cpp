@@ -817,6 +817,7 @@ bool retro_load_game(const struct retro_game_info *info)
       return false;
    }
 
+#ifndef WRC
    unsigned language = RETRO_LANGUAGE_ENGLISH;
    if (environ_cb(RETRO_ENVIRONMENT_GET_LANGUAGE, &language))
    {
@@ -848,6 +849,28 @@ bool retro_load_game(const struct retro_game_info *info)
          Config::FirmwareLanguage = 1; // English
       }
    }
+#else
+   {
+      // 0=auto (use firmware file), 1=English, 2=Japanese, 3=French, 4=German, 5=Italian, 6=Spanish
+      int firmwareLang = EM_ASM_INT({ return window.emulator.getFirmwareLanguage(); });
+      printf("## WRC firmwareLang prop=%d\n", firmwareLang);
+      if (firmwareLang != 0) {
+         Config::FirmwareOverrideSettings = true;
+         switch (firmwareLang) {
+         case 1: Config::FirmwareLanguage = 1; break; // English
+         case 2: Config::FirmwareLanguage = 0; break; // Japanese
+         case 3: Config::FirmwareLanguage = 2; break; // French
+         case 4: Config::FirmwareLanguage = 3; break; // German
+         case 5: Config::FirmwareLanguage = 4; break; // Italian
+         case 6: Config::FirmwareLanguage = 5; break; // Spanish
+         default: Config::FirmwareLanguage = 1; break; // fallback English
+         }
+      }
+      printf("## WRC FirmwareOverrideSettings=%d FirmwareLanguage=%d\n",
+             (int)Config::FirmwareOverrideSettings, Config::FirmwareLanguage);
+      // firmwareLang == 0 (auto): FirmwareOverrideSettings stays false, language read from firmware.bin
+   }
+#endif
 
    check_variables(true);
 

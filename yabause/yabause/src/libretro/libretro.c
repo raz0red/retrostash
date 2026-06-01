@@ -424,8 +424,10 @@ static void sdlConvert32uto16s(int32_t *srcL, int32_t *srcR, int16_t *dst, size_
 
 static void SNDLIBRETROUpdateAudio(u32 *leftchanbuffer, u32 *rightchanbuffer, u32 num_samples)
 {
+#ifndef WRC
    sdlConvert32uto16s((int32_t*)leftchanbuffer, (int32_t*)rightchanbuffer, sound_buf, num_samples);
    audio_batch_cb(sound_buf, num_samples);
+#endif
 
    audio_size -= num_samples;
 }

@@ -2780,6 +2780,36 @@ static void init_dosbox_load_dosboxconf(const std::string& cfg, Section** ref_au
 	}
 }
 
+#ifdef WRC
+static void wrc_apply_cpu_speed(int cpuSpeed) {
+	const char* cycles = NULL;
+	switch (cpuSpeed) {
+		case  0: cycles = "auto";    break; // default
+		case  1: cycles = "315";     break; // 8086/8088, 4.77 MHz (1980)
+		case  2: cycles = "1320";    break; // 286, 6 MHz (1982)
+		case  3: cycles = "2750";    break; // 286, 12.5 MHz (1985)
+		case  4: cycles = "4720";    break; // 386, 20 MHz (1987)
+		case  5: cycles = "7800";    break; // 386DX, 33 MHz (1989)
+		case  6: cycles = "13400";   break; // 486DX, 33 MHz (1990)
+		case  7: cycles = "26800";   break; // 486DX2, 66 MHz (1992)
+		case  8: cycles = "77000";   break; // Pentium, 100 MHz (1995)
+		case  9: cycles = "200000";  break; // Pentium II, 300 MHz (1997)
+		case 10: cycles = "500000";  break; // Pentium III, 600 MHz (1999)
+		case 11: cycles = "1000000"; break; // AMD Athlon, 1.2 GHz (2000)
+		case 12: cycles = "max";     break; // Maximum Performance
+	}
+	if (cycles) {
+		printf("## WRC applying cpu cycles = %s\n", cycles);
+		DBP_CPU_ModifyCycles(cycles);
+		Section* cpu_section = control->GetSection("cpu");
+		if (cpu_section) {
+			Property* prop = cpu_section->GetProp("cycles");
+			if (prop) prop->SetValue(cycles);
+		}
+	}
+}
+#endif
+
 static void init_dosbox_load_dos_yml(const std::string& yml, Section** ref_autoexec)
 {
 	struct Local
@@ -2995,8 +3025,30 @@ static void init_dosbox(bool firsttime, bool forcemenu = false, void(*loadcfg)(c
 	check_variables(true);
 	Section* autoexec = control->GetSection("autoexec");
 	if (loadcfg) loadcfg(*cfg, &autoexec);
+#ifdef WRC
+	{
+		// Pre-Init: set core type in config so it initializes correctly
+		int cpuSpeed = EM_ASM_INT({ return window.emulator.getCpuSpeed(); });
+		printf("## WRC getCpuSpeed() = %d\n", cpuSpeed);
+		if (cpuSpeed >= 4 && cpuSpeed <= 5) {
+			// Fast/Very Fast: use dynamic core
+			printf("## WRC pre-Init: setting core = dynamic\n");
+			Section* cpu_section = control->GetSection("cpu");
+			Property* core_prop = cpu_section->GetProp("core");
+			core_prop->SetValue("dynamic");
+		}
+	}
+#endif
 	dbp_boot_time = time_cb();
 	control->Init();
+#ifdef WRC
+	{
+		// Post-Init: apply boot-time CPU speed preset from game props
+		int cpuSpeed = EM_ASM_INT({ return window.emulator.getCpuSpeed(); });
+		printf("## WRC boot cpu speed: %d\n", cpuSpeed);
+		if (cpuSpeed > 0) wrc_apply_cpu_speed(cpuSpeed);
+	}
+#endif
 	PROGRAMS_MakeFile("PUREMENU.COM", DBP_PureMenuProgram);
 	PROGRAMS_MakeFile("LABEL.COM", DBP_PureLabelProgram);
 	PROGRAMS_MakeFile("REMOUNT.COM", DBP_PureRemountProgram);
@@ -3574,6 +3626,7 @@ void retro_run_touchpad(bool has_press, Bit16s absx, Bit16s absy)
 #ifdef WRC
 static bool last_game_running = false;
 static bool first = true;
+static bool wrc_check_cpu_speed = false;
 #endif
 
 void retro_run(void)
@@ -3605,6 +3658,15 @@ void retro_run(void)
 		EM_ASM({
 			window.emulator.setGameRunning($0);
 		}, dbp_game_running);
+	}
+
+	if (wrc_check_cpu_speed) {
+		wrc_check_cpu_speed = false;
+		int cpuSpeed = EM_ASM_INT({ return window.emulator.getCpuSpeedSession(); });
+		printf("## WRC session cpu speed: %d\n", cpuSpeed);
+		DBP_ThreadControl(TCM_PAUSE_FRAME);
+		wrc_apply_cpu_speed(cpuSpeed);
+		DBP_ThreadControl(TCM_RESUME_FRAME);
 	}
 #endif
 
@@ -4318,7 +4380,13 @@ static void wrc_process_files() {
 }
 
 extern "C" void em_cmd_savefiles() {}
-extern "C" void wrc_on_set_options(int opts) {}
+extern "C" void wrc_on_set_options(int opts) {
+#ifdef WRC
+	if (opts & OPT1) {
+		wrc_check_cpu_speed = true;
+	}
+#endif
+}
 extern "C" void wrc_on_key(int key, int down) {
 	// This can be called from another thread. Hopefully we can get away without a mutex in DBP_QueueEvent.
 	int val = dbp_keymap_retro2dos[key];

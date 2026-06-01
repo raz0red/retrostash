@@ -221,6 +221,12 @@ void Reset()
 
     UserSettings = userdata;
 
+#ifdef WRC
+    // Patch only the language byte when a firmware language override is set.
+    if (Config::FirmwareOverrideSettings)
+        Firmware[UserSettings+0x64] = Config::FirmwareLanguage;
+#endif
+
     // fix touchscreen coords
     *(u16*)&Firmware[userdata+0x58] = 0;
     *(u16*)&Firmware[userdata+0x5A] = 0;
@@ -238,6 +244,9 @@ void Reset()
 
     if (Config::RandomizeMAC)
     {
+#ifdef WRC
+        printf("## WRC SPI::Reset: RandomizeMAC is set (unexpected)\n");
+#endif
         if (!f || Config::FirmwareOverrideSettings)
             LoadUserSettingsFromConfig();
 

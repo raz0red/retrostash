@@ -659,7 +659,11 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
   *info = retro_system_av_info{};  // reset to defaults
 
   info->timing.fps            = stella.getVideoRate();
+#ifdef WRC
+  info->timing.sample_rate    = 48000;
+#else
   info->timing.sample_rate    = stella.getAudioRate();
+#endif // WRC
 
   info->geometry.base_width   = stella.getRenderWidth() - crop_left *
       (stella.getVideoZoom() == 1 ? 2 : 1);

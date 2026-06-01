@@ -5,10 +5,12 @@ ifneq (,$(findstring msvc2003,$(platform)))
 INCFLAGS += -I$(LIBRETRO_COMM_DIR)/include/compat/msvc
 endif
 
+# WRC begin: SoundLIBRETRO.cxx added (was inline in header); AudioQueue.cxx required by it
 SOURCES_CXX := \
 	$(CORE_DIR)/os/libretro/libretro.cxx \
 	$(CORE_DIR)/os/libretro/FSNodeLIBRETRO.cxx \
 	$(CORE_DIR)/os/libretro/StellaLIBRETRO.cxx \
+	$(CORE_DIR)/os/libretro/SoundLIBRETRO.cxx \
 	$(CORE_DIR)/common/AudioQueue.cxx \
 	$(CORE_DIR)/common/AudioSettings.cxx \
 	$(CORE_DIR)/common/Base.cxx \

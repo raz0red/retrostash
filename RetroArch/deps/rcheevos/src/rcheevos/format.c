@@ -145,6 +145,10 @@ int rc_format_value(char* buffer, int size, int value, int format) {
       chars = snprintf(buffer, size, "%06d", value);
       break;
 
+    case RC_FORMAT_ASCII_CHAR:
+      chars = snprintf(buffer, size, "%c", (value >= 0x20 && value < 0x7F) ? (char)value : '?');
+      break;
+
     default:
     case RC_FORMAT_VALUE:
       chars = snprintf(buffer, size, "%d", value);

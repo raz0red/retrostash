@@ -185,8 +185,13 @@ class StellaLIBRETRO
 
     uInt8 system_ram[128];
 
+#ifdef WRC
+    // (48000 rate / 50 Hz) * 16-bit stereo * 1.25x padding
+    static constexpr uInt32 audio_buffer_max = (48000 / 50 * 4 * 5) / 4;
+#else
     // (31440 rate / 50 Hz) * 16-bit stereo * 1.25x padding
     static constexpr uInt32 audio_buffer_max = (31440 / 50 * 4 * 5) / 4;
+#endif // WRC
 
   private:
     string video_palette{PaletteHandler::SETTING_STANDARD};

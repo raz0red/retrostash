@@ -57,6 +57,25 @@ class SoundLIBRETRO : public Sound
     }
     ~SoundLIBRETRO() override = default;
 
+#ifdef WRC
+    // WRC: open() and dequeue() moved to SoundLIBRETRO.cxx;
+    //      dequeue() now drains AudioQueue and linearly resamples to 48000 Hz.
+
+    /**
+      Initializes the sound device.  This must be called before any
+      calls are made to derived methods.
+    */
+    void open(shared_ptr<AudioQueue> audioQueue,
+              EmulationTiming* emulationTiming) override;
+
+    /**
+      Empties the playback buffer.
+
+      @param stream   Output audio buffer
+      @param samples  Number of audio samples read
+    */
+    void dequeue(Int16* stream, uInt32* samples);
+#else
   public:
     /**
       Initializes the sound device.  This must be called before any
@@ -120,6 +139,7 @@ class SoundLIBRETRO : public Sound
       }
       *samples = outIndex / 2;
     }
+#endif // WRC
 
   protected:
     //////////////////////////////////////////////////////////////////////
@@ -145,7 +165,15 @@ class SoundLIBRETRO : public Sound
     EmulationTiming* myEmulationTiming{nullptr};
 
     Int16* myCurrentFragment{nullptr};
+
+#ifdef WRC
+    // WRC: new members for synchronous drain + linear resampling
+    static constexpr uInt32 INPUT_BUF_MAX = 8192;
+    float  myInputPos{0.f};
+    Int16  myInputBuf[INPUT_BUF_MAX * 2]; // stereo interleaved
+#else
     bool myUnderrun{false};
+#endif // WRC
 
     AudioSettings& myAudioSettings;
 

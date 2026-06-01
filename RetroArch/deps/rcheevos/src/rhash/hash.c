@@ -291,6 +291,82 @@ static uint32_t rc_cd_find_file_sector(void* track_handle, const char* path, uns
   return 0;
 }
 
+/* Neo Geo CD filenames have no ;version suffix and the root directory spans multiple sectors.
+ * This variant is scoped only to Neo Geo CD to avoid any risk of regressions in other systems. */
+static uint32_t rc_cd_find_file_sector_neogeo(void* track_handle, const char* path, unsigned* size)
+{
+  uint8_t buffer[2048], *tmp;
+  int sector;
+  unsigned num_sectors = 0;
+  size_t filename_length;
+
+  if (!track_handle)
+    return 0;
+
+  filename_length = strlen(path);
+
+  /* find the cd information */
+  if (!rc_cd_read_sector(track_handle, 16, buffer, 256))
+    return 0;
+
+  sector = buffer[156 + 2] | (buffer[156 + 3] << 8) | (buffer[156 + 4] << 16);
+
+  /* Neo Geo CD root directory spans multiple sectors; calculate how many to scan */
+  {
+    unsigned logical_block_size = buffer[128] | (buffer[129] << 8);
+    if (logical_block_size > 0)
+    {
+      unsigned dir_size = buffer[156 + 10] | (buffer[156 + 11] << 8) | (buffer[156 + 12] << 16) | (buffer[156 + 13] << 24);
+      num_sectors = dir_size / logical_block_size;
+    }
+  }
+
+  sector = rc_cd_absolute_sector_to_track_sector(track_handle, sector);
+  if (!rc_cd_read_sector(track_handle, sector, buffer, sizeof(buffer)))
+    return 0;
+
+  tmp = buffer;
+  do
+  {
+    if (tmp >= buffer + sizeof(buffer) || !*tmp)
+    {
+      /* end of entries in this sector; scan into the next sector if the directory spans multiple */
+      if (num_sectors > 1)
+      {
+        --num_sectors;
+        if (rc_cd_read_sector(track_handle, ++sector, buffer, sizeof(buffer)))
+        {
+          tmp = buffer;
+          continue;
+        }
+      }
+      break;
+    }
+
+    /* match by identifier length (no ;version suffix) or by ;version separator (standard ISO 9660) */
+    if ((tmp[32] == (uint8_t)filename_length || tmp[33 + filename_length] == ';') &&
+        strncasecmp((const char*)(tmp + 33), path, filename_length) == 0)
+    {
+      sector = tmp[2] | (tmp[3] << 8) | (tmp[4] << 16);
+
+      if (verbose_message_callback)
+      {
+        snprintf((char*)buffer, sizeof(buffer), "Found %s at sector %d", path, sector);
+        verbose_message_callback((const char*)buffer);
+      }
+
+      if (size)
+        *size = tmp[10] | (tmp[11] << 8) | (tmp[12] << 16) | (tmp[13] << 24);
+
+      return sector;
+    }
+
+    tmp += *tmp;
+  } while (1);
+
+  return 0;
+}
+
 /* ===================================================== */
 
 const char* rc_path_get_filename(const char* path)
@@ -889,6 +965,71 @@ static int rc_hash_n64_file(char hash[33], const char* path)
   /* cleanup */
   rc_file_close(file_handle);
   free(buffer);
+
+  return rc_hash_finalize(&md5, hash);
+}
+
+static int rc_hash_nintendo_ds_buffer(char hash[33], const uint8_t* buffer, size_t buffer_size)
+{
+  unsigned int arm9_size, arm9_addr, arm7_size, arm7_addr, icon_addr;
+  size_t offset = 0;
+  md5_state_t md5;
+  const uint8_t* header = buffer;
+
+  if (buffer_size < 512)
+    return rc_hash_error("Failed to read header");
+
+  if (header[0] == 0x2E && header[1] == 0x00 && header[2] == 0x00 && header[3] == 0xEA &&
+      header[0xB0] == 0x44 && header[0xB1] == 0x46 && header[0xB2] == 0x96 && header[0xB3] == 0)
+  {
+    rc_hash_verbose("Ignoring SuperCard header");
+    offset = 512;
+    header = buffer + 512;
+    if (buffer_size < 1024)
+      return rc_hash_error("Failed to read header after SuperCard prefix");
+  }
+
+  arm9_addr = header[0x20] | (header[0x21] << 8) | (header[0x22] << 16) | (header[0x23] << 24);
+  arm9_size = header[0x2C] | (header[0x2D] << 8) | (header[0x2E] << 16) | (header[0x2F] << 24);
+  arm7_addr = header[0x30] | (header[0x31] << 8) | (header[0x32] << 16) | (header[0x33] << 24);
+  arm7_size = header[0x3C] | (header[0x3D] << 8) | (header[0x3E] << 16) | (header[0x3F] << 24);
+  icon_addr = header[0x68] | (header[0x69] << 8) | (header[0x6A] << 16) | (header[0x6B] << 24);
+
+  if (arm9_size + arm7_size > 16 * 1024 * 1024)
+  {
+    char message[128];
+    snprintf(message, sizeof(message), "arm9 code size (%u) + arm7 code size (%u) exceeds 16MB", arm9_size, arm7_size);
+    return rc_hash_error(message);
+  }
+
+  md5_init(&md5);
+
+  rc_hash_verbose("Hashing 352 byte header");
+  md5_append(&md5, header, 0x160);
+
+  if (arm9_addr + offset + arm9_size > buffer_size)
+    return rc_hash_error("arm9 code extends beyond end of buffer");
+  md5_append(&md5, buffer + arm9_addr + offset, arm9_size);
+
+  if (arm7_addr + offset + arm7_size > buffer_size)
+    return rc_hash_error("arm7 code extends beyond end of buffer");
+  md5_append(&md5, buffer + arm7_addr + offset, arm7_size);
+
+  if (icon_addr + offset + 0xA00 <= buffer_size)
+  {
+    md5_append(&md5, buffer + icon_addr + offset, 0xA00);
+  }
+  else
+  {
+    uint8_t icon_padding[0xA00];
+    unsigned icon_available = 0;
+    if (icon_addr + offset < buffer_size)
+      icon_available = (unsigned)(buffer_size - (icon_addr + offset));
+    if (icon_available > 0)
+      memcpy(icon_padding, buffer + icon_addr + offset, icon_available);
+    memset(icon_padding + icon_available, 0, 0xA00 - icon_available);
+    md5_append(&md5, icon_padding, 0xA00);
+  }
 
   return rc_hash_finalize(&md5, hash);
 }
@@ -1507,6 +1648,68 @@ static int rc_hash_psp(char hash[33], const char* path)
   return rc_hash_finalize(&md5, hash);
 }
 
+static int rc_hash_neogeo_cd(char hash[33], const char* path)
+{
+  char buffer[1024], *ptr;
+  void* track_handle;
+  uint32_t sector;
+  unsigned size;
+  md5_state_t md5;
+
+  track_handle = rc_cd_open_track(path, RC_HASH_CDTRACK_FIRST_DATA);
+  if (!track_handle)
+    return rc_hash_error("Could not open track");
+
+  /* https://wiki.neogeodev.org/index.php?title=IPL_file, https://wiki.neogeodev.org/index.php?title=PRG_file
+   * IPL file specifies data to be loaded before the game starts. PRG files are the executable code.
+   */
+  sector = rc_cd_find_file_sector_neogeo(track_handle, "IPL.TXT", &size);
+  if (!sector)
+  {
+    rc_cd_close_track(track_handle);
+    return rc_hash_error("Not a NeoGeo CD game disc");
+  }
+
+  if (rc_cd_read_sector(track_handle, sector, buffer, sizeof(buffer)) == 0)
+  {
+    rc_cd_close_track(track_handle);
+    return 0;
+  }
+
+  md5_init(&md5);
+
+  buffer[sizeof(buffer) - 1] = '\0';
+  ptr = &buffer[0];
+  do
+  {
+    char* start = ptr;
+    while (*ptr && *ptr != '.')
+      ++ptr;
+
+    if (strncasecmp(ptr, ".PRG", 4) == 0)
+    {
+      ptr += 4;
+      *ptr++ = '\0';
+
+      sector = rc_cd_find_file_sector_neogeo(track_handle, start, &size);
+      if (!sector || !rc_hash_cd_file(&md5, track_handle, sector, NULL, size, start))
+      {
+        rc_cd_close_track(track_handle);
+        return rc_hash_error("Could not read PRG file");
+      }
+    }
+
+    while (*ptr && *ptr != '\n')
+      ++ptr;
+    if (*ptr != '\n')
+      break;
+    ++ptr;
+  } while (*ptr != '\0' && *ptr != '\x1a');
+
+  rc_cd_close_track(track_handle);
+  return rc_hash_finalize(&md5, hash);
+}
+
 static int rc_hash_sega_cd(char hash[33], const char* path)
 {
   uint8_t buffer[512];
@@ -1596,6 +1799,9 @@ int rc_hash_generate_from_buffer(char hash[33], int console_id, const uint8_t* b
 
     case RC_CONSOLE_NINTENDO:
       return rc_hash_nes(hash, buffer, buffer_size);
+
+    case RC_CONSOLE_NINTENDO_DS:
+      return rc_hash_nintendo_ds_buffer(hash, buffer, buffer_size);
 
     case RC_CONSOLE_NINTENDO_64:
       return rc_hash_n64(hash, buffer, buffer_size);
@@ -1943,6 +2149,9 @@ int rc_hash_generate_from_file(char hash[33], int console_id, const char* path)
         return rc_hash_generate_from_playlist(hash, console_id, path);
 
       return rc_hash_sega_cd(hash, path);
+
+    case RC_CONSOLE_NEO_GEO_CD:
+      return rc_hash_neogeo_cd(hash, path);
   }
 }
 
@@ -2106,6 +2315,7 @@ void rc_hash_initialize_iterator(struct rc_hash_iterator* iterator, const char* 
           iterator->consoles[4] = RC_CONSOLE_3DO;
           iterator->consoles[5] = RC_CONSOLE_PCFX;
           iterator->consoles[6] = RC_CONSOLE_SEGA_CD; /* ASSERT: handles both Sega CD and Saturn */
+          iterator->consoles[7] = RC_CONSOLE_NEO_GEO_CD;
           need_path = 1;
         }
         else if (rc_path_compare_extension(ext, "col"))

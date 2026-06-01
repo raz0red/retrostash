@@ -178,20 +178,52 @@ static rc_richpresence_display_t* rc_parse_richpresence_display_internal(const c
         }
 
         if (!lookup) {
+          /* check for built-in macros added in newer rcheevos versions */
+          int builtin_format = RC_FORMAT_UNKNOWN_MACRO;
+          int macro_name_len = (int)(ptr - line);
+          if (macro_name_len == 6 && strncmp(line, "Number", 6) == 0)
+            builtin_format = RC_FORMAT_VALUE;
+          else if (macro_name_len == 5 && strncmp(line, "Score", 5) == 0)
+            builtin_format = RC_FORMAT_SCORE;
+          else if (macro_name_len == 12 && strncmp(line, "Centiseconds", 12) == 0)
+            builtin_format = RC_FORMAT_CENTISECS;
+          else if (macro_name_len == 7 && strncmp(line, "Seconds", 7) == 0)
+            builtin_format = RC_FORMAT_SECONDS;
+          else if (macro_name_len == 7 && strncmp(line, "Minutes", 7) == 0)
+            builtin_format = RC_FORMAT_MINUTES;
+          else if (macro_name_len == 16 && strncmp(line, "SecondsAsMinutes", 16) == 0)
+            builtin_format = RC_FORMAT_SECONDS_AS_MINUTES;
+          else if (macro_name_len == 9 && strncmp(line, "ASCIIChar", 9) == 0)
+            builtin_format = RC_FORMAT_ASCII_CHAR;
+
           part = RC_ALLOC(rc_richpresence_display_part_t, parse);
           memset(part, 0, sizeof(rc_richpresence_display_part_t));
           *next = part;
           next = &part->next;
 
-          /* find the closing parenthesis */
-          while (ptr < endline && *ptr != ')')
-            ++ptr;
-          if (*ptr == ')')
-            ++ptr;
+          if (builtin_format != RC_FORMAT_UNKNOWN_MACRO) {
+            /* parse the memory address argument and wire up the memref */
+            line = ++ptr; /* skip past '(' */
+            while (ptr < endline && *ptr != ')')
+              ++ptr;
+            if (*ptr == ')') {
+              part->value = rc_alloc_helper_variable_memref_value(line, (int)(ptr - line), parse);
+              if (parse->offset < 0)
+                return 0;
+              ++ptr;
+            }
+            part->display_type = (unsigned short)builtin_format;
+          } else {
+            /* find the closing parenthesis */
+            while (ptr < endline && *ptr != ')')
+              ++ptr;
+            if (*ptr == ')')
+              ++ptr;
 
-          /* assert: the allocated string is going to be smaller than the memory used for the parameter of the macro */
-          part->display_type = RC_FORMAT_UNKNOWN_MACRO;
-          part->text = rc_alloc_str(parse, line, (int)(ptr - line));
+            /* assert: the allocated string is going to be smaller than the memory used for the parameter of the macro */
+            part->display_type = RC_FORMAT_UNKNOWN_MACRO;
+            part->text = rc_alloc_str(parse, line, (int)(ptr - line));
+          }
         }
       }
     }

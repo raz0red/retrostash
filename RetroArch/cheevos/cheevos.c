@@ -31,6 +31,10 @@
 #include <libretro.h>
 #include <lrc_hash.h>
 
+#ifdef WRC
+#include <emscripten.h>
+#endif
+
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
@@ -737,6 +741,7 @@ void rcheevos_leaderboards_enabled_changed(void)
    const settings_t* settings           = config_get_ptr();
    const bool leaderboards_enabled      = rcheevos_locals.leaderboards_enabled;
    const bool leaderboard_trackers      = rcheevos_locals.leaderboard_trackers;
+   (void)leaderboard_trackers;
 
    rcheevos_locals.leaderboards_enabled = rcheevos_locals.hardcore_active;
 
@@ -1554,13 +1559,101 @@ static bool rcheevos_identify_game(const struct retro_game_info* info)
    size_t len;
    char hash[33];
 
+#ifdef WRC
+   /* Check if the JS emulator pre-computed a RA hash (e.g. melonDS computes
+    * the NDS selective hash before the ROM is modified by retro_load_game). */
+   {
+      char* wrc_ra_hash = (char*)(intptr_t)EM_ASM_INT({
+         var h = (window.emulator && window.emulator.getRaHash)
+            ? window.emulator.getRaHash() : null;
+         if (!h) return 0;
+         var len = lengthBytesUTF8(h) + 1;
+         var buf = _malloc(len);
+         stringToUTF8(h, buf, len);
+         return buf;
+      });
+      if (wrc_ra_hash)
+      {
+         CHEEVOS_LOG(RCHEEVOS_TAG "WRC: using pre-computed RA hash: %s\n", wrc_ra_hash);
+         memcpy(hash, wrc_ra_hash, 32);
+         hash[32] = '\0';
+         free(wrc_ra_hash);
+         goto wrc_hash_ready;
+      }
+   }
+
+   /* Ask the JS emulator layer for the correct file extension for hashing.
+    * This allows each emulator to strip headers etc. as needed.
+    * window.emulator.getHashFileExtension() returns a string like "nes",
+    * or null/undefined if no override is needed. */
+   {
+   char wrc_hash_path[64];
+   const char* hash_path = info->path;
+   char* wrc_ext = (char*)(intptr_t)EM_ASM_INT({
+      var ext = (window.emulator && window.emulator.getHashFileExtension)
+         ? window.emulator.getHashFileExtension() : null;
+      if (!ext) return 0;
+      var len = lengthBytesUTF8(ext) + 1;
+      var buf = _malloc(len);
+      stringToUTF8(ext, buf, len);
+      return buf;
+   });
+   if (wrc_ext)
+   {
+      snprintf(wrc_hash_path, sizeof(wrc_hash_path),
+            "/home/web_user/retroarch/game.%s", wrc_ext);
+      free(wrc_ext);
+      hash_path = wrc_hash_path;
+      CHEEVOS_LOG(RCHEEVOS_TAG "WRC: using hash path: %s\n", hash_path);
+   }
+   /* If no data buffer, check if the emulator placed the ROM in wasm heap
+    * (e.g. melonDS heap-alloc path where game.bin is left intentionally empty). */
+   const uint8_t* wrc_data   = (const uint8_t*)info->data;
+   size_t         wrc_size   = info->size;
+   if (!wrc_data)
+   {
+      int wrc_ptr = EM_ASM_INT({
+         return (window.emulator && window.emulator.getRomPointer)
+            ? window.emulator.getRomPointer() : 0;
+      });
+      int wrc_len = EM_ASM_INT({
+         return (window.emulator && window.emulator.getRomPointerLength)
+            ? window.emulator.getRomPointerLength() : 0;
+      });
+      if (wrc_ptr && wrc_len)
+      {
+         wrc_data = (const uint8_t*)(intptr_t)wrc_ptr;
+         wrc_size = (size_t)wrc_len;
+         CHEEVOS_LOG(RCHEEVOS_TAG "WRC: using heap ROM ptr=%p size=%u\n",
+               wrc_data, (unsigned)wrc_size);
+      }
+   }
+   CHEEVOS_LOG(RCHEEVOS_TAG "WRC: info->path=%s data=%p size=%u\n",
+         info->path ? info->path : "(null)", wrc_data, (unsigned)wrc_size);
+   rc_hash_initialize_iterator(&iterator,
+         hash_path, (uint8_t*)wrc_data, wrc_size);
+   CHEEVOS_LOG(RCHEEVOS_TAG "WRC: iterator.buffer=%p iterator.buffer_size=%u iterator.path=%s\n",
+         iterator.buffer, (unsigned)iterator.buffer_size,
+         iterator.path ? iterator.path : "(null)");
+   /* If we used a fake path for extension detection but the file is path-based
+    * (wrc_data == NULL), restore the real path so rc_hash_iterate can open it. */
+   if (hash_path != info->path && !wrc_data)
+      iterator.path = info->path;
+   } /* end WRC hash-path block */
+#else
    rc_hash_initialize_iterator(&iterator,
          info->path, (uint8_t*)info->data, info->size);
+#endif
    if (!rc_hash_iterate(hash, &iterator))
    {
       CHEEVOS_LOG(RCHEEVOS_TAG "no hashes generated\n");
       return false;
    }
+
+#ifdef WRC
+   wrc_hash_ready:
+   memset(&iterator, 0, sizeof(iterator));
+#endif
 
    rcheevos_locals.game.hashes = (rcheevos_hash_entry_t*)calloc(1, sizeof(rcheevos_hash_entry_t));
    rcheevos_locals.game.hashes->path_djb2 = djb2_calculate(info->path);
@@ -1715,6 +1808,9 @@ bool rcheevos_load(const void *data)
 
    /* If achievements are not enabled, or the core doesn't
     * support achievements, disable hardcore and bail */
+   printf("[WRC] rcheevos_load_game: enable=%d core_supports=%d data=%p\n",
+      (int)cheevos_enable, (int)rcheevos_locals.core_supports, data);
+
    if (!cheevos_enable || !rcheevos_locals.core_supports || !data)
    {
       rcheevos_locals.game.id = 0;
