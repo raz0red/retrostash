@@ -60,7 +60,10 @@ bool Init(FILE* nandfile, u8* es_keyY)
     if (!nandfile)
         return false;
 
-    ff_disk_open(FF_ReadNAND, FF_WriteNAND);
+    fseek(nandfile, 0, SEEK_END);
+    u64 nandlen = ftell(nandfile);
+
+    ff_disk_open(FF_ReadNAND, FF_WriteNAND, (LBA_t)(nandlen>>9));
 
     FRESULT res;
     res = f_mount(&CurFS, "0:", 0);
@@ -446,7 +449,7 @@ bool ESDecrypt(u8* data, u32 len)
 
 void ReadHardwareInfo(u8* dataS, u8* dataN)
 {
-    FIL file;
+    FF_FIL file;
     FRESULT res;
     u32 nread;
 
@@ -468,11 +471,11 @@ void ReadHardwareInfo(u8* dataS, u8* dataN)
 
 void ReadUserData(u8* data)
 {
-    FIL file;
+    FF_FIL file;
     FRESULT res;
     u32 nread;
 
-    FIL f1, f2;
+    FF_FIL f1, f2;
     int v1, v2;
 
     res = f_open(&f1, "0:/shared1/TWLCFG0.dat", FA_OPEN_EXISTING | FA_READ);
@@ -524,7 +527,7 @@ void PatchTSC()
         char filename[64];
         sprintf(filename, "0:/shared1/TWLCFG%d.dat", i);
 
-        FIL file;
+        FF_FIL file;
         res = f_open(&file, filename, FA_OPEN_EXISTING | FA_READ | FA_WRITE);
         if (res != FR_OK)
         {
@@ -562,8 +565,8 @@ void PatchTSC()
 
 void debug_listfiles(const char* path)
 {
-    DIR dir;
-    FILINFO info;
+    FF_DIR dir;
+    FF_FILINFO info;
     FRESULT res;
 
     res = f_opendir(&dir, path);
@@ -590,7 +593,7 @@ void debug_listfiles(const char* path)
 
 bool ImportFile(const char* path, const char* in)
 {
-    FIL file;
+    FF_FIL file;
     FILE* fin;
     FRESULT res;
 
@@ -631,7 +634,7 @@ bool ImportFile(const char* path, const char* in)
 
 bool ExportFile(const char* path, const char* out)
 {
-    FIL file;
+    FF_FIL file;
     FILE* fout;
     FRESULT res;
 
@@ -670,7 +673,7 @@ bool ExportFile(const char* path, const char* out)
 
 void RemoveFile(const char* path)
 {
-    FILINFO info;
+    FF_FILINFO info;
     FRESULT res = f_stat(path, &info);
     if (res != FR_OK) return;
 
@@ -682,8 +685,8 @@ void RemoveFile(const char* path)
 
 void RemoveDir(const char* path)
 {
-    DIR dir;
-    FILINFO info;
+    FF_DIR dir;
+    FF_FILINFO info;
     FRESULT res;
 
     res = f_stat(path, &info);
@@ -739,7 +742,7 @@ u32 GetTitleVersion(u32 category, u32 titleid)
     FRESULT res;
     char path[256];
     sprintf(path, "0:/title/%08x/%08x/content/title.tmd", category, titleid);
-    FIL file;
+    FF_FIL file;
     res = f_open(&file, path, FA_OPEN_EXISTING | FA_READ);
     if (res != FR_OK)
         return 0xFFFFFFFF;
@@ -757,7 +760,7 @@ u32 GetTitleVersion(u32 category, u32 titleid)
 void ListTitles(u32 category, std::vector<u32>& titlelist)
 {
     FRESULT res;
-    DIR titledir;
+    FF_DIR titledir;
     char path[256];
 
     sprintf(path, "0:/title/%08x", category);
@@ -770,7 +773,7 @@ void ListTitles(u32 category, std::vector<u32>& titlelist)
 
     for (;;)
     {
-        FILINFO info;
+        FF_FILINFO info;
         f_readdir(&titledir, &info);
         if (!info.fname[0])
             break;
@@ -787,7 +790,7 @@ void ListTitles(u32 category, std::vector<u32>& titlelist)
             continue;
 
         sprintf(path, "0:/title/%08x/%08x/content/%08x.app", category, titleid, version);
-        FILINFO appinfo;
+        FF_FILINFO appinfo;
         res = f_stat(path, &appinfo);
         if (res != FR_OK)
             continue;
@@ -822,7 +825,7 @@ void GetTitleInfo(u32 category, u32 titleid, u32& version, NDSHeader* header, ND
 
     char path[256];
     sprintf(path, "0:/title/%08x/%08x/content/%08x.app", category, titleid, version);
-    FIL file;
+    FF_FIL file;
     res = f_open(&file, path, FA_OPEN_EXISTING | FA_READ);
     if (res != FR_OK)
         return;
@@ -850,7 +853,7 @@ void GetTitleInfo(u32 category, u32 titleid, u32& version, NDSHeader* header, ND
 
 bool CreateTicket(const char* path, u32 titleid0, u32 titleid1, u8 version)
 {
-    FIL file;
+    FF_FIL file;
     FRESULT res;
     u32 nwrite;
 
@@ -916,7 +919,7 @@ bool CreateSaveFile(const char* path, u32 len)
     if (len == 0x4000) totsec16 = 27;
     else               totsec16 = len >> 9;
 
-    FIL file;
+    FF_FIL file;
     FRESULT res;
     u32 nwrite;
 
@@ -974,11 +977,11 @@ bool ImportTitle(const char* appfile, u8* tmd, bool readonly)
     printf("Title ID: %08x/%08x\n", titleid0, titleid1);
 
     FRESULT res;
-    DIR ticketdir;
-    FILINFO info;
+    FF_DIR ticketdir;
+    FF_FILINFO info;
 
     char fname[128];
-    FIL file;
+    FF_FIL file;
     u32 nwrite;
 
     // ticket

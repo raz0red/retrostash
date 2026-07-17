@@ -19,8 +19,11 @@
 #ifndef NDSCART_H
 #define NDSCART_H
 
+#include <string>
+
 #include "types.h"
 #include "NDS_Header.h"
+#include "FATStorage.h"
 
 namespace NDSCart
 {
@@ -33,7 +36,7 @@ public:
     virtual ~CartCommon();
 
     virtual void Reset();
-    virtual void SetupDirectBoot();
+    virtual void SetupDirectBoot(std::string romname);
 
     virtual void DoSavestate(Savestate* file);
 
@@ -171,17 +174,21 @@ public:
     ~CartHomebrew() override;
 
     void Reset() override;
+    void SetupDirectBoot(std::string romname) override;
 
     void DoSavestate(Savestate* file) override;
 
     int ROMCommandStart(u8* cmd, u8* data, u32 len) override;
     void ROMCommandFinish(u8* cmd, u8* data, u32 len) override;
 
+    bool InjectFileToSD(const char* path, u8* data, u32 length);
+
 private:
-    void ApplyDLDIPatch(const u8* patch, u32 len);
+    void ApplyDLDIPatch(const u8* patch, u32 patchlen, bool readonly);
     void ReadROM_B7(u32 addr, u32 len, u8* data, u32 offset);
 
-    FILE* SDFile;
+    FATStorage* SD;
+    bool ReadOnly;
 };
 
 extern u16 SPICnt;
@@ -216,6 +223,8 @@ void FlushSRAMFile();
 void RelocateSave(const char* path, bool write);
 
 int ImportSRAM(const u8* data, u32 length);
+
+bool InjectSDCardFile(const char* path, u8* data, u32 length);
 
 void ResetCart();
 

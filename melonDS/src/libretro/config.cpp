@@ -30,6 +30,10 @@ namespace Config
     char FirmwarePath[1024];
     int DLDIEnable;
     char DLDISDPath[1024];
+    int DLDIReadOnly;
+    int DLDIFolderSync;
+    char DLDIFolderPath[1024];
+    int DLDISize;
 
     char FirmwareUsername[64];
     int FirmwareLanguage;

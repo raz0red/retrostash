@@ -174,7 +174,11 @@ static void upload_output_audio_buffer()
       memset(output_audio_buffer.data + output_audio_buffer.size, 0, samples * sizeof(*output_audio_buffer.data));
       output_audio_buffer.size += samples;
    }
+#ifdef WRC
+   EM_ASM({ window.emulator.audioCallback($0, $1); }, output_audio_buffer.data, output_audio_buffer.size / 2);
+#else
    audio_batch_cb(output_audio_buffer.data, output_audio_buffer.size / 2);
+#endif
    output_audio_buffer.size = 0;
 
    audio_ready = false;

@@ -16,6 +16,11 @@
     with melonDS. If not, see http://www.gnu.org/licenses/.
 */
 
+#ifdef WRC
+#include <emscripten.h>
+#endif
+
+
 #include <stdio.h>
 #include <string.h>
 #include "NDS.h"
@@ -202,7 +207,7 @@ void CartCommon::Reset()
     DSiMode = false;
 }
 
-void CartCommon::SetupDirectBoot()
+void CartCommon::SetupDirectBoot(std::string romname)
 {
     CmdEncMode = 2;
     DataEncMode = 2;
@@ -1168,30 +1173,125 @@ u8 CartRetailBT::SPIWrite(u8 val, u32 pos, bool last)
 
 CartHomebrew::CartHomebrew(u8* rom, u32 len, u32 chipid) : CartCommon(rom, len, chipid)
 {
-    if (Config::DLDIEnable)
-    {
-        ApplyDLDIPatch(melonDLDI, sizeof(melonDLDI));
-        SDFile = Platform::OpenLocalFile(Config::DLDISDPath, "r+b");
-    }
-    else
-        SDFile = nullptr;
+    SD = nullptr;
 }
 
 CartHomebrew::~CartHomebrew()
 {
-    if (SDFile) fclose(SDFile);
+    if (SD)
+    {
+        SD->Close();
+        delete SD;
+    }
 }
 
 void CartHomebrew::Reset()
 {
     CartCommon::Reset();
 
-    if (SDFile) fclose(SDFile);
+    ReadOnly = Config::DLDIReadOnly;
+
+    if (SD)
+    {
+        SD->Close();
+        delete SD;
+    }
 
     if (Config::DLDIEnable)
-        SDFile = Platform::OpenLocalFile(Config::DLDISDPath, "r+b");
+    {
+        std::string folderpath;
+        if (Config::DLDIFolderSync)
+            folderpath = Config::DLDIFolderPath;
+        else
+            folderpath = "";
+
+        ApplyDLDIPatch(melonDLDI, sizeof(melonDLDI), ReadOnly);
+        SD = new FATStorage(Config::DLDISDPath,
+                            (u64)Config::DLDISize * 1024 * 1024,
+                            ReadOnly,
+                            folderpath);
+        SD->Open();
+
+#ifdef WRC
+        // Inject additional SD card files from JS
+        int index = 0;
+        while (true)
+        {
+            // Ask JS for the next file's path, returns null if no more files
+            char* pathPtr = (char*)EM_ASM_INT({
+                return window.emulator.getSDCardFilePath($0);
+            }, index);
+
+            if (!pathPtr) break; // No more files
+
+            std::string path(pathPtr);
+            free(pathPtr);
+
+            // Ask JS to download the file and return the data pointer
+            u8* dataPtr = (u8*)EM_ASM_INT({
+                return window.emulator.downloadSDCardFile($0);
+            }, index);
+
+            if (!dataPtr)
+            {
+                printf("Failed to download SD card file for index %d\n", index);
+                index++;
+                continue;
+            }
+
+            // Get the length
+            u32 length = EM_ASM_INT({
+                return window.emulator.getSDCardFileLength();
+            });
+
+            printf("Injecting SD card file: %s (%d bytes)\n", path.c_str(), length);
+            SD->InjectFile(path, dataPtr, length);
+
+            // JS side can free the data now
+            EM_ASM({
+                window.emulator.freeSDCardFileData();
+            });
+
+            index++;
+        }
+#endif
+    }
     else
-        SDFile = nullptr;
+        SD = nullptr;
+}
+
+void CartHomebrew::SetupDirectBoot(std::string romname)
+{
+    CartCommon::SetupDirectBoot(romname);
+
+    if (SD)
+    {
+        // add the ROM to the SD volume
+
+        if (!SD->InjectFile(romname, CartROM, CartROMSize))
+            return;
+
+        // setup argv command line
+
+        char argv[512] = {0};
+        int argvlen;
+
+        strncpy(argv, "fat:/", 511);
+        strncat(argv, romname.c_str(), 511);
+        argvlen = strlen(argv);
+
+        void (*writefn)(u32,u32) = (NDS::ConsoleType==1) ? DSi::ARM9Write32 : NDS::ARM9Write32;
+
+        u32 argvbase = Header.ARM9RAMAddress + Header.ARM9Size;
+        argvbase = (argvbase + 0xF) & ~0xF;
+
+        for (u32 i = 0; i <= argvlen; i+=4)
+            writefn(argvbase+i, *(u32*)&argv[i]);
+
+        writefn(0x02FFFE70, 0x5F617267);
+        writefn(0x02FFFE74, argvbase);
+        writefn(0x02FFFE78, argvlen+1);
+    }
 }
 
 void CartHomebrew::DoSavestate(Savestate* file)
@@ -1224,13 +1324,7 @@ int CartHomebrew::ROMCommandStart(u8* cmd, u8* data, u32 len)
     case 0xC0: // SD read
         {
             u32 sector = (cmd[1]<<24) | (cmd[2]<<16) | (cmd[3]<<8) | cmd[4];
-            u64 addr = sector * 0x200ULL;
-
-            if (SDFile)
-            {
-                fseek(SDFile, addr, SEEK_SET);
-                fread(data, len, 1, SDFile);
-            }
+            if (SD) SD->ReadSectors(sector, len>>9, data);
         }
         return 0;
 
@@ -1253,13 +1347,7 @@ void CartHomebrew::ROMCommandFinish(u8* cmd, u8* data, u32 len)
     case 0xC1:
         {
             u32 sector = (cmd[1]<<24) | (cmd[2]<<16) | (cmd[3]<<8) | cmd[4];
-            u64 addr = sector * 0x200ULL;
-
-            if (SDFile)
-            {
-                fseek(SDFile, addr, SEEK_SET);
-                fwrite(data, len, 1, SDFile);
-            }
+            if (SD && (!ReadOnly)) SD->WriteSectors(sector, len>>9, data);
         }
         break;
 
@@ -1268,7 +1356,13 @@ void CartHomebrew::ROMCommandFinish(u8* cmd, u8* data, u32 len)
     }
 }
 
-void CartHomebrew::ApplyDLDIPatch(const u8* patch, u32 patchlen)
+bool CartHomebrew::InjectFileToSD(const char* path, u8* data, u32 length)
+{
+    if (!SD) return false;
+    return SD->InjectFile(std::string(path), data, length);
+}
+
+void CartHomebrew::ApplyDLDIPatch(const u8* patch, u32 patchlen, bool readonly)
 {
     u32 offset = *(u32*)&ROM[0x20];
     u32 size = *(u32*)&ROM[0x2C];
@@ -1649,7 +1743,7 @@ bool LoadROMCommon(u32 filelength, const char *sram, bool direct)
         if (direct)
         {
             NDS::SetupDirectBoot();
-            Cart->SetupDirectBoot();
+            Cart->SetupDirectBoot("game.nds");
         }
     }
 
@@ -1785,6 +1879,16 @@ int ImportSRAM(const u8* data, u32 length)
 {
     if (Cart) return Cart->ImportSRAM(data, length);
     return 0;
+}
+
+bool InjectSDCardFile(const char* path, u8* data, u32 length)
+{
+    CartHomebrew* homebrew = dynamic_cast<CartHomebrew*>(Cart);
+    if (homebrew)
+    {
+        return homebrew->InjectFileToSD(path, data, length);
+    }
+    return false;
 }
 
 void ResetCart()

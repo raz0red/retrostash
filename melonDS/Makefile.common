@@ -45,6 +45,7 @@ SOURCES_CXX := $(MELON_DIR)/NDS.cpp \
                     $(MELON_DIR)/GPU3D_Soft.cpp \
                     $(MELON_DIR)/NDSCart.cpp \
                     $(MELON_DIR)/NDSCart_SRAMManager.cpp \
+                    $(MELON_DIR)/FATStorage.cpp \
                     $(MELON_DIR)/RTC.cpp \
                     $(MELON_DIR)/Savestate.cpp \
                     $(MELON_DIR)/SPI.cpp \

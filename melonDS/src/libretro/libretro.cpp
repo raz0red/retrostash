@@ -202,6 +202,7 @@ void retro_set_environment(retro_environment_t cb)
       { "melonds_jit_fast_memory", "JIT Fast memory; enabled|disabled" },
 #endif
       { "melonds_dsi_sdcard", "Enable DSi SD card; disabled|enabled" },
+      { "melonds_homebrew_sdcard", "Enable homebrew SD card (DLDI); disabled|enabled" },
       { "melonds_audio_bitrate", "Audio bitrate; Automatic|10-bit|16-bit" },
       { "melonds_audio_interpolation", "Audio Interpolation; None|Linear|Cosine|Cubic" },
       { 0, 0 }
@@ -507,6 +508,22 @@ video_settings.Soft_Threaded = true;
          Config::DSiSDEnable = 0;
    }
 
+#ifdef WRC
+   Config::DLDIEnable = EM_ASM_INT({ return window.emulator.isDLDIEnabled(); });
+   if (Config::DLDIEnable) {
+      printf("## DLDIEnabled!\n");
+   }
+#else
+   var.key = "melonds_homebrew_sdcard";
+   if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
+   {
+      if (!strcmp(var.value, "enabled"))
+         Config::DLDIEnable = 1;
+      else
+         Config::DLDIEnable = 0;
+   }
+#endif
+
    var.key = "melonds_audio_bitrate";
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
    {
@@ -784,6 +801,11 @@ bool retro_load_game(const struct retro_game_info *info)
    strcpy(Config::DSiFirmwarePath, "dsi_firmware.bin");
    strcpy(Config::DSiNANDPath, "dsi_nand.bin");
    strcpy(Config::DSiSDPath, "dsi_sd_card.bin");
+   strcpy(Config::DLDISDPath, "dldi_sd_card.bin");
+   strcpy(Config::DLDIFolderPath, "dldi_sd_card");
+   Config::DLDISize = 4096;
+   Config::DLDIReadOnly = 0;
+   Config::DLDIFolderSync = 0;
    strcpy(Config::FirmwareUsername, "MelonDS");
 
    struct retro_input_descriptor desc[] = {

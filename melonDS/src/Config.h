@@ -46,6 +46,10 @@ extern char BIOS7Path[1024];
 extern char FirmwarePath[1024];
 extern int DLDIEnable;
 extern char DLDISDPath[1024];
+extern int DLDIReadOnly;
+extern int DLDIFolderSync;
+extern char DLDIFolderPath[1024];
+extern int DLDISize;
 
 extern char FirmwareUsername[64];
 extern int FirmwareLanguage;

@@ -206,7 +206,7 @@ void astrocde_home_state::astrocde(machine_config &config)
 	/* control ports */
 	for (uint32_t port = 0; port < 4; port++)
 	{
-		ASTROCADE_CTRL_PORT(config, m_ctrl[port], astrocade_controllers, port == 0 ? "joy" : nullptr);
+		ASTROCADE_CTRL_PORT(config, m_ctrl[port], astrocade_controllers, "joy");
 		m_ctrl[port]->ltpen_handler().set(FUNC(astrocde_home_state::lightpen_trigger_w));
 	}
 

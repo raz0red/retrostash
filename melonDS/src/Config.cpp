@@ -33,6 +33,10 @@ char BIOS7Path[1024];
 char FirmwarePath[1024];
 int DLDIEnable;
 char DLDISDPath[1024];
+int DLDIReadOnly;
+int DLDIFolderSync;
+char DLDIFolderPath[1024];
+int DLDISize;
 
 char FirmwareUsername[64];
 int FirmwareLanguage;
@@ -66,7 +70,11 @@ ConfigEntry ConfigFile[] =
     {"BIOS7Path", 1, BIOS7Path, 0, "", 1023},
     {"FirmwarePath", 1, FirmwarePath, 0, "", 1023},
     {"DLDIEnable", 0, &DLDIEnable, 0, NULL, 0},
-    {"DLDISDPath", 1, DLDISDPath, 0, "", 1023},
+    {"DLDISDPath", 1, DLDISDPath, 0, "dldi_sd_card.bin", 1023},
+    {"DLDIReadOnly", 0, &DLDIReadOnly, 0, NULL, 0},
+    {"DLDIFolderSync", 0, &DLDIFolderSync, 0, NULL, 0},
+    {"DLDIFolderPath", 1, DLDIFolderPath, 0, "dldi_sd_card", 1023},
+    {"DLDISize", 0, &DLDISize, 4096, NULL, 0},
 
     {"FirmwareUsername", 1, FirmwareUsername, 0, "MelonDS", 63},
     {"FirmwareLanguage", 0, &FirmwareLanguage, 1, NULL, 0},
