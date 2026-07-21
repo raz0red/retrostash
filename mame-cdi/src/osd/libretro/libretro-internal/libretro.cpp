@@ -1134,7 +1134,11 @@ void retro_frame_draw_enable(bool enable)
 
 #ifdef WRC
 extern "C" {
-void em_cmd_savefiles() {}
+void em_cmd_savefiles() {
+   if (mame_machine_manager::instance() != NULL
+         && mame_machine_manager::instance()->machine() != NULL)
+      mame_machine_manager::instance()->machine()->retro_nvram_save();
+}
 void wrc_on_set_options(int opts) {}
 extern unsigned short retro_key_event_state[];
 void wrc_on_key(int key, int down) {

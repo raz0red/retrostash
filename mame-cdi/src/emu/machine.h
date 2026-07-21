@@ -165,6 +165,7 @@ public:
 #if defined(__LIBRETRO__)
 	void retro_machine_exit();
 	void retro_loop();
+	void retro_nvram_save() { nvram_save(); }
 #endif
 
 	// immediate operations

@@ -1130,6 +1130,14 @@ void running_machine::postload_all_devices()
 
 std::string running_machine::nvram_filename(device_t &device) const
 {
+#if defined(__LIBRETRO__)
+	// The wasm frontend wants one predictable file to read/write instead of
+	// computing MAME's driver/software/tag-based nesting itself. Safe as a
+	// single fixed name as long as a driver has exactly one nvram_interface
+	// device (true for cdimono1's mk48t08); revisit if that ever changes.
+	(void)device;
+	return "game";
+#else
 	// start with either basename or basename_biosnum
 	std::ostringstream result;
 	result << basename();
@@ -1159,6 +1167,7 @@ std::string running_machine::nvram_filename(device_t &device) const
 		result << PATH_SEPARATOR << tag;
 	}
 	return result.str();
+#endif
 }
 
 /*-------------------------------------------------
