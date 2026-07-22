@@ -1142,8 +1142,8 @@ void em_cmd_savefiles() {
 void wrc_on_set_options(int opts) {}
 extern unsigned short retro_key_event_state[];
 void wrc_on_key(int key, int down) {
-    if (key >= 0 && key < 512)
-        retro_key_event_state[key] = down ? 0x80 : 0;
+    // if (key >= 0 && key < 512)
+    //     retro_key_event_state[key] = down ? 0x80 : 0;
 }
 void wrc_step() {}
 void wrc_save_state(char* file) {}

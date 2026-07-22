@@ -1132,9 +1132,11 @@ std::string running_machine::nvram_filename(device_t &device) const
 {
 #if defined(__LIBRETRO__)
 	// The wasm frontend wants one predictable file to read/write instead of
-	// computing MAME's driver/software/tag-based nesting itself. Safe as a
-	// single fixed name as long as a driver has exactly one nvram_interface
-	// device (true for cdimono1's mk48t08); revisit if that ever changes.
+	// computing MAME's driver/software/tag-based nesting itself. Every CD-i
+	// disc is staged to the same local filename ("game.chd"), so there is no
+	// per-game identity visible here at all; the JS side is responsible for
+	// keeping different games' saves apart (via a per-item nvram directory),
+	// not this filename.
 	(void)device;
 	return "game";
 #else

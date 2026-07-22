@@ -45,11 +45,17 @@ TIMER_CALLBACK_MEMBER( cdislave_hle_device::trigger_readback_int )
 	m_interrupt_timer->adjust(attotime::never);
 }
 
+extern int wrc_mouse_btn;
+
 TIMER_CALLBACK_MEMBER( cdislave_hle_device::poll_inputs )
 {
 	const uint16_t x = m_read_mousex();
 	const uint16_t y = m_read_mousey();
+#if 0
 	const uint8_t btn = m_read_mousebtn();
+#else
+	const uint8_t btn = wrc_mouse_btn;
+#endif
 	if (x == m_input_mouse_x && y == m_input_mouse_y && btn == m_input_mouse_btn)
 		return;
 

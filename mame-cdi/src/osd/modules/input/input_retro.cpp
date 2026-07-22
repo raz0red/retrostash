@@ -707,6 +707,7 @@ void retro_osd_interface::process_joystick_state(running_machine &machine)
       joystickstate[j].a3[0] = -normalize_absolute_axis(analog_l2, -ANALOG_MAX, ANALOG_MAX);
       joystickstate[j].a3[1] = -normalize_absolute_axis(analog_r2, -ANALOG_MAX, ANALOG_MAX);
 
+#if 0
       /* Apply WRC input state pushed from JavaScript controller layer */
       {
          unsigned int ws = wrc_input_state[j];
@@ -725,8 +726,11 @@ void retro_osd_interface::process_joystick_state(running_machine &machine)
          if (paddle_scaled < -1.0f) paddle_scaled = -1.0f;
          joystickstate[j].a2[0] = (int32_t)(paddle_scaled * 65536.0f);
       }
+#endif
    }
 }
+
+int wrc_mouse_btn = 0;
 
 void retro_osd_interface::process_mouse_state(running_machine &machine)
 {
@@ -738,7 +742,7 @@ void retro_osd_interface::process_mouse_state(running_machine &machine)
 	if (!mouse_enable)
 		return;
 
-	for (i = 0; i < RETRO_MAX_PLAYERS; i++)
+	for (i = 0; i < 1 /*RETRO_MAX_PLAYERS*/; i++)
 	{
 		int16_t mouse_x;
 		int16_t mouse_y;
@@ -767,14 +771,9 @@ void retro_osd_interface::process_mouse_state(running_machine &machine)
 		mousestate[i].x = mouse_x * osd::input_device::RELATIVE_PER_PIXEL;
 		mousestate[i].y = mouse_y * osd::input_device::RELATIVE_PER_PIXEL;
 
-		/* WRC: inject analog stick + real mouse input */
-		{
-			extern float wrc_input_state_analog[][4];
-			extern unsigned int wrc_input_state[];
-			extern int wrc_mouse_x;
-			extern int wrc_mouse_y;
-			extern int wrc_buttons;
 
+		/* WRC: inject analog stick + real mouse input */
+		if (i == 0) {
 			/* Left analog stick as mouse movement */
 			float rx = wrc_input_state_analog[i][0];
 			float ry = wrc_input_state_analog[i][1];
@@ -788,21 +787,21 @@ void retro_osd_interface::process_mouse_state(running_machine &machine)
 			/* D-pad as digital cursor steps */
 			unsigned int ws = wrc_input_state[i];
 			const float DPAD_SPEED = 4.0f;
-			if (ws & 0x0001) wrc_mx -= (int16_t)DPAD_SPEED;
-			if (ws & 0x0002) wrc_mx += (int16_t)DPAD_SPEED;
-			if (ws & 0x0004) wrc_my -= (int16_t)DPAD_SPEED;
-			if (ws & 0x0008) wrc_my += (int16_t)DPAD_SPEED;
+			if (ws & INP_LEFT) wrc_mx -= (int16_t)DPAD_SPEED;
+			if (ws & INP_RIGHT) wrc_mx += (int16_t)DPAD_SPEED;
+			if (ws & INP_UP) wrc_my -= (int16_t)DPAD_SPEED;
+			if (ws & INP_DOWN) wrc_my += (int16_t)DPAD_SPEED;
 
 			/* Real mouse delta from wrc_update_mouse (player 0 only) */
-			if (i == 0) {
+			// if (i == 0) {
 				wrc_mx += (int16_t)wrc_mouse_x;
 				wrc_my += (int16_t)wrc_mouse_y;
 				wrc_mouse_x = 0;
 				wrc_mouse_y = 0;
-				if (wrc_buttons & 1) mouse_l = true;
-				if (wrc_buttons & 2) mouse_m = true;
-				if (wrc_buttons & 4) mouse_r = true;
-			}
+				if (wrc_buttons & MOUSE_LEFT) mouse_l = true;
+				if (wrc_buttons & MOUSE_MIDDLE) mouse_m = true;
+				if (wrc_buttons & MOUSE_RIGHT) mouse_r = true;
+			// }
 
 			mousestate[i].x += wrc_mx * osd::input_device::RELATIVE_PER_PIXEL;
 			mousestate[i].y += wrc_my * osd::input_device::RELATIVE_PER_PIXEL;
@@ -810,9 +809,14 @@ void retro_osd_interface::process_mouse_state(running_machine &machine)
 			mouse_y += wrc_my;
 
 			/* Face buttons: A(Xbox)=Button1, B(Xbox)=Button2, X(Xbox)=Button3 */
-			if (ws & 0x0040) mouse_l = true;
-			if (ws & 0x0080) mouse_r = true;
-			if (ws & 0x0100) mouse_m = true;
+			if (ws & INP_X) mouse_l = true;
+			if (ws & INP_A) mouse_m = true;
+			if (ws & INP_B) mouse_r = true;
+
+			wrc_mouse_btn = 0;
+			if (mouse_l) wrc_mouse_btn |= 1;
+			if (mouse_m) wrc_mouse_btn |= 2;
+			if (mouse_r) wrc_mouse_btn |= 4;
 		}
 
 		// internal UI mouse
@@ -848,6 +852,7 @@ void retro_osd_interface::process_mouse_state(running_machine &machine)
 			ovmy = vmy;
 		}
 
+#if 0
 		// mouse buttons
 		if (!mousestate[i].button[MOUSE_LEFT] && mouse_l)
 		{
@@ -919,6 +924,7 @@ void retro_osd_interface::process_mouse_state(running_machine &machine)
 			mousestate[i].button[MOUSE_MIDDLE] = BUTTON_MAX;
 		else if (mousestate[i].button[MOUSE_MIDDLE] && !mouse_m)
 			mousestate[i].button[MOUSE_MIDDLE] = 0;
+#endif
 
 		if (!mousestate[i].button[MOUSE_4] && mouse_4)
 			mousestate[i].button[MOUSE_4] = BUTTON_MAX;
