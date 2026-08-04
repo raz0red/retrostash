@@ -1316,30 +1316,41 @@ void em_cmd_savefiles() {}
 void wrc_on_set_options(int opts) {
    if (opts & OPT12) {
       int len = 256;
-      char* path = (char*)malloc(len);
-      memset(path, 0, len);
+      char* flop1Path = (char*)malloc(len);
+      char* flop2Path = (char*)malloc(len);
+      memset(flop1Path, 0, len);
+      memset(flop2Path, 0, len);
+
       EM_ASM({
-         const p = window.emulator.getMediaPath();
-         const str = new Uint8Array(window.Module.HEAP8.buffer, $0, $1);
-         for (let i = 0; i < p.length; i++) {
-            str[i] = p[i].charCodeAt(0);
-         }
-      }, path, len);
-      printf("Disk swap to: %s\n", path);
+         const p1 = window.emulator.getMediaPath ? window.emulator.getMediaPath() : '';
+         const p2 = window.emulator.getFlop2Path ? window.emulator.getFlop2Path() : '';
+         const s1 = new Uint8Array(window.Module.HEAP8.buffer, $0, $1);
+         const s2 = new Uint8Array(window.Module.HEAP8.buffer, $2, $3);
+         for (let i = 0; i < p1.length; i++) s1[i] = p1.charCodeAt(i);
+         for (let i = 0; i < p2.length; i++) s2[i] = p2.charCodeAt(i);
+      }, flop1Path, len, flop2Path, len);
+
+      printf("Disk swap - flop1: %s, flop2: %s\n", flop1Path, flop2Path);
 
       if (mame_machine_manager::instance() != NULL &&
           mame_machine_manager::instance()->machine() != NULL) {
          image_interface_enumerator iter(mame_machine_manager::instance()->machine()->root_device());
          for (device_image_interface &image : iter) {
             if (strstr(image.image_type_name(), "floppy") != NULL) {
-               image.unload();
-               image.load(std::string_view(path));
-               break;
+               const std::string &brief = image.brief_instance_name();
+               if (brief == "flop1") {
+                  image.unload();
+                  if (flop1Path[0] != '\0') image.load(std::string_view(flop1Path));
+               } else if (brief == "flop2") {
+                  image.unload();
+                  if (flop2Path[0] != '\0') image.load(std::string_view(flop2Path));
+               }
             }
          }
       }
 
-      free(path);
+      free(flop1Path);
+      free(flop2Path);
       return;
    }
 }
