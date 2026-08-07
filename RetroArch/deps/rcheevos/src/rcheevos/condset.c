@@ -18,6 +18,7 @@ static void rc_update_condition_pause(rc_condition_t* condition, int* in_pause) 
     case RC_CONDITION_OR_NEXT:
     case RC_CONDITION_ADD_ADDRESS:
     case RC_CONDITION_RESET_NEXT_IF:
+    case RC_CONDITION_REMEMBER:
       condition->pause = (char)*in_pause;
       break;
 
@@ -57,6 +58,7 @@ rc_condset_t* rc_parse_condset(const char** memaddr, rc_parse_state_t* parse, in
         case RC_CONDITION_ADD_ADDRESS:
         case RC_CONDITION_ADD_SOURCE:
         case RC_CONDITION_SUB_SOURCE:
+        case RC_CONDITION_REMEMBER:
           /* these conditions don't require a right hand size (implied *1) */
           break;
 
@@ -196,6 +198,12 @@ static int rc_test_condset_internal(rc_condset_t* self, int processing_pause, rc
 
       case RC_CONDITION_ADD_ADDRESS:
         eval_state->add_address = rc_evaluate_condition_value(condition, eval_state);
+        continue;
+
+      case RC_CONDITION_REMEMBER:
+        eval_state->recall_value = rc_evaluate_condition_value(condition, eval_state) + eval_state->add_value;
+        eval_state->add_value = 0;
+        eval_state->add_address = 0;
         continue;
 
       case RC_CONDITION_MEASURED:
@@ -382,6 +390,9 @@ int rc_test_condset(rc_condset_t* self, rc_eval_state_t* eval_state) {
     /* important: empty group must evaluate true */
     return 1;
   }
+
+  /* initialize recall value so each condition set has a functionally new recall accumulator */
+  eval_state->recall_value = 0;
 
   if (self->has_pause) {
     /* one or more Pause conditions exists, if any of them are true, stop processing this group */

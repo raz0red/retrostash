@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
+#include <string.h>
 
 #ifndef RC_DISABLE_LUA
 
@@ -242,6 +243,14 @@ int rc_parse_operand(rc_operand_t* self, const char** memaddr, int is_indirect, 
         return ret;
 
       break;
+
+    case '{': /* pseudo-variable, currently only {recall} is supported */
+      if (strncmp(aux, "{recall}", 8) != 0)
+        return RC_INVALID_CONST_OPERAND;
+
+      self->type = RC_OPERAND_RECALL;
+      aux += 8;
+      break;
   }
 
   *memaddr = aux;
@@ -274,6 +283,7 @@ int rc_operand_is_memref(rc_operand_t* self) {
     case RC_OPERAND_CONST:
     case RC_OPERAND_FP:
     case RC_OPERAND_LUA:
+    case RC_OPERAND_RECALL:
       return 0;
 
     default:
@@ -292,6 +302,9 @@ unsigned rc_evaluate_operand(rc_operand_t* self, rc_eval_state_t* eval_state) {
   switch (self->type) {
     case RC_OPERAND_CONST:
       return self->value.num;
+
+    case RC_OPERAND_RECALL:
+      return eval_state->recall_value;
 
     case RC_OPERAND_FP:
       /* This is handled by rc_evaluate_condition_value. */

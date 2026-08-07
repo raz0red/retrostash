@@ -69,6 +69,7 @@ typedef struct {
   unsigned add_value;       /* AddSource/SubSource */
   int add_hits;             /* AddHits */
   unsigned add_address;     /* AddAddress */
+  unsigned recall_value;    /* Remember/{recall} */
 
   rc_peek_t peek;
   void* peek_userdata;

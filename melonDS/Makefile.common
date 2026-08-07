@@ -12,7 +12,8 @@ SOURCES_C   := $(MELON_DIR)/xxhash/xxhash.c \
                $(MELON_DIR)/fatfs/ff.c \
                $(MELON_DIR)/fatfs/ffsystem.c \
                $(MELON_DIR)/fatfs/ffunicode.c \
-               $(MELON_DIR)/sha1/sha1.c
+               $(MELON_DIR)/sha1/sha1.c \
+               $(CORE_DIR)/wrc_mic_blow.c
 SOURCES_S   :=
 
 SOURCES_CXX := $(MELON_DIR)/NDS.cpp \

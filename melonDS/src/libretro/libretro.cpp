@@ -21,6 +21,7 @@
 #include "opengl.h"
 #include "screenlayout.h"
 #include "utils.h"
+#include "wrc_mic_blow.h"
 #include "../AREngine.h"
 #include "../ARCodeFile.h"
 
@@ -720,19 +721,43 @@ void retro_run(void)
       }
    }
 
+   // 16.16 fixed-point playback position into wrc_mic_blow_data, resampled
+   // from its native wrc_mic_blow_sample_rate up to the 44100Hz the DS mic
+   // frame expects (735 samples/frame @ 60fps).
+   static bool mic_blow_was_held = false;
+   static u64 mic_blow_phase = 0;
+
 #ifndef WRC
    if (input_state.holding_noise_btn)
 #else
    if (wrc_blow)
 #endif
    {
-      s16 tmp[735];
-      for (int i = 0; i < 735; i++) tmp[i] = rand() & 0xFFFF;
-      NDS::MicInputFrame(tmp, 735);
+      // s16 tmp[735];
+      // for (int i = 0; i < 735; i++) tmp[i] = rand() & 0xFFFF;
+      // NDS::MicInputFrame(tmp, 735);
       // printf("MicInputFrame\n");
+
+      if (!mic_blow_was_held)
+      {
+         mic_blow_phase = 0;
+         mic_blow_was_held = true;
+      }
+
+      static const u64 mic_blow_step = ((u64)wrc_mic_blow_sample_rate << 16) / 44100;
+
+      s16 tmp[735];
+      for (int i = 0; i < 735; i++)
+      {
+         u32 src_index = (u32)(mic_blow_phase >> 16) % wrc_mic_blow_data_len;
+         tmp[i] = (s16)(((int)wrc_mic_blow_data[src_index] - 128) << 8);
+         mic_blow_phase += mic_blow_step;
+      }
+      NDS::MicInputFrame(tmp, 735);
    }
    else
    {
+      mic_blow_was_held = false;
       NDS::MicInputFrame(NULL, 0);
    }
 
