@@ -2,9 +2,17 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, develop ]
   pull_request:
-    branches: [ master ]
+    branches: [ develop, master ]
+  workflow_dispatch:
+
+# Cancel in-progress runs when a new commit lands on the same PR.
+# Pushes to master/develop run to completion (no cancellation) so we
+# always have a green-or-red record on the integration branches.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -12,54 +20,632 @@ jobs:
       fail-fast: false
       matrix:
         config:
-              - displayTargetName: 'Ubuntu Latest GCC'
-                artifact: 'virtualjaguar_libretro.so'
-                os: ubuntu-latest
-                build_type: 'Release'
-                cc: 'gcc'
-                cxx: 'g++'
-              - displayTargetName: 'macOS Latest Clang'
-                artifact: 'virtualjaguar_libretro.dylib'
-                os: macos-latest
-                build_type: 'Release'
-                cc: 'clang'
-                cxx: 'clang++'
-#               - displayTargetName: 'Windows Latest MinGW'
-#                 artifact: 'virtualjaguar_libretro.so'
-#                 os: windows-latest
-#                 build_type: 'Release'
-#                 cc: 'gcc'
-#                 cxx: 'g++'
+          # Linux
+          - displayTargetName: 'Linux x86_64 (GCC)'
+            artifact: 'virtualjaguar_libretro.so'
+            os: ubuntu-latest
+            cc: 'gcc'
+            cxx: 'g++'
 
-    name: build-${{matrix.config.os}}
+          - displayTargetName: 'Linux x86_64 (Clang)'
+            artifact: 'virtualjaguar_libretro.so'
+            os: ubuntu-latest
+            cc: 'clang'
+            cxx: 'clang++'
+
+          - displayTargetName: 'Linux aarch64'
+            artifact: 'virtualjaguar_libretro.so'
+            os: ubuntu-24.04-arm
+            cc: 'gcc'
+            cxx: 'g++'
+
+          - displayTargetName: 'Linux i686'
+            artifact: 'virtualjaguar_libretro.so'
+            os: ubuntu-latest
+            cc: 'gcc -m32'
+            cxx: 'g++ -m32'
+            multilib: true
+
+          # macOS
+          - displayTargetName: 'macOS arm64 (Clang)'
+            artifact: 'virtualjaguar_libretro.dylib'
+            os: macos-latest
+            cc: 'clang'
+            cxx: 'clang++'
+
+          # Cross-compiled from macos-latest (arm64) -- avoids the
+          # scarce macos-13 Intel runner pool.  See release.yml for
+          # rationale.
+          - displayTargetName: 'macOS x86_64 (Clang, cross)'
+            artifact: 'virtualjaguar_libretro.dylib'
+            os: macos-latest
+            cc: 'clang -arch x86_64'
+            cxx: 'clang++ -arch x86_64'
+            make_extra: 'BLITTER_SIMD=sse2'
+            cross: true
+
+          # Windows (MinGW)
+          - displayTargetName: 'Windows x86_64 (MSYS2)'
+            artifact: 'virtualjaguar_libretro.dll'
+            os: windows-latest
+            cc: 'gcc'
+            cxx: 'g++'
+            shell: 'msys2 {0}'
+            msystem: 'MINGW64'
+            msys2_packages: 'mingw-w64-x86_64-gcc make'
+
+          - displayTargetName: 'Windows i686 (MSYS2)'
+            artifact: 'virtualjaguar_libretro.dll'
+            os: windows-latest
+            cc: 'gcc'
+            cxx: 'g++'
+            shell: 'msys2 {0}'
+            msystem: 'MINGW32'
+            msys2_packages: 'mingw-w64-i686-gcc make'
+
+          # Emscripten (WebAssembly)
+          - displayTargetName: 'Emscripten (WASM)'
+            artifact: 'virtualjaguar_libretro_emscripten.bc'
+            os: ubuntu-latest
+            emscripten: true
+
+          # Android NDK
+          - displayTargetName: 'Android arm64-v8a'
+            artifact: 'libs/arm64-v8a/libretro.so'
+            os: ubuntu-latest
+            android: true
+            android_abi: 'arm64-v8a'
+            android_simd: 'neon'
+
+          - displayTargetName: 'Android armeabi-v7a'
+            artifact: 'libs/armeabi-v7a/libretro.so'
+            os: ubuntu-latest
+            android: true
+            android_abi: 'armeabi-v7a'
+            android_simd: 'neon'
+
+          - displayTargetName: 'Android x86_64'
+            artifact: 'libs/x86_64/libretro.so'
+            os: ubuntu-latest
+            android: true
+            android_abi: 'x86_64'
+            android_simd: 'sse2'
+
+          - displayTargetName: 'Android x86'
+            artifact: 'libs/x86/libretro.so'
+            os: ubuntu-latest
+            android: true
+            android_abi: 'x86'
+            android_simd: 'sse2'
+
+          # iOS / tvOS
+          - displayTargetName: 'iOS arm64'
+            artifact: 'virtualjaguar_libretro_ios.dylib'
+            os: macos-latest
+            make_platform: 'ios-arm64'
+            cross: true
+
+          - displayTargetName: 'tvOS arm64'
+            artifact: 'virtualjaguar_libretro_tvos.dylib'
+            os: macos-latest
+            make_platform: 'tvos-arm64'
+            cross: true
+
+    name: build-${{ matrix.config.displayTargetName }}
     runs-on: ${{ matrix.config.os }}
-    
+
+    defaults:
+      run:
+        shell: ${{ matrix.config.shell || 'bash' }}
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Add Msys64 to PATH
-      if: matrix.config.os == 'windows-latest'
+    - uses: actions/checkout@v7
+
+    - name: Install multilib
+      if: matrix.config.multilib
       run: |
-        echo "/c/msys64/mingw64/bin" >> $GITHUB_PATH 
-        echo "/c/msys64/usr/bin" >> $GITHUB_PATH 
-      shell: bash
-    - name: make
-      run: make -j4
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        sudo apt-get install -y gcc-multilib g++-multilib
 
-#     - name: Upload the artifacts
-#       uses: skx/github-action-publish-binaries@master
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#       with:
-#         args: ${{ matrix.config.artifact }}
-
-    - name: upload artifacts
-      uses: actions/upload-artifact@v2
+    - name: Set up MSYS2
+      if: runner.os == 'Windows'
+      uses: msys2/setup-msys2@v2
       with:
-        name: core-${{ matrix.config.os }}
+        msystem: ${{ matrix.config.msystem || 'MINGW64' }}
+        update: false
+        install: ${{ matrix.config.msys2_packages || 'mingw-w64-x86_64-gcc make' }}
+
+    - name: Set up Emscripten
+      if: matrix.config.emscripten
+      uses: mymindstorm/setup-emsdk@v16
+
+    - name: Set up Android NDK
+      if: matrix.config.android
+      uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r26d
+
+    - name: Build
+      if: ${{ !matrix.config.emscripten && !matrix.config.android && !matrix.config.make_platform }}
+      run: make -j4 CC="${{ matrix.config.cc }}" CXX="${{ matrix.config.cxx }}" ${{ matrix.config.make_extra || '' }}
+
+    - name: Build (platform)
+      if: matrix.config.make_platform
+      run: make -j4 platform=${{ matrix.config.make_platform }}
+
+    - name: Build (Emscripten)
+      if: matrix.config.emscripten
+      run: emmake make -j4 platform=emscripten
+
+    - name: Build (Android NDK)
+      if: matrix.config.android
+      run: |
+        # ndk-build uses jni/Android.mk (not the project Makefile),
+        # so the parse-time version.h regen in Makefile doesn't run.
+        bash scripts/gen-version-h.sh
+
+        NDK="${{ steps.setup-ndk.outputs.ndk-path }}"
+        ABI="${{ matrix.config.android_abi }}"
+        SIMD="${{ matrix.config.android_simd }}"
+        UPPER=$(echo "$SIMD" | tr '[:lower:]' '[:upper:]')
+
+        # Dry run first, while nothing is built, so make actually prints
+        # the compile lines. blitter.c MUST carry -DBLITTER_SIMD_<ARCH>:
+        # without it blitter.c inlines the scalar ops and still links
+        # happily against the neon/sse2 vtable, so a missing define is a
+        # silent slow path that no build failure would reveal.
+        "$NDK/ndk-build" APP_ABI="$ABI" -n > ndk-dry.log 2>&1
+        BLIT_LINES=$(grep -c '[/ ]blitter\.c' ndk-dry.log || true)
+        if [ "$BLIT_LINES" = "0" ]; then
+          echo "::error::ndk-build -n printed no compile line for blitter.c; this check needs rework"
+          exit 1
+        fi
+        if ! grep '[/ ]blitter\.c' ndk-dry.log | grep -q -- "-DBLITTER_SIMD_${UPPER}"; then
+          echo "::error::blitter.c is not compiled with -DBLITTER_SIMD_${UPPER} on ${ABI}"
+          grep '[/ ]blitter\.c' ndk-dry.log | head -3
+          exit 1
+        fi
+        echo "==> ${ABI}: blitter.c carries -DBLITTER_SIMD_${UPPER}"
+
+        "$NDK/ndk-build" APP_ABI="$ABI" -j4
+
+        # And the arch .c that define has to agree with.
+        FOUND=$(find "obj/local/$ABI" -name 'blitter_simd_*.o' -exec basename {} \; | sort | tr '\n' ' ')
+        if [ "$FOUND" != "blitter_simd_${SIMD}.o " ]; then
+          echo "::error::expected blitter_simd_${SIMD}.o on ${ABI}, found: ${FOUND:-<none>}"
+          exit 1
+        fi
+        echo "==> ${ABI}: built ${FOUND}"
+
+    # Mach-O symbol gating: production builds must export retro_* only.
+    # Runs before the test step (which would relink with TEST_EXPORTS=1
+    # and widen the symbol set).
+    - name: Verify Mach-O symbol gating (production)
+      if: ${{ runner.os == 'macOS' && !matrix.config.emscripten && !matrix.config.android }}
+      run: |
+        LEAKS=$(nm -gU "${{ matrix.config.artifact }}" | grep -v ' _retro_' || true)
+        if [ -n "$LEAKS" ]; then
+          echo "::error::Production dylib leaked non-retro_* symbols:"
+          echo "$LEAKS"
+          exit 1
+        fi
+        COUNT=$(nm -gU "${{ matrix.config.artifact }}" | wc -l | tr -d ' ')
+        echo "==> Production exports: ${COUNT} (all retro_*)"
+
+    # Host/native toolchains only — skips cross-compile rows (e.g. aarch64 on x86 runner).
+    - name: Run cheat engine unit tests
+      if: ${{ !matrix.config.emscripten && !matrix.config.android && !matrix.config.cross && runner.os != 'Windows' }}
+      run: make test CC="${{ matrix.config.cc }}"
+
+    - name: Run SIMD blitter tests
+      if: ${{ !matrix.config.emscripten && !matrix.config.android && !matrix.config.cross }}
+      run: |
+        ARCH=$(uname -m)
+        CC="${{ matrix.config.cc }}"
+        # -DBLITTER_SIMD_<ARCH> is not optional: blitter_simd.h inlines
+        # the matching arch header, so an arch .c compiled without its
+        # define pulls in the scalar ops and then redefines every one.
+        case "$ARCH" in
+          x86_64|i686|i386)  SIMD_SRC=src/tom/blitter_simd_sse2.c; EXTRA="-msse2 -DBLITTER_SIMD_SSE2" ;;
+          aarch64|arm64)     SIMD_SRC=src/tom/blitter_simd_neon.c;  EXTRA="-DBLITTER_SIMD_NEON" ;;
+          *)                 SIMD_SRC=src/tom/blitter_simd_scalar.c; EXTRA="-DBLITTER_SIMD_SCALAR" ;;
+        esac
+
+        echo "==> Testing ${SIMD_SRC}..."
+        $CC -O2 -Wall ${EXTRA} -I src -I src/core -I src/tom \
+          -o test_blitter_simd test/test_blitter_simd.c ${SIMD_SRC}
+        ./test_blitter_simd
+
+        echo "==> Cross-checking against scalar..."
+        $CC -O2 -Wall -DBLITTER_SIMD_SCALAR -I src -I src/core -I src/tom \
+          -o test_blitter_scalar test/test_blitter_simd.c src/tom/blitter_simd_scalar.c
+        ./test_blitter_scalar
+
+        echo "==> DSP 40-bit MAC accumulator regression (dsp_acc40.h)..."
+        $CC -O2 -Wall -I src -I src/jerry -o test_dsp_mac40 test/test_dsp_mac40.c
+        ./test_dsp_mac40
+
+    - name: Run memory map test
+      if: ${{ !matrix.config.emscripten && !matrix.config.android && !matrix.config.cross && runner.os != 'Windows' }}
+      run: |
+        CC="${{ matrix.config.cc }}"
+        if [ "$(uname)" = "Linux" ]; then
+          LDFLAGS="-ldl"
+        else
+          LDFLAGS=""
+        fi
+        $CC -O2 -Wall -o test/tools/test_memory_map test/tools/test_memory_map.c $LDFLAGS
+        ./test/tools/test_memory_map ./${{ matrix.config.artifact }}
+
+    - name: Run DSP instruction set tests
+      if: ${{ !matrix.config.emscripten && !matrix.config.android && !matrix.config.cross && runner.os != 'Windows' }}
+      run: |
+        CC="${{ matrix.config.cc }}"
+        if [ "$(uname)" = "Linux" ]; then LDFLAGS="-ldl"; else LDFLAGS=""; fi
+        $CC -O2 -Wall -o test/test_dsp_ops test/test_dsp_ops.c $LDFLAGS
+        $CC -O2 -Wall -o test/test_dsp_unit test/test_dsp_unit.c $LDFLAGS
+        ./test/test_dsp_ops
+        ./test/test_dsp_unit
+
+    - name: Run GPU instruction set tests
+      if: ${{ !matrix.config.emscripten && !matrix.config.android && !matrix.config.cross && runner.os != 'Windows' }}
+      run: |
+        CC="${{ matrix.config.cc }}"
+        if [ "$(uname)" = "Linux" ]; then LDFLAGS="-ldl"; else LDFLAGS=""; fi
+        $CC -O2 -Wall -o test/test_gpu_ops test/test_gpu_ops.c $LDFLAGS
+        ./test/test_gpu_ops
+
+        $CC -O2 -Wall -o test/test_op_gpu_object test/test_op_gpu_object.c $LDFLAGS
+        ./test/test_op_gpu_object ./${{ matrix.config.artifact }}
+
+    - name: Run 68K instruction set tests
+      if: ${{ !matrix.config.emscripten && !matrix.config.android && !matrix.config.cross && runner.os != 'Windows' }}
+      run: |
+        CC="${{ matrix.config.cc }}"
+        if [ "$(uname)" = "Linux" ]; then LDFLAGS="-ldl"; else LDFLAGS=""; fi
+        $CC -O2 -Wall -o test/test_m68k_ops test/test_m68k_ops.c $LDFLAGS
+        ./test/test_m68k_ops
+
+    - name: Run EEPROM lifecycle test
+      if: ${{ !matrix.config.emscripten && !matrix.config.android && !matrix.config.cross && runner.os != 'Windows' }}
+      run: |
+        CC="${{ matrix.config.cc }}"
+        if [ "$(uname)" = "Linux" ]; then LDFLAGS="-ldl"; else LDFLAGS=""; fi
+        INCFLAGS="-I. -Isrc -Isrc/core -Isrc/tom -Isrc/jerry -Ilibretro-common/include"
+        $CC -O2 -Wall -o /tmp/gen_eeprom_test_rom test/tools/gen_eeprom_test_rom.c
+        /tmp/gen_eeprom_test_rom /tmp/eeprom_lifecycle_test.j64
+        $CC -O2 -Wall -std=c99 $INCFLAGS \
+          -o test/test_eeprom_lifecycle test/test_eeprom_lifecycle.c \
+          test/harness/harness.c $LDFLAGS -lm
+        ./test/test_eeprom_lifecycle ./${{ matrix.config.artifact }} /tmp/eeprom_lifecycle_test.j64
+
+    - name: Cache pinned rcheevos E2E build
+      if: ${{ !matrix.config.emscripten && !matrix.config.android && !matrix.config.cross && runner.os != 'Windows' }}
+      uses: actions/cache@v6
+      with:
+        path: build/rcheevos-static
+        key: rcheevos-e2e-fd57e900-${{ runner.os }}-${{ matrix.config.cc }}-${{ matrix.config.displayTargetName }}
+
+    - name: RetroAchievements rc_libretro E2E test
+      if: ${{ !matrix.config.emscripten && !matrix.config.android && !matrix.config.cross && runner.os != 'Windows' }}
+      env:
+        # Immutable pin (rcheevos v12.3.0); tarball via .../archive/${SHA}.tar.gz
+        RCHEEVOS_REF: fd57e900758a9e3de343e7b0316b8a6059dce228
+        CC: ${{ matrix.config.cc }}
+      run: bash test/tools/test_rcheevos_e2e.sh ./${{ matrix.config.artifact }}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ matrix.config.displayTargetName }}
         path: ${{ matrix.config.artifact }}
         if-no-files-found: error
 
-    - name: download artifacts
-      uses: actions/download-artifact@v2
+  msvc-check:
+    name: MSVC ${{ matrix.arch }} compilation check
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64, x86]
+    steps:
+    - uses: actions/checkout@v7
+
+    - uses: ilammy/msvc-dev-cmd@v1
       with:
-        name: core-${{ matrix.config.os }}
+        arch: ${{ matrix.arch }}
+
+    - name: Generate src/core/version.h
+      shell: bash
+      run: bash scripts/gen-version-h.sh
+
+    # Sources are .c, so cl.exe compiles them in C mode -- deliberately.
+    # That is what the buildbot does, and it is what makes this job a
+    # useful C89/MSVC check. Do not "fix" it to /TP. Do not add /Za
+    # either: it breaks <emmintrin.h> and the Windows SDK headers.
+    #
+    # Exactly one BLITTER_SIMD_<ARCH> may be defined per translation
+    # unit -- blitter_simd.h inlines the matching blitter_simd_<arch>.h,
+    # and any arch .c compiled under a different (or absent) define
+    # redefines every op. So the SIMD arches get one cl.exe run each,
+    # mirroring how Makefile.common builds exactly one of them.
+    - name: Compile all sources with cl.exe (scalar blitter SIMD)
+      shell: cmd
+      run: |
+        cl.exe /c /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_DEPRECATE ^
+          /I. /Isrc /Isrc\core /Isrc\tom /Isrc\jerry /Isrc\cd /Isrc\bios /Isrc\m68000 /Ilibretro-common\include ^
+          /D__LIBRETRO__ /DINLINE="_inline" /DBLITTER_SIMD_SCALAR ^
+          libretro.c ^
+          src\tom\blitter.c src\tom\blitter_compare.c src\tom\blitter_mmio.c src\jerry\dac.c src\jerry\dsp.c src\core\file.c ^
+          src\tom\gpu.c src\core\jaguar.c src\jerry\jerry.c src\tom\tom.c src\tom\op.c ^
+          src\cd\cdintf.c src\cd\cdrom.c src\core\crc32.c src\core\event.c ^
+          src\jerry\eeprom.c src\core\filedb.c src\jerry\joystick.c src\core\settings.c ^
+          src\core\memtrack.c src\core\vjag_memory.c src\core\cheat.c ^
+          src\core\universalhdr.c src\jerry\wavetable.c ^
+          src\bios\jagbios.c ^
+          src\bios\jagcdbios.c src\bios\jagdevcdbios.c ^
+          src\m68000\m68kinterface.c ^
+          src\tom\blitter_simd_scalar.c
+
+    # The shape Makefile.common now selects for windows_msvc2015/2017
+    # x64 and x86: blitter.c inlines blitter_simd_sse2.h, so cl.exe
+    # compiles <emmintrin.h> intrinsics inside blitter.c itself -- not
+    # just inside the lint-exempt blitter_simd_sse2.c. That is the whole
+    # risk of enabling SSE2 for MSVC, and this step is what verifies it.
+    # Objects go to a subdir so they don't collide with the run above.
+    #
+    # No trailing `echo` in either step: `shell: cmd` has no `set -e`,
+    # so the step's exit code is the LAST command's. A closing echo
+    # would return 0 over any cl.exe failure and make this whole job
+    # green-but-inert. Let cl.exe be the last command.
+    - name: Compile blitter with cl.exe (SSE2 blitter SIMD)
+      shell: cmd
+      run: |
+        mkdir msvc-sse2
+        cl.exe /c /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_DEPRECATE ^
+          /I. /Isrc /Isrc\core /Isrc\tom /Isrc\jerry /Isrc\cd /Isrc\bios /Isrc\m68000 /Ilibretro-common\include ^
+          /D__LIBRETRO__ /DINLINE="_inline" /DBLITTER_SIMD_SSE2 ^
+          /Fomsvc-sse2\ ^
+          src\tom\blitter.c ^
+          src\tom\blitter_simd_sse2.c
+
+  vita-build:
+    name: build-PS Vita
+    runs-on: ubuntu-latest
+    container:
+      image: vitasdk/vitasdk:latest
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Build
+      run: make -j4 platform=vita
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: PS Vita
+        path: virtualjaguar_libretro_vita.a
+        if-no-files-found: error
+
+  switch-build:
+    name: build-Nintendo Switch
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Build
+      run: make -j4 platform=libnx
+      env:
+        DEVKITPRO: /opt/devkitpro
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: Nintendo Switch
+        path: virtualjaguar_libretro_libnx.a
+        if-no-files-found: error
+
+  editorconfig-lint:
+    name: EditorConfig compliance check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Install editorconfig-checker
+      run: |
+        VERSION=v3.0.3
+        curl -fsSL "https://github.com/editorconfig-checker/editorconfig-checker/releases/download/${VERSION}/ec-linux-amd64.tar.gz" \
+          | tar -xz -C /tmp
+        sudo install -m 0755 /tmp/bin/ec-linux-amd64 /usr/local/bin/ec
+
+    - name: Run editorconfig-checker
+      run: ec -verbose
+
+  coverage:
+    name: Code coverage (gcov + codecov)
+    runs-on: ubuntu-latest
+    # Coverage runs are advisory -- they don't gate merges.  The PR
+    # delta is what reviewers care about; codecov posts that as a
+    # comment automatically.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Install gcov + gcovr
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc gcovr
+      - name: make coverage
+        run: |
+          bash scripts/gen-version-h.sh
+          make coverage CC="gcc" CXX="g++"
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+          # Token optional for public repos; if set in repo secrets it
+          # avoids the anonymous-upload rate limit.
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  sanitizers:
+    name: AddressSanitizer + UndefinedBehaviorSanitizer
+    runs-on: ubuntu-latest
+    # Initially advisory: lets the job report findings without blocking
+    # PRs while we triage the existing UB the cppcheck job already
+    # flagged (signed shifts in src/tom/{gpu,op}.c, etc.).  Flip to
+    # `false` to make sanitizer findings gate merges.
+    continue-on-error: true
+    steps:
+    - uses: actions/checkout@v7
+    - name: Install clang
+      run: sudo apt-get update && sudo apt-get install -y clang
+    - name: Build with ASAN + UBSAN
+      run: |
+        bash scripts/gen-version-h.sh
+        # -shared-libasan: when building a shared library with
+        # -fsanitize, clang doesn't link the static asan/ubsan
+        # runtime into the .so (it's expected to be loaded by the
+        # host executable).  --no-undefined in the SHARED rule then
+        # rejects the runtime symbols.  -shared-libasan switches to
+        # the dynamic libclang_rt.asan-x86_64.so which the host
+        # process picks up at dlopen time.
+        SAN_FLAGS="-fsanitize=address,undefined -shared-libasan -fno-omit-frame-pointer -O1 -g -fsanitize-ignorelist=$PWD/.ubsan-ignorelist"
+        make -j4 TEST_EXPORTS=1 \
+          CC="clang $SAN_FLAGS" \
+          CXX="clang++ $SAN_FLAGS" \
+          LD="clang $SAN_FLAGS"
+    - name: Run test suite under sanitizers
+      env:
+        ASAN_OPTIONS: 'detect_leaks=1:abort_on_error=1:print_stacktrace=1'
+        UBSAN_OPTIONS: 'print_stacktrace=1:halt_on_error=1:report_error_type=1'
+      run: |
+        SAN_FLAGS="-fsanitize=address,undefined -shared-libasan -fno-omit-frame-pointer -O1 -g -fsanitize-ignorelist=$PWD/.ubsan-ignorelist"
+        # The shared-libasan path means the test binaries need to find
+        # libclang_rt.asan at runtime; expose its directory.
+        ASAN_LIB_DIR=$(clang -print-resource-dir)/lib/linux
+        export LD_LIBRARY_PATH="$ASAN_LIB_DIR:${LD_LIBRARY_PATH:-}"
+        make test TEST_EXPORTS=1 \
+          CC="clang $SAN_FLAGS" \
+          CXX="clang++ $SAN_FLAGS" \
+          LD="clang $SAN_FLAGS"
+
+  clang-tidy:
+    name: clang-tidy on changed files
+    runs-on: ubuntu-latest
+    # Advisory at first.  The .clang-tidy check list is curated, but
+    # the first pass over emulator C will surface noisy true positives
+    # that need triage.  Flip continue-on-error to false once the
+    # baseline is calm.
+    continue-on-error: true
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Install clang-tidy + bear
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-tidy bear
+      - name: Generate compile_commands.json
+        run: |
+          bash scripts/gen-version-h.sh
+          # `bear -- make` records every compile invocation into
+          # compile_commands.json without affecting the build.
+          bear -- make -j4
+      - name: Run clang-tidy on PR-changed files
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          # --diff-filter=d drops deleted paths: clang-tidy cannot lint a
+          # file that no longer exists and fails the whole job with
+          # "no input files" / "expected exactly one compiler job".
+          #
+          # blitter_simd_<arch>.{c,h} are all excluded. Only one arch is
+          # ever built, so the other two .c files aren't in
+          # compile_commands.json; and the .h files are include-only
+          # fragments that refuse to be compiled standalone (they
+          # #error unless blitter_simd.h pulled them in), so linting one
+          # directly is guaranteed to fail. They are covered instead by
+          # c89-lint's per-arch pass, which compiles them the way the
+          # build does.
+          FILES=$(git diff --name-only --diff-filter=d "$BASE"...HEAD -- '*.c' '*.h' \
+            | grep -Ev '^(src/m68000/|src/bios/jag.*\.c$|libretro-common/|src/core/version\.h$|src/tom/blitter_simd_(neon|sse2|scalar)\.(c|h)$)' \
+            | grep -E '^(src/|libretro\.c$)' || true)
+          if [ -z "$FILES" ]; then
+            echo "No relevant C files changed; skipping clang-tidy."
+            exit 0
+          fi
+          echo "==> Running clang-tidy on:"
+          echo "$FILES"
+          echo "$FILES" | xargs clang-tidy -p . --quiet --warnings-as-errors='*'
+
+  cppcheck:
+    name: cppcheck static analysis
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Install cppcheck
+      run: sudo apt-get update && sudo apt-get install -y cppcheck
+
+    - name: Run cppcheck
+      run: |
+        # Scan in-tree sources only.  src/m68000 is machine-generated
+        # UAE 68K, src/bios/jag*.c are bin2c hex tables, and
+        # libretro-common is a vendored subtree -- all excluded.
+        #
+        # Suppressions live in cppcheck-suppressions.txt with rationale.
+        # cppcheck 2.13 (Ubuntu 24.04) doesn't accept comment lines in
+        # the suppressions file; strip them before passing.
+        bash scripts/gen-version-h.sh
+        # POSIX character class -- not GNU grep's \s extension.
+        grep -vE '^[[:space:]]*(#|$)' cppcheck-suppressions.txt > /tmp/cppcheck-suppressions.txt
+        cppcheck \
+          --enable=warning,performance,portability \
+          --suppress=missingIncludeSystem \
+          --suppress=unusedFunction \
+          --suppressions-list=/tmp/cppcheck-suppressions.txt \
+          --error-exitcode=1 \
+          -i src/m68000 -i src/bios -i libretro-common \
+          -I src -I src/core -I src/tom -I src/jerry -I src/cd \
+          -I src/bios -I src/m68000 -I libretro-common/include \
+          -DINLINE=inline -D__LIBRETRO__ \
+          --quiet \
+          src/ libretro.c
+
+  c89-lint:
+    name: C89 compliance check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Check for declaration-after-statement
+      run: |
+        echo "==> Checking C89 compliance (catches MSVC C89 errors)..."
+        scripts/c89-lint.sh
+
+    - name: Verify .info display_version matches Makefile
+      run: bash scripts/check-info-version.sh
+
+    - name: Check for stdbool.h usage (use boolean.h instead)
+      run: |
+        echo "==> Checking for direct stdbool.h includes..."
+        FAILED=0
+        for f in libretro.c $(git ls-files 'src/**/*.c' 'src/**/*.h'); do
+          case "$f" in
+            src/core/boolean.h) continue ;;
+          esac
+          if grep -n '#include.*<stdbool\.h>' "$f" 2>/dev/null; then
+            echo "::error file=$f::Use <boolean.h> instead of <stdbool.h> (MSVC 2005/2010 compat)"
+            FAILED=1
+          fi
+        done
+        if [ "$FAILED" = "1" ]; then
+          exit 1
+        fi
+        echo "==> No direct stdbool.h includes found"

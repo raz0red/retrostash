@@ -153,6 +153,20 @@ struct item_cheat
    bool state;
    /* Whether to apply the cheat based on big-endian console memory or not */
    bool big_endian;
+
+   /*
+    * True pre-cheat memory value, captured the first time this RETRO-handler
+    * cheat is applied (see cheat_manager_apply_retro_cheats()) and written
+    * back when the cheat is disabled, instead of just leaving whatever was
+    * last poked in place. Only tracked for the common case (repeat_count==1,
+    * full-width value, i.e. memory_search_size's bits==8/16/32) -- cheats
+    * that fan out across multiple addresses via repeat_count, or that patch
+    * individual sub-byte bits, are left with the old "stop re-applying,
+    * don't restore" behavior rather than half-tracking multiple originals
+    * per entry.
+    */
+   unsigned int orig_value;
+   bool has_orig;
 };
 
 struct cheat_manager

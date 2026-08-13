@@ -41,6 +41,10 @@ include:
   - project: 'libretro-infrastructure/ci-templates'
     file: '/linux-i686.yml'
 
+  # Linux 64-bit (ARM)
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/linux-aarch64.yml'
+
   # MacOS 64-bit
   - project: 'libretro-infrastructure/ci-templates'
     file: '/osx-x64.yml'
@@ -48,7 +52,7 @@ include:
   # MacOS ARM 64-bit
   - project: 'libretro-infrastructure/ci-templates'
     file: '/osx-arm64.yml'
-    
+
   ################################## CELLULAR ################################
   # Android
   - project: 'libretro-infrastructure/ci-templates'
@@ -66,7 +70,7 @@ include:
   # PlayStation Vita
   - project: 'libretro-infrastructure/ci-templates'
     file: '/vita-static.yml'
-    
+
   # Nintendo Switch
   - project: 'libretro-infrastructure/ci-templates'
     file: '/libnx-static.yml'
@@ -76,6 +80,13 @@ include:
     file: '/tvos-arm64.yml'
 
   #################################### MISC ##################################
+  # Emscripten (WebAssembly)
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/emscripten-static.yml'
+
+  # webOS 32-bit (LGTV)
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/webos-make.yml'
 
 # Stages for building
 stages:
@@ -93,7 +104,7 @@ libretro-build-windows-x64:
   extends:
     - .libretro-windows-x64-mingw-make-default
     - .core-defs
-    
+
 # Windows 32-bit
 libretro-build-windows-i686:
   extends:
@@ -130,6 +141,12 @@ libretro-build-linux-i686:
     - .libretro-linux-i686-make-default
     - .core-defs
 
+# Linux 64-bit (ARM)
+libretro-build-linux-aarch64:
+  extends:
+    - .libretro-linux-aarch64-make-default
+    - .core-defs
+
 # MacOS 64-bit
 libretro-build-osx-x64:
   extends:
@@ -141,7 +158,7 @@ libretro-build-osx-arm64:
   extends:
     - .libretro-osx-arm64-make-default
     - .core-defs
-    
+
 ################################### CELLULAR #################################
 # Android ARMv7a
 android-armeabi-v7a:
@@ -178,7 +195,7 @@ libretro-build-ios9:
   extends:
     - .libretro-ios9-make-default
     - .core-defs
-    
+
 # tvOS
 libretro-build-tvos-arm64:
   extends:
@@ -191,9 +208,22 @@ libretro-build-vita:
   extends:
     - .libretro-vita-static-retroarch-master
     - .core-defs
-    
+
 # Nintendo Switch
 libretro-build-libnx-aarch64:
   extends:
     - .libretro-libnx-static-retroarch-master
+    - .core-defs
+
+#################################### MISC ####################################
+# Emscripten (WebAssembly)
+libretro-build-emscripten:
+  extends:
+    - .libretro-emscripten-static-retroarch-master
+    - .core-defs
+
+# webOS 32-bit
+libretro-build-webos-armv7a:
+  extends:
+    - .libretro-webos-armv7a-make-default
     - .core-defs

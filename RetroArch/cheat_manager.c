@@ -1443,6 +1443,69 @@ void cheat_manager_apply_rumble(struct item_cheat *cheat, unsigned int curr_valu
       input_set_rumble_state(cheat->rumble_port, RETRO_RUMBLE_WEAK, cheat->rumble_secondary_strength);
 }
 
+/*
+ * Write a cheat entry's captured pre-cheat value back into memory, using
+ * the same address/size/endianness it was applied with. Called when a
+ * RETRO-handler cheat transitions to disabled (see
+ * cheat_manager_apply_retro_cheats()) -- without this, disabling a cheat
+ * only stops it from being re-poked; whatever it last wrote stays in
+ * memory until the game happens to overwrite that address on its own.
+ */
+static void cheat_manager_restore_orig(struct item_cheat *cheat)
+{
+   cheat_manager_t *cheat_st        = &cheat_manager_state;
+   unsigned char *curr              = cheat_st->curr_memory_buf;
+   unsigned int bytes_per_item      = 1;
+   unsigned int mask                = 0;
+   unsigned int bits                = 8;
+   unsigned int idx;
+   unsigned int offset;
+
+   if (!cheat_st->memory_initialized)
+      return;
+
+   cheat_manager_setup_search_meta(cheat->memory_search_size, &bytes_per_item, &mask, &bits);
+
+   idx    = cheat->address;
+   offset = translate_address(idx, &curr);
+
+   switch (bytes_per_item)
+   {
+      case 2:
+         if (cheat->big_endian)
+         {
+            *(curr + idx - offset)     = (cheat->orig_value >> 8) & 0xFF;
+            *(curr + idx + 1 - offset) = cheat->orig_value & 0xFF;
+         }
+         else
+         {
+            *(curr + idx - offset)     = cheat->orig_value & 0xFF;
+            *(curr + idx + 1 - offset) = (cheat->orig_value >> 8) & 0xFF;
+         }
+         break;
+      case 4:
+         if (cheat->big_endian)
+         {
+            *(curr + idx - offset)     = (cheat->orig_value >> 24) & 0xFF;
+            *(curr + idx + 1 - offset) = (cheat->orig_value >> 16) & 0xFF;
+            *(curr + idx + 2 - offset) = (cheat->orig_value >> 8) & 0xFF;
+            *(curr + idx + 3 - offset) = cheat->orig_value & 0xFF;
+         }
+         else
+         {
+            *(curr + idx - offset)     = cheat->orig_value & 0xFF;
+            *(curr + idx + 1 - offset) = (cheat->orig_value >> 8) & 0xFF;
+            *(curr + idx + 2 - offset) = (cheat->orig_value >> 16) & 0xFF;
+            *(curr + idx + 3 - offset) = (cheat->orig_value >> 24) & 0xFF;
+         }
+         break;
+      case 1:
+      default:
+         *(curr + idx - offset) = cheat->orig_value & 0xFF;
+         break;
+   }
+}
+
 void cheat_manager_apply_retro_cheats(void)
 {
    unsigned i;
@@ -1469,8 +1532,24 @@ void cheat_manager_apply_retro_cheats(void)
       unsigned int repeat_iter  = 0;
       unsigned int address_mask = cheat_st->cheats[i].address_mask;
 
-      if (cheat_st->cheats[i].handler != CHEAT_HANDLER_TYPE_RETRO || !cheat_st->cheats[i].state)
+      if (cheat_st->cheats[i].handler != CHEAT_HANDLER_TYPE_RETRO)
          continue;
+
+      if (!cheat_st->cheats[i].state)
+      {
+         /* Just disabled -- restore the true pre-cheat value once (if we
+          * ever captured one) instead of leaving whatever was last poked
+          * there. */
+         if (cheat_st->cheats[i].has_orig)
+         {
+            RARCH_LOG("[Cheats] DEBUG restore addr=0x%X value=0x%X (\"%s\")\n",
+                  cheat_st->cheats[i].address, cheat_st->cheats[i].orig_value,
+                  cheat_st->cheats[i].desc ? cheat_st->cheats[i].desc : "");
+            cheat_manager_restore_orig(&cheat_st->cheats[i]);
+            cheat_st->cheats[i].has_orig = false;
+         }
+         continue;
+      }
       if (!cheat_st->memory_initialized)
          cheat_manager_initialize_memory(NULL, 0, false);
 
@@ -1507,6 +1586,22 @@ void cheat_manager_apply_retro_cheats(void)
          default:
             curr_val = *(curr + idx - offset);
             break;
+      }
+
+      /* Capture the true pre-cheat value the first time this cheat is
+       * applied, so it can be restored when disabled (see
+       * cheat_manager_restore_orig() above). Only for the case that's
+       * safe to restore with a single stored value: one address
+       * (repeat_count<=1), full-width (not a sub-byte bit patch). */
+      if (!cheat_st->cheats[i].has_orig &&
+          cheat_st->cheats[i].repeat_count <= 1 &&
+          bits == 8)
+      {
+         cheat_st->cheats[i].orig_value = curr_val;
+         cheat_st->cheats[i].has_orig   = true;
+         RARCH_LOG("[Cheats] DEBUG capture addr=0x%X original=0x%X (\"%s\")\n",
+               cheat_st->cheats[i].address, curr_val,
+               cheat_st->cheats[i].desc ? cheat_st->cheats[i].desc : "");
       }
 
       cheat_manager_apply_rumble(&cheat_st->cheats[i], curr_val);

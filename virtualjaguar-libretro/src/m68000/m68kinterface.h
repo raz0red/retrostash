@@ -70,8 +70,15 @@ typedef enum
 #define M68K_INT_ACK_SPURIOUS      0xFFFFFFFE
 
 void m68k_pulse_reset(void);
+void m68k_done(void);
 int m68k_execute(int num_cycles);
 void m68k_set_irq(unsigned int int_level);
+
+/* Diagnostic accessors (test-harness ABI; see exports-test.list / link-test.T).
+ * is_stopped: 1 while the CPU is halted in STOP awaiting an interrupt.
+ * interrupt_count: monotonic count of serviced interrupts since reset. */
+unsigned int m68k_is_stopped(void);
+unsigned int m68k_diag_interrupt_count(void);
 
 // Functions that MUST be implemented by the user:
 

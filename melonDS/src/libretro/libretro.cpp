@@ -726,6 +726,13 @@ void retro_run(void)
    // frame expects (735 samples/frame @ 60fps).
    static bool mic_blow_was_held = false;
    static u64 mic_blow_phase = 0;
+   // Which blow simulation to use (1 = random noise, the long-standing
+   // public default; 2 = the recorded-sample replacement added this
+   // release, staging-only so far -- 1 must stay the default/fallback so
+   // existing saved feeds' behavior doesn't silently change).
+   // Fetched once per press from the JS-side per-game setting rather than
+   // every frame -- it doesn't change mid-hold.
+   static int mic_blow_type = 1;
 
 #ifndef WRC
    if (input_state.holding_noise_btn)
@@ -733,27 +740,38 @@ void retro_run(void)
    if (wrc_blow)
 #endif
    {
-      // s16 tmp[735];
-      // for (int i = 0; i < 735; i++) tmp[i] = rand() & 0xFFFF;
-      // NDS::MicInputFrame(tmp, 735);
-      // printf("MicInputFrame\n");
-
       if (!mic_blow_was_held)
       {
          mic_blow_phase = 0;
          mic_blow_was_held = true;
+#ifdef WRC
+         mic_blow_type = EM_ASM_INT({
+            return window.emulator.getBlowType();
+         });
+#endif
+         printf("[MicBlow] DEBUG press started, type=%d (%s)\n", mic_blow_type,
+                mic_blow_type == 2 ? "recorded WAV sample" : "random noise");
       }
 
-      static const u64 mic_blow_step = ((u64)wrc_mic_blow_sample_rate << 16) / 44100;
-
-      s16 tmp[735];
-      for (int i = 0; i < 735; i++)
+      if (mic_blow_type == 2)
       {
-         u32 src_index = (u32)(mic_blow_phase >> 16) % wrc_mic_blow_data_len;
-         tmp[i] = (s16)(((int)wrc_mic_blow_data[src_index] - 128) << 8);
-         mic_blow_phase += mic_blow_step;
+         static const u64 mic_blow_step = ((u64)wrc_mic_blow_sample_rate << 16) / 44100;
+
+         s16 tmp[735];
+         for (int i = 0; i < 735; i++)
+         {
+            u32 src_index = (u32)(mic_blow_phase >> 16) % wrc_mic_blow_data_len;
+            tmp[i] = (s16)(((int)wrc_mic_blow_data[src_index] - 128) << 8);
+            mic_blow_phase += mic_blow_step;
+         }
+         NDS::MicInputFrame(tmp, 735);
       }
-      NDS::MicInputFrame(tmp, 735);
+      else
+      {
+         s16 tmp[735];
+         for (int i = 0; i < 735; i++) tmp[i] = rand() & 0xFFFF;
+         NDS::MicInputFrame(tmp, 735);
+      }
    }
    else
    {

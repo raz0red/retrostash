@@ -16,6 +16,8 @@
 #include "inlines.h"
 #include "cpuextra.h"
 #include "readcpu.h"
+#include "../core/state.h"
+#include "../core/vjag_memory.h"
 
 // Exception Vectors handled by emulation
 #define EXCEPTION_BUS_ERROR                2 /* This one is not emulated! */
@@ -46,6 +48,11 @@ extern const struct cputbl op_smalltbl_5_ff[];	/* 68000 slow but compatible.  */
 // Externs, supplied by the user...
 //extern int irq_ack_handler(int);
 
+// TOM drives the 68K's only interrupt input (all Jaguar IRQs arrive as a
+// level-2 request through TOM).  Declared here rather than via tom.h to
+// keep the UAE core free of TOM's header dependencies.
+extern int TOMIRQRequestActive(void);
+
 // Function prototypes...
 static INLINE void m68ki_check_interrupts(void);
 void m68ki_exception_interrupt(uint32_t intLevel);
@@ -58,6 +65,21 @@ void m68k_set_irq2(unsigned int intLevel);
 // Local "Global" vars
 static int32_t initialCycles;
 cpuop_func * cpuFunctionTable[65536];
+
+// Monotonic count of serviced interrupts/exceptions-by-IRQ. Diagnostic only:
+// lets test harnesses distinguish "halted, will be woken" from "halted with a
+// dead wake path" (lost wakeup). Exported via the m68k_* test-ABI wildcard.
+static uint32_t m68kInterruptsServiced = 0;
+
+unsigned int m68k_is_stopped(void)
+{
+	return regs.stopped ? 1 : 0;
+}
+
+unsigned int m68k_diag_interrupt_count(void)
+{
+	return m68kInterruptsServiced;
+}
 
 // By virtue of the fact that m68k_set_irq() can be called asychronously by
 // another thread, we need something along the lines of this:
@@ -76,11 +98,23 @@ void M68KDebugResume(void)
 }
 
 
+/* File-scope so m68k_done() below can reset it after freeing table68k. */
+static uint32_t emulation_initialized = 0;
+
+/* Symmetric counterpart to the lazy init in m68k_pulse_reset().
+ * Defers the actual free to readcpu.c::free_table68k() so the table
+ * is owned end-to-end by the module that allocates it (table68k is
+ * declared in readcpu.h).  Called from JaguarDone() so ASAN sees a
+ * clean shutdown. */
+void m68k_done(void)
+{
+	free_table68k();
+	emulation_initialized = 0;
+}
+
 // Pulse the RESET line on the CPU
 void m68k_pulse_reset(void)
 {
-	static uint32_t emulation_initialized = 0;
-
 	// The first call to this function initializes the opcode handler jump table
 	if (!emulation_initialized)
 	{
@@ -94,6 +128,7 @@ void m68k_pulse_reset(void)
 	regs.spcflags = 0;
 	regs.stopped = 0;
 	regs.remainingCycles = 0;
+	m68kInterruptsServiced = 0;
 	
 	regs.intmask = 0x07;
 	regs.s = 1;								// Supervisor mode ON
@@ -142,6 +177,25 @@ int m68k_execute(int num_cycles)
 		{
 			checkForIRQToHandle = 0;
 			m68k_set_irq2(IRQLevelToHandle);
+		}
+		else if (regs.intLevel > regs.intmask && TOMIRQRequestActive())
+		{
+			// The 68000 samples IPL0-2 at every instruction boundary, and
+			// on the Jaguar every interrupt reaches the 68K as a level-2
+			// request that TOM holds until the CPU's acknowledge cycle
+			// (irq_ack_handler drops it).  So a request raised while SR's
+			// mask is already >= 2 is not lost: it is taken as soon as an
+			// RTE lowers the mask.
+			//
+			// Sampling only at the instant of assertion (the branch above)
+			// dropped such requests permanently.  Tempest 2000 enables
+			// video + TOM PIT (INT1 = $09); the PIT beats against the frame
+			// rate and fires inside the PIT handler once every 161 frames,
+			// swallowing that frame's vertical interrupt -- the game then
+			// skips its object-list refresh and the OP replays an exhausted
+			// bitmap object, collapsing the playfield into a band at the top
+			// of the screen for exactly one frame (#187).
+			m68ki_exception_interrupt(regs.intLevel);
 		}
 
 #ifdef M68K_HOOK_FUNCTION
@@ -205,6 +259,8 @@ void m68ki_exception_interrupt(uint32_t intLevel)
 {
 	uint32_t vector, sr, newPC;
 
+	m68kInterruptsServiced++;
+
 	// Turn off the stopped state (N.B.: normal 68K behavior!)
 	regs.stopped = 0;
 
@@ -263,7 +319,35 @@ static INLINE uint32_t m68ki_init_exception(void)
 
 	MakeSR();
 	sr = regs.sr;					// Save old status register
-	regs.s = 1;								// Set supervisor mode
+
+	/* Switch to the interrupt/supervisor stack BEFORE the frame is
+	   pushed.  The 68000 keeps two stack pointers selected by the S bit,
+	   and its documented exception processing sequence is
+
+	       temp <- SR ; S <- 1 ; T <- 0 ; fetch vector ;
+	       SSP <- SSP-4 ; M(SSP) <- PC ;
+	       SSP <- SSP-2 ; M(SSP) <- temp ; PC <- handler
+
+	   i.e. the frame lands on the SUPERVISOR stack, because setting S
+	   is what makes A7 the SSP (M68000 Programmer's Reference Manual,
+	   "Exception Processing Sequence").  Setting
+	   regs.s without swapping A7 stacked interrupt frames on the USER
+	   stack and left regs.usp stale, so the handler's RTE restored a
+	   bogus user SP and clobbered regs.isp with the user value -- which
+	   then became A7 on the next entry to supervisor mode.
+
+	   This mirrors the two other privilege transitions in this core,
+	   cpuextra.c::Exception() and cpuextra.c::MakeFromSR(); regs.isp is
+	   guaranteed valid here because s can only have become 0 via
+	   MakeFromSR(), which saves A7 into regs.isp on the way out.
+
+	   Ported from BizHawk 1adb2b45 (waterbox Virtual Jaguar). */
+	if (!regs.s)
+	{
+		regs.usp = m68k_areg(regs, 7);
+		m68k_areg(regs, 7) = regs.isp;
+		regs.s = 1;								// Set supervisor mode
+	}
 
 	return sr;
 }
@@ -331,7 +415,18 @@ unsigned int m68k_is_valid_instruction(unsigned int instruction, unsigned int cp
 
 // Dummy functions, for now, until we prove the concept here. :-)
 
-int m68k_cycles_run(void) { return 0; }              /* Number of cycles run so far */
+/* 68000 cycles executed so far inside the current m68k_execute() call.  Used
+ * by GPUSyncToM68K() to work out how far the GPU has to be advanced when the
+ * 68000 writes into GPU local RAM mid-slice (see gpu.c).  Valid only while
+ * m68k_execute() is on the stack; callers outside it clamp the result.
+ *
+ * NOT monotonic, and not always spent-cycles: m68k_end_timeslice() moves
+ * regs.remainingCycles into initialCycles and zeroes the former, so every
+ * call after an early timeslice end reports the UNSPENT count instead.
+ * GPUSyncToM68K() survives that because it clamps upward to the slice budget
+ * and returns early when the delta is <= 0 -- a caller that needs a true
+ * spent-cycle count must not use this without its own bound. */
+int m68k_cycles_run(void) { return initialCycles - regs.remainingCycles; }
 int m68k_cycles_remaining(void) { return 0; }        /* Number of cycles left */
 
 void m68k_modify_timeslice(int cycles)
@@ -347,8 +442,188 @@ void m68k_end_timeslice(void)
 }
 
 
+/* Read a 32-bit operand from any addressable EA the wrapper code uses.
+ * The Removers/aln-built Jaguar binaries we care about always reach MULL/DIVL
+ * with the EA = data-register-direct (mode 0). Other modes (immediate,
+ * abs.W/L, (An), etc.) are emulated for completeness. */
+static int read_long_ea(uint32_t opcode, uint32_t *out)
+{
+	uint32_t mode = (opcode >> 3) & 0x7;
+	uint32_t reg  = opcode & 0x7;
+	uint32_t ea;
+
+	switch (mode)
+	{
+	case 0: /* Dn */
+		*out = m68k_dreg(regs, reg);
+		return 0;
+	case 1: /* An */
+		*out = m68k_areg(regs, reg);
+		return 0;
+	case 2: /* (An) */
+		*out = m68k_read_memory_32(m68k_areg(regs, reg));
+		return 0;
+	case 5: /* (d16,An) */
+	{
+		int16_t d = (int16_t)get_iword(4);
+		*out = m68k_read_memory_32(m68k_areg(regs, reg) + d);
+		return 2;
+	}
+	case 7:
+		switch (reg)
+		{
+		case 0: /* (xxx).W */
+			ea = (int32_t)(int16_t)get_iword(4);
+			*out = m68k_read_memory_32(ea);
+			return 2;
+		case 1: /* (xxx).L */
+			ea = (uint32_t)get_ilong(4);
+			*out = m68k_read_memory_32(ea);
+			return 4;
+		case 4: /* #imm */
+			*out = (uint32_t)get_ilong(4);
+			return 4;
+		}
+		break;
+	}
+	return -1;
+}
+
+/* Emulate the 68020+ MULL / DIVL instructions on a 68000-only core.
+ * The Removers Library + m68k-atari-mint-gcc toolchain emits these for
+ * 32x32 multiply and divide; without them, our binaries hard-hang inside
+ * libgcc helpers. Returns 1 if handled, 0 to fall through to a true illegal
+ * exception. */
+static int handle_68020_mull_divl(uint32_t opcode)
+{
+	uint32_t base = opcode & 0xFFC0;
+	uint16_t ext;
+	uint32_t src;
+	int extra;
+
+	if (base != 0x4C00 && base != 0x4C40)
+		return 0;
+
+	ext = (uint16_t)get_iword(2);
+	if (ext & 0x83F8)
+		return 0;	/* reserved bits set — not a clean MULL/DIVL */
+
+	extra = read_long_ea(opcode, &src);
+	if (extra < 0)
+		return 0;
+
+	{
+		uint32_t Dl = (ext >> 12) & 0x7;
+		uint32_t Dh = ext & 0x7;
+		int      sz = (ext >> 10) & 0x1;	/* 0=32-bit, 1=64-bit */
+		int      sg = (ext >> 11) & 0x1;	/* 0=unsigned, 1=signed */
+
+		if (base == 0x4C00)	/* MULL */
+		{
+			uint32_t a = m68k_dreg(regs, Dl);
+			uint32_t b = src;
+			if (sz == 0)
+			{
+				uint32_t r;
+				if (sg)
+				{
+					int64_t sr = (int64_t)(int32_t)a * (int64_t)(int32_t)b;
+					r = (uint32_t)sr;
+					SET_VFLG(sr != (int64_t)(int32_t)r);
+				}
+				else
+				{
+					uint64_t ur = (uint64_t)a * (uint64_t)b;
+					r = (uint32_t)ur;
+					SET_VFLG((ur >> 32) != 0);
+				}
+				m68k_dreg(regs, Dl) = r;
+				SET_NFLG(r >> 31);
+				SET_ZFLG(r == 0);
+				SET_CFLG(0);
+			}
+			else
+			{
+				uint64_t prod;
+				if (sg)
+					prod = (uint64_t)((int64_t)(int32_t)a * (int64_t)(int32_t)b);
+				else
+					prod = (uint64_t)a * (uint64_t)b;
+				m68k_dreg(regs, Dl) = (uint32_t)prod;
+				m68k_dreg(regs, Dh) = (uint32_t)(prod >> 32);
+				SET_NFLG((prod >> 63) & 1);
+				SET_ZFLG(prod == 0);
+				SET_VFLG(0); SET_CFLG(0);
+			}
+		}
+		else			/* DIVL */
+		{
+			uint32_t divisor = src;
+			if (divisor == 0)
+			{
+				m68k_incpc(4 + extra);
+				Exception(0x05, 0, M68000_EXC_SRC_CPU);
+				return 1;
+			}
+			if (sz == 0)
+			{
+				uint32_t a = m68k_dreg(regs, Dl);
+				if (sg)
+				{
+					int32_t  q = (int32_t)a / (int32_t)divisor;
+					int32_t  r = (int32_t)a % (int32_t)divisor;
+					m68k_dreg(regs, Dl) = (uint32_t)q;
+					if (Dh != Dl) m68k_dreg(regs, Dh) = (uint32_t)r;
+					SET_NFLG(q < 0); SET_ZFLG(q == 0);
+				}
+				else
+				{
+					uint32_t q = a / divisor;
+					uint32_t r = a % divisor;
+					m68k_dreg(regs, Dl) = q;
+					if (Dh != Dl) m68k_dreg(regs, Dh) = r;
+					SET_NFLG(q >> 31); SET_ZFLG(q == 0);
+				}
+			}
+			else	/* 64-bit dividend in Dh:Dl */
+			{
+				uint64_t dividend = ((uint64_t)m68k_dreg(regs, Dh) << 32)
+				                  | (uint64_t)m68k_dreg(regs, Dl);
+				if (sg)
+				{
+					int64_t q = (int64_t)dividend / (int32_t)divisor;
+					int64_t r = (int64_t)dividend % (int32_t)divisor;
+					int32_t q32 = (int32_t)(uint32_t)q;
+					m68k_dreg(regs, Dl) = (uint32_t)q;
+					m68k_dreg(regs, Dh) = (uint32_t)r;
+					SET_NFLG(q32 < 0); SET_ZFLG(q32 == 0);
+				}
+				else
+				{
+					uint64_t q = dividend / divisor;
+					uint64_t r = dividend % divisor;
+					uint32_t q32 = (uint32_t)q;
+					m68k_dreg(regs, Dl) = q32;
+					m68k_dreg(regs, Dh) = (uint32_t)r;
+					SET_NFLG((q32 >> 31) & 1); SET_ZFLG(q32 == 0);
+				}
+			}
+			SET_VFLG(0); SET_CFLG(0);
+		}
+	}
+
+	m68k_incpc(4 + extra);
+	return 1;
+}
+
 unsigned long IllegalOpcode(uint32_t opcode)
 {
+	if ((opcode & 0xFF80) == 0x4C00)
+	{
+		if (handle_68020_mull_divl(opcode))
+			return 40;
+	}
+
 	if ((opcode & 0xF000) == 0xF000)
 	{
 		Exception(0x0B, 0, M68000_EXC_SRC_CPU);	// LineF exception...
@@ -401,4 +676,87 @@ void BuildCPUFunctionTable(void)
 			cpuFunctionTable[opcode] = f;
 		}
 	}
+}
+
+
+/* Save state serialization for 68K CPU */
+
+size_t M68KStateSave(uint8_t *buf)
+{
+	uint8_t *start = buf;
+	uint32_t pc_p_offset, pc_oldp_offset;
+
+	/* Save register struct fields individually (not the raw struct,
+	 * because pc_p/pc_oldp are pointers that differ per session). */
+	STATE_SAVE_BUF(buf, regs.regs, sizeof(regs.regs));
+	STATE_SAVE_VAR(buf, regs.usp);
+	STATE_SAVE_VAR(buf, regs.isp);
+	STATE_SAVE_VAR(buf, regs.sr);
+	STATE_SAVE_VAR(buf, regs.s);
+	STATE_SAVE_VAR(buf, regs.stopped);
+	STATE_SAVE_VAR(buf, regs.intmask);
+	STATE_SAVE_VAR(buf, regs.intLevel);
+	STATE_SAVE_VAR(buf, regs.c);
+	STATE_SAVE_VAR(buf, regs.z);
+	STATE_SAVE_VAR(buf, regs.n);
+	STATE_SAVE_VAR(buf, regs.v);
+	STATE_SAVE_VAR(buf, regs.x);
+	STATE_SAVE_VAR(buf, regs.pc);
+	STATE_SAVE_VAR(buf, regs.spcflags);
+	STATE_SAVE_VAR(buf, regs.prefetch_pc);
+	STATE_SAVE_VAR(buf, regs.prefetch);
+	STATE_SAVE_VAR(buf, regs.remainingCycles);
+	STATE_SAVE_VAR(buf, regs.interruptCycles);
+
+	/* Save pc_p and pc_oldp as offsets from jagMemSpace */
+	pc_p_offset = (uint32_t)(regs.pc_p ? (regs.pc_p - jagMemSpace) : 0xFFFFFFFF);
+	pc_oldp_offset = (uint32_t)(regs.pc_oldp ? (regs.pc_oldp - jagMemSpace) : 0xFFFFFFFF);
+	STATE_SAVE_VAR(buf, pc_p_offset);
+	STATE_SAVE_VAR(buf, pc_oldp_offset);
+
+	/* Local statics */
+	STATE_SAVE_VAR(buf, initialCycles);
+	STATE_SAVE_VAR(buf, checkForIRQToHandle);
+	STATE_SAVE_VAR(buf, IRQLevelToHandle);
+
+	return (size_t)(buf - start);
+}
+
+
+size_t M68KStateLoad(const uint8_t *buf)
+{
+	const uint8_t *start = buf;
+	uint32_t pc_p_offset, pc_oldp_offset;
+
+	STATE_LOAD_BUF(buf, regs.regs, sizeof(regs.regs));
+	STATE_LOAD_VAR(buf, regs.usp);
+	STATE_LOAD_VAR(buf, regs.isp);
+	STATE_LOAD_VAR(buf, regs.sr);
+	STATE_LOAD_VAR(buf, regs.s);
+	STATE_LOAD_VAR(buf, regs.stopped);
+	STATE_LOAD_VAR(buf, regs.intmask);
+	STATE_LOAD_VAR(buf, regs.intLevel);
+	STATE_LOAD_VAR(buf, regs.c);
+	STATE_LOAD_VAR(buf, regs.z);
+	STATE_LOAD_VAR(buf, regs.n);
+	STATE_LOAD_VAR(buf, regs.v);
+	STATE_LOAD_VAR(buf, regs.x);
+	STATE_LOAD_VAR(buf, regs.pc);
+	STATE_LOAD_VAR(buf, regs.spcflags);
+	STATE_LOAD_VAR(buf, regs.prefetch_pc);
+	STATE_LOAD_VAR(buf, regs.prefetch);
+	STATE_LOAD_VAR(buf, regs.remainingCycles);
+	STATE_LOAD_VAR(buf, regs.interruptCycles);
+
+	/* Reconstruct pc_p and pc_oldp from offsets */
+	STATE_LOAD_VAR(buf, pc_p_offset);
+	STATE_LOAD_VAR(buf, pc_oldp_offset);
+	regs.pc_p = (pc_p_offset != 0xFFFFFFFF) ? (jagMemSpace + pc_p_offset) : NULL;
+	regs.pc_oldp = (pc_oldp_offset != 0xFFFFFFFF) ? (jagMemSpace + pc_oldp_offset) : NULL;
+
+	STATE_LOAD_VAR(buf, initialCycles);
+	STATE_LOAD_VAR(buf, checkForIRQToHandle);
+	STATE_LOAD_VAR(buf, IRQLevelToHandle);
+
+	return (size_t)(buf - start);
 }
