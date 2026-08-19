@@ -21,6 +21,10 @@
       jaguarMainRAM;
       jaguarMainROM;
       jagMemSpace;
+      busArbiter;
+      gpuPCSample;
+      m68kPCSample;
+      m68kPCSampleIdx;
       pcQueue;
       pcQPtr;
       a6Queue;
@@ -67,5 +71,14 @@
       NVM_*;
       JGD*;
       jgd*;
+      shadowHiresResolveHits;
+      shadowHiresResolveMissValue;
+      shadowHiresResolveMissEpoch;
+      shadowHiresResolveMissNoPage;
+      shadowHiresN;
+      shadowFBActive;
+      blitMemo*;
+      TitleDB*;
+      vjtrace_*;
    local: *;
 };
