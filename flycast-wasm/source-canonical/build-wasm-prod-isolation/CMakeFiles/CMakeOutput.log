@@ -1,0 +1,1049 @@
+The target system is: Emscripten - 1 - x86
+The host system is: Linux - 5.15.49-linuxkit - x86_64
+Determining if the __EMSCRIPTEN__ exist passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_b02b8/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_b02b8.dir/build.make CMakeFiles/cmTC_b02b8.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_b02b8.dir/CheckSymbolExists.c.o
+/emsdk/upstream/emscripten/emcc   -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -MD -MT CMakeFiles/cmTC_b02b8.dir/CheckSymbolExists.c.o -MF CMakeFiles/cmTC_b02b8.dir/CheckSymbolExists.c.o.d -o CMakeFiles/cmTC_b02b8.dir/CheckSymbolExists.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_b02b8.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b02b8.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_b02b8.dir/objects1.rsp -o cmTC_b02b8.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+File /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef __EMSCRIPTEN__
+  return ((int*)(&__EMSCRIPTEN__))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the include file sys/types.h exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_fd53d/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_fd53d.dir/build.make CMakeFiles/cmTC_fd53d.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_fd53d.dir/CheckIncludeFile.c.o
+/emsdk/upstream/emscripten/emcc   -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_fd53d.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_fd53d.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_fd53d.dir/CheckIncludeFile.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_fd53d.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fd53d.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_fd53d.dir/objects1.rsp -o cmTC_fd53d.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file stdint.h exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_79384/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_79384.dir/build.make CMakeFiles/cmTC_79384.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_79384.dir/CheckIncludeFile.c.o
+/emsdk/upstream/emscripten/emcc   -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_79384.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_79384.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_79384.dir/CheckIncludeFile.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_79384.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_79384.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_79384.dir/objects1.rsp -o cmTC_79384.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file stddef.h exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_74af9/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_74af9.dir/build.make CMakeFiles/cmTC_74af9.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_74af9.dir/CheckIncludeFile.c.o
+/emsdk/upstream/emscripten/emcc   -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_74af9.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_74af9.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_74af9.dir/CheckIncludeFile.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_74af9.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_74af9.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_74af9.dir/objects1.rsp -o cmTC_74af9.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of off64_t passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_90617/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_90617.dir/build.make CMakeFiles/cmTC_90617.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_90617.dir/OFF64_T.c.o
+/emsdk/upstream/emscripten/emcc -DHAVE_STDDEF_H -DHAVE_STDINT_H -DHAVE_SYS_TYPES_H -D_LARGEFILE64_SOURCE=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_90617.dir/OFF64_T.c.o -MF CMakeFiles/cmTC_90617.dir/OFF64_T.c.o.d -o CMakeFiles/cmTC_90617.dir/OFF64_T.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/OFF64_T.c
+Linking C executable cmTC_90617.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_90617.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_90617.dir/objects1.rsp -o cmTC_90617.js @CMakeFiles/cmTC_90617.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function fseeko exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_24af1/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_24af1.dir/build.make CMakeFiles/cmTC_24af1.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_24af1.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc   -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=fseeko -fPIE -MD -MT CMakeFiles/cmTC_24af1.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_24af1.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_24af1.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_24af1.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_24af1.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=fseeko @CMakeFiles/cmTC_24af1.dir/objects1.rsp -o cmTC_24af1.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the include file unistd.h exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_e4740/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_e4740.dir/build.make CMakeFiles/cmTC_e4740.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e4740.dir/CheckIncludeFile.c.o
+/emsdk/upstream/emscripten/emcc   -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_e4740.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_e4740.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_e4740.dir/CheckIncludeFile.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_e4740.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e4740.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_e4740.dir/objects1.rsp -o cmTC_e4740.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Performing C SOURCE FILE Test C_FLAG_WALL succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_0ca32/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_0ca32.dir/build.make CMakeFiles/cmTC_0ca32.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0ca32.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DC_FLAG_WALL  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE   -Wall -MD -MT CMakeFiles/cmTC_0ca32.dir/src.c.o -MF CMakeFiles/cmTC_0ca32.dir/src.c.o.d -o CMakeFiles/cmTC_0ca32.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_0ca32.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0ca32.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_0ca32.dir/objects1.rsp -o cmTC_0ca32.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main(void) { return 0; }
+Performing C++ SOURCE FILE Test CXX_FLAG_WALL succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_47e74/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_47e74.dir/build.make CMakeFiles/cmTC_47e74.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_47e74.dir/src.cxx.o
+/emsdk/upstream/emscripten/em++ -DCXX_FLAG_WALL  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE   -Wall -std=c++17 -MD -MT CMakeFiles/cmTC_47e74.dir/src.cxx.o -MF CMakeFiles/cmTC_47e74.dir/src.cxx.o.d -o CMakeFiles/cmTC_47e74.dir/src.cxx.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_47e74.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_47e74.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/em++ -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_47e74.dir/objects1.rsp -o cmTC_47e74.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test C_FLAG_WEXTRA succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_3511a/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_3511a.dir/build.make CMakeFiles/cmTC_3511a.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_3511a.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DC_FLAG_WEXTRA  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall  -fPIE   -Wextra -MD -MT CMakeFiles/cmTC_3511a.dir/src.c.o -MF CMakeFiles/cmTC_3511a.dir/src.c.o.d -o CMakeFiles/cmTC_3511a.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_3511a.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3511a.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall  @CMakeFiles/cmTC_3511a.dir/objects1.rsp -o cmTC_3511a.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main(void) { return 0; }
+Performing C++ SOURCE FILE Test CXX_FLAG_WEXTRA succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_7de41/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_7de41.dir/build.make CMakeFiles/cmTC_7de41.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_7de41.dir/src.cxx.o
+/emsdk/upstream/emscripten/em++ -DCXX_FLAG_WEXTRA  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall  -fPIE   -Wextra -std=c++17 -MD -MT CMakeFiles/cmTC_7de41.dir/src.cxx.o -MF CMakeFiles/cmTC_7de41.dir/src.cxx.o.d -o CMakeFiles/cmTC_7de41.dir/src.cxx.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_7de41.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7de41.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/em++ -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall  @CMakeFiles/cmTC_7de41.dir/objects1.rsp -o cmTC_7de41.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test C_FLAG_WUNDEF succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_6ea0a/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_6ea0a.dir/build.make CMakeFiles/cmTC_6ea0a.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6ea0a.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DC_FLAG_WUNDEF  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra  -fPIE   -Wundef -MD -MT CMakeFiles/cmTC_6ea0a.dir/src.c.o -MF CMakeFiles/cmTC_6ea0a.dir/src.c.o.d -o CMakeFiles/cmTC_6ea0a.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_6ea0a.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6ea0a.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra  @CMakeFiles/cmTC_6ea0a.dir/objects1.rsp -o cmTC_6ea0a.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main(void) { return 0; }
+Performing C++ SOURCE FILE Test CXX_FLAG_WUNDEF succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_b1dc4/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_b1dc4.dir/build.make CMakeFiles/cmTC_b1dc4.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_b1dc4.dir/src.cxx.o
+/emsdk/upstream/emscripten/em++ -DCXX_FLAG_WUNDEF  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra  -fPIE   -Wundef -std=c++17 -MD -MT CMakeFiles/cmTC_b1dc4.dir/src.cxx.o -MF CMakeFiles/cmTC_b1dc4.dir/src.cxx.o.d -o CMakeFiles/cmTC_b1dc4.dir/src.cxx.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_b1dc4.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b1dc4.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/em++ -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra  @CMakeFiles/cmTC_b1dc4.dir/objects1.rsp -o cmTC_b1dc4.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test C_FLAG_WSHADOW succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_911c0/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_911c0.dir/build.make CMakeFiles/cmTC_911c0.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_911c0.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DC_FLAG_WSHADOW  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef  -fPIE   -Wshadow -MD -MT CMakeFiles/cmTC_911c0.dir/src.c.o -MF CMakeFiles/cmTC_911c0.dir/src.c.o.d -o CMakeFiles/cmTC_911c0.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_911c0.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_911c0.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef  @CMakeFiles/cmTC_911c0.dir/objects1.rsp -o cmTC_911c0.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main(void) { return 0; }
+Performing C++ SOURCE FILE Test CXX_FLAG_WSHADOW succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_439d7/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_439d7.dir/build.make CMakeFiles/cmTC_439d7.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_439d7.dir/src.cxx.o
+/emsdk/upstream/emscripten/em++ -DCXX_FLAG_WSHADOW  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef  -fPIE   -Wshadow -std=c++17 -MD -MT CMakeFiles/cmTC_439d7.dir/src.cxx.o -MF CMakeFiles/cmTC_439d7.dir/src.cxx.o.d -o CMakeFiles/cmTC_439d7.dir/src.cxx.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_439d7.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_439d7.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/em++ -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef  @CMakeFiles/cmTC_439d7.dir/objects1.rsp -o cmTC_439d7.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test C_FLAG_WCAST_ALIGN succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_d5ef8/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_d5ef8.dir/build.make CMakeFiles/cmTC_d5ef8.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d5ef8.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DC_FLAG_WCAST_ALIGN  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow  -fPIE   -Wcast-align -MD -MT CMakeFiles/cmTC_d5ef8.dir/src.c.o -MF CMakeFiles/cmTC_d5ef8.dir/src.c.o.d -o CMakeFiles/cmTC_d5ef8.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_d5ef8.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d5ef8.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow  @CMakeFiles/cmTC_d5ef8.dir/objects1.rsp -o cmTC_d5ef8.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main(void) { return 0; }
+Performing C++ SOURCE FILE Test CXX_FLAG_WCAST_ALIGN succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_9b29c/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_9b29c.dir/build.make CMakeFiles/cmTC_9b29c.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_9b29c.dir/src.cxx.o
+/emsdk/upstream/emscripten/em++ -DCXX_FLAG_WCAST_ALIGN  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow  -fPIE   -Wcast-align -std=c++17 -MD -MT CMakeFiles/cmTC_9b29c.dir/src.cxx.o -MF CMakeFiles/cmTC_9b29c.dir/src.cxx.o.d -o CMakeFiles/cmTC_9b29c.dir/src.cxx.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_9b29c.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9b29c.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/em++ -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow  @CMakeFiles/cmTC_9b29c.dir/objects1.rsp -o cmTC_9b29c.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test C_FLAG_WCAST_QUAL succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_d7fc5/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_d7fc5.dir/build.make CMakeFiles/cmTC_d7fc5.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d7fc5.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DC_FLAG_WCAST_QUAL  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align  -fPIE   -Wcast-qual -MD -MT CMakeFiles/cmTC_d7fc5.dir/src.c.o -MF CMakeFiles/cmTC_d7fc5.dir/src.c.o.d -o CMakeFiles/cmTC_d7fc5.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_d7fc5.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d7fc5.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align  @CMakeFiles/cmTC_d7fc5.dir/objects1.rsp -o cmTC_d7fc5.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main(void) { return 0; }
+Performing C++ SOURCE FILE Test CXX_FLAG_WCAST_QUAL succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_99ff2/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_99ff2.dir/build.make CMakeFiles/cmTC_99ff2.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_99ff2.dir/src.cxx.o
+/emsdk/upstream/emscripten/em++ -DCXX_FLAG_WCAST_QUAL  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align  -fPIE   -Wcast-qual -std=c++17 -MD -MT CMakeFiles/cmTC_99ff2.dir/src.cxx.o -MF CMakeFiles/cmTC_99ff2.dir/src.cxx.o.d -o CMakeFiles/cmTC_99ff2.dir/src.cxx.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_99ff2.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_99ff2.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/em++ -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align  @CMakeFiles/cmTC_99ff2.dir/objects1.rsp -o cmTC_99ff2.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test C_FLAG_WSTRICT_PROTOTYPES succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_1abb9/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_1abb9.dir/build.make CMakeFiles/cmTC_1abb9.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_1abb9.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DC_FLAG_WSTRICT_PROTOTYPES  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual  -fPIE   -Wstrict-prototypes -MD -MT CMakeFiles/cmTC_1abb9.dir/src.c.o -MF CMakeFiles/cmTC_1abb9.dir/src.c.o.d -o CMakeFiles/cmTC_1abb9.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_1abb9.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1abb9.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual  @CMakeFiles/cmTC_1abb9.dir/objects1.rsp -o cmTC_1abb9.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main(void) { return 0; }
+Performing C SOURCE FILE Test LD_FLAG_Z_NOEXECSTACK succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_a7de5/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_a7de5.dir/build.make CMakeFiles/cmTC_a7de5.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_a7de5.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DLD_FLAG_Z_NOEXECSTACK  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual -Wstrict-prototypes  -fPIE -MD -MT CMakeFiles/cmTC_a7de5.dir/src.c.o -MF CMakeFiles/cmTC_a7de5.dir/src.c.o.d -o CMakeFiles/cmTC_a7de5.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c
+/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c:1:9: warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+    1 | int main() { return 0; }
+      |         ^
+      |          void
+1 warning generated.
+Linking C executable cmTC_a7de5.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a7de5.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual -Wstrict-prototypes  "-z noexecstack" @CMakeFiles/cmTC_a7de5.dir/objects1.rsp -o cmTC_a7de5.js 
+wasm-ld: warning: unknown -z value:  noexecstack
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test C_FLAG_QUNUSED_ARGUMENTS succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_6e894/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_6e894.dir/build.make CMakeFiles/cmTC_6e894.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6e894.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DC_FLAG_QUNUSED_ARGUMENTS  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual -Wstrict-prototypes  -fPIE   -Qunused-arguments -MD -MT CMakeFiles/cmTC_6e894.dir/src.c.o -MF CMakeFiles/cmTC_6e894.dir/src.c.o.d -o CMakeFiles/cmTC_6e894.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_6e894.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6e894.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual -Wstrict-prototypes   -z noexecstack  @CMakeFiles/cmTC_6e894.dir/objects1.rsp -o cmTC_6e894.js 
+wasm-ld: warning: unknown -z value: noexecstack
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main(void) { return 0; }
+Performing C++ SOURCE FILE Test CXX_FLAG_QUNUSED_ARGUMENTS succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_92a14/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_92a14.dir/build.make CMakeFiles/cmTC_92a14.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_92a14.dir/src.cxx.o
+/emsdk/upstream/emscripten/em++ -DCXX_FLAG_QUNUSED_ARGUMENTS  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual  -fPIE   -Qunused-arguments -std=c++17 -MD -MT CMakeFiles/cmTC_92a14.dir/src.cxx.o -MF CMakeFiles/cmTC_92a14.dir/src.cxx.o.d -o CMakeFiles/cmTC_92a14.dir/src.cxx.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_92a14.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_92a14.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/em++ -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual   -z noexecstack  @CMakeFiles/cmTC_92a14.dir/objects1.rsp -o cmTC_92a14.js 
+wasm-ld: warning: unknown -z value: noexecstack
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test C_FLAG_WA_NOEXECSTACK succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_713f4/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_713f4.dir/build.make CMakeFiles/cmTC_713f4.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_713f4.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DC_FLAG_WA_NOEXECSTACK  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual -Wstrict-prototypes -Qunused-arguments  -fPIE   -Wa,--noexecstack -MD -MT CMakeFiles/cmTC_713f4.dir/src.c.o -MF CMakeFiles/cmTC_713f4.dir/src.c.o.d -o CMakeFiles/cmTC_713f4.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_713f4.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_713f4.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual -Wstrict-prototypes -Qunused-arguments   -z noexecstack  @CMakeFiles/cmTC_713f4.dir/objects1.rsp -o cmTC_713f4.js 
+wasm-ld: warning: unknown -z value: noexecstack
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main(void) { return 0; }
+Performing C++ SOURCE FILE Test CXX_FLAG_WA_NOEXECSTACK succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_bd77e/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_bd77e.dir/build.make CMakeFiles/cmTC_bd77e.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_bd77e.dir/src.cxx.o
+/emsdk/upstream/emscripten/em++ -DCXX_FLAG_WA_NOEXECSTACK  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual -Qunused-arguments  -fPIE   -Wa,--noexecstack -std=c++17 -MD -MT CMakeFiles/cmTC_bd77e.dir/src.cxx.o -MF CMakeFiles/cmTC_bd77e.dir/src.cxx.o.d -o CMakeFiles/cmTC_bd77e.dir/src.cxx.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_bd77e.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bd77e.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/em++ -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual -Qunused-arguments   -z noexecstack  @CMakeFiles/cmTC_bd77e.dir/objects1.rsp -o cmTC_bd77e.js 
+wasm-ld: warning: unknown -z value: noexecstack
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_89a63/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_89a63.dir/build.make CMakeFiles/cmTC_89a63.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_89a63.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DCMAKE_HAVE_LIBC_PTHREAD  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual -Wstrict-prototypes -Qunused-arguments -Wa,--noexecstack  -fPIE -MD -MT CMakeFiles/cmTC_89a63.dir/src.c.o -MF CMakeFiles/cmTC_89a63.dir/src.c.o.d -o CMakeFiles/cmTC_89a63.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_89a63.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_89a63.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual -Wstrict-prototypes -Qunused-arguments -Wa,--noexecstack   -z noexecstack  @CMakeFiles/cmTC_89a63.dir/objects1.rsp -o cmTC_89a63.js 
+wasm-ld: warning: unknown -z value: noexecstack
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+#include <pthread.h>
+
+static void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_cancel(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Performing C++ SOURCE FILE Test NOWIDE_HAS_LFS succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_04ff1/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_04ff1.dir/build.make CMakeFiles/cmTC_04ff1.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_04ff1.dir/src.cxx.o
+/emsdk/upstream/emscripten/em++ -DNOWIDE_HAS_LFS  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -std=c++17 -MD -MT CMakeFiles/cmTC_04ff1.dir/src.cxx.o -MF CMakeFiles/cmTC_04ff1.dir/src.cxx.o.d -o CMakeFiles/cmTC_04ff1.dir/src.cxx.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_04ff1.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_04ff1.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/em++ -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_04ff1.dir/objects1.rsp -o cmTC_04ff1.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+//
+// Copyright (c) 2020 Alexander Grund
+//
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+
+#define _LARGEFILE_SOURCE
+#ifndef _FILE_OFFSET_BITS
+#define _FILE_OFFSET_BITS 64
+#endif
+
+#include <stdio.h>
+
+void check(FILE* f)
+{
+#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MINGW32__)
+    (void)_fseeki64(f, 0, SEEK_CUR);
+    (void)_ftelli64(f);
+#else
+    // Check that those functions and off_t are available
+    (void)fseeko(f, off_t(0), SEEK_CUR);
+    (void)ftello(f);
+#endif
+}
+
+int main()
+{
+    check(nullptr);
+}
+
+Performing C++ SOURCE FILE Test NOWIDE_HAS_INIT_PRIORITY succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_a2765/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_a2765.dir/build.make CMakeFiles/cmTC_a2765.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a2765.dir/src.cxx.o
+/emsdk/upstream/emscripten/em++ -DNOWIDE_HAS_INIT_PRIORITY  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -std=c++17 -MD -MT CMakeFiles/cmTC_a2765.dir/src.cxx.o -MF CMakeFiles/cmTC_a2765.dir/src.cxx.o.d -o CMakeFiles/cmTC_a2765.dir/src.cxx.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_a2765.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a2765.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/em++ -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_a2765.dir/objects1.rsp -o cmTC_a2765.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+// Copyright (c) 2021 Alexander Grund
+//
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+
+class Foo
+{};
+
+Foo foo __attribute__((init_priority(101)));
+
+int main()
+{
+    return 0;
+}
+
+Determining if the function explicit_bzero exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_6f235/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_6f235.dir/build.make CMakeFiles/cmTC_6f235.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6f235.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=explicit_bzero -fPIE -MD -MT CMakeFiles/cmTC_6f235.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_6f235.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_6f235.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_6f235.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6f235.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=explicit_bzero @CMakeFiles/cmTC_6f235.dir/objects1.rsp -o cmTC_6f235.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function fchmod exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_690af/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_690af.dir/build.make CMakeFiles/cmTC_690af.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_690af.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=fchmod -fPIE -MD -MT CMakeFiles/cmTC_690af.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_690af.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_690af.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_690af.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_690af.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=fchmod @CMakeFiles/cmTC_690af.dir/objects1.rsp -o cmTC_690af.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function fileno exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_8f371/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_8f371.dir/build.make CMakeFiles/cmTC_8f371.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_8f371.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=fileno -fPIE -MD -MT CMakeFiles/cmTC_8f371.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_8f371.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_8f371.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_8f371.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8f371.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=fileno @CMakeFiles/cmTC_8f371.dir/objects1.rsp -o cmTC_8f371.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function ftello exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_b61d3/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_b61d3.dir/build.make CMakeFiles/cmTC_b61d3.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_b61d3.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=ftello -fPIE -MD -MT CMakeFiles/cmTC_b61d3.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_b61d3.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_b61d3.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_b61d3.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b61d3.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=ftello @CMakeFiles/cmTC_b61d3.dir/objects1.rsp -o cmTC_b61d3.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the localtime_r exist passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_06aeb/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_06aeb.dir/build.make CMakeFiles/cmTC_06aeb.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_06aeb.dir/CheckSymbolExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_06aeb.dir/CheckSymbolExists.c.o -MF CMakeFiles/cmTC_06aeb.dir/CheckSymbolExists.c.o.d -o CMakeFiles/cmTC_06aeb.dir/CheckSymbolExists.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_06aeb.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_06aeb.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_06aeb.dir/objects1.rsp -o cmTC_06aeb.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+File /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <time.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef localtime_r
+  return ((int*)(&localtime_r))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the function random exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_130f6/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_130f6.dir/build.make CMakeFiles/cmTC_130f6.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_130f6.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=random -fPIE -MD -MT CMakeFiles/cmTC_130f6.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_130f6.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_130f6.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_130f6.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_130f6.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=random @CMakeFiles/cmTC_130f6.dir/objects1.rsp -o cmTC_130f6.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the snprintf exist passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_d0a8b/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_d0a8b.dir/build.make CMakeFiles/cmTC_d0a8b.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d0a8b.dir/CheckSymbolExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_d0a8b.dir/CheckSymbolExists.c.o -MF CMakeFiles/cmTC_d0a8b.dir/CheckSymbolExists.c.o.d -o CMakeFiles/cmTC_d0a8b.dir/CheckSymbolExists.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_d0a8b.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d0a8b.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_d0a8b.dir/objects1.rsp -o cmTC_d0a8b.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+File /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <stdio.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef snprintf
+  return ((int*)(&snprintf))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the strcasecmp exist passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_f4794/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_f4794.dir/build.make CMakeFiles/cmTC_f4794.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f4794.dir/CheckSymbolExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_f4794.dir/CheckSymbolExists.c.o -MF CMakeFiles/cmTC_f4794.dir/CheckSymbolExists.c.o.d -o CMakeFiles/cmTC_f4794.dir/CheckSymbolExists.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_f4794.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f4794.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_f4794.dir/objects1.rsp -o cmTC_f4794.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+File /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <strings.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef strcasecmp
+  return ((int*)(&strcasecmp))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the function strdup exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_64de2/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_64de2.dir/build.make CMakeFiles/cmTC_64de2.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_64de2.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=strdup -fPIE -MD -MT CMakeFiles/cmTC_64de2.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_64de2.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_64de2.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+/usr/share/cmake-3.22/Modules/CheckFunctionExists.c:7:3: warning: incompatible redeclaration of library function 'strdup' [-Wincompatible-library-redeclaration]
+    7 |   CHECK_FUNCTION_EXISTS(void);
+      |   ^
+<command line>:5:31: note: expanded from macro 'CHECK_FUNCTION_EXISTS'
+    5 | #define CHECK_FUNCTION_EXISTS strdup
+      |                               ^
+/usr/share/cmake-3.22/Modules/CheckFunctionExists.c:7:3: note: 'strdup' is a builtin with type 'char *(const char *)'
+<command line>:5:31: note: expanded from macro 'CHECK_FUNCTION_EXISTS'
+    5 | #define CHECK_FUNCTION_EXISTS strdup
+      |                               ^
+1 warning generated.
+Linking C executable cmTC_64de2.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_64de2.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=strdup @CMakeFiles/cmTC_64de2.dir/objects1.rsp -o cmTC_64de2.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function strtoll exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_8fcc4/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_8fcc4.dir/build.make CMakeFiles/cmTC_8fcc4.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_8fcc4.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=strtoll -fPIE -MD -MT CMakeFiles/cmTC_8fcc4.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_8fcc4.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_8fcc4.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+/usr/share/cmake-3.22/Modules/CheckFunctionExists.c:7:3: warning: incompatible redeclaration of library function 'strtoll' [-Wincompatible-library-redeclaration]
+    7 |   CHECK_FUNCTION_EXISTS(void);
+      |   ^
+<command line>:5:31: note: expanded from macro 'CHECK_FUNCTION_EXISTS'
+    5 | #define CHECK_FUNCTION_EXISTS strtoll
+      |                               ^
+/usr/share/cmake-3.22/Modules/CheckFunctionExists.c:7:3: note: 'strtoll' is a builtin with type 'long long (const char *, char **, int)'
+<command line>:5:31: note: expanded from macro 'CHECK_FUNCTION_EXISTS'
+    5 | #define CHECK_FUNCTION_EXISTS strtoll
+      |                               ^
+1 warning generated.
+Linking C executable cmTC_8fcc4.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8fcc4.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=strtoll @CMakeFiles/cmTC_8fcc4.dir/objects1.rsp -o cmTC_8fcc4.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if the function strtoull exists passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_e8a82/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_e8a82.dir/build.make CMakeFiles/cmTC_e8a82.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e8a82.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=strtoull -fPIE -MD -MT CMakeFiles/cmTC_e8a82.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_e8a82.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_e8a82.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+/usr/share/cmake-3.22/Modules/CheckFunctionExists.c:7:3: warning: incompatible redeclaration of library function 'strtoull' [-Wincompatible-library-redeclaration]
+    7 |   CHECK_FUNCTION_EXISTS(void);
+      |   ^
+<command line>:5:31: note: expanded from macro 'CHECK_FUNCTION_EXISTS'
+    5 | #define CHECK_FUNCTION_EXISTS strtoull
+      |                               ^
+/usr/share/cmake-3.22/Modules/CheckFunctionExists.c:7:3: note: 'strtoull' is a builtin with type 'unsigned long long (const char *, char **, int)'
+<command line>:5:31: note: expanded from macro 'CHECK_FUNCTION_EXISTS'
+    5 | #define CHECK_FUNCTION_EXISTS strtoull
+      |                               ^
+1 warning generated.
+Linking C executable cmTC_e8a82.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e8a82.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -DCHECK_FUNCTION_EXISTS=strtoull @CMakeFiles/cmTC_e8a82.dir/objects1.rsp -o cmTC_e8a82.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if files stdbool.h exist passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_f5920/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_f5920.dir/build.make CMakeFiles/cmTC_f5920.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f5920.dir/HAVE_STDBOOL_H.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_f5920.dir/HAVE_STDBOOL_H.c.o -MF CMakeFiles/cmTC_f5920.dir/HAVE_STDBOOL_H.c.o.d -o CMakeFiles/cmTC_f5920.dir/HAVE_STDBOOL_H.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckIncludeFiles/HAVE_STDBOOL_H.c
+Linking C executable cmTC_f5920.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f5920.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_f5920.dir/objects1.rsp -o cmTC_f5920.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if files strings.h exist passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_2a3dc/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_2a3dc.dir/build.make CMakeFiles/cmTC_2a3dc.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2a3dc.dir/HAVE_STRINGS_H.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_2a3dc.dir/HAVE_STRINGS_H.c.o -MF CMakeFiles/cmTC_2a3dc.dir/HAVE_STRINGS_H.c.o.d -o CMakeFiles/cmTC_2a3dc.dir/HAVE_STRINGS_H.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckIncludeFiles/HAVE_STRINGS_H.c
+Linking C executable cmTC_2a3dc.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2a3dc.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_2a3dc.dir/objects1.rsp -o cmTC_2a3dc.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if files unistd.h exist passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_3313d/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_3313d.dir/build.make CMakeFiles/cmTC_3313d.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_3313d.dir/HAVE_UNISTD_H.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_3313d.dir/HAVE_UNISTD_H.c.o -MF CMakeFiles/cmTC_3313d.dir/HAVE_UNISTD_H.c.o.d -o CMakeFiles/cmTC_3313d.dir/HAVE_UNISTD_H.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckIncludeFiles/HAVE_UNISTD_H.c
+Linking C executable cmTC_3313d.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3313d.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_3313d.dir/objects1.rsp -o cmTC_3313d.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if files inttypes.h exist passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_88c5c/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_88c5c.dir/build.make CMakeFiles/cmTC_88c5c.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_88c5c.dir/HAVE_INTTYPES_H_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_88c5c.dir/HAVE_INTTYPES_H_LIBZIP.c.o -MF CMakeFiles/cmTC_88c5c.dir/HAVE_INTTYPES_H_LIBZIP.c.o.d -o CMakeFiles/cmTC_88c5c.dir/HAVE_INTTYPES_H_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckIncludeFiles/HAVE_INTTYPES_H_LIBZIP.c
+Linking C executable cmTC_88c5c.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_88c5c.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_88c5c.dir/objects1.rsp -o cmTC_88c5c.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if files stdint.h exist passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_85fa4/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_85fa4.dir/build.make CMakeFiles/cmTC_85fa4.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_85fa4.dir/HAVE_STDINT_H_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_85fa4.dir/HAVE_STDINT_H_LIBZIP.c.o -MF CMakeFiles/cmTC_85fa4.dir/HAVE_STDINT_H_LIBZIP.c.o.d -o CMakeFiles/cmTC_85fa4.dir/HAVE_STDINT_H_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckIncludeFiles/HAVE_STDINT_H_LIBZIP.c
+Linking C executable cmTC_85fa4.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_85fa4.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_85fa4.dir/objects1.rsp -o cmTC_85fa4.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining if files sys/types.h exist passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_70fd9/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_70fd9.dir/build.make CMakeFiles/cmTC_70fd9.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_70fd9.dir/HAVE_SYS_TYPES_H_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_70fd9.dir/HAVE_SYS_TYPES_H_LIBZIP.c.o -MF CMakeFiles/cmTC_70fd9.dir/HAVE_SYS_TYPES_H_LIBZIP.c.o.d -o CMakeFiles/cmTC_70fd9.dir/HAVE_SYS_TYPES_H_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckIncludeFiles/HAVE_SYS_TYPES_H_LIBZIP.c
+Linking C executable cmTC_70fd9.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_70fd9.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_70fd9.dir/objects1.rsp -o cmTC_70fd9.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of int8_t passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_f9d06/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_f9d06.dir/build.make CMakeFiles/cmTC_f9d06.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f9d06.dir/INT8_T_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_f9d06.dir/INT8_T_LIBZIP.c.o -MF CMakeFiles/cmTC_f9d06.dir/INT8_T_LIBZIP.c.o.d -o CMakeFiles/cmTC_f9d06.dir/INT8_T_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/INT8_T_LIBZIP.c
+Linking C executable cmTC_f9d06.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f9d06.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_f9d06.dir/objects1.rsp -o cmTC_f9d06.js @CMakeFiles/cmTC_f9d06.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of uint8_t passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_2bae1/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_2bae1.dir/build.make CMakeFiles/cmTC_2bae1.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2bae1.dir/UINT8_T_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_2bae1.dir/UINT8_T_LIBZIP.c.o -MF CMakeFiles/cmTC_2bae1.dir/UINT8_T_LIBZIP.c.o.d -o CMakeFiles/cmTC_2bae1.dir/UINT8_T_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/UINT8_T_LIBZIP.c
+Linking C executable cmTC_2bae1.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2bae1.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_2bae1.dir/objects1.rsp -o cmTC_2bae1.js @CMakeFiles/cmTC_2bae1.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of int16_t passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_f55a5/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_f55a5.dir/build.make CMakeFiles/cmTC_f55a5.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f55a5.dir/INT16_T_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_f55a5.dir/INT16_T_LIBZIP.c.o -MF CMakeFiles/cmTC_f55a5.dir/INT16_T_LIBZIP.c.o.d -o CMakeFiles/cmTC_f55a5.dir/INT16_T_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/INT16_T_LIBZIP.c
+Linking C executable cmTC_f55a5.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f55a5.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_f55a5.dir/objects1.rsp -o cmTC_f55a5.js @CMakeFiles/cmTC_f55a5.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of uint16_t passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_0b355/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_0b355.dir/build.make CMakeFiles/cmTC_0b355.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0b355.dir/UINT16_T_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_0b355.dir/UINT16_T_LIBZIP.c.o -MF CMakeFiles/cmTC_0b355.dir/UINT16_T_LIBZIP.c.o.d -o CMakeFiles/cmTC_0b355.dir/UINT16_T_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/UINT16_T_LIBZIP.c
+Linking C executable cmTC_0b355.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0b355.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_0b355.dir/objects1.rsp -o cmTC_0b355.js @CMakeFiles/cmTC_0b355.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of int32_t passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_d0143/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_d0143.dir/build.make CMakeFiles/cmTC_d0143.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d0143.dir/INT32_T_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_d0143.dir/INT32_T_LIBZIP.c.o -MF CMakeFiles/cmTC_d0143.dir/INT32_T_LIBZIP.c.o.d -o CMakeFiles/cmTC_d0143.dir/INT32_T_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/INT32_T_LIBZIP.c
+Linking C executable cmTC_d0143.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d0143.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_d0143.dir/objects1.rsp -o cmTC_d0143.js @CMakeFiles/cmTC_d0143.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of uint32_t passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_64452/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_64452.dir/build.make CMakeFiles/cmTC_64452.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_64452.dir/UINT32_T_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_64452.dir/UINT32_T_LIBZIP.c.o -MF CMakeFiles/cmTC_64452.dir/UINT32_T_LIBZIP.c.o.d -o CMakeFiles/cmTC_64452.dir/UINT32_T_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/UINT32_T_LIBZIP.c
+Linking C executable cmTC_64452.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_64452.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_64452.dir/objects1.rsp -o cmTC_64452.js @CMakeFiles/cmTC_64452.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of int64_t passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_abcae/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_abcae.dir/build.make CMakeFiles/cmTC_abcae.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_abcae.dir/INT64_T_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_abcae.dir/INT64_T_LIBZIP.c.o -MF CMakeFiles/cmTC_abcae.dir/INT64_T_LIBZIP.c.o.d -o CMakeFiles/cmTC_abcae.dir/INT64_T_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/INT64_T_LIBZIP.c
+Linking C executable cmTC_abcae.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_abcae.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_abcae.dir/objects1.rsp -o cmTC_abcae.js @CMakeFiles/cmTC_abcae.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of uint64_t passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_d3d0c/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_d3d0c.dir/build.make CMakeFiles/cmTC_d3d0c.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d3d0c.dir/UINT64_T_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_d3d0c.dir/UINT64_T_LIBZIP.c.o -MF CMakeFiles/cmTC_d3d0c.dir/UINT64_T_LIBZIP.c.o.d -o CMakeFiles/cmTC_d3d0c.dir/UINT64_T_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/UINT64_T_LIBZIP.c
+Linking C executable cmTC_d3d0c.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d3d0c.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_d3d0c.dir/objects1.rsp -o cmTC_d3d0c.js @CMakeFiles/cmTC_d3d0c.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of short passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_0cc15/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_0cc15.dir/build.make CMakeFiles/cmTC_0cc15.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0cc15.dir/SHORT_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_0cc15.dir/SHORT_LIBZIP.c.o -MF CMakeFiles/cmTC_0cc15.dir/SHORT_LIBZIP.c.o.d -o CMakeFiles/cmTC_0cc15.dir/SHORT_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/SHORT_LIBZIP.c
+Linking C executable cmTC_0cc15.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0cc15.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_0cc15.dir/objects1.rsp -o cmTC_0cc15.js @CMakeFiles/cmTC_0cc15.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of int passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_6c0ad/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_6c0ad.dir/build.make CMakeFiles/cmTC_6c0ad.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6c0ad.dir/INT_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_6c0ad.dir/INT_LIBZIP.c.o -MF CMakeFiles/cmTC_6c0ad.dir/INT_LIBZIP.c.o.d -o CMakeFiles/cmTC_6c0ad.dir/INT_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/INT_LIBZIP.c
+Linking C executable cmTC_6c0ad.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6c0ad.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_6c0ad.dir/objects1.rsp -o cmTC_6c0ad.js @CMakeFiles/cmTC_6c0ad.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of long passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_dabe9/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_dabe9.dir/build.make CMakeFiles/cmTC_dabe9.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_dabe9.dir/LONG_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_dabe9.dir/LONG_LIBZIP.c.o -MF CMakeFiles/cmTC_dabe9.dir/LONG_LIBZIP.c.o.d -o CMakeFiles/cmTC_dabe9.dir/LONG_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/LONG_LIBZIP.c
+Linking C executable cmTC_dabe9.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_dabe9.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_dabe9.dir/objects1.rsp -o cmTC_dabe9.js @CMakeFiles/cmTC_dabe9.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of long long passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_e6d8d/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_e6d8d.dir/build.make CMakeFiles/cmTC_e6d8d.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e6d8d.dir/LONG_LONG_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_e6d8d.dir/LONG_LONG_LIBZIP.c.o -MF CMakeFiles/cmTC_e6d8d.dir/LONG_LONG_LIBZIP.c.o.d -o CMakeFiles/cmTC_e6d8d.dir/LONG_LONG_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/LONG_LONG_LIBZIP.c
+Linking C executable cmTC_e6d8d.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e6d8d.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_e6d8d.dir/objects1.rsp -o cmTC_e6d8d.js @CMakeFiles/cmTC_e6d8d.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of off_t passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_6341d/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_6341d.dir/build.make CMakeFiles/cmTC_6341d.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6341d.dir/SIZEOF_OFF_T.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_6341d.dir/SIZEOF_OFF_T.c.o -MF CMakeFiles/cmTC_6341d.dir/SIZEOF_OFF_T.c.o.d -o CMakeFiles/cmTC_6341d.dir/SIZEOF_OFF_T.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/SIZEOF_OFF_T.c
+Linking C executable cmTC_6341d.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6341d.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_6341d.dir/objects1.rsp -o cmTC_6341d.js @CMakeFiles/cmTC_6341d.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Determining size of size_t passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_6641a/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_6641a.dir/build.make CMakeFiles/cmTC_6641a.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6641a.dir/SIZEOF_SIZE_T.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_6641a.dir/SIZEOF_SIZE_T.c.o -MF CMakeFiles/cmTC_6641a.dir/SIZEOF_SIZE_T.c.o.d -o CMakeFiles/cmTC_6641a.dir/SIZEOF_SIZE_T.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CheckTypeSize/SIZEOF_SIZE_T.c
+Linking C executable cmTC_6641a.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6641a.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_6641a.dir/objects1.rsp -o cmTC_6641a.js @CMakeFiles/cmTC_6641a.dir/linklibs.rsp
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+
+Performing C SOURCE FILE Test HAVE_NULLABLE succeeded with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_4b1b9/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_4b1b9.dir/build.make CMakeFiles/cmTC_4b1b9.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_4b1b9.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DHAVE_NULLABLE -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -fPIE -MD -MT CMakeFiles/cmTC_4b1b9.dir/src.c.o -MF CMakeFiles/cmTC_4b1b9.dir/src.c.o.d -o CMakeFiles/cmTC_4b1b9.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_4b1b9.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4b1b9.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_4b1b9.dir/objects1.rsp -o cmTC_4b1b9.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+
+int foo(char * _Nullable bar);
+int main(int argc, char *argv[]) { }
+Determining if the __EMSCRIPTEN__ exist passed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_eeccb/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_eeccb.dir/build.make CMakeFiles/cmTC_eeccb.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_eeccb.dir/CheckSymbolExists.c.o
+/emsdk/upstream/emscripten/emcc   -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  -MD -MT CMakeFiles/cmTC_eeccb.dir/CheckSymbolExists.c.o -MF CMakeFiles/cmTC_eeccb.dir/CheckSymbolExists.c.o.d -o CMakeFiles/cmTC_eeccb.dir/CheckSymbolExists.c.o -c /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_eeccb.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_eeccb.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1  @CMakeFiles/cmTC_eeccb.dir/objects1.rsp -o cmTC_eeccb.js 
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp'
+
+
+File /work/webrcade/retrostash/flycast-wasm/source-canonical/build-wasm-prod-isolation/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef __EMSCRIPTEN__
+  return ((int*)(&__EMSCRIPTEN__))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}

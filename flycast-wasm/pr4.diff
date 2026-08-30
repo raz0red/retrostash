@@ -1,0 +1,794 @@
+diff --git a/.gitattributes b/.gitattributes
+new file mode 100644
+index 0000000..4263d58
+--- /dev/null
++++ b/.gitattributes
+@@ -0,0 +1,6 @@
++# Shell scripts must stay LF: a CRLF clone on Windows breaks bash
++# ("bad interpreter") because the shebang line ends with \r.
++*.sh text eol=lf
++
++# The upstream patch files are LF; keep them that way (git apply needs LF).
++patches/* text eol=lf
+diff --git a/README.md b/README.md
+index f212e4d..66e91dc 100644
+--- a/README.md
++++ b/README.md
+@@ -49,6 +49,65 @@ code that every dynarec depends on. Turns out it is possible. This is it.
+ - **The result**: from about 2 FPS to a locked 60fps at native resolution with
+   clean audio in the heaviest titles tested.
+ 
++## What this adds
++
++Beyond the core and the JIT, this repository ships a complete, reproducible
++ecosystem so anyone can run Dreamcast games in a browser without compiling:
++
++- **Local web server** (`server.js`, pure Node.js, zero dependencies):
++  - **Automatic ROM detection** — scans `frontend/roms/` and parses `.cue` /
++    `.gdi` files to know their tracks; supports `.chd`, `.zip` (with a `.gdi`
++    + tracks), `.cue` and `.gdi`. The menu shows every game with no setup.
++  - **Automatic BIOS detection** — reports which BIOS files are present and
++    which are missing (`dc_boot.bin`, `dc_flash.bin`, optional
++    `dc_nvmem.bin`), so the launcher can warn the user before starting.
++  - **Core cache-busting** — `/api/roms` returns a `coreVersion` hash of the
++    core `.data` so browsers never serve a stale core after an update.
++  - **Cross-origin isolation headers** (COOP/COEP) required by the WASM core
++    (SharedArrayBuffer) — a plain static server will not work.
++  - **Cross-platform** — runs on Windows (no WSL needed), Windows+WSL and
++    Linux; uses only Node.js APIs and resolves paths per OS automatically.
++- **Launcher page** (`test-flycast.html`): game menu, BIOS and track
++  injection into the core's file system, and a live **FPS + resolution
++  overlay**.
++- **Reproducible build recipe**: `build-ejs-ra.sh` (EmulatorJS RetroArch
++  objects with the exact flags), `build-prod.sh` (bitcode objects for the
++  `-flto` link), `build-release.sh` (core → 7z data → end-user zip pipeline)
++  and `docs/BUILDING.md` (the rationale behind every flag).
++- **End-user release packaging**: a self-contained zip ready for
++  non-developers — see the next section.
++
++### Lo que añade este proyecto
++
++Más allá del core y el JIT, este repositorio incluye un ecosistema completo y
++reproducible para que cualquiera pueda jugar a Dreamcast en el navegador sin
++compilar:
++
++- **Servidor web local** (`server.js`, Node.js puro, cero dependencias):
++  - **Detección automática de ROMs** — escanea `frontend/roms/` y analiza los
++    ficheros `.cue`/`.gdi` para conocer sus pistas; soporta `.chd`, `.zip`
++    (con `.gdi` + pistas), `.cue` y `.gdi`. El menú muestra todos los juegos
++    sin configuración.
++  - **Detección automática de BIOS** — indica qué BIOS hay presentes y cuáles
++    faltan (`dc_boot.bin`, `dc_flash.bin`, opcional `dc_nvmem.bin`), para que
++    el lanzador avise al usuario antes de empezar.
++  - **Cache-busting del core** — `/api/roms` devuelve un hash `coreVersion`
++    del `.data` del core para que el navegador nunca sirva un core obsoleto
++    tras una actualización.
++  - **Cabeceras de aislamiento de origen cruzado** (COOP/COEP) que el core
++    WASM necesita (SharedArrayBuffer) — un servidor estático simple no sirve.
++  - **Multiplataforma** — funciona en Windows (sin WSL), Windows+WSL y Linux;
++    usa solo APIs de Node.js y resuelve rutas según el sistema operativo.
++- **Página de lanzamiento** (`test-flycast.html`): menú de juegos, inyección
++  de BIOS y pistas en el sistema de ficheros del core, y un **overlay en vivo
++  de FPS + resolución**.
++- **Receta de compilación reproducible**: `build-ejs-ra.sh` (objetos de
++  EmulatorJS RetroArch con las flags exactas), `build-prod.sh` (objetos
++  bitcode para el enlazado con `-flto`), `build-release.sh` (tubería core →
++  datos 7z → zip final) y `docs/BUILDING.md` (la razón de cada flag).
++- **Empaquetado de release para usuarios finales**: un zip autocontenido
++  listo para no desarrolladores — ver la siguiente sección.
++
+ ## How it works
+ 
+ ```
+@@ -78,33 +137,166 @@ configuration. It runs in any EmulatorJS-style libretro web frontend:
+    content is included or hosted here, and none ever will be. This project is
+    the emulator, nothing else.
+ 
++## Releases — end-user package
++
++**The file to upload as a GitHub Release is `flycast-wasm-release.zip`**,
++generated with `bash build-release.sh`. It is a self-contained, ready-to-play
++package for non-developers: no compilation, no configuration. It contains
++only what is needed to run the emulator:
++
++- `server.js` + `package.json` — run with `npm start` (or `node server.js`)
++- `frontend/bios/` and `frontend/roms/` — empty folders with instructions;
++  this is where users drop their own legal BIOS and game files
++- `frontend/data/` — the EmulatorJS frontend (loader, emulator, the two
++  cores `flycast-wasm.data` + `flycast-legacy-wasm.data`, compression and
++  localization)
++- `test-flycast.html` — the launcher page
++- `README.md`, `CREDITS.md`, `LICENSE` (bilingual: English first, Spanish at
++  the end)
++
++**To play in three steps:**
++
++1. Unzip `flycast-wasm-release.zip` anywhere (Windows, macOS or Linux).
++2. Copy your BIOS (`dc_boot.bin`, `dc_flash.bin`, optional `dc_nvmem.bin`)
++   into `frontend/bios/` and your games (`.chd` recommended, or `.zip`,
++   `.cue`, `.gdi` with their tracks) into `frontend/roms/`.
++3. Run `npm start` and open `http://localhost:3333/` in your browser.
++
++The server does the rest automatically: it detects the BIOS present and the
++missing files, lists every game it finds (parsing `.cue`/`.gdi` tracks so
++multi-file games work), cache-busts the core on every update, sends the
++cross-origin isolation headers the WASM core requires, and shows a live
++**FPS + resolution overlay** while you play. It runs on Windows (no WSL
++needed), Windows+WSL and Linux — change the port with `PORT=8421 npm start`
++if `3333` is busy.
++
++### Releases — paquete para usuarios finales
++
++**El fichero que debe subirse como release de GitHub es
++`flycast-wasm-release.zip`**, generado con `bash build-release.sh`. Es un
++paquete autocontenido y listo para jugar, pensado para no desarrolladores:
++sin compilar, sin configurar. Contiene solo lo necesario para ejecutar el
++emulador:
++
++- `server.js` + `package.json` — se ejecuta con `npm start` (o
++  `node server.js`)
++- `frontend/bios/` y `frontend/roms/` — carpetas vacías con instrucciones;
++  aquí es donde el usuario coloca su propia BIOS y sus juegos (copias
++  legales)
++- `frontend/data/` — el frontend EmulatorJS (loader, emulador, los dos cores
++  `flycast-wasm.data` + `flycast-legacy-wasm.data`, compresión y
++  localización)
++- `test-flycast.html` — la página de lanzamiento
++- `README.md`, `CREDITS.md`, `LICENSE` (bilingües: inglés primero, español al
++  final)
++
++**Para jugar en tres pasos:**
++
++1. Descomprime `flycast-wasm-release.zip` en cualquier equipo (Windows,
++   macOS o Linux).
++2. Copia tu BIOS (`dc_boot.bin`, `dc_flash.bin`, opcional `dc_nvmem.bin`) en
++   `frontend/bios/` y tus juegos (`.chd` recomendado, o `.zip`, `.cue`,
++   `.gdi` con sus pistas) en `frontend/roms/`.
++3. Ejecuta `npm start` y abre `http://localhost:3333/` en tu navegador.
++
++El servidor hace el resto automáticamente: detecta la BIOS presente y los
++ficheros que faltan, lista todos los juegos que encuentra (analizando las
++pistas de `.cue`/`.gdi` para que los juegos multi-fichero funcionen),
++actualiza el core con cache-busting en cada cambio, envía las cabeceras de
++aislamiento de origen cruzado que el core WASM requiere, y muestra un
++**overlay en vivo de FPS + resolución** mientras juegas. Funciona en Windows
++(sin necesidad de WSL), Windows+WSL y Linux — cambia el puerto con
++`PORT=8421 npm start` si el `3333` está ocupado.
++
+ ## Building from source
+ 
+ Requires Linux or WSL2 with Emscripten SDK 3.1.74 or newer.
+ 
++**The full recipe with the rationale for every flag is in
++[docs/BUILDING.md](docs/BUILDING.md).** The short version:
++
++### 1. Clone upstream flycast at the pinned commit and apply the patches
++
+ ```bash
+-# Clone upstream flycast at the pinned commit
+ git clone https://github.com/flyinghead/flycast.git source
+ cd source && git checkout 2c48c01
+ git submodule update --init --recursive
+ 
++# NOTE: shell/libretro/audiostream.cpp has CRLF line endings in the upstream
++# repo. Convert it to LF or the patch will fail to apply:
++sed -i 's/\r$//' shell/libretro/audiostream.cpp
++
+ # Apply the port + JIT patches (the canonical record of every modification)
+ git apply ../patches/wasm-jit-phase1-modified.patch
+ 
+ # Add the JIT sources
+ cp ../patches/rec_wasm.cpp ../patches/wasm_emit.h \
+    ../patches/wasm_module_builder.h ../patches/fly_instrument.h core/rec-wasm/
++```
++
++### 2. Build the EmulatorJS RetroArch tree (EJS_RA)
+ 
+-# Build
+-cd .. && bash build-prod.sh    # production core (diagnostics stripped)
++The core links against RetroArch's emscripten objects. This step is not
++optional and the flags matter — the wrong ones cause `retro_*` symbol
++collisions and `libretro_dummy_*` abort stubs.
++
++```bash
++bash build-ejs-ra.sh    # clones EmulatorJS/RetroArch @ v1.22.2 and builds it
+ ```
+ 
+-These steps are exactly what `build-prod.sh` documents in its header, and the
+-whole flow was verified from a fresh clone before release. The JIT source
+-files live in `patches/` verbatim: `rec_wasm.cpp` (dynarec, dispatch, SMC,
+-test harnesses), `wasm_emit.h` (SHIL to wasm op emitters),
+-`wasm_module_builder.h` (wasm binary encoder), and `fly_instrument.h`
+-(instrumentation used by dev builds).
++Key flags (see `build-ejs-ra.sh` for the full rationale):
++
++- **`Makefile.emulatorjs`** (not `Makefile.emscripten`): defines `EMULATORJS=1`,
++  which compiles `emulatorjs_input.o` (provides `ejs_set_keyboard_enabled`) and
++  the EmulatorJS frontend objects.
++- **`HAVE_OPENGLES3=1`**: generates `glsym_es3.o` (excluded from the link by
++  build-prod.sh; without it you get `glsym_es2.o`, whose `rglgen_symbol_map`
++  collides with flycast's).
++- **No `HAVE_STATIC_DUMMY`** (default 0): with `HAVE_STATIC_DUMMY=1`,
++  `cores/dynamic_dummy.c` emits `retro_*` wrappers that collide with flycast's
++  `shell/libretro/libretro.cpp`. Excluding `dynamic_dummy.o` leaves
++  `abort("missing function: libretro_dummy_*")` stubs and games die with
++  `Aborted(missing function: libretro_dummy_retro_get_system_info)`.
++
++The final LD step of that build fails with `libretro_emscripten.a: No such
++file` — that is expected and harmless; only `obj-emscripten/*.o` are needed.
++
++> **LTO note:** `build-prod.sh` links with `-flto`, which requires all input
++> objects to be **LLVM bitcode** (magic `BC`), not final wasm. Export
++> `EMCC_CFLAGS="-flto"` before running `build-ejs-ra.sh` (and
++> `build-prod.sh`) so every object is compiled as bitcode. Without it, the
++> EJS frontend symbols in `retroarch.o`/`runloop.o` are not linkable and the
++> link fails with `undefined exported symbol: _cmd_take_screenshot`. See
++> `docs/BUILDING.md` for the full explanation and verified results.
++
++### 3. Build the core
++
++```bash
++export EMCC_CFLAGS="-flto"  # bitcode objects; required by the -flto link
++bash build-ejs-ra.sh    # EJS_RA objects (bitcode)
++bash build-prod.sh      # production core (diagnostics stripped)
++```
++
++`build-prod.sh` does CMake + make for flycast, strips the conflicting objects,
++links against the EJS_RA objects and packages the result into `out/`.
++
++### 4. Build the release zip (optional, end users)
++
++```bash
++bash build-release.sh   # core + release/ tree + flycast-wasm-release.zip
++```
++
++`build-release.sh` runs `build-prod.sh`, packs the 7z data archive, refreshes
++`release/frontend/data/cores/` and zips `release/` into
++`flycast-wasm-release.zip` — a self-contained package (server + frontend +
++cores, no build files) that non-developers can unzip and run with
++`npm start` or `node server.js`. See `docs/BUILDING.md` §6.
++
++These steps are exactly what the build scripts document, and the flow was
++verified from a fresh clone. The JIT source files live in `patches/` verbatim:
++`rec_wasm.cpp` (dynarec, dispatch, SMC, test harnesses), `wasm_emit.h` (SHIL to
++wasm op emitters), `wasm_module_builder.h` (wasm binary encoder), and
++`fly_instrument.h` (instrumentation used by dev builds).
+ 
+ ## Project status. Read this if you want to contribute.
+ 
+@@ -151,6 +343,14 @@ gets reviewed first.
+ - **WebAssembly port and SH4 to WASM JIT** by
+   [Nick Somers](https://github.com/nasomers).
+ - **EmulatorJS**, the frontend ecosystem this core targets.
++- **Contributor:** [LokiCode404](https://github.com/LokiCode404) — documented
++  and verified the exact build recipe (EJS_RA flags, CRLF patch fix, bitcode
++  objects for the `-flto` link), and contributed the local server and
++  launcher packaging.
++  Contribuidor: documentó y verificó la receta exacta de compilación (flags
++  del EJS_RA, arreglo CRLF del patch, objetos bitcode para el enlazado con
++  `-flto`), y contribuyó con el servidor local y el empaquetado de
++  lanzamiento.
+ 
+ ## License
+ 
+diff --git a/build-ejs-ra.sh b/build-ejs-ra.sh
+new file mode 100644
+index 0000000..a54850c
+--- /dev/null
++++ b/build-ejs-ra.sh
+@@ -0,0 +1,73 @@
++#!/bin/bash
++# Flycast WASM: build the EmulatorJS RetroArch tree (EJS_RA)
++#
++# The flycast core links against RetroArch's emscripten objects and JS
++# libraries from the EmulatorJS build system. build-prod.sh consumes:
++#   $EJS_RA/obj-emscripten/*.o            (RetroArch objects)
++#   $EJS_RA/emscripten/library_platform_emscripten.js
++#   $EJS_RA/emscripten/library_rwebaudio.js
++#   $EJS_RA/emscripten/library_rwebcam.js
++#   $EJS_RA/emscripten/pre.js
++#
++# This script produces exactly that tree with the flags that matter:
++#
++#   - Makefile.emulatorjs  (NOT Makefile.emscripten): defines EMULATORJS=1,
++#     which compiles emulatorjs_input.o (ejs_set_keyboard_enabled) and the
++#     EmulatorJS frontend objects the core needs.
++#   - HAVE_OPENGLES3=1     : generates glsym_es3.o, which build-prod.sh
++#     excludes from the link (flycast provides its own 716-symbol glsym_es3).
++#     Without it you get glsym_es2.o whose rglgen_symbol_map collides with
++#     flycast's.
++#   - HAVE_STATIC_DUMMY not set (default 0): WITHOUT the static dummy core.
++#     With HAVE_STATIC_DUMMY=1, cores/dynamic_dummy.c emits retro_* wrappers
++#     that collide with flycast's shell/libretro/libretro.cpp, and excluding
++#     dynamic_dummy.o leaves abort("missing function: libretro_dummy_*")
++#     stubs (game dies with libretro_dummy_retro_get_system_info abort).
++#
++# LTO (optional, to match the upstream release exactly):
++#   The upstream release was built with Link-Time Optimization: its objects
++#   are LLVM bitcode (the repo's build/flycast_stubs.o is bitcode, magic BC),
++#   and build-prod.sh links with -flto. To reproduce that, export
++#   EMCC_CFLAGS="-flto" BEFORE running this script and build-prod.sh. This
++#   makes every .o an LLVM bitcode module and lets the final -flto link do
++#   whole-program optimization. Without it, the .o are final wasm objects and
++#   the -flto link fails with "undefined exported symbol: _cmd_take_screenshot"
++#   (see docs/BUILDING.md).
++#
++# The final LD step fails with "libretro_emscripten.a: No such file" - that is
++# EXPECTED and harmless: the .o files are what build-prod.sh needs, not the
++# retroarch.js binary.
++
++set -e
++
++EJS_RA="${EJS_RA:-$(pwd)/EJS-RetroArch}"
++EJS_RA_URL="${EJS_RA_URL:-https://github.com/EmulatorJS/RetroArch.git}"
++EJS_RA_TAG="${EJS_RA_TAG:-v1.22.2}"
++# nproc does not exist in Git Bash (Windows); JOBS is overridable.
++JOBS="${JOBS:-$(nproc 2>/dev/null || echo 4)}"
++
++if [ ! -d "$EJS_RA" ]; then
++    echo "=== Cloning EmulatorJS/RetroArch @ $EJS_RA_TAG ==="
++    git clone --depth 1 --branch "$EJS_RA_TAG" "$EJS_RA_URL" "$EJS_RA"
++fi
++
++echo "=== Building EJS_RA objects (LD failure at the end is expected) ==="
++cd "$EJS_RA"
++emmake make -f Makefile.emulatorjs clean
++rm -rf obj-emscripten
++# The LD error at the end is expected; we only need obj-emscripten/*.o.
++emmake make -f Makefile.emulatorjs -j"$JOBS" HAVE_OPENGLES3=1 \
++    || echo "(LD step failed as expected - objects are ready)"
++
++echo "=== Verifying key objects ==="
++for o in obj-emscripten/retroarch.o \
++         obj-emscripten/runloop.o \
++         obj-emscripten/input/drivers/emulatorjs_input.o \
++         obj-emscripten/libretro-common/glsym/glsym_es3.o; do
++    if [ -f "$o" ]; then
++        echo "  OK  $o"
++    else
++        echo "  MISSING  $o"
++    fi
++done
++echo "EJS_RA ready at: $EJS_RA"
+diff --git a/build-prod.sh b/build-prod.sh
+index 6be338b..296ca96 100644
+--- a/build-prod.sh
++++ b/build-prod.sh
+@@ -1,21 +1,24 @@
+ #!/bin/bash
+ # Flycast WASM: production core build
+ #
+-# Verified against a clean checkout on: 2026-08-01 (verified)
+-#
+ # Prerequisites:
+ #   - Linux or WSL2 with Emscripten SDK 3.1.74+ (emsdk activated)
+ #   - Upstream flycast cloned at the pinned commit with patches applied:
+ #       git clone https://github.com/flyinghead/flycast.git source
+ #       cd source && git checkout 2c48c01
+ #       git submodule update --init --recursive
++#       # NOTE: shell/libretro/audiostream.cpp has CRLF line endings in the
++#       # upstream repo; convert it to LF or the patch will fail:
++#       sed -i 's/\r$//' shell/libretro/audiostream.cpp
+ #       git apply ../patches/wasm-jit-phase1-modified.patch
+ #       cp ../patches/rec_wasm.cpp ../patches/wasm_emit.h \
+ #          ../patches/wasm_module_builder.h ../patches/fly_instrument.h \
+ #          core/rec-wasm/
+-#   - An EmulatorJS RetroArch tree built for emscripten (EJS_RA below).
+-#     The core links against RetroArch's emscripten objects and JS
+-#     libraries from the EmulatorJS build system.
++#   - An EmulatorJS RetroArch tree built for emscripten (EJS_RA).
++#     Build it with build-ejs-ra.sh (IMPORTANT: Makefile.emulatorjs,
++#     HAVE_OPENGLES3=1, and NO HAVE_STATIC_DUMMY - see that script for the
++#     full rationale; the wrong flags cause retro_* collisions and
++#     libretro_dummy_* abort stubs).
+ #   - flycast_stubs.o and gl_override.js from this repository's build/
+ #     directory.
+ #
+@@ -29,6 +32,8 @@ EJS_RA="${EJS_RA:-$(pwd)/EJS-RetroArch}"
+ STUBS="${STUBS:-$(pwd)/build/flycast_stubs.o}"
+ GL_OVERRIDE="${GL_OVERRIDE:-$(pwd)/build/gl_override.js}"
+ OUT_DIR="${OUT_DIR:-$(pwd)/out}"
++# nproc does not exist in Git Bash (Windows); JOBS is overridable.
++JOBS="${JOBS:-$(nproc 2>/dev/null || echo 4)}"
+ 
+ echo "=== STEP 0: Ensure git submodules ==="
+ # The upstream clone must have its submodules (core/deps/*) checked out;
+@@ -44,7 +49,7 @@ emcmake cmake "$SOURCE_DIR" \
+   -DUSE_GLES=ON \
+   -DCMAKE_C_FLAGS="-DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1" \
+   -DCMAKE_CXX_FLAGS="-DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1"
+-emmake make -j"$(nproc)"
++emmake make -j"$JOBS"
+ 
+ echo "=== STEP 2: Strip conflicting objects ==="
+ cp libflycast_libretro_emscripten.a libflycast_libretro_emscripten_stripped.a
+@@ -63,6 +68,12 @@ RA_OBJS=$(find "$EJS_RA/obj-emscripten" -name "*.o" -type f | grep -vE \
+   "libchdr_chd|libchdr_cdrom|libchdr_lzma|libchdr_bitstream|libchdr_huffman|libchdr_zlib|libchdr_flac|chd_stream|LzmaEnc|LzmaDec|Lzma2Dec|Lzma86Dec|flycast_stubs|glsym_es3" \
+   | sort)
+ 
++# NOTE: -flto requires that all input objects are LLVM bitcode. Build the
++# EJS_RA and flycast with EMCC_CFLAGS="-flto" (see build-ejs-ra.sh and
++# docs/BUILDING.md). With plain -O3 objects (final wasm), the EJS frontend
++# symbols (cmd_take_screenshot, get_current_frame_count, toggleMainLoop, ...)
++# are not resolved and the link fails with
++# "undefined exported symbol: _cmd_take_screenshot".
+ emcc -O3 -flto \
+   -s WASM=1 \
+   -s WASM_BIGINT \
+diff --git a/build-release.sh b/build-release.sh
+new file mode 100644
+index 0000000..8948486
+--- /dev/null
++++ b/build-release.sh
+@@ -0,0 +1,114 @@
++#!/bin/bash
++# Flycast WASM: build the core AND produce the end-user release zip.
++#
++# Full pipeline:
++#   1. build-prod.sh                 -> $OUT_DIR/flycast_libretro.{js,wasm}
++#   2. pack 7z                       -> flycast-wasm.data
++#   3. refresh release/frontend/data/cores/  (both data names, see below)
++#   4. zip release/                  -> flycast-wasm-release.zip (end users)
++#
++# Portable bash (Linux and WSL verified). The 7z binary is located
++# automatically (7z/7za in PATH, or 7-Zip's default install dir); md5
++# checksums fall back to python3 or certutil where md5sum is missing.
++#
++# Prerequisites:
++#   - Emscripten SDK sourced (emsdk_env.sh)
++#   - EJS_RA built (build-ejs-ra.sh) and SOURCE_DIR patched (step 1 of
++#     docs/BUILDING.md)
++#   - For the LTO recipe (recommended, matches the upstream release):
++#         export EMCC_CFLAGS="-flto"    before running this script
++#   - 7z (p7zip on Linux/WSL; 7-Zip on Windows) or SEVENZIP=/path/to/7z
++#
++# Environment overrides (same as build-prod.sh):
++#   SOURCE_DIR, BUILD_DIR, EJS_RA, STUBS, GL_OVERRIDE, OUT_DIR, JOBS
++#   RELEASE_DIR (default: <repo>/release)
++#   ZIP_OUT    (default: <repo>/flycast-wasm-release.zip)
++#   SEVENZIP   (default: auto-detected)
++
++set -euo pipefail
++
++REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
++RELEASE_DIR="${RELEASE_DIR:-$REPO_ROOT/release}"
++ZIP_OUT="${ZIP_OUT:-$REPO_ROOT/flycast-wasm-release.zip}"
++OUT_DIR="${OUT_DIR:-$REPO_ROOT/out}"
++
++# --- Locate a 7z binary (Linux / WSL / Windows Git Bash) ---
++SEVENZIP="${SEVENZIP:-}"
++if [ -z "$SEVENZIP" ]; then
++    for c in 7z 7za; do
++        if command -v "$c" >/dev/null 2>&1; then SEVENZIP="$c"; break; fi
++    done
++fi
++if [ -z "$SEVENZIP" ]; then
++    for p in "/c/Program Files/7-Zip/7z.exe" \
++             "/mnt/c/Program Files/7-Zip/7z.exe"; do
++        if [ -x "$p" ]; then SEVENZIP="$p"; break; fi
++    done
++fi
++if [ -z "$SEVENZIP" ]; then
++    echo "ERROR: no 7z binary found." >&2
++    echo "  Linux/WSL: sudo apt install p7zip-full" >&2
++    echo "  Windows:   install 7-Zip (https://www.7-zip.org) or set SEVENZIP=/path/to/7z" >&2
++    exit 1
++fi
++echo "7z : $SEVENZIP"
++
++# --- md5sum with cross-platform fallbacks ---
++md5_of() { # file...  ->  hash  file
++    if command -v md5sum >/dev/null 2>&1; then
++        md5sum "$@"
++    elif command -v python3 >/dev/null 2>&1; then
++        python3 - "$@" <<'PY'
++import hashlib, sys
++for f in sys.argv[1:]:
++    with open(f, 'rb') as fh:
++        print(f"{hashlib.md5(fh.read()).hexdigest()}  {f}")
++PY
++    elif command -v certutil >/dev/null 2>&1; then
++        # Windows certutil: "MD5 hash of file:" + hex (format differs)
++        for f in "$@"; do
++            h=$(certutil -hashfile "$f" MD5 2>/dev/null | grep -iE '^[0-9a-f]{32}' | head -1 | tr -d ' ')
++            echo "$h  $f"
++        done
++    else
++        echo "WARNING: md5sum not available; skipping checksums" >&2
++        return 0
++    fi
++}
++
++echo "=== STEP 1: Build the core (build-prod.sh) ==="
++"$REPO_ROOT/build-prod.sh"
++
++echo "=== STEP 2: Pack 7z data archive ==="
++PKG_DIR="$(mktemp -d)"
++trap 'rm -rf "$PKG_DIR"' EXIT
++cp "$OUT_DIR/flycast_libretro.js" "$PKG_DIR/core.js"
++cp "$OUT_DIR/flycast_libretro.wasm" "$PKG_DIR/core.wasm"
++cat > "$PKG_DIR/core.json" <<'EOF'
++{"name":"flycast","extensions":["cdi","gdi","chd","cue","iso","elf","bin","lst","zip","7z","dat"],"options":{},"save":"state","license":"GPLv2","repo":"https://github.com/flyinghead/flycast"}
++EOF
++cat > "$PKG_DIR/build.json" <<'EOF'
++{"minimumEJSVersion":"4.2.3","version":"1.0.0"}
++EOF
++echo "GPLv2" > "$PKG_DIR/license.txt"
++"$SEVENZIP" a -t7z -mx9 "$RELEASE_DIR/frontend/data/cores/flycast-wasm.data" \
++    "$PKG_DIR/core.js" "$PKG_DIR/core.wasm" "$PKG_DIR/core.json" \
++    "$PKG_DIR/build.json" "$PKG_DIR/license.txt" >/dev/null
++
++echo "=== STEP 3: Refresh release tree ==="
++mkdir -p "$RELEASE_DIR/frontend/data/cores" \
++         "$RELEASE_DIR/frontend/bios" "$RELEASE_DIR/frontend/roms"
++# Both names: the launcher serves "flycast-wasm.data" and some EmulatorJS
++# versions request "flycast-legacy-wasm.data" - same core either way.
++cp "$RELEASE_DIR/frontend/data/cores/flycast-wasm.data" \
++   "$RELEASE_DIR/frontend/data/cores/flycast-legacy-wasm.data"
++
++echo "=== STEP 4: Zip the release (end-user package) ==="
++rm -f "$ZIP_OUT"
++(cd "$RELEASE_DIR" && "$SEVENZIP" a -tzip -mx9 "$ZIP_OUT" . -xr!__MACOSX -xr!DS_Store >/dev/null)
++
++echo "=== Done ==="
++echo "Core : $OUT_DIR/flycast_libretro.js + .wasm"
++echo "Data : $RELEASE_DIR/frontend/data/cores/flycast-wasm.data"
++md5_of "$RELEASE_DIR/frontend/data/cores/flycast-wasm.data" "$ZIP_OUT"
++echo "Zip  : $ZIP_OUT (unzip it anywhere, run 'npm start' or 'node server.js')"
+diff --git a/docs/BUILDING.md b/docs/BUILDING.md
+new file mode 100644
+index 0000000..092f737
+--- /dev/null
++++ b/docs/BUILDING.md
+@@ -0,0 +1,251 @@
++# Building flycast-wasm from source — exact recipe
++
++This document records the exact, verified build recipe for producing a
++fully functional core with the WASM JIT enabled, from a fresh clone.
++It complements `build-prod.sh` and `build-ejs-ra.sh` by explaining *why*
++each flag is required, based on the failures encountered when deviating.
++
++## Overview
++
++```
++flycast (pinned 2c48c01 + JIT patches)
++        │  CMake -DLIBRETRO=ON -DUSE_GLES=ON -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1
++        │  (bitcode LLVM: EMCC_CFLAGS="-flto")
++        ▼
++libflycast_libretro_emscripten.a  ──┐
++                                    ├─► emcc link (-flto) ──► flycast_libretro.js/.wasm
++EmulatorJS/RetroArch @ v1.22.2      │
++  Makefile.emulatorjs               │
++  HAVE_OPENGLES3=1                  │
++  (no HAVE_STATIC_DUMMY)            │
++  EMCC_CFLAGS="-flto"               │
++  obj-emscripten/*.o (bitcode) ─────┘
++```
++
++## 1. Upstream flycast
++
++Pin to commit `2c48c01` (`v2.6-142-g2c48c0188`), init submodules, then apply
++`patches/wasm-jit-phase1-modified.patch` and copy the four JIT sources into
++`core/rec-wasm/`.
++
++**CRLF pitfall:** upstream `shell/libretro/audiostream.cpp` is committed with
++CRLF line endings, but the patch context is LF. `git apply` fails with
++"patch does not apply" until you run:
++
++```bash
++sed -i 's/\r$//' shell/libretro/audiostream.cpp
++```
++
++This does not change the compiled output (line endings only), but it is
++required for the patch to apply.
++
++## 2. EJS_RA (EmulatorJS RetroArch)
++
++`build-prod.sh` links against `$EJS_RA/obj-emscripten/*.o` plus the JS
++libraries under `$EJS_RA/emscripten/`. The tree is the EmulatorJS fork of
++RetroArch, tag `v1.22.2`.
++
++The three flags that make or break the build:
++
++### 2a. Use `Makefile.emulatorjs`, not `Makefile.emscripten`
++
++`Makefile.emulatorjs` sets `EMULATORJS=1` on its DEFINES line. That compiles:
++
++- `input/drivers/emulatorjs_input.o` — provides `ejs_set_keyboard_enabled`
++  (exported by the core, required by the EmulatorJS frontend)
++- `frontend/drivers/platform_emulatorjs.o` — EmulatorJS frontend glue
++- `audio/drivers/rwebaudio.o` — web audio driver
++
++With `Makefile.emscripten` these objects are absent and the link fails with
++`undefined exported symbol: _ejs_set_keyboard_enabled`.
++
++### 2b. `HAVE_OPENGLES3=1`
++
++`Makefile.common` compiles either `glsym/glsym_es3.o` (when
++`HAVE_OPENGLES3=1`) or `glsym/glsym_es2.o` (otherwise). `build-prod.sh`
++excludes `glsym_es3` from the link because flycast ships its own 716-symbol
++`glsym_es3.c.o`. If the EJS_RA is built with `HAVE_OPENGLES3=0`, you get
++`glsym_es2.o` whose `rglgen_symbol_map` collides with flycast's `glsym_es3`
++→ `duplicate symbol: rglgen_symbol_map`.
++
++### 2c. Do NOT set `HAVE_STATIC_DUMMY` (keep the default 0)
++
++`cores/dynamic_dummy.c` has:
++
++```c
++#if defined(HAVE_STATIC_DUMMY)
++void retro_get_system_info(...) { libretro_dummy_retro_get_system_info(info); }
++void retro_init(void)           { libretro_dummy_retro_init(); }
++// ... 16 retro_* wrappers
++#endif
++void libretro_dummy_retro_get_system_info(...) { ... }
++// ... libretro_dummy_retro_* real implementations
++```
++
++With `HAVE_STATIC_DUMMY=1`, `dynamic_dummy.o` defines the `retro_*` entry
++points, which collide with flycast's `shell/libretro/libretro.cpp`:
++`duplicate symbol: retro_load_game_special`, `retro_get_memory_data`, etc.
++Removing `dynamic_dummy.o` to fix that leaves `libretro_dummy_*` unresolved,
++and the emscripten linker emits `abort("missing function:
++libretro_dummy_retro_get_system_info")` stubs — games then die at runtime
++with `Aborted(missing function: libretro_dummy_retro_get_system_info)`.
++
++With the default `HAVE_STATIC_DUMMY=0` the `retro_*` wrappers are not
++compiled, `dynamic_dummy.o` stays in the link without colliding, and no
++stubs are generated.
++
++### 2d. The LD failure is expected
++
++`Makefile.emulatorjs` with `HAVE_STATIC_DUMMY=0` tries to link
++`libretro_emscripten.a` (a core archive that only exists when a core is
++built inside the tree). The final link fails with:
++
++```
++emcc: error: libretro_emscripten.a: No such file or directory
++```
++
++This is expected and harmless: `build-ejs-ra.sh` only needs the
++`obj-emscripten/*.o` files that were already produced.
++
++## 3. The `-flto` link: the EJS_RA must be LLVM bitcode
++
++`build-prod.sh` links with `-flto`. For that to work, **every input object
++must be LLVM bitcode** (magic bytes `BC`), not a final wasm module (`\0asm`).
++This is exactly how the upstream release was built: its `build/flycast_stubs.o`
++is bitcode, and its core's wasm exports are LTO-renamed (`wasmExports["Oj"]`).
++
++### Why a naive build fails
++
++If the EJS_RA is compiled with plain `-O3`, its `obj-emscripten/*.o` are
++**final wasm modules**. The EJS frontend symbols that live inside them
++(`retroarch.o`, `runloop.o`: `cmd_take_screenshot`,
++`get_current_frame_count`, `toggleMainLoop`, `system_restart`, `load_state`,
++`save_state_info`, disk helpers, fast-forward/rewind controls, ...) are not
++visible as linkable symbols, and the `-flto` link fails with:
++
++```
++emcc: error: undefined exported symbol: "_cmd_take_screenshot" [-Wundefined] [-Werror]
++```
++
++### The correct recipe (matches the author's build)
++
++Compile **both** the EJS_RA and flycast with `-flto` (LLVM bitcode objects),
++then run `build-prod.sh` as-is:
++
++```bash
++export EMCC_CFLAGS="-flto"     # makes every emcc/em++ compile emit bitcode
++bash build-ejs-ra.sh           # EJS_RA objects -> bitcode (LD failure expected)
++bash build-prod.sh             # flycast + link with -flto, unmodified
++unset EMCC_CFLAGS
++```
++
++`EMCC_CFLAGS` is honored by emscripten's compiler driver and is injected into
++every compile without touching any Makefile. With all objects as bitcode, the
++final `-flto` link resolves every EJS symbol and does whole-program
++optimization across flycast and RetroArch.
++
++**Verified results** (SDK 3.1.74, Aug 2026):
++
++| Build | wasm size | vs release |
++|---|---|---|
++| upstream release (Feb 2026) | 10,398,725 B | — |
++| no LTO (wasm objects) | 10,430,712 B | +0.31% |
++| EJS_RA bitcode only | 10,957,160 B | +5.37% |
++| **all bitcode (recommended)** | **10,746,527 B** | **+3.34%** |
++
++The residual size difference comes from toolchain/emsdk versions (the
++author's release was built Feb 2026), not from the recipe.
++
++Do not "fix" the naive failure with `-sERROR_ON_UNDEFINED_SYMBOLS=0` or
++`-Wl,--unresolved-symbols=ignore-all` — those do not help (the error is in
++the EXPORTED_FUNCTIONS validation) and would silently break the frontend
++API. The correct fix is bitcode objects, as above.
++
++## 4. Exclusions in the link
++
++`build-prod.sh` excludes from `RA_OBJS`:
++
++- `libchdr*`, `Lzma*`, `chd_stream*` — provided by flycast's own libchdr
++- `flycast_stubs` — linked separately
++- `glsym_es3` — flycast's 716-symbol GL syms win
++
++No further exclusions are needed. In particular `dynamic_dummy.o` and
++`glsym_es2.o` must **not** be excluded; with the flags above they link
++cleanly.
++
++## 5. Packaging
++
++`build-prod.sh` writes `out/flycast_libretro.js` + `out/flycast_libretro.wasm`.
++To serve it through an EmulatorJS-style frontend, pack both into a 7z
++archive named `flycast-wasm.data` containing `core.js`, `core.wasm`,
++`core.json`, `build.json` and `license.txt`, and place it in
++`data/cores/` (see the `release/` folder in this repository for a complete
++serving setup).
++
++## 6. Building the release zip (end-user package)
++
++`build-release.sh` automates the full pipeline: build the core with
++`build-prod.sh` (LTO recipe, see §3), pack the 7z data archive, refresh the
++`release/` tree (both `flycast-wasm.data` and `flycast-legacy-wasm.data`,
++the launcher serves either name for cache-busting compatibility) and
++finally produce `flycast-wasm-release.zip`.
++
++```bash
++# From the repo root:
++export EMCC_CFLAGS="-flto"       # bitcode objects (LTO recipe)
++bash build-release.sh            # core + release/ + zip, all steps
++unset EMCC_CFLAGS
++```
++
++`build-release.sh` accepts the same environment overrides as
++`build-prod.sh` (`SOURCE_DIR`, `BUILD_DIR`, `OUT_DIR`, ...). The zip
++contains **only what a non-developer needs to run the emulator**:
++
++- `server.js` + `package.json` (run with `npm start` or `node server.js`)
++- `frontend/` — EmulatorJS data (loader, emulator.js, cores, compression,
++  localization), the `test-flycast.html` launcher, and empty `bios/` /
++  `roms/` folders with `LEEME.txt` instructions
++- `README.md`, `CREDITS.md`, `LICENSE` (bilingual: English first, Spanish
++  at the end)
++
++It deliberately **excludes** everything build-related: `build-prod.sh`,
++`build-ejs-ra.sh`, `patches/`, `docs/`, `source/`, `build/` — end users run
++the emulator, they do not build it.
++
++## 7. Cross-platform notes (Linux / WSL)
++
++Building is supported on **Linux** and **Windows with WSL** (the same native
++Linux toolchain). The scripts are written in portable bash; the `.gitattributes`
++file pins `*.sh` and `patches/*` to LF so a Windows clone does not corrupt them
++with CRLF (which would otherwise break bash with `bad interpreter` and
++`git apply`).
++
++| Tool | Linux | WSL |
++|---|---|---|
++| emsdk (emcmake/emmake) | ✅ | ✅ |
++| git | ✅ | ✅ |
++| make | ✅ | ✅ |
++| cmake | ✅ | ✅ |
++| nproc | ✅ | ✅ |
++| 7z | ⚠️ `p7zip-full` | ⚠️ `p7zip-full` |
++| md5sum | ✅ | ✅ |
++
++**Verified on both platforms** (Aug 2026): the resulting cores are
++functionally identical (0 `libretro_dummy` stubs, EJS exports present, WASM
++JIT active). Linux and WSL build the EJS_RA objects and run `build-prod.sh`
++as-is.
++
++Notes:
++
++- **WSL** — the most straightforward Windows route: the whole toolchain is
++  native Linux; everything works out of the box (verified).
++- **Linux** — install `build-essential git p7zip-full`, then the emsdk.
++- `JOBS` overrides the parallel make jobs everywhere (default: `nproc`).
++- Native Windows (Git Bash) is **not** supported for building: MSYS2's path
++  mangling (TEMP/TMP, python3 vs Windows python, 32KB command-line limit on
++  the emcc link) breaks the toolchain in ways the scripts do not paper over.
++  Use WSL instead.
++
++The exact per-platform tool install commands for each distro (apt/pacman)
++are left to the reader; only the availability of the tools above is required
++by the scripts.

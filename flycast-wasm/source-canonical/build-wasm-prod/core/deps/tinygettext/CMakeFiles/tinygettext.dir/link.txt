@@ -1,0 +1,2 @@
+/emsdk/upstream/emscripten/emar qc libtinygettext.a CMakeFiles/tinygettext.dir/src/dictionary.cpp.o CMakeFiles/tinygettext.dir/src/dictionary_manager.cpp.o CMakeFiles/tinygettext.dir/src/iconv.cpp.o CMakeFiles/tinygettext.dir/src/language.cpp.o CMakeFiles/tinygettext.dir/src/log.cpp.o CMakeFiles/tinygettext.dir/src/plural_forms.cpp.o CMakeFiles/tinygettext.dir/src/po_parser.cpp.o CMakeFiles/tinygettext.dir/src/tinygettext.cpp.o CMakeFiles/tinygettext.dir/src/unix_file_system.cpp.o
+/emsdk/upstream/emscripten/emranlib libtinygettext.a

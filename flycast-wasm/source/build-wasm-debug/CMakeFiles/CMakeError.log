@@ -1,0 +1,1144 @@
+Checking whether the ASM compiler is GNU using "--version" did not match "(GNU assembler)|(GCC)|(Free Software Foundation)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is Clang using "--version" did not match "(clang version)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is AppleClang using "--version" did not match "(Apple LLVM version)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is ARMClang using "--version" did not match "armclang":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is HP using "-V" did not match "HP C":
+emcc: error: no input files
+Checking whether the ASM compiler is Intel using "--version" did not match "(ICC)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is IntelLLVM using "--version" did not match "(Intel[^
+]+oneAPI)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is SunPro using "-V" did not match "Sun C":
+emcc: error: no input files
+Checking whether the ASM compiler is XL using "-qversion" did not match "XL C":
+emcc: error: no input files
+Checking whether the ASM compiler is MSVC using "-?" did not match "Microsoft":
+emcc: error: no input files
+Checking whether the ASM compiler is TI using "-h" did not match "Texas Instruments":
+emcc: error: no input files
+Checking whether the ASM compiler is IAR using "" did not match "IAR Assembler":
+emcc: error: no input files
+Checking whether the ASM compiler is ARMCC using "" did not match "(ARM Compiler)|(ARM Assembler)":
+emcc: error: no input files
+Checking whether the ASM compiler is NASM using "-v" did not match "(NASM version)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+clang version 20.0.0git (https:/github.com/llvm/llvm-project 322eb1a92e6d4266184060346616fa0dbe39e731)
+Target: wasm32-unknown-emscripten
+Thread model: posix
+InstalledDir: /emsdk/upstream/bin
+Checking whether the ASM compiler is YASM using "--version" did not match "(yasm)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is ADSP using "-version" did not match "Analog Devices":
+emcc: error: no input files
+Checking whether the ASM compiler is QCC using "-V" did not match "gcc_nto":
+emcc: error: no input files
+Determining if the function _close exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_b4be1/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_b4be1.dir/build.make CMakeFiles/cmTC_b4be1.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_b4be1.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_close -fPIE -MD -MT CMakeFiles/cmTC_b4be1.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_b4be1.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_b4be1.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_b4be1.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b4be1.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_close @CMakeFiles/cmTC_b4be1.dir/objects1.rsp -o cmTC_b4be1.js 
+wasm-ld: error: CMakeFiles/cmTC_b4be1.dir/CheckFunctionExists.c.o: undefined symbol: _close
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_b4be1.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_b4be1.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmp1hxqqzhtlibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_b4be1.dir/build.make:101: cmTC_b4be1.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_b4be1/fast] Error 2
+
+
+
+Determining if the function _dup exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_0f965/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_0f965.dir/build.make CMakeFiles/cmTC_0f965.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0f965.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_dup -fPIE -MD -MT CMakeFiles/cmTC_0f965.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_0f965.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_0f965.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_0f965.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0f965.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_dup @CMakeFiles/cmTC_0f965.dir/objects1.rsp -o cmTC_0f965.js 
+wasm-ld: error: CMakeFiles/cmTC_0f965.dir/CheckFunctionExists.c.o: undefined symbol: _dup
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_0f965.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_0f965.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpggps3v4mlibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_0f965.dir/build.make:101: cmTC_0f965.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_0f965/fast] Error 2
+
+
+
+Determining if the function _fdopen exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_799cd/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_799cd.dir/build.make CMakeFiles/cmTC_799cd.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_799cd.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_fdopen -fPIE -MD -MT CMakeFiles/cmTC_799cd.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_799cd.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_799cd.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_799cd.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_799cd.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_fdopen @CMakeFiles/cmTC_799cd.dir/objects1.rsp -o cmTC_799cd.js 
+wasm-ld: error: CMakeFiles/cmTC_799cd.dir/CheckFunctionExists.c.o: undefined symbol: _fdopen
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_799cd.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_799cd.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpxahm23nllibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_799cd.dir/build.make:101: cmTC_799cd.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_799cd/fast] Error 2
+
+
+
+Determining if the function _fileno exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_53b20/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_53b20.dir/build.make CMakeFiles/cmTC_53b20.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_53b20.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_fileno -fPIE -MD -MT CMakeFiles/cmTC_53b20.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_53b20.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_53b20.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_53b20.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_53b20.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_fileno @CMakeFiles/cmTC_53b20.dir/objects1.rsp -o cmTC_53b20.js 
+wasm-ld: error: CMakeFiles/cmTC_53b20.dir/CheckFunctionExists.c.o: undefined symbol: _fileno
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_53b20.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_53b20.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpnlzsprtulibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_53b20.dir/build.make:101: cmTC_53b20.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_53b20/fast] Error 2
+
+
+
+Determining if the function _setmode exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_bd7d5/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_bd7d5.dir/build.make CMakeFiles/cmTC_bd7d5.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_bd7d5.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_setmode -fPIE -MD -MT CMakeFiles/cmTC_bd7d5.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_bd7d5.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_bd7d5.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_bd7d5.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bd7d5.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_setmode @CMakeFiles/cmTC_bd7d5.dir/objects1.rsp -o cmTC_bd7d5.js 
+wasm-ld: error: CMakeFiles/cmTC_bd7d5.dir/CheckFunctionExists.c.o: undefined symbol: _setmode
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_bd7d5.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_bd7d5.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpi12dt1cslibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_bd7d5.dir/build.make:101: cmTC_bd7d5.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_bd7d5/fast] Error 2
+
+
+
+Determining if the _snprintf exist failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_7aca4/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_7aca4.dir/build.make CMakeFiles/cmTC_7aca4.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_7aca4.dir/CheckSymbolExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1  -fPIE -MD -MT CMakeFiles/cmTC_7aca4.dir/CheckSymbolExists.c.o -MF CMakeFiles/cmTC_7aca4.dir/CheckSymbolExists.c.o.d -o CMakeFiles/cmTC_7aca4.dir/CheckSymbolExists.c.o -c /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:8:19: error: use of undeclared identifier '_snprintf'
+    8 |   return ((int*)(&_snprintf))[argc];
+      |                   ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_7aca4.dir/build.make:79: CMakeFiles/cmTC_7aca4.dir/CheckSymbolExists.c.o] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_7aca4/fast] Error 2
+
+
+File /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <stdio.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef _snprintf
+  return ((int*)(&_snprintf))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the _snprintf_s exist failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_87557/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_87557.dir/build.make CMakeFiles/cmTC_87557.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_87557.dir/CheckSymbolExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1  -fPIE -MD -MT CMakeFiles/cmTC_87557.dir/CheckSymbolExists.c.o -MF CMakeFiles/cmTC_87557.dir/CheckSymbolExists.c.o.d -o CMakeFiles/cmTC_87557.dir/CheckSymbolExists.c.o -c /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:8:19: error: use of undeclared identifier '_snprintf_s'
+    8 |   return ((int*)(&_snprintf_s))[argc];
+      |                   ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_87557.dir/build.make:79: CMakeFiles/cmTC_87557.dir/CheckSymbolExists.c.o] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_87557/fast] Error 2
+
+
+File /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <stdio.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef _snprintf_s
+  return ((int*)(&_snprintf_s))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the _snwprintf_s exist failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_ff692/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_ff692.dir/build.make CMakeFiles/cmTC_ff692.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_ff692.dir/CheckSymbolExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1  -fPIE -MD -MT CMakeFiles/cmTC_ff692.dir/CheckSymbolExists.c.o -MF CMakeFiles/cmTC_ff692.dir/CheckSymbolExists.c.o.d -o CMakeFiles/cmTC_ff692.dir/CheckSymbolExists.c.o -c /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:8:19: error: use of undeclared identifier '_snwprintf_s'
+    8 |   return ((int*)(&_snwprintf_s))[argc];
+      |                   ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_ff692.dir/build.make:79: CMakeFiles/cmTC_ff692.dir/CheckSymbolExists.c.o] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_ff692/fast] Error 2
+
+
+File /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <stdio.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef _snwprintf_s
+  return ((int*)(&_snwprintf_s))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the function _strdup exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_d738b/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_d738b.dir/build.make CMakeFiles/cmTC_d738b.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d738b.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_strdup -fPIE -MD -MT CMakeFiles/cmTC_d738b.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_d738b.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_d738b.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_d738b.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d738b.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_strdup @CMakeFiles/cmTC_d738b.dir/objects1.rsp -o cmTC_d738b.js 
+wasm-ld: error: CMakeFiles/cmTC_d738b.dir/CheckFunctionExists.c.o: undefined symbol: _strdup
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_d738b.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_d738b.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmp40u0kvsklibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_d738b.dir/build.make:101: cmTC_d738b.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_d738b/fast] Error 2
+
+
+
+Determining if the _stricmp exist failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_1310f/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_1310f.dir/build.make CMakeFiles/cmTC_1310f.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_1310f.dir/CheckSymbolExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1  -fPIE -MD -MT CMakeFiles/cmTC_1310f.dir/CheckSymbolExists.c.o -MF CMakeFiles/cmTC_1310f.dir/CheckSymbolExists.c.o.d -o CMakeFiles/cmTC_1310f.dir/CheckSymbolExists.c.o -c /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:8:19: error: use of undeclared identifier '_stricmp'
+    8 |   return ((int*)(&_stricmp))[argc];
+      |                   ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_1310f.dir/build.make:79: CMakeFiles/cmTC_1310f.dir/CheckSymbolExists.c.o] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_1310f/fast] Error 2
+
+
+File /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <string.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef _stricmp
+  return ((int*)(&_stricmp))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the function _strtoi64 exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_7923e/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_7923e.dir/build.make CMakeFiles/cmTC_7923e.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_7923e.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_strtoi64 -fPIE -MD -MT CMakeFiles/cmTC_7923e.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_7923e.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_7923e.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_7923e.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7923e.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_strtoi64 @CMakeFiles/cmTC_7923e.dir/objects1.rsp -o cmTC_7923e.js 
+wasm-ld: error: CMakeFiles/cmTC_7923e.dir/CheckFunctionExists.c.o: undefined symbol: _strtoi64
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_7923e.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_7923e.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpoy1x6p3mlibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_7923e.dir/build.make:101: cmTC_7923e.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_7923e/fast] Error 2
+
+
+
+Determining if the function _strtoui64 exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_1e80b/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_1e80b.dir/build.make CMakeFiles/cmTC_1e80b.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_1e80b.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_strtoui64 -fPIE -MD -MT CMakeFiles/cmTC_1e80b.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_1e80b.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_1e80b.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_1e80b.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1e80b.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_strtoui64 @CMakeFiles/cmTC_1e80b.dir/objects1.rsp -o cmTC_1e80b.js 
+wasm-ld: error: CMakeFiles/cmTC_1e80b.dir/CheckFunctionExists.c.o: undefined symbol: _strtoui64
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_1e80b.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_1e80b.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmp26hgvt8wlibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_1e80b.dir/build.make:101: cmTC_1e80b.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_1e80b/fast] Error 2
+
+
+
+Determining if the function _unlink exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_c2d10/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_c2d10.dir/build.make CMakeFiles/cmTC_c2d10.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_c2d10.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_unlink -fPIE -MD -MT CMakeFiles/cmTC_c2d10.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_c2d10.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_c2d10.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_c2d10.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c2d10.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=_unlink @CMakeFiles/cmTC_c2d10.dir/objects1.rsp -o cmTC_c2d10.js 
+wasm-ld: error: CMakeFiles/cmTC_c2d10.dir/CheckFunctionExists.c.o: undefined symbol: _unlink
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_c2d10.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_c2d10.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpwpub5rhclibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_c2d10.dir/build.make:101: cmTC_c2d10.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_c2d10/fast] Error 2
+
+
+
+Determining if the function arc4random exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_40a1e/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_40a1e.dir/build.make CMakeFiles/cmTC_40a1e.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_40a1e.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=arc4random -fPIE -MD -MT CMakeFiles/cmTC_40a1e.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_40a1e.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_40a1e.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_40a1e.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_40a1e.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=arc4random @CMakeFiles/cmTC_40a1e.dir/objects1.rsp -o cmTC_40a1e.js 
+wasm-ld: error: CMakeFiles/cmTC_40a1e.dir/CheckFunctionExists.c.o: undefined symbol: arc4random
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_40a1e.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_40a1e.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpt02zumlqlibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_40a1e.dir/build.make:101: cmTC_40a1e.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_40a1e/fast] Error 2
+
+
+
+Determining if the function clonefile exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_e01d0/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_e01d0.dir/build.make CMakeFiles/cmTC_e01d0.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e01d0.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=clonefile -fPIE -MD -MT CMakeFiles/cmTC_e01d0.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_e01d0.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_e01d0.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_e01d0.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e01d0.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=clonefile @CMakeFiles/cmTC_e01d0.dir/objects1.rsp -o cmTC_e01d0.js 
+wasm-ld: error: CMakeFiles/cmTC_e01d0.dir/CheckFunctionExists.c.o: undefined symbol: clonefile
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_e01d0.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_e01d0.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpjjudawlhlibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_e01d0.dir/build.make:101: cmTC_e01d0.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_e01d0/fast] Error 2
+
+
+
+Determining if the function explicit_memset exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_15493/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_15493.dir/build.make CMakeFiles/cmTC_15493.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_15493.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=explicit_memset -fPIE -MD -MT CMakeFiles/cmTC_15493.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_15493.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_15493.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_15493.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_15493.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=explicit_memset @CMakeFiles/cmTC_15493.dir/objects1.rsp -o cmTC_15493.js 
+wasm-ld: error: CMakeFiles/cmTC_15493.dir/CheckFunctionExists.c.o: undefined symbol: explicit_memset
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_15493.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_15493.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmp7pnkgo_ilibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_15493.dir/build.make:101: cmTC_15493.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_15493/fast] Error 2
+
+
+
+Determining if the function getprogname exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_347d2/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_347d2.dir/build.make CMakeFiles/cmTC_347d2.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_347d2.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=getprogname -fPIE -MD -MT CMakeFiles/cmTC_347d2.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_347d2.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_347d2.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_347d2.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_347d2.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=getprogname @CMakeFiles/cmTC_347d2.dir/objects1.rsp -o cmTC_347d2.js 
+wasm-ld: error: CMakeFiles/cmTC_347d2.dir/CheckFunctionExists.c.o: undefined symbol: getprogname
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_347d2.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_347d2.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmp31orevx6libemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_347d2.dir/build.make:101: cmTC_347d2.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_347d2/fast] Error 2
+
+
+
+Determining if the localtime_s exist failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_0cfc9/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_0cfc9.dir/build.make CMakeFiles/cmTC_0cfc9.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0cfc9.dir/CheckSymbolExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1  -fPIE -MD -MT CMakeFiles/cmTC_0cfc9.dir/CheckSymbolExists.c.o -MF CMakeFiles/cmTC_0cfc9.dir/CheckSymbolExists.c.o.d -o CMakeFiles/cmTC_0cfc9.dir/CheckSymbolExists.c.o -c /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:8:19: error: use of undeclared identifier 'localtime_s'; did you mean 'localtime_r'?
+    8 |   return ((int*)(&localtime_s))[argc];
+      |                   ^~~~~~~~~~~
+      |                   localtime_r
+/emsdk/upstream/emscripten/cache/sysroot/include/time.h:76:12: note: 'localtime_r' declared here
+   76 | struct tm *localtime_r (const time_t *__restrict, struct tm *__restrict);
+      |            ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_0cfc9.dir/build.make:79: CMakeFiles/cmTC_0cfc9.dir/CheckSymbolExists.c.o] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_0cfc9/fast] Error 2
+
+
+File /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <time.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef localtime_s
+  return ((int*)(&localtime_s))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the function memcpy_s exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_81d95/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_81d95.dir/build.make CMakeFiles/cmTC_81d95.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_81d95.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=memcpy_s -fPIE -MD -MT CMakeFiles/cmTC_81d95.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_81d95.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_81d95.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_81d95.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_81d95.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=memcpy_s @CMakeFiles/cmTC_81d95.dir/objects1.rsp -o cmTC_81d95.js 
+wasm-ld: error: CMakeFiles/cmTC_81d95.dir/CheckFunctionExists.c.o: undefined symbol: memcpy_s
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_81d95.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_81d95.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmphy3k5y5alibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_81d95.dir/build.make:101: cmTC_81d95.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_81d95/fast] Error 2
+
+
+
+Determining if the function setmode exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_3e9ea/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_3e9ea.dir/build.make CMakeFiles/cmTC_3e9ea.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_3e9ea.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=setmode -fPIE -MD -MT CMakeFiles/cmTC_3e9ea.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_3e9ea.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_3e9ea.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_3e9ea.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3e9ea.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=setmode @CMakeFiles/cmTC_3e9ea.dir/objects1.rsp -o cmTC_3e9ea.js 
+wasm-ld: error: CMakeFiles/cmTC_3e9ea.dir/CheckFunctionExists.c.o: undefined symbol: setmode
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_3e9ea.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_3e9ea.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpjz9kfpv_libemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_3e9ea.dir/build.make:101: cmTC_3e9ea.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_3e9ea/fast] Error 2
+
+
+
+Determining if the snprintf_s exist failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_95d1a/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_95d1a.dir/build.make CMakeFiles/cmTC_95d1a.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_95d1a.dir/CheckSymbolExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1  -fPIE -MD -MT CMakeFiles/cmTC_95d1a.dir/CheckSymbolExists.c.o -MF CMakeFiles/cmTC_95d1a.dir/CheckSymbolExists.c.o.d -o CMakeFiles/cmTC_95d1a.dir/CheckSymbolExists.c.o -c /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:8:19: error: use of undeclared identifier 'snprintf_s'; did you mean 'snprintf'?
+    8 |   return ((int*)(&snprintf_s))[argc];
+      |                   ^~~~~~~~~~
+      |                   snprintf
+/emsdk/upstream/emscripten/cache/sysroot/include/stdio.h:122:5: note: 'snprintf' declared here
+  122 | int snprintf(char *__restrict, size_t, const char *__restrict, ...);
+      |     ^
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_95d1a.dir/build.make:79: CMakeFiles/cmTC_95d1a.dir/CheckSymbolExists.c.o] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_95d1a/fast] Error 2
+
+
+File /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <stdio.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef snprintf_s
+  return ((int*)(&snprintf_s))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the function strerror_s exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_34032/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_34032.dir/build.make CMakeFiles/cmTC_34032.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_34032.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=strerror_s -fPIE -MD -MT CMakeFiles/cmTC_34032.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_34032.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_34032.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_34032.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_34032.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=strerror_s @CMakeFiles/cmTC_34032.dir/objects1.rsp -o cmTC_34032.js 
+wasm-ld: error: CMakeFiles/cmTC_34032.dir/CheckFunctionExists.c.o: undefined symbol: strerror_s
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_34032.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_34032.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpjl5tejrvlibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_34032.dir/build.make:101: cmTC_34032.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_34032/fast] Error 2
+
+
+
+Determining if the function strerrorlen_s exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_92f21/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_92f21.dir/build.make CMakeFiles/cmTC_92f21.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_92f21.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=strerrorlen_s -fPIE -MD -MT CMakeFiles/cmTC_92f21.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_92f21.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_92f21.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_92f21.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_92f21.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=strerrorlen_s @CMakeFiles/cmTC_92f21.dir/objects1.rsp -o cmTC_92f21.js 
+wasm-ld: error: CMakeFiles/cmTC_92f21.dir/CheckFunctionExists.c.o: undefined symbol: strerrorlen_s
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_92f21.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_92f21.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpzfegigh8libemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_92f21.dir/build.make:101: cmTC_92f21.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_92f21/fast] Error 2
+
+
+
+Determining if the function stricmp exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_71e5c/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_71e5c.dir/build.make CMakeFiles/cmTC_71e5c.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_71e5c.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=stricmp -fPIE -MD -MT CMakeFiles/cmTC_71e5c.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_71e5c.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_71e5c.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_71e5c.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_71e5c.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=stricmp @CMakeFiles/cmTC_71e5c.dir/objects1.rsp -o cmTC_71e5c.js 
+wasm-ld: error: CMakeFiles/cmTC_71e5c.dir/CheckFunctionExists.c.o: undefined symbol: stricmp
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_71e5c.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_71e5c.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpz9kcxxajlibemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_71e5c.dir/build.make:101: cmTC_71e5c.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_71e5c/fast] Error 2
+
+
+
+Determining if the function strncpy_s exists failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_6fc67/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_6fc67.dir/build.make CMakeFiles/cmTC_6fc67.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6fc67.dir/CheckFunctionExists.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=strncpy_s -fPIE -MD -MT CMakeFiles/cmTC_6fc67.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_6fc67.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_6fc67.dir/CheckFunctionExists.c.o -c /usr/share/cmake-3.22/Modules/CheckFunctionExists.c
+Linking C executable cmTC_6fc67.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6fc67.dir/link.txt --verbose=1
+/emsdk/upstream/emscripten/emcc -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1 -DCHECK_FUNCTION_EXISTS=strncpy_s @CMakeFiles/cmTC_6fc67.dir/objects1.rsp -o cmTC_6fc67.js 
+wasm-ld: error: CMakeFiles/cmTC_6fc67.dir/CheckFunctionExists.c.o: undefined symbol: strncpy_s
+emcc: error: '/emsdk/upstream/bin/wasm-ld -o cmTC_6fc67.wasm -L/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten CMakeFiles/cmTC_6fc67.dir/CheckFunctionExists.c.o -lGL-getprocaddr -lal -lhtml5 -lstubs-debug -lnoexit -lc-debug -ldlmalloc -lcompiler_rt -lc++-noexcept -lc++abi-debug-noexcept -lsockets -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr /tmp/tmpsmjmlm28libemscripten_js_symbols.so --strip-debug --export=emscripten_stack_get_end --export=emscripten_stack_get_free --export=emscripten_stack_get_base --export=emscripten_stack_get_current --export=emscripten_stack_init --export=_emscripten_stack_alloc --export=__get_temp_ret --export=__set_temp_ret --export=__wasm_call_ctors --export=_emscripten_stack_restore --export-if-defined=__start_em_asm --export-if-defined=__stop_em_asm --export-if-defined=__start_em_lib_deps --export-if-defined=__stop_em_lib_deps --export-if-defined=__start_em_js --export-if-defined=__stop_em_js --export-if-defined=main --export-if-defined=__main_argc_argv --export-if-defined=fflush --export-table -z stack-size=65536 --no-growable-memory --initial-heap=16777216 --no-entry --stack-first --table-base=1' failed (returned 1)
+gmake[1]: *** [CMakeFiles/cmTC_6fc67.dir/build.make:101: cmTC_6fc67.js] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_6fc67/fast] Error 2
+
+
+
+Determining if files sys/types.h;sys/stat.h;fts.h exist failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_dffd4/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_dffd4.dir/build.make CMakeFiles/cmTC_dffd4.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_dffd4.dir/HAVE_FTS_H.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1  -fPIE -MD -MT CMakeFiles/cmTC_dffd4.dir/HAVE_FTS_H.c.o -MF CMakeFiles/cmTC_dffd4.dir/HAVE_FTS_H.c.o.d -o CMakeFiles/cmTC_dffd4.dir/HAVE_FTS_H.c.o -c /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckIncludeFiles/HAVE_FTS_H.c
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckIncludeFiles/HAVE_FTS_H.c:4:10: fatal error: 'fts.h' file not found
+    4 | #include <fts.h>
+      |          ^~~~~~~
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_dffd4.dir/build.make:79: CMakeFiles/cmTC_dffd4.dir/HAVE_FTS_H.c.o] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_dffd4/fast] Error 2
+
+
+Source:
+/* */
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fts.h>
+
+
+int main(void){return 0;}
+
+Determining size of __int8 failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_68e7d/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_68e7d.dir/build.make CMakeFiles/cmTC_68e7d.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_68e7d.dir/__INT8_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1  -fPIE -MD -MT CMakeFiles/cmTC_68e7d.dir/__INT8_LIBZIP.c.o -MF CMakeFiles/cmTC_68e7d.dir/__INT8_LIBZIP.c.o.d -o CMakeFiles/cmTC_68e7d.dir/__INT8_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT8_LIBZIP.c
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT8_LIBZIP.c:25:12: error: use of undeclared identifier '__int8'
+   25 |   ('0' + ((SIZE / 10000)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT8_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int8))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT8_LIBZIP.c:26:12: error: use of undeclared identifier '__int8'
+   26 |   ('0' + ((SIZE / 1000)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT8_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int8))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT8_LIBZIP.c:27:12: error: use of undeclared identifier '__int8'
+   27 |   ('0' + ((SIZE / 100)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT8_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int8))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT8_LIBZIP.c:28:12: error: use of undeclared identifier '__int8'
+   28 |   ('0' + ((SIZE / 10)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT8_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int8))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT8_LIBZIP.c:29:12: error: use of undeclared identifier '__int8'
+   29 |   ('0' +  (SIZE    % 10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT8_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int8))
+      |                      ^
+5 errors generated.
+gmake[1]: *** [CMakeFiles/cmTC_68e7d.dir/build.make:79: CMakeFiles/cmTC_68e7d.dir/__INT8_LIBZIP.c.o] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_68e7d/fast] Error 2
+
+
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT8_LIBZIP.c:
+#include <sys/types.h>
+#include <stdint.h>
+#include <stddef.h>
+
+
+#undef KEY
+#if defined(__i386)
+# define KEY '_','_','i','3','8','6'
+#elif defined(__x86_64)
+# define KEY '_','_','x','8','6','_','6','4'
+#elif defined(__ppc__)
+# define KEY '_','_','p','p','c','_','_'
+#elif defined(__ppc64__)
+# define KEY '_','_','p','p','c','6','4','_','_'
+#elif defined(__aarch64__)
+# define KEY '_','_','a','a','r','c','h','6','4','_','_'
+#elif defined(__ARM_ARCH_7A__)
+# define KEY '_','_','A','R','M','_','A','R','C','H','_','7','A','_','_'
+#elif defined(__ARM_ARCH_7S__)
+# define KEY '_','_','A','R','M','_','A','R','C','H','_','7','S','_','_'
+#endif
+
+#define SIZE (sizeof(__int8))
+char info_size[] =  {'I', 'N', 'F', 'O', ':', 's','i','z','e','[',
+  ('0' + ((SIZE / 10000)%10)),
+  ('0' + ((SIZE / 1000)%10)),
+  ('0' + ((SIZE / 100)%10)),
+  ('0' + ((SIZE / 10)%10)),
+  ('0' +  (SIZE    % 10)),
+  ']',
+#ifdef KEY
+  ' ','k','e','y','[', KEY, ']',
+#endif
+  '\0'};
+
+#ifdef __CLASSIC_C__
+int main(argc, argv) int argc; char *argv[];
+#else
+int main(int argc, char *argv[])
+#endif
+{
+  int require = 0;
+  require += info_size[argc];
+  (void)argv;
+  return require;
+}
+
+
+Determining size of __int16 failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_31caa/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_31caa.dir/build.make CMakeFiles/cmTC_31caa.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_31caa.dir/__INT16_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1  -fPIE -MD -MT CMakeFiles/cmTC_31caa.dir/__INT16_LIBZIP.c.o -MF CMakeFiles/cmTC_31caa.dir/__INT16_LIBZIP.c.o.d -o CMakeFiles/cmTC_31caa.dir/__INT16_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT16_LIBZIP.c
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT16_LIBZIP.c:25:12: error: use of undeclared identifier '__int16'
+   25 |   ('0' + ((SIZE / 10000)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT16_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int16))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT16_LIBZIP.c:26:12: error: use of undeclared identifier '__int16'
+   26 |   ('0' + ((SIZE / 1000)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT16_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int16))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT16_LIBZIP.c:27:12: error: use of undeclared identifier '__int16'
+   27 |   ('0' + ((SIZE / 100)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT16_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int16))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT16_LIBZIP.c:28:12: error: use of undeclared identifier '__int16'
+   28 |   ('0' + ((SIZE / 10)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT16_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int16))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT16_LIBZIP.c:29:12: error: use of undeclared identifier '__int16'
+   29 |   ('0' +  (SIZE    % 10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT16_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int16))
+      |                      ^
+5 errors generated.
+gmake[1]: *** [CMakeFiles/cmTC_31caa.dir/build.make:79: CMakeFiles/cmTC_31caa.dir/__INT16_LIBZIP.c.o] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_31caa/fast] Error 2
+
+
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT16_LIBZIP.c:
+#include <sys/types.h>
+#include <stdint.h>
+#include <stddef.h>
+
+
+#undef KEY
+#if defined(__i386)
+# define KEY '_','_','i','3','8','6'
+#elif defined(__x86_64)
+# define KEY '_','_','x','8','6','_','6','4'
+#elif defined(__ppc__)
+# define KEY '_','_','p','p','c','_','_'
+#elif defined(__ppc64__)
+# define KEY '_','_','p','p','c','6','4','_','_'
+#elif defined(__aarch64__)
+# define KEY '_','_','a','a','r','c','h','6','4','_','_'
+#elif defined(__ARM_ARCH_7A__)
+# define KEY '_','_','A','R','M','_','A','R','C','H','_','7','A','_','_'
+#elif defined(__ARM_ARCH_7S__)
+# define KEY '_','_','A','R','M','_','A','R','C','H','_','7','S','_','_'
+#endif
+
+#define SIZE (sizeof(__int16))
+char info_size[] =  {'I', 'N', 'F', 'O', ':', 's','i','z','e','[',
+  ('0' + ((SIZE / 10000)%10)),
+  ('0' + ((SIZE / 1000)%10)),
+  ('0' + ((SIZE / 100)%10)),
+  ('0' + ((SIZE / 10)%10)),
+  ('0' +  (SIZE    % 10)),
+  ']',
+#ifdef KEY
+  ' ','k','e','y','[', KEY, ']',
+#endif
+  '\0'};
+
+#ifdef __CLASSIC_C__
+int main(argc, argv) int argc; char *argv[];
+#else
+int main(int argc, char *argv[])
+#endif
+{
+  int require = 0;
+  require += info_size[argc];
+  (void)argv;
+  return require;
+}
+
+
+Determining size of __int32 failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_c8a4e/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_c8a4e.dir/build.make CMakeFiles/cmTC_c8a4e.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_c8a4e.dir/__INT32_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1  -fPIE -MD -MT CMakeFiles/cmTC_c8a4e.dir/__INT32_LIBZIP.c.o -MF CMakeFiles/cmTC_c8a4e.dir/__INT32_LIBZIP.c.o.d -o CMakeFiles/cmTC_c8a4e.dir/__INT32_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT32_LIBZIP.c
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT32_LIBZIP.c:25:12: error: use of undeclared identifier '__int32'
+   25 |   ('0' + ((SIZE / 10000)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT32_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int32))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT32_LIBZIP.c:26:12: error: use of undeclared identifier '__int32'
+   26 |   ('0' + ((SIZE / 1000)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT32_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int32))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT32_LIBZIP.c:27:12: error: use of undeclared identifier '__int32'
+   27 |   ('0' + ((SIZE / 100)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT32_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int32))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT32_LIBZIP.c:28:12: error: use of undeclared identifier '__int32'
+   28 |   ('0' + ((SIZE / 10)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT32_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int32))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT32_LIBZIP.c:29:12: error: use of undeclared identifier '__int32'
+   29 |   ('0' +  (SIZE    % 10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT32_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int32))
+      |                      ^
+5 errors generated.
+gmake[1]: *** [CMakeFiles/cmTC_c8a4e.dir/build.make:79: CMakeFiles/cmTC_c8a4e.dir/__INT32_LIBZIP.c.o] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_c8a4e/fast] Error 2
+
+
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT32_LIBZIP.c:
+#include <sys/types.h>
+#include <stdint.h>
+#include <stddef.h>
+
+
+#undef KEY
+#if defined(__i386)
+# define KEY '_','_','i','3','8','6'
+#elif defined(__x86_64)
+# define KEY '_','_','x','8','6','_','6','4'
+#elif defined(__ppc__)
+# define KEY '_','_','p','p','c','_','_'
+#elif defined(__ppc64__)
+# define KEY '_','_','p','p','c','6','4','_','_'
+#elif defined(__aarch64__)
+# define KEY '_','_','a','a','r','c','h','6','4','_','_'
+#elif defined(__ARM_ARCH_7A__)
+# define KEY '_','_','A','R','M','_','A','R','C','H','_','7','A','_','_'
+#elif defined(__ARM_ARCH_7S__)
+# define KEY '_','_','A','R','M','_','A','R','C','H','_','7','S','_','_'
+#endif
+
+#define SIZE (sizeof(__int32))
+char info_size[] =  {'I', 'N', 'F', 'O', ':', 's','i','z','e','[',
+  ('0' + ((SIZE / 10000)%10)),
+  ('0' + ((SIZE / 1000)%10)),
+  ('0' + ((SIZE / 100)%10)),
+  ('0' + ((SIZE / 10)%10)),
+  ('0' +  (SIZE    % 10)),
+  ']',
+#ifdef KEY
+  ' ','k','e','y','[', KEY, ']',
+#endif
+  '\0'};
+
+#ifdef __CLASSIC_C__
+int main(argc, argv) int argc; char *argv[];
+#else
+int main(int argc, char *argv[])
+#endif
+{
+  int require = 0;
+  require += info_size[argc];
+  (void)argv;
+  return require;
+}
+
+
+Determining size of __int64 failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_02a52/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_02a52.dir/build.make CMakeFiles/cmTC_02a52.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_02a52.dir/__INT64_LIBZIP.c.o
+/emsdk/upstream/emscripten/emcc -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1  -fPIE -MD -MT CMakeFiles/cmTC_02a52.dir/__INT64_LIBZIP.c.o -MF CMakeFiles/cmTC_02a52.dir/__INT64_LIBZIP.c.o.d -o CMakeFiles/cmTC_02a52.dir/__INT64_LIBZIP.c.o -c /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT64_LIBZIP.c
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT64_LIBZIP.c:25:12: error: use of undeclared identifier '__int64'
+   25 |   ('0' + ((SIZE / 10000)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT64_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int64))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT64_LIBZIP.c:26:12: error: use of undeclared identifier '__int64'
+   26 |   ('0' + ((SIZE / 1000)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT64_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int64))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT64_LIBZIP.c:27:12: error: use of undeclared identifier '__int64'
+   27 |   ('0' + ((SIZE / 100)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT64_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int64))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT64_LIBZIP.c:28:12: error: use of undeclared identifier '__int64'
+   28 |   ('0' + ((SIZE / 10)%10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT64_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int64))
+      |                      ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT64_LIBZIP.c:29:12: error: use of undeclared identifier '__int64'
+   29 |   ('0' +  (SIZE    % 10)),
+      |            ^
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT64_LIBZIP.c:23:22: note: expanded from macro 'SIZE'
+   23 | #define SIZE (sizeof(__int64))
+      |                      ^
+5 errors generated.
+gmake[1]: *** [CMakeFiles/cmTC_02a52.dir/build.make:79: CMakeFiles/cmTC_02a52.dir/__INT64_LIBZIP.c.o] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_02a52/fast] Error 2
+
+
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CheckTypeSize/__INT64_LIBZIP.c:
+#include <sys/types.h>
+#include <stdint.h>
+#include <stddef.h>
+
+
+#undef KEY
+#if defined(__i386)
+# define KEY '_','_','i','3','8','6'
+#elif defined(__x86_64)
+# define KEY '_','_','x','8','6','_','6','4'
+#elif defined(__ppc__)
+# define KEY '_','_','p','p','c','_','_'
+#elif defined(__ppc64__)
+# define KEY '_','_','p','p','c','6','4','_','_'
+#elif defined(__aarch64__)
+# define KEY '_','_','a','a','r','c','h','6','4','_','_'
+#elif defined(__ARM_ARCH_7A__)
+# define KEY '_','_','A','R','M','_','A','R','C','H','_','7','A','_','_'
+#elif defined(__ARM_ARCH_7S__)
+# define KEY '_','_','A','R','M','_','A','R','C','H','_','7','S','_','_'
+#endif
+
+#define SIZE (sizeof(__int64))
+char info_size[] =  {'I', 'N', 'F', 'O', ':', 's','i','z','e','[',
+  ('0' + ((SIZE / 10000)%10)),
+  ('0' + ((SIZE / 1000)%10)),
+  ('0' + ((SIZE / 100)%10)),
+  ('0' + ((SIZE / 10)%10)),
+  ('0' +  (SIZE    % 10)),
+  ']',
+#ifdef KEY
+  ' ','k','e','y','[', KEY, ']',
+#endif
+  '\0'};
+
+#ifdef __CLASSIC_C__
+int main(argc, argv) int argc; char *argv[];
+#else
+int main(int argc, char *argv[])
+#endif
+{
+  int require = 0;
+  require += info_size[argc];
+  (void)argv;
+  return require;
+}
+
+
+Performing C SOURCE FILE Test HAVE_FICLONERANGE failed with the following output:
+Change Dir: /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_425c5/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_425c5.dir/build.make CMakeFiles/cmTC_425c5.dir/build
+gmake[1]: Entering directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_425c5.dir/src.c.o
+/emsdk/upstream/emscripten/emcc -DHAVE_FICLONERANGE -D__STDC_WANT_LIB_EXT1__=1  -DJIT_PROD_BUILD=1 -DFLY_RELEASE_BUILD=1 -g1  -fPIE -MD -MT CMakeFiles/cmTC_425c5.dir/src.c.o -MF CMakeFiles/cmTC_425c5.dir/src.c.o.d -o CMakeFiles/cmTC_425c5.dir/src.c.o -c /work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/src.c
+/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'linux/fs.h' file not found
+    2 | #include <linux/fs.h>
+      |          ^~~~~~~~~~~~
+1 error generated.
+gmake[1]: *** [CMakeFiles/cmTC_425c5.dir/build.make:79: CMakeFiles/cmTC_425c5.dir/src.c.o] Error 1
+gmake[1]: Leaving directory '/work/webrcade/retrostash/flycast-wasm/source/build-wasm-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_425c5/fast] Error 2
+
+
+Source file was:
+#include <sys/ioctl.h>
+#include <linux/fs.h>
+int main(int argc, char *argv[]) { unsigned long x = FICLONERANGE; }
+Checking whether the ASM compiler is GNU using "--version" did not match "(GNU assembler)|(GCC)|(Free Software Foundation)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is Clang using "--version" did not match "(clang version)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is AppleClang using "--version" did not match "(Apple LLVM version)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is ARMClang using "--version" did not match "armclang":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is HP using "-V" did not match "HP C":
+emcc: error: no input files
+Checking whether the ASM compiler is Intel using "--version" did not match "(ICC)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is IntelLLVM using "--version" did not match "(Intel[^
+]+oneAPI)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is SunPro using "-V" did not match "Sun C":
+emcc: error: no input files
+Checking whether the ASM compiler is XL using "-qversion" did not match "XL C":
+emcc: error: no input files
+Checking whether the ASM compiler is MSVC using "-?" did not match "Microsoft":
+emcc: error: no input files
+Checking whether the ASM compiler is TI using "-h" did not match "Texas Instruments":
+emcc: error: no input files
+Checking whether the ASM compiler is IAR using "" did not match "IAR Assembler":
+emcc: error: no input files
+Checking whether the ASM compiler is ARMCC using "" did not match "(ARM Compiler)|(ARM Assembler)":
+emcc: error: no input files
+Checking whether the ASM compiler is NASM using "-v" did not match "(NASM version)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+clang version 20.0.0git (https:/github.com/llvm/llvm-project 322eb1a92e6d4266184060346616fa0dbe39e731)
+Target: wasm32-unknown-emscripten
+Thread model: posix
+InstalledDir: /emsdk/upstream/bin
+Checking whether the ASM compiler is YASM using "--version" did not match "(yasm)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is ADSP using "-version" did not match "Analog Devices":
+emcc: error: no input files
+Checking whether the ASM compiler is QCC using "-V" did not match "gcc_nto":
+emcc: error: no input files
+Checking whether the ASM compiler is GNU using "--version" did not match "(GNU assembler)|(GCC)|(Free Software Foundation)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is Clang using "--version" did not match "(clang version)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is AppleClang using "--version" did not match "(Apple LLVM version)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is ARMClang using "--version" did not match "armclang":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is HP using "-V" did not match "HP C":
+emcc: error: no input files
+Checking whether the ASM compiler is Intel using "--version" did not match "(ICC)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is IntelLLVM using "--version" did not match "(Intel[^
+]+oneAPI)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is SunPro using "-V" did not match "Sun C":
+emcc: error: no input files
+Checking whether the ASM compiler is XL using "-qversion" did not match "XL C":
+emcc: error: no input files
+Checking whether the ASM compiler is MSVC using "-?" did not match "Microsoft":
+emcc: error: no input files
+Checking whether the ASM compiler is TI using "-h" did not match "Texas Instruments":
+emcc: error: no input files
+Checking whether the ASM compiler is IAR using "" did not match "IAR Assembler":
+emcc: error: no input files
+Checking whether the ASM compiler is ARMCC using "" did not match "(ARM Compiler)|(ARM Assembler)":
+emcc: error: no input files
+Checking whether the ASM compiler is NASM using "-v" did not match "(NASM version)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+clang version 20.0.0git (https:/github.com/llvm/llvm-project 322eb1a92e6d4266184060346616fa0dbe39e731)
+Target: wasm32-unknown-emscripten
+Thread model: posix
+InstalledDir: /emsdk/upstream/bin
+Checking whether the ASM compiler is YASM using "--version" did not match "(yasm)":
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5)
+Copyright (C) 2014 the Emscripten authors (see AUTHORS.txt)
+This is free and open source software under the MIT license.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Checking whether the ASM compiler is ADSP using "-version" did not match "Analog Devices":
+emcc: error: no input files
+Checking whether the ASM compiler is QCC using "-V" did not match "gcc_nto":
+emcc: error: no input files
