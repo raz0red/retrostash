@@ -9,12 +9,21 @@
 #include "hw/sh4/dyna/blockmanager.h"
 #include "hw/sh4/dyna/decoder.h"
 #include <unordered_map>
+#include <unordered_set>  // WRC POC (float register caching): wrcUnsafeFloatOffsets in scanBlock()
 
 // Differential-validator memory-write logging flag (see rec_wasm.cpp). Default
 // 0 (production: keep the direct-RAM write fast path). rec_wasm.cpp defines it
 // before including this header for validation builds.
 #ifndef WASM_VAL_LOG_WRITES
 #define WASM_VAL_LOG_WRITES 0
+#endif
+
+// WRC POC (float register caching, see rec_wasm.cpp for the flag's full
+// rationale). Default 0 (stock V1 behavior: floats always memory-backed)
+// if this header is ever included without rec_wasm.cpp's definition
+// running first - same pattern as WASM_VAL_LOG_WRITES above.
+#ifndef WRC_FLOAT_REGCACHE
+#define WRC_FLOAT_REGCACHE 0
 #endif
 
 // ★ EMITTED GEN BUMP — ADOPTED (2026-07-28, the design decision):
@@ -100,6 +109,55 @@ struct RegCache {
 
 	// Pre-scan: walk oplist, find all referenced integer registers
 	void scanBlock(RuntimeBlockInfo* block) {
+#if WRC_FLOAT_REGCACHE
+		// WRC POC: don't cache ANY float register in a block that also
+		// contains a range-addressed FPU op (ftrv/fipr/frswap/fsca touch
+		// several float registers at once via raw offset arithmetic, not
+		// the per-register shil_param model this cache keys off). Excluding
+		// the whole block keeps a stale-cached-local read impossible by
+		// construction instead of needing a flush/reload dance around them.
+		//
+		// Separately: only 11 ops are actually wired to read/write through
+		// the cache below (fadd/fsub/fmul/fdiv/fabs/fneg/fsqrt/fseteq/
+		// fsetgt/fmac/fsrra) - a positive whitelist. Any OTHER op touching
+		// an r32f param (int<->float converts, float memory moves, anything
+		// not enumerated here) still reads/writes Sh4Context memory
+		// directly and unconditionally. If such an op shares a register
+		// with a whitelisted one IN THE SAME BLOCK, caching that register
+		// would go stale in either direction (a dirty cached write never
+		// reaching memory before the other op's plain read, or the other
+		// op's plain write never reaching a stale cached read) - so every
+		// r32f offset touched by a non-whitelisted op anywhere in the block
+		// is tracked here and excluded from caching for the whole block,
+		// not just at that op's own site.
+		auto wrcIsCachedFloatOp = [](shilop o) {
+			switch (o) {
+				case shop_fadd: case shop_fsub: case shop_fmul: case shop_fdiv:
+				case shop_fabs: case shop_fneg: case shop_fsqrt:
+				case shop_fseteq: case shop_fsetgt:
+				case shop_fmac: case shop_fsrra:
+					return true;
+				default:
+					return false;
+			}
+		};
+		bool wrcFloatCacheOk = true;
+		std::unordered_set<u32> wrcUnsafeFloatOffsets;
+		for (size_t i = 0; i < block->oplist.size(); i++) {
+			const shil_opcode& o2 = block->oplist[i];
+			if (o2.op == shop_ftrv || o2.op == shop_fipr || o2.op == shop_frswap || o2.op == shop_fsca) {
+				wrcFloatCacheOk = false;
+				break;
+			}
+			if (!wrcIsCachedFloatOp(o2.op)) {
+				if (o2.rs1.is_r32f()) wrcUnsafeFloatOffsets.insert(o2.rs1.reg_offset());
+				if (o2.rs2.is_r32f()) wrcUnsafeFloatOffsets.insert(o2.rs2.reg_offset());
+				if (o2.rs3.is_r32f()) wrcUnsafeFloatOffsets.insert(o2.rs3.reg_offset());
+				if (o2.rd.is_r32f())  wrcUnsafeFloatOffsets.insert(o2.rd.reg_offset());
+				if (o2.rd2.is_r32f()) wrcUnsafeFloatOffsets.insert(o2.rd2.reg_offset());
+			}
+		}
+#endif
 		for (size_t i = 0; i < block->oplist.size(); i++) {
 			const shil_opcode& op = block->oplist[i];
 			if (op.rs1.is_r32i()) addOffset(op.rs1.reg_offset());
@@ -107,6 +165,20 @@ struct RegCache {
 			if (op.rs3.is_r32i()) addOffset(op.rs3.reg_offset());
 			if (op.rd.is_r32i())  addOffset(op.rd.reg_offset());
 			if (op.rd2.is_r32i()) addOffset(op.rd2.reg_offset());
+#if WRC_FLOAT_REGCACHE
+			// WRC POC: scalar-only float register caching (see the flag's
+			// definition in rec_wasm.cpp for the full rationale). Skips any
+			// offset a non-whitelisted op touches anywhere in this block
+			// (wrcUnsafeFloatOffsets, computed above) as well as any offset
+			// in a block containing ftrv/fipr/frswap/fsca (wrcFloatCacheOk).
+			if (wrcFloatCacheOk && wrcIsCachedFloatOp(op.op)) {
+				if (op.rs1.is_r32f() && !wrcUnsafeFloatOffsets.count(op.rs1.reg_offset())) addOffset(op.rs1.reg_offset());
+				if (op.rs2.is_r32f() && !wrcUnsafeFloatOffsets.count(op.rs2.reg_offset())) addOffset(op.rs2.reg_offset());
+				if (op.rs3.is_r32f() && !wrcUnsafeFloatOffsets.count(op.rs3.reg_offset())) addOffset(op.rs3.reg_offset());
+				if (op.rd.is_r32f()  && !wrcUnsafeFloatOffsets.count(op.rd.reg_offset()))  addOffset(op.rd.reg_offset());
+				if (op.rd2.is_r32f() && !wrcUnsafeFloatOffsets.count(op.rd2.reg_offset())) addOffset(op.rd2.reg_offset());
+			}
+#endif
 			// shop_jdyn writes to JDYN (not a register param)
 			if (op.op == shop_jdyn) addOffset(ctx_off::JDYN);
 			// shop_jcond writes to jdyn (rd = reg_pc_dyn), not sr.T
@@ -238,6 +310,58 @@ static inline void emitPostStore(WasmModuleBuilder& b, const shil_param& rd, Reg
 	}
 	b.op_i32_store(rd.reg_offset());
 }
+
+#if WRC_FLOAT_REGCACHE
+// ============================================================
+// WRC POC: cache-aware load/store for scalar float registers.
+// Mirrors emitLoadParamCached/emitPreStore/emitPostStore above exactly,
+// except the cached local (always i32-typed, same pool as integer
+// register locals - see RegCache) holds the float's raw bit pattern, so
+// every boundary crossing reinterprets rather than converts. Only ever
+// reached for offsets scanBlock() actually cached, which - per the
+// WRC_FLOAT_REGCACHE definition in rec_wasm.cpp - excludes any block
+// containing ftrv/fipr/frswap/fsca, so these never race those ops.
+// ============================================================
+
+static inline void emitLoadParamF32Cached(WasmModuleBuilder& b, const shil_param& p, const RegCache& cache) {
+	if (!p.is_imm() && p.is_r32f()) {
+		s32 local = cache.getLocal(p.reg_offset());
+		if (local >= 0) {
+			b.op_local_get((u32)local);
+			b.op_f32_reinterpret_i32();
+			return;
+		}
+	}
+	emitLoadParamF32(b, p);
+}
+
+// emitPreStoreF32Cached: push ctx_ptr only if rd is NOT cached (mirrors
+// emitPreStore). Must be paired with emitPostStoreF32Cached below.
+static inline void emitPreStoreF32Cached(WasmModuleBuilder& b, const shil_param& rd, const RegCache& cache) {
+	if (rd.is_r32f()) {
+		s32 local = cache.getLocal(rd.reg_offset());
+		if (local >= 0) return;  // cached: no ctx_ptr needed
+	}
+	b.op_local_get(LOCAL_CTX);
+}
+
+// emitPostStoreF32Cached: local.set (bits reinterpreted) if cached, else
+// the original f32.store. Stack must hold [f32 value] (cached) or
+// [ctx_ptr, f32 value] (uncached) - i.e. whatever emitPreStoreF32Cached
+// set up.
+static inline void emitPostStoreF32Cached(WasmModuleBuilder& b, const shil_param& rd, RegCache& cache) {
+	if (rd.is_r32f()) {
+		s32 local = cache.getLocal(rd.reg_offset());
+		if (local >= 0) {
+			b.op_i32_reinterpret_f32();
+			b.op_local_set((u32)local);
+			cache.markDirty(rd.reg_offset());
+			return;
+		}
+	}
+	b.op_f32_store(rd.reg_offset());
+}
+#endif // WRC_FLOAT_REGCACHE
 
 // Offset-based variants for fixed ctx fields (jdyn, sr.T)
 static inline void emitPreStoreOffset(WasmModuleBuilder& b, u32 offset, const RegCache& cache) {
@@ -1187,63 +1311,121 @@ static bool emitShilOp(WasmModuleBuilder& b, const shil_opcode& op,
 	// ---- Tier 2: FPU ops (float regs not cached in V1) ----
 
 	case shop_fadd:
+#if WRC_FLOAT_REGCACHE
+		emitPreStoreF32Cached(b, op.rd, cache);
+		emitLoadParamF32Cached(b, op.rs1, cache);
+		emitLoadParamF32Cached(b, op.rs2, cache);
+		b.op_f32_add();
+		emitPostStoreF32Cached(b, op.rd, cache);
+#else
 		b.op_local_get(LOCAL_CTX);
 		emitLoadParamF32(b, op.rs1);
 		emitLoadParamF32(b, op.rs2);
 		b.op_f32_add();
 		emitStoreRdF32(b, op.rd);
+#endif
 		return true;
 
 	case shop_fsub:
+#if WRC_FLOAT_REGCACHE
+		emitPreStoreF32Cached(b, op.rd, cache);
+		emitLoadParamF32Cached(b, op.rs1, cache);
+		emitLoadParamF32Cached(b, op.rs2, cache);
+		b.op_f32_sub();
+		emitPostStoreF32Cached(b, op.rd, cache);
+#else
 		b.op_local_get(LOCAL_CTX);
 		emitLoadParamF32(b, op.rs1);
 		emitLoadParamF32(b, op.rs2);
 		b.op_f32_sub();
 		emitStoreRdF32(b, op.rd);
+#endif
 		return true;
 
 	case shop_fmul:
+#if WRC_FLOAT_REGCACHE
+		emitPreStoreF32Cached(b, op.rd, cache);
+		emitLoadParamF32Cached(b, op.rs1, cache);
+		emitLoadParamF32Cached(b, op.rs2, cache);
+		b.op_f32_mul();
+		emitPostStoreF32Cached(b, op.rd, cache);
+#else
 		b.op_local_get(LOCAL_CTX);
 		emitLoadParamF32(b, op.rs1);
 		emitLoadParamF32(b, op.rs2);
 		b.op_f32_mul();
 		emitStoreRdF32(b, op.rd);
+#endif
 		return true;
 
 	case shop_fdiv:
+#if WRC_FLOAT_REGCACHE
+		emitPreStoreF32Cached(b, op.rd, cache);
+		emitLoadParamF32Cached(b, op.rs1, cache);
+		emitLoadParamF32Cached(b, op.rs2, cache);
+		b.op_f32_div();
+		emitPostStoreF32Cached(b, op.rd, cache);
+#else
 		b.op_local_get(LOCAL_CTX);
 		emitLoadParamF32(b, op.rs1);
 		emitLoadParamF32(b, op.rs2);
 		b.op_f32_div();
 		emitStoreRdF32(b, op.rd);
+#endif
 		return true;
 
 	case shop_fabs:
+#if WRC_FLOAT_REGCACHE
+		emitPreStoreF32Cached(b, op.rd, cache);
+		emitLoadParamF32Cached(b, op.rs1, cache);
+		b.op_f32_abs();
+		emitPostStoreF32Cached(b, op.rd, cache);
+#else
 		b.op_local_get(LOCAL_CTX);
 		emitLoadParamF32(b, op.rs1);
 		b.op_f32_abs();
 		emitStoreRdF32(b, op.rd);
+#endif
 		return true;
 
 	case shop_fneg:
+#if WRC_FLOAT_REGCACHE
+		emitPreStoreF32Cached(b, op.rd, cache);
+		emitLoadParamF32Cached(b, op.rs1, cache);
+		b.op_f32_neg();
+		emitPostStoreF32Cached(b, op.rd, cache);
+#else
 		b.op_local_get(LOCAL_CTX);
 		emitLoadParamF32(b, op.rs1);
 		b.op_f32_neg();
 		emitStoreRdF32(b, op.rd);
+#endif
 		return true;
 
 	case shop_fsqrt:
+#if WRC_FLOAT_REGCACHE
+		emitPreStoreF32Cached(b, op.rd, cache);
+		emitLoadParamF32Cached(b, op.rs1, cache);
+		b.op_f32_sqrt();
+		emitPostStoreF32Cached(b, op.rd, cache);
+#else
 		b.op_local_get(LOCAL_CTX);
 		emitLoadParamF32(b, op.rs1);
 		b.op_f32_sqrt();
 		emitStoreRdF32(b, op.rd);
+#endif
 		return true;
 
 	case shop_fseteq:
 		// rd(i32) = (rs1 == rs2) ? 1 : 0
 		emitPreStore(b, op.rd, cache);
+#if WRC_FLOAT_REGCACHE
+		emitLoadParamF32Cached(b, op.rs1, cache);
+		emitLoadParamF32Cached(b, op.rs2, cache);
+#else
 		emitLoadParamF32(b, op.rs1);
 		emitLoadParamF32(b, op.rs2);
+#endif
 		b.op_f32_eq();
 		emitPostStore(b, op.rd, cache);
 		return true;
@@ -1251,8 +1433,13 @@ static bool emitShilOp(WasmModuleBuilder& b, const shil_opcode& op,
 	case shop_fsetgt:
 		// rd(i32) = (rs1 > rs2) ? 1 : 0
 		emitPreStore(b, op.rd, cache);
+#if WRC_FLOAT_REGCACHE
+		emitLoadParamF32Cached(b, op.rs1, cache);
+		emitLoadParamF32Cached(b, op.rs2, cache);
+#else
 		emitLoadParamF32(b, op.rs1);
 		emitLoadParamF32(b, op.rs2);
+#endif
 		b.op_f32_gt();
 		emitPostStore(b, op.rd, cache);
 		return true;
@@ -1297,6 +1484,19 @@ static bool emitShilOp(WasmModuleBuilder& b, const shil_opcode& op,
 		// f32.mul+f32.add double-rounded EVERY op (1-ULP drift vs reference,
 		// caught by the bridge-shadow differential 2026-07-17). The SHIL
 		// fallback computes the same f64 expression — bit-identical paths.
+#if WRC_FLOAT_REGCACHE
+		emitPreStoreF32Cached(b, op.rd, cache);
+		emitLoadParamF32Cached(b, op.rs1, cache);  // fn (accumulator)
+		b.op_f64_promote_f32();
+		emitLoadParamF32Cached(b, op.rs2, cache);  // f0
+		b.op_f64_promote_f32();
+		emitLoadParamF32Cached(b, op.rs3, cache);  // fm
+		b.op_f64_promote_f32();
+		b.op_f64_mul();                     // (f64)f0 * (f64)fm  — exact
+		b.op_f64_add();                     // + (f64)fn — one rounding
+		b.op_f32_demote_f64();              // → f32 — one rounding
+		emitPostStoreF32Cached(b, op.rd, cache);
+#else
 		b.op_local_get(LOCAL_CTX);
 		emitLoadParamF32(b, op.rs1);        // fn (accumulator)
 		b.op_f64_promote_f32();
@@ -1308,16 +1508,26 @@ static bool emitShilOp(WasmModuleBuilder& b, const shil_opcode& op,
 		b.op_f64_add();                     // + (f64)fn — one rounding
 		b.op_f32_demote_f64();              // → f32 — one rounding
 		emitStoreRdF32(b, op.rd);
+#endif
 		return true;
 
 	case shop_fsrra:
 		// rd = 1.0f / sqrt(rs1)
+#if WRC_FLOAT_REGCACHE
+		emitPreStoreF32Cached(b, op.rd, cache);
+		b.op_f32_const(1.0f);
+		emitLoadParamF32Cached(b, op.rs1, cache);
+		b.op_f32_sqrt();
+		b.op_f32_div();
+		emitPostStoreF32Cached(b, op.rd, cache);
+#else
 		b.op_local_get(LOCAL_CTX);
 		b.op_f32_const(1.0f);
 		emitLoadParamF32(b, op.rs1);
 		b.op_f32_sqrt();
 		b.op_f32_div();
 		emitStoreRdF32(b, op.rd);
+#endif
 		return true;
 
 	case shop_fipr: {

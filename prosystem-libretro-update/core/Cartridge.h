@@ -5,7 +5,7 @@
  *
  * ----------------------------------------------------------------------------
  * Copyright 2005 Greg Stanton
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -33,7 +33,8 @@
 #define CARTRIDGE_TYPE_SUPERCART_ROM 4
 #define CARTRIDGE_TYPE_ABSOLUTE 5
 #define CARTRIDGE_TYPE_ACTIVISION 6
-#define CARTRIDGE_TYPE_SOUPER 7             /* Used by "Rikki & Vikki" */
+#define CARTRIDGE_TYPE_NORMAL_RAM 7
+#define CARTRIDGE_TYPE_SOUPER 8             /* Used by "Rikki & Vikki" */
 #define CARTRIDGE_CONTROLLER_NONE 0
 #define CARTRIDGE_CONTROLLER_JOYSTICK 1
 #define CARTRIDGE_CONTROLLER_LIGHTGUN 2
@@ -71,14 +72,38 @@ extern void cartridge_Release(bool persistent_data);
 extern char cartridge_digest[33];
 extern uint8_t cartridge_type;
 extern uint8_t cartridge_region;
+extern uint8_t cartridge_composite;
 extern bool cartridge_pokey;
+extern bool cartridge_pokey450;
+extern bool cartridge_xm;
+extern uint16_t cartridge_hblank;
+extern bool cartridge_stored;
 extern uint8_t cartridge_controller[2];
 extern uint8_t cartridge_bank;
 extern uint32_t cartridge_flags;
+#ifdef SOUPER
 extern bool cartridge_bupchip;
 extern uint8_t cartridge_souper_chr_bank[2];
 extern uint8_t cartridge_souper_mode;
 extern uint8_t cartridge_souper_ram_page_bank[2];
+#endif
+
+// banksets changes
+extern bool cartridge_banksets;
+extern uint32_t cartridge_banksets_begin;
+extern uint32_t cartridge_banksets_end;
+extern bool cartridge_halt_banked_ram;
+extern bool cartridge_pokey_write_only;
+extern bool cartridge_pokey800;
+extern bool cartridge_pokey_range;
+extern uint32_t cartridge_pokey_range_begin;
+extern uint32_t cartridge_pokey_range_end;
+
+/* Per-title compatibility fixes, ported from the Atari 7800+ libretro-prosystem fork */
+extern bool is_bbcq_atari;
+extern bool cartridge_adjust_audio;
+extern float cartridge_adjust_tia;
+extern float cartridge_adjust_pokey;
 
 #ifdef __cplusplus
 }

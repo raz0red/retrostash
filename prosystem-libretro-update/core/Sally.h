@@ -5,7 +5,7 @@
  *
  * ----------------------------------------------------------------------------
  * Copyright 2005 Greg Stanton
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -45,6 +45,8 @@ extern uint8_t sally_y;
 extern uint8_t sally_p;
 extern uint8_t sally_s;
 extern pair sally_pc;
+extern bool half_cycle;
+extern bool disable_sed; /* Knight Guy fix */
 
 #ifdef __cplusplus
 }

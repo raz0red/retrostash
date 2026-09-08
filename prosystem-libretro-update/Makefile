@@ -676,8 +676,13 @@ ifneq (,$(findstring msvc,$(platform)))
    CFLAGS   += -MT
    CXXFLAGS += -MT
 endif
+ifeq ($(platform), emscripten)
+   CFLAGS   += -O1 -DNDEBUG
+   CXXFLAGS += -O1 -DNDEBUG
+else
    CFLAGS   += -O2 -DNDEBUG
    CXXFLAGS += -O2 -DNDEBUG
+endif
 endif
 
 LDFLAGS += $(fpic) $(SHARED)
@@ -703,7 +708,7 @@ WARNINGS := -Wall \
 	-fno-strict-overflow
 endif
 
-FLAGS += -D__LIBRETRO__ $(WARNINGS)
+FLAGS += -D__LIBRETRO__ -DSOUPER $(WARNINGS)
 
 CFLAGS += $(FLAGS)
 

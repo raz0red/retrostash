@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 extern void region_Reset(void);
+extern uint8_t force_original_palette;
 
 #ifdef __cplusplus
 }

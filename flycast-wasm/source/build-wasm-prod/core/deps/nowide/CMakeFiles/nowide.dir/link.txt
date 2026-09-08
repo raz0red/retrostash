@@ -1,2 +1,0 @@
-/emsdk/upstream/emscripten/emar qc libnowide.a CMakeFiles/nowide.dir/src/console_buffer.cpp.o CMakeFiles/nowide.dir/src/cstdio.cpp.o CMakeFiles/nowide.dir/src/cstdlib.cpp.o CMakeFiles/nowide.dir/src/filebuf.cpp.o CMakeFiles/nowide.dir/src/iostream.cpp.o CMakeFiles/nowide.dir/src/stat.cpp.o
-/emsdk/upstream/emscripten/emranlib libnowide.a

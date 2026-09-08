@@ -7,6 +7,13 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#if defined(WRC) && defined(HAVE_CHD)
+/* WRC - only for the Dreamcast-specific multi-track CHD read below;
+ * public API only (chdstream_open/read/seek/get_size/get_frame_size/
+ * close), no shared file is modified. */
+#include <streams/chd_stream.h>
+#endif
+
 /* arbitrary limit to prevent allocating and hashing large files */
 #ifdef WRC
 #define MAX_BUFFER_SIZE 1024 * 1024 * 1024
@@ -224,6 +231,8 @@ static uint32_t rc_cd_find_file_sector(void* track_handle, const char* path, uns
   size_t filename_length;
   const char* slash;
 
+  fprintf(stderr, "[WRC-DEBUG] rc_cd_find_file_sector: path='%s' track_handle=%p\n", path, track_handle);
+
   if (!track_handle)
     return 0;
 
@@ -236,6 +245,7 @@ static uint32_t rc_cd_find_file_sector(void* track_handle, const char* path, uns
     buffer[slash - path] = '\0';
 
     sector = rc_cd_find_file_sector(track_handle, (const char *)buffer, NULL);
+    fprintf(stderr, "[WRC-DEBUG]   parent '%s' resolved to sector=%d\n", (const char*)buffer, sector);
     if (!sector)
       return 0;
 
@@ -247,30 +257,58 @@ static uint32_t rc_cd_find_file_sector(void* track_handle, const char* path, uns
   {
     /* find the cd information */
     if (!rc_cd_read_sector(track_handle, 16, buffer, 256))
+    {
+      fprintf(stderr, "[WRC-DEBUG]   rc_cd_read_sector(16) FAILED\n");
       return 0;
+    }
 
     /* the directory_record starts at 156, the sector containing the table of contents is 2 bytes into that.
      * https://www.cdroller.com/htm/readdata.html
      */
     sector = buffer[156 + 2] | (buffer[156 + 3] << 8) | (buffer[156 + 4] << 16);
+    fprintf(stderr, "[WRC-DEBUG]   root dir absolute sector from PVD = %d\n", sector);
   }
 
   /* fetch and process the directory record */
-  sector = rc_cd_absolute_sector_to_track_sector(track_handle, sector);
+  {
+    int absoluteSector = sector;
+    sector = rc_cd_absolute_sector_to_track_sector(track_handle, sector);
+    fprintf(stderr, "[WRC-DEBUG]   absolute_sector_to_track_sector(%d) -> %d\n", absoluteSector, sector);
+  }
   if (!rc_cd_read_sector(track_handle, sector, buffer, sizeof(buffer)))
+  {
+    fprintf(stderr, "[WRC-DEBUG]   rc_cd_read_sector(%d) FAILED\n", sector);
     return 0;
+  }
 
   tmp = buffer;
   while (tmp < buffer + sizeof(buffer))
   {
     if (!*tmp)
+    {
+      fprintf(stderr, "[WRC-DEBUG]   '%s' NOT FOUND in directory at sector %d (hit zero-length record)\n", path, sector);
       return 0;
+    }
+
+    /* filename is 33 bytes into the record and the format is "FILENAME;version" or "DIRECTORY" */
+    {
+      char entryName[64];
+      int nameLen = (tmp[32] < 63) ? tmp[32] : 63;
+      memcpy(entryName, tmp + 33, nameLen);
+      entryName[nameLen] = '\0';
+      fprintf(stderr, "[WRC-DEBUG]     entry: '%s' (recLen=%d, extentSector=%d, size=%d)\n",
+        entryName, tmp[0],
+        (int)(tmp[2] | (tmp[3] << 8) | (tmp[4] << 16)),
+        (int)(tmp[10] | (tmp[11] << 8) | (tmp[12] << 16) | (tmp[13] << 24)));
+    }
 
     /* filename is 33 bytes into the record and the format is "FILENAME;version" or "DIRECTORY" */
     if ((tmp[33 + filename_length] == ';' || tmp[33 + filename_length] == '\0') &&
         strncasecmp((const char*)(tmp + 33), path, filename_length) == 0)
     {
       sector = tmp[2] | (tmp[3] << 8) | (tmp[4] << 16);
+
+      fprintf(stderr, "[WRC-DEBUG]   MATCH '%s' -> sector=%d\n", path, sector);
 
       if (verbose_message_callback)
       {
@@ -288,6 +326,7 @@ static uint32_t rc_cd_find_file_sector(void* track_handle, const char* path, uns
     tmp += *tmp;
   }
 
+  fprintf(stderr, "[WRC-DEBUG]   '%s' NOT FOUND, ran off end of buffer\n", path);
   return 0;
 }
 
@@ -363,6 +402,94 @@ static uint32_t rc_cd_find_file_sector_neogeo(void* track_handle, const char* pa
 
     tmp += *tmp;
   } while (1);
+
+  return 0;
+}
+
+/* WRC - GD-ROM ISO9660 extents encode the true physical FAD (frame
+ * address), not a sector relative to the track's own data start. The
+ * game-data (high-density) session always begins at FAD 45000 - see
+ * flycast's own core/imgread/gdi.cpp and cue.cpp, which both assert Track 3
+ * starts at exactly this FAD. The generic rc_cd_absolute_sector_to_track_sector
+ * hook can't apply this: it only sees an opaque cdfs_file_t with no
+ * format/console context, and RetroArch's cdfs.c hardcodes
+ * file->first_sector to 0 for any whole-track handle regardless, making
+ * that hook a permanent no-op. This variant is scoped only to Dreamcast to
+ * avoid any risk of regressions in other systems - mirrors the existing
+ * rc_cd_find_file_sector_neogeo precedent above. */
+#define RC_HASH_WRC_DREAMCAST_FAD_OFFSET 45000
+
+static uint32_t rc_cd_find_file_sector_wrc_dreamcast(void* track_handle, const char* path, unsigned* size)
+{
+  uint8_t buffer[2048], *tmp;
+  int sector;
+  size_t filename_length;
+  const char* slash;
+
+  if (!track_handle)
+    return 0;
+
+  filename_length = strlen(path);
+  slash = strrchr(path, '\\');
+  if (slash)
+  {
+    /* find the directory record for the first part of the path */
+    memcpy(buffer, path, slash - path);
+    buffer[slash - path] = '\0';
+
+    sector = rc_cd_find_file_sector_wrc_dreamcast(track_handle, (const char *)buffer, NULL);
+    if (!sector)
+      return 0;
+
+    ++slash;
+    filename_length -= (slash - path);
+    path = slash;
+  }
+  else
+  {
+    /* find the cd information */
+    if (!rc_cd_read_sector(track_handle, 16, buffer, 256))
+      return 0;
+
+    /* the directory_record starts at 156, the sector containing the table of contents is 2 bytes into that. */
+    sector = buffer[156 + 2] | (buffer[156 + 3] << 8) | (buffer[156 + 4] << 16);
+  }
+
+  /* convert the physical FAD to a sector relative to this track's own data */
+  if ((unsigned)sector < RC_HASH_WRC_DREAMCAST_FAD_OFFSET)
+    return 0;
+  sector -= RC_HASH_WRC_DREAMCAST_FAD_OFFSET;
+
+  if (!rc_cd_read_sector(track_handle, sector, buffer, sizeof(buffer)))
+    return 0;
+
+  tmp = buffer;
+  while (tmp < buffer + sizeof(buffer))
+  {
+    if (!*tmp)
+      return 0;
+
+    /* filename is 33 bytes into the record and the format is "FILENAME;version" or "DIRECTORY" */
+    if ((tmp[33 + filename_length] == ';' || tmp[33 + filename_length] == '\0') &&
+        strncasecmp((const char*)(tmp + 33), path, filename_length) == 0)
+    {
+      sector = tmp[2] | (tmp[3] << 8) | (tmp[4] << 16);
+
+      if (verbose_message_callback)
+      {
+        snprintf((char*)buffer, sizeof(buffer), "Found %s at sector %d", path, sector);
+        verbose_message_callback((const char*)buffer);
+      }
+
+      if (size)
+        *size = tmp[10] | (tmp[11] << 8) | (tmp[12] << 16) | (tmp[13] << 24);
+
+      return sector;
+    }
+
+    /* the first byte of the record is the length of the record */
+    tmp += *tmp;
+  }
 
   return 0;
 }
@@ -1341,11 +1468,14 @@ static int rc_hash_pcfx_cd(char hash[33], const char* path)
   return rc_hash_finalize(&md5, hash);
 }
 
+#if defined(WRC) && defined(HAVE_CHD)
+static int rc_hash_cd_file_wrc_dreamcast(md5_state_t* md5, const char* path, uint32_t target_fad, unsigned size, const char* description);
+#endif
+
 static int rc_hash_dreamcast(char hash[33], const char* path)
 {
   uint8_t buffer[256];
   void* track_handle;
-  void* last_track_handle;
   char exe_file[32] = "";
   unsigned size;
   uint32_t sector;
@@ -1402,31 +1532,38 @@ static int rc_hash_dreamcast(char hash[33], const char* path)
   memcpy(exe_file, &buffer[96], i);
   exe_file[i] = '\0';
 
-  sector = rc_cd_find_file_sector(track_handle, exe_file, &size);
+  sector = rc_cd_find_file_sector_wrc_dreamcast(track_handle, exe_file, &size);
 
   rc_cd_close_track(track_handle);
 
   if (sector == 0)
     return rc_hash_error("Could not locate boot executable");
 
-  /* last track contains the boot executable */
-  last_track_handle = rc_cd_open_track(path, RC_HASH_CDTRACK_LAST);
-  track_sector = rc_cd_absolute_sector_to_track_sector(last_track_handle, sector);
+#if defined(WRC) && defined(HAVE_CHD)
+  /* WRC - the boot executable's FAD can fall in track 3 itself (the
+   * common case) or in a later track (the rare Q*bert-style
+   * multi-data-track case, confirmed real for "Looney Tunes - Space
+   * Race"). rc_hash_cd_file_wrc_dreamcast resolves this itself by walking
+   * real track lengths via chd_stream.c's public API - see its own
+   * comment above for the full explanation. */
+  result = rc_hash_cd_file_wrc_dreamcast(&md5, path, sector, size, "boot executable");
+#else
+  /* WRC - no CHD support in this build; fall back to the common-case-only
+   * assumption (boot executable in track 3), matching this build's
+   * existing scope for non-CHD Dreamcast images. */
+  track_sector = (sector >= RC_HASH_WRC_DREAMCAST_FAD_OFFSET) ?
+    (uint32_t)(sector - RC_HASH_WRC_DREAMCAST_FAD_OFFSET) : (uint32_t)-1;
 
   if ((int32_t)track_sector < 0)
-  {
-    /* boot executable is not in the last track; try the primary data track.
-     * There's only a handful of games that do this: Q*bert was the first identified. */
-    rc_cd_close_track(last_track_handle);
+    return rc_hash_error("Boot executable sector below expected GD-ROM data offset");
 
-    rc_hash_verbose("Boot executable not found in last track, trying primary track");
-    last_track_handle = rc_cd_open_track(path, 3);
-    track_sector = rc_cd_absolute_sector_to_track_sector(last_track_handle, sector);
-  }
+  track_handle = rc_cd_open_track(path, 3);
+  if (!track_handle)
+    return rc_hash_error("Could not reopen track 3");
 
-  result = rc_hash_cd_file(&md5, last_track_handle, track_sector, NULL, size, "boot executable");
-
-  rc_cd_close_track(last_track_handle);
+  result = rc_hash_cd_file(&md5, track_handle, track_sector, NULL, size, "boot executable");
+  rc_cd_close_track(track_handle);
+#endif
 
   rc_hash_finalize(&md5, hash);
   return result;
@@ -1614,6 +1751,185 @@ static int rc_hash_ps2(char hash[33], const char* path)
   return result;
 }
 
+#ifdef WRC
+/* WRC - rc_hash_cd_file's normal pattern (one rc_cd_read_sector call per
+ * 2048-byte sector, called in a loop - ~1156 separate calls for a 2.3MB
+ * EBOOT.BIN) produces silently wrong content in this WASM build: debug
+ * logging confirmed sector/size resolution is exactly correct (matches an
+ * independent reference parse of the raw ISO byte-for-byte) and no
+ * individual sector read ever reports a short/failed read, yet the final
+ * MD5 is still wrong - pointing at a data-correctness bug somewhere in the
+ * repeated-small-reads path (intfstream/cdfs sequential-read state
+ * tracking), not the sector math. This reads the whole file in a single
+ * rc_cd_read_sector call instead (letting cdfs_read_file's own internal
+ * multi-sector loop handle it in one pass) to test whether avoiding the
+ * many separate small reads avoids the bug. Deliberately scoped to PSP
+ * only (a separate function, not a change to rc_hash_cd_file itself) -
+ * that function's existing per-sector behavior is correct and unmodified
+ * for every other console's hashing.
+ */
+static int rc_hash_cd_file_wrc_psp(md5_state_t* md5, void* track_handle, uint32_t sector, unsigned size, const char* description)
+{
+  uint8_t* buffer;
+  size_t num_read;
+
+  if (size > MAX_BUFFER_SIZE)
+    size = MAX_BUFFER_SIZE;
+
+  buffer = (uint8_t*)malloc(size);
+  if (!buffer)
+    return rc_hash_error("Could not allocate buffer for WRC PSP bulk read");
+
+  num_read = rc_cd_read_sector(track_handle, sector, buffer, size);
+  if (num_read < size)
+  {
+    char message[128];
+    snprintf(message, sizeof(message), "Could not read %s (got %u of %u bytes)",
+      description, (unsigned)num_read, size);
+    free(buffer);
+    return rc_hash_error(message);
+  }
+
+  if (verbose_message_callback)
+  {
+    char message[128];
+    snprintf(message, sizeof(message), "[WRC] Bulk-hashing %s contents (%u bytes)", description, size);
+    verbose_message_callback(message);
+  }
+
+  md5_append(md5, buffer, (int)size);
+  free(buffer);
+  return 1;
+}
+
+#ifdef HAVE_CHD
+/* WRC - Dreamcast-only, entirely forked from cdfs.c/cheevos.c's track
+ * abstraction, talking directly to chd_stream.c's PUBLIC API only
+ * (chdstream_open/read/seek/get_size/get_frame_size/close - no changes to
+ * any shared file). GD-ROM ISO9660 extents encode a FAD that's logically
+ * continuous across the whole high-density session (track 3 onward, audio
+ * tracks included) starting at 45000, but the session is stored as
+ * physically separate CHD track entries. For ordinary single-data-track
+ * discs the target FAD falls within track 3 itself. For the rare
+ * multi-data-track case (Q*bert-style; confirmed for real on "Looney
+ * Tunes - Space Race", where 1ST_READ.BIN is actually in track 17) the
+ * boot executable is in a later track - this walks forward through each
+ * subsequent track's real stored length (chdstream_get_size(), no
+ * internal frame_offset needed) to find which track the target FAD
+ * actually falls into and the correct track-relative sector within it.
+ * Verified independently against a real extracted CHD (chdman extractcd)
+ * and RetroAchievements' published reference hash for that title before
+ * being wired in - not a guess. */
+static int rc_hash_cd_file_wrc_dreamcast(md5_state_t* md5, const char* path, uint32_t target_fad, unsigned size, const char* description)
+{
+  chdstream_t* stream;
+  uint32_t frame_size;
+  uint32_t track3_sectors;
+  int64_t remaining;
+  int track_num;
+  uint32_t track_sector;
+  uint8_t* buffer;
+  unsigned written;
+
+  stream = chdstream_open(path, 3);
+  if (!stream)
+    return rc_hash_error("Could not open track 3 (CHD)");
+
+  frame_size = chdstream_get_frame_size(stream);
+  if (frame_size == 0)
+    frame_size = 2352;
+  track3_sectors = (uint32_t)(chdstream_get_size(stream) / frame_size);
+  chdstream_close(stream);
+
+  remaining = (int64_t)target_fad - RC_HASH_WRC_DREAMCAST_FAD_OFFSET - track3_sectors;
+
+  if (remaining < 0)
+  {
+    track_num = 3;
+    track_sector = target_fad - RC_HASH_WRC_DREAMCAST_FAD_OFFSET;
+    stream = chdstream_open(path, track_num);
+    if (!stream)
+      return rc_hash_error("Could not reopen track 3 (CHD)");
+  }
+  else
+  {
+    track_num = 4;
+    for (;;)
+    {
+      uint32_t track_sectors;
+
+      stream = chdstream_open(path, track_num);
+      if (!stream)
+        return rc_hash_error("Boot executable FAD not found in any track (CHD)");
+
+      track_sectors = (uint32_t)(chdstream_get_size(stream) / frame_size);
+      if (remaining < (int64_t)track_sectors)
+      {
+        track_sector = (uint32_t)remaining;
+        break;
+      }
+
+      remaining -= track_sectors;
+      chdstream_close(stream);
+      ++track_num;
+    }
+  }
+
+  if (verbose_message_callback)
+  {
+    char message[160];
+    snprintf(message, sizeof(message), "[WRC] Dreamcast boot executable resolved to track %d, sector %u", track_num, track_sector);
+    verbose_message_callback(message);
+  }
+
+  if (size > MAX_BUFFER_SIZE)
+    size = MAX_BUFFER_SIZE;
+
+  buffer = (uint8_t*)malloc(size);
+  if (!buffer)
+  {
+    chdstream_close(stream);
+    return rc_hash_error("Could not allocate buffer for WRC Dreamcast bulk read");
+  }
+
+  written = 0;
+  while (written < size)
+  {
+    uint8_t sector_buf[2048];
+    unsigned take = (size - written < 2048) ? (size - written) : 2048;
+
+    chdstream_seek(stream, (int64_t)track_sector * frame_size + 16, SEEK_SET);
+    if (chdstream_read(stream, sector_buf, 2048) < 2048)
+    {
+      char message[128];
+      snprintf(message, sizeof(message), "Could not read %s (short read at track %d sector %u)",
+        description, track_num, track_sector);
+      free(buffer);
+      chdstream_close(stream);
+      return rc_hash_error(message);
+    }
+
+    memcpy(buffer + written, sector_buf, take);
+    written += take;
+    ++track_sector;
+  }
+
+  chdstream_close(stream);
+
+  if (verbose_message_callback)
+  {
+    char message[128];
+    snprintf(message, sizeof(message), "[WRC] Bulk-hashing %s contents (%u bytes)", description, size);
+    verbose_message_callback(message);
+  }
+
+  md5_append(md5, buffer, (int)size);
+  free(buffer);
+  return 1;
+}
+#endif
+#endif
+
 static int rc_hash_psp(char hash[33], const char* path)
 {
   void* track_handle;
@@ -1634,15 +1950,25 @@ static int rc_hash_psp(char hash[33], const char* path)
     return rc_hash_error("Not a PSP game disc");
 
   md5_init(&md5);
+#ifdef WRC
+  if (!rc_hash_cd_file_wrc_psp(&md5, track_handle, sector, size, "PSP_GAME\\PARAM.SFO"))
+    return 0;
+#else
   if (!rc_hash_cd_file(&md5, track_handle, sector, NULL, size, "PSP_GAME\\PARAM.SFO"))
     return 0;
+#endif
 
   sector = rc_cd_find_file_sector(track_handle, "PSP_GAME\\SYSDIR\\EBOOT.BIN", &size);
   if (!sector)
     return rc_hash_error("Could not find primary executable");
 
+#ifdef WRC
+  if (!rc_hash_cd_file_wrc_psp(&md5, track_handle, sector, size, "PSP_GAME\\SYSDIR\\EBOOT.BIN"))
+    return 0;
+#else
   if (!rc_hash_cd_file(&md5, track_handle, sector, NULL, size, "PSP_GAME\\SYSDIR\\EBOOT.BIN"))
     return 0;
+#endif
 
   rc_cd_close_track(track_handle);
   return rc_hash_finalize(&md5, hash);

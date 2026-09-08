@@ -29,6 +29,8 @@
 #include "Memory.h"
 #include "BupChip.h"
 #include "switchkeypad.h"
+#include "Xm.h"
+#include "ym.h"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -36,35 +38,46 @@
 #endif
 
 #ifdef _3DS
-extern void* linearMemAlign(size_t size, size_t alignment);
-extern void linearFree(void* mem);
+extern void *linearMemAlign(size_t size, size_t alignment);
+extern void linearFree(void *mem);
 #endif
 
 #define VIDEO_BUFFER_SIZE (320 * 292 * 4)
-static uint8_t *videoBuffer            = NULL;
-static uint8_t videoPixelBytes         = 2;
-static int videoWidth                  = 320;
-static int videoHeight                 = 240;
+static uint8_t *videoBuffer = NULL;
+static uint8_t videoPixelBytes = 2;
+static int videoWidth = 320;
+static int videoHeight = 240;
 static uint32_t display_palette32[256] = {0};
 static uint16_t display_palette16[256] = {0};
-static uint8_t keyboard_data[17]       = {0};
+static uint8_t keyboard_data[17] = {0};
 
-static bool persistent_data            = false;
+static bool persistent_data = false;
 
 #define GAMEPAD_ANALOG_THRESHOLD 0x4000
-static bool gamepad_dual_stick_hack    = false;
+/* wrc_input_state_analog[] values are floats normalized to [-1.0, 1.0]
+ * (see wrc_set_input() in platform_emscripten.c), not the int16 range
+ * GAMEPAD_ANALOG_THRESHOLD is for. */
+#define WRC_GAMEPAD_ANALOG_THRESHOLD 0.5f
+static bool gamepad_dual_stick_hack = false;
+
+/* WRC: Difficulty switches are settings-only (no live gamepad button),
+ * matching JS7800. true = "B" (Beginner) position, false = "A" (Advanced).
+ * Defaults match the hardware defaults set in retro_load_game (left =
+ * Beginner, right = Advanced, which fixes Tower Toppler). */
+static bool wrc_left_difficulty_b = true;
+static bool wrc_right_difficulty_b = false;
 
 /* Required buffer size is exactly TIA_BUFFER_SIZE,
  * but round up to nearest multiple of 128 for
  * peace of mind... */
 #define AUDIO_SAMPLE_BUFFER_SIZE ((TIA_BUFFER_SIZE + 0x7F) & ~0x7F)
-static uint8_t *pokeyMixBuffer         = NULL;
-static int16_t *audioOutBuffer         = NULL;
+static uint8_t *pokeyMixBuffer = NULL;
+static int16_t *audioOutBuffer = NULL;
 
 /* Low pass audio filter */
-static bool low_pass_enabled           = false;
-static int32_t low_pass_range          = 0;
-static int32_t low_pass_prev           = 0; /* Previous sample */
+static bool low_pass_enabled = false;
+static int32_t low_pass_range = 0;
+static int32_t low_pass_prev = 0; /* Previous sample */
 
 static retro_log_printf_t log_cb;
 static retro_video_refresh_t video_cb;
@@ -75,7 +88,7 @@ static retro_audio_sample_t audio_cb;
 static retro_audio_sample_batch_t audio_batch_cb;
 
 static bool libretro_supports_bitmasks = false;
-static uint8_t  allenAspect;
+static uint8_t allenAspect;
 
 void retro_set_video_refresh(retro_video_refresh_t cb) { video_cb = cb; }
 void retro_set_audio_sample(retro_audio_sample_t cb) { audio_cb = cb; }
@@ -87,41 +100,40 @@ void retro_set_environment(retro_environment_t cb)
 {
    struct retro_vfs_interface_info vfs_iface_info;
    static const struct retro_system_content_info_override content_overrides[] = {
-      {
-         "a78|bin|cdf", /* extensions */
-         false,         /* need_fullpath */
-         true           /* persistent_data */
-      },
-      { NULL, false, false }
-   };
+       {
+           "a78|bin|cdf", /* extensions */
+           false,         /* need_fullpath */
+           true           /* persistent_data */
+       },
+       {NULL, false, false}};
 
    environ_cb = cb;
    libretro_set_core_options(environ_cb);
    /* Request a persistent content data buffer */
    environ_cb(RETRO_ENVIRONMENT_SET_CONTENT_INFO_OVERRIDE,
-         (void*)content_overrides);
+              (void *)content_overrides);
 
    vfs_iface_info.required_interface_version = 1;
-   vfs_iface_info.iface                      = NULL;
+   vfs_iface_info.iface = NULL;
    if (environ_cb(RETRO_ENVIRONMENT_GET_VFS_INTERFACE, &vfs_iface_info))
       filestream_vfs_init(&vfs_iface_info);
 }
 
 #define BLIT_VIDEO_BUFFER(typename_t, src, palette, width, height, pitch, dst) \
    {                                                                           \
-      typename_t *surface = (typename_t*)dst;                                  \
+      typename_t *surface = (typename_t *)dst;                                 \
       uint32_t x, y;                                                           \
                                                                                \
-      for(y = 0; y < height; y++)                                              \
+      for (y = 0; y < height; y++)                                             \
       {                                                                        \
          typename_t *surface_ptr = surface;                                    \
-         const uint8_t *src_ptr  = src;                                        \
+         const uint8_t *src_ptr = src;                                         \
                                                                                \
-         for(x = 0; x < width; x++)                                            \
+         for (x = 0; x < width; x++)                                           \
             *(surface_ptr++) = *(palette + *(src_ptr++));                      \
                                                                                \
          surface += pitch;                                                     \
-         src     += width;                                                     \
+         src += width;                                                         \
       }                                                                        \
    }
 
@@ -129,7 +141,7 @@ static void display_ResetPalette(void)
 {
    unsigned index;
 
-   for(index = 0; index < 256; index++)
+   for (index = 0; index < 256; index++)
    {
       uint32_t r = palette_data[(index * 3) + 0] << 16;
       uint32_t g = palette_data[(index * 3) + 1] << 8;
@@ -141,22 +153,23 @@ static void display_ResetPalette(void)
    }
 }
 
-static short sound_Lerp(short a, short b, float t) {
+static short sound_Lerp(short a, short b, float t)
+{
    return (short)floorf((float)a + (float)(b - a) * t + 0.5f);
 }
 
-static void sound_ResampleBupChip(const short* source, short* target, int length)
+static void sound_ResampleBupChip(const short *source, short *target, int length)
 {
    int targetIndex;
    uint32_t bupchipBufferSize = CORETONE_BUFFER_SAMPLES * 4;
 
-   for(targetIndex = 0; targetIndex < length; targetIndex++)
+   for (targetIndex = 0; targetIndex < length; targetIndex++)
    {
       float t;
       int channel;
       float sourceIndex = (float)targetIndex / (float)length * (float)bupchipBufferSize;
       uint32_t sourceLo = (uint32_t)floorf(sourceIndex), sourceHi = (uint32_t)ceilf(sourceIndex);
-      if(sourceHi >= bupchipBufferSize)
+      if (sourceHi >= bupchipBufferSize)
          sourceHi = bupchipBufferSize;
       t = sourceIndex - (float)sourceLo;
 
@@ -164,9 +177,9 @@ static void sound_ResampleBupChip(const short* source, short* target, int length
       {
          int sample = sound_Lerp(source[sourceLo * 2 + channel], source[sourceHi * 2 + channel], t);
          sample += target[targetIndex * 2 + channel];
-         if(sample > INT16_MAX)
+         if (sample > INT16_MAX)
             sample = INT16_MAX;
-         else if(sample < INT16_MIN)
+         else if (sample < INT16_MIN)
             sample = INT16_MIN;
          target[targetIndex * 2 + channel] = sample;
       }
@@ -176,19 +189,32 @@ static void sound_ResampleBupChip(const short* source, short* target, int length
 static void sound_Store(void)
 {
    uint8_t *tia_samples_buf = tia_buffer;
-   int16_t *audio_out_buf   = audioOutBuffer;
+   int16_t *audio_out_buf = audioOutBuffer;
    size_t i, j;
 
    /* Mix in sound generated by POKEY chip
     * (Ballblazer, Commando, various homebrew and hacks) */
-   if(cartridge_pokey)
+   if (cartridge_pokey)
    {
       uint8_t *pokey_samples_buf = pokey_buffer;
-      uint8_t *pokey_mix_buf     = pokeyMixBuffer;
+      uint8_t *pokey_mix_buf = pokeyMixBuffer;
 
-      /* Copy samples to pokeyMixBuffer */
-      for(j = 0; j < tia_size; j++)
-         *(pokey_mix_buf++) = (*(tia_samples_buf++) + *(pokey_samples_buf++)) >> 1;
+      if (!cartridge_adjust_audio)
+      {
+         /* Copy samples to pokeyMixBuffer */
+         for (j = 0; j < tia_size; j++)
+            *(pokey_mix_buf++) = (*(tia_samples_buf++) + *(pokey_samples_buf++)) >> 1;
+      }
+      else
+      {
+         /* Tiger Heli: rebalance POKEY/TIA mix */
+         for (j = 0; j < tia_size; j++)
+         {
+            pokey_samples_buf[j] *= cartridge_adjust_pokey;
+            tia_samples_buf[j]   *= cartridge_adjust_tia;
+            pokeyMixBuffer[j] = (tia_samples_buf[j] + pokey_samples_buf[j]) >> 1;
+         }
+      }
 
       /* pokeyMixBuffer 'replaces' tia_buffer */
       tia_samples_buf = pokeyMixBuffer;
@@ -205,7 +231,7 @@ static void sound_Store(void)
       int32_t factor_a = low_pass_range;
       int32_t factor_b = 0x10000 - factor_a;
 
-      for(i = 0; i < tia_size; i++)
+      for (i = 0; i < tia_size; i++)
       {
          int16_t sample_16 = (int16_t)(*(tia_samples_buf++) << 8);
 
@@ -225,7 +251,7 @@ static void sound_Store(void)
    }
    else
    {
-      for(i = 0; i < tia_size; i++)
+      for (i = 0; i < tia_size; i++)
       {
          int16_t sample_16 = (int16_t)(*(tia_samples_buf++) << 8);
 
@@ -234,26 +260,42 @@ static void sound_Store(void)
       }
    }
 
+   if (xm_ym_enabled) {
+      ym_Generate(tia_size);
+      int pos = 0;
+      for (int i = 0; i < tia_size; i++) {
+         audioOutBuffer[pos] = ((audioOutBuffer[pos] + ym_lbuf[i]) /*>> 1*/);
+         pos++;
+         audioOutBuffer[pos] = ((audioOutBuffer[pos] + ym_rbuf[i]) /*>> 1*/);
+         pos++;
+      }
+   }
+
+#ifdef SOUPER
    /* Mix in sound generated by BupChip
     * ("Rikki & Vikki") */
-   if(cartridge_bupchip)
+   if (cartridge_bupchip)
       sound_ResampleBupChip(bupchip_buffer, audioOutBuffer, tia_size);
+#endif
 
+#ifndef EMSCRIPTEN
    audio_batch_cb(audioOutBuffer, tia_size);
+#else
+   EM_ASM({ window.emulator.audioCallback($0, $1); }, audioOutBuffer, tia_size);
+#endif
 }
 
 static void update_input(void)
 {
-	unsigned i,j;
-	unsigned joypad_bits[2];
-	unsigned j2_override_right = 0;
-	unsigned j2_override_left  = 0;
-	unsigned j2_override_down  = 0;
-	unsigned j2_override_up    = 0;
-	uint8_t key_fire_bit;//a2600-b or a7800-a/b
-	unsigned aspect;
-	int32_t  kk;
-
+   unsigned i, j;
+   unsigned joypad_bits[2];
+   unsigned j2_override_right = 0;
+   unsigned j2_override_left = 0;
+   unsigned j2_override_down = 0;
+   unsigned j2_override_up = 0;
+   uint8_t key_fire_bit; // a2600-b or a7800-a/b
+   unsigned aspect;
+   int32_t kk;
 
    /*
     * ----------------------------------------------------------------------------
@@ -281,152 +323,193 @@ static void update_input(void)
     * +----------+--------------+-------------------------------------------------
     */
 
-	kk = switchpad_update();
-	if(0 == get_atari_card_state())
-	{
-		environ_cb(RETRO_ENVIRONMENT_SHUTDOWN, NULL);
-		return;
-	}
-	if(SW_KEY_16_9 & kk)
-	{
-		if(ASPECT_16_9 != allenAspect)
-		{
-			aspect = ASPECT_RATIO_16_9;
-			environ_cb(ALLEN_ENVIRONMENT_SET_CORE_ASPECT_RATIO, &aspect);
-			allenAspect = ASPECT_16_9;
-		}
-	}
-	else
-	{
-		if(ASPECT_4_3 != allenAspect)
-		{
-			aspect = ASPECT_RATIO_4_3;
-			environ_cb(ALLEN_ENVIRONMENT_SET_CORE_ASPECT_RATIO, &aspect);
-			allenAspect = ASPECT_4_3;
-		}
-	}
+   kk = switchpad_update();
+   if (0 == get_atari_card_state())
+   {
+      environ_cb(RETRO_ENVIRONMENT_SHUTDOWN, NULL);
+      return;
+   }
+   if (SW_KEY_16_9 & kk)
+   {
+      if (ASPECT_16_9 != allenAspect)
+      {
+         aspect = ASPECT_RATIO_16_9;
+         environ_cb(ALLEN_ENVIRONMENT_SET_CORE_ASPECT_RATIO, &aspect);
+         allenAspect = ASPECT_16_9;
+      }
+   }
+   else
+   {
+      if (ASPECT_4_3 != allenAspect)
+      {
+         aspect = ASPECT_RATIO_4_3;
+         environ_cb(ALLEN_ENVIRONMENT_SET_CORE_ASPECT_RATIO, &aspect);
+         allenAspect = ASPECT_4_3;
+      }
+   }
 
-	input_poll_cb();
-	if (libretro_supports_bitmasks)
-	{
-		for (j = 0; j < 2; j++)
-		{
-			joypad_bits[j] = input_state_cb(j, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_MASK);
-		}
-	}
-	else
-	{
-		for (j = 0; j < 2; j++)
-		{
-			joypad_bits[j] = 0;
-			for (i = 0; i < (RETRO_DEVICE_ID_JOYPAD_R3+1); i++)
-			{
-				joypad_bits[j] |= input_state_cb(j, RETRO_DEVICE_JOYPAD, 0, i) ? (1 << i) : 0;
-			}
-		}
-	}
+   input_poll_cb();
+   if (libretro_supports_bitmasks)
+   {
+      for (j = 0; j < 2; j++)
+      {
+         joypad_bits[j] = input_state_cb(j, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_MASK);
+      }
+   }
+   else
+   {
+      for (j = 0; j < 2; j++)
+      {
+         joypad_bits[j] = 0;
+         for (i = 0; i < (RETRO_DEVICE_ID_JOYPAD_R3 + 1); i++)
+         {
+            joypad_bits[j] |= input_state_cb(j, RETRO_DEVICE_JOYPAD, 0, i) ? (1 << i) : 0;
+         }
+      }
+   }
 
    /* If dual stick controller hack is enabled,
     * fetch overrides for player 2's joystick
     * right/left/down/up values */
    if (gamepad_dual_stick_hack)
    {
+#ifdef EMSCRIPTEN
+      /* This WRC build feeds analog input through wrc_input_state_analog[]
+       * (set by wrc_set_input() from JS), not the standard libretro
+       * RETRO_DEVICE_ANALOG input_state_cb() path, which isn't wired up
+       * to real analog data in this embedding. */
+      float analog_x = wrc_input_state_analog[0][2]; /* right stick X */
+      float analog_y = wrc_input_state_analog[0][3]; /* right stick Y */
+
+      if (analog_x >= WRC_GAMEPAD_ANALOG_THRESHOLD)
+         j2_override_right = 1;
+      else if (analog_x <= -WRC_GAMEPAD_ANALOG_THRESHOLD)
+         j2_override_left = 1;
+
+      if (analog_y >= WRC_GAMEPAD_ANALOG_THRESHOLD)
+         j2_override_down = 1;
+      else if (analog_y <= -WRC_GAMEPAD_ANALOG_THRESHOLD)
+         j2_override_up = 1;
+#else
       int analog_x = input_state_cb(0, RETRO_DEVICE_ANALOG,
-            RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X);
+                                    RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X);
       int analog_y = input_state_cb(0, RETRO_DEVICE_ANALOG,
-            RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y);
+                                    RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y);
 
       if (analog_x >= GAMEPAD_ANALOG_THRESHOLD)
          j2_override_right = 1;
       else if (analog_x <= -GAMEPAD_ANALOG_THRESHOLD)
-         j2_override_left  = 1;
+         j2_override_left = 1;
 
       if (analog_y >= GAMEPAD_ANALOG_THRESHOLD)
-         j2_override_down  = 1;
+         j2_override_down = 1;
       else if (analog_y <= -GAMEPAD_ANALOG_THRESHOLD)
-         j2_override_up    = 1;
+         j2_override_up = 1;
+#endif
    }
 
-   keyboard_data[0]  = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_RIGHT)  ? 1 : 0; //right
-   keyboard_data[1]  = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_LEFT)   ? 1 : 0; //left
-   keyboard_data[2]  = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_DOWN)   ? 1 : 0; //down
-   keyboard_data[3]  = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_UP)     ? 1 : 0; //up
-   keyboard_data[4]  = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_Y)      ? 1 : 0; //b
-   if(joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_B)) //a2600-fire
-   	key_fire_bit = 1;
-   else if(joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_X))
-   	key_fire_bit = 1;
+#ifndef EMSCRIPTEN
+   keyboard_data[0] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_RIGHT) ? 1 : 0; // right
+   keyboard_data[1] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_LEFT) ? 1 : 0;  // left
+   keyboard_data[2] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_DOWN) ? 1 : 0;  // down
+   keyboard_data[3] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_UP) ? 1 : 0;    // up
+   keyboard_data[4] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_Y) ? 1 : 0;     // b
+   if (joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_B))                            // a2600-fire
+      key_fire_bit = 1;
+   else if (joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_X))
+      key_fire_bit = 1;
    else
-   	key_fire_bit = 0;
-   keyboard_data[5]  = key_fire_bit; //a
+      key_fire_bit = 0;
+   keyboard_data[5] = key_fire_bit; // a
 
-   keyboard_data[6]  = joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_RIGHT)  ? 1 : j2_override_right;
-   keyboard_data[7]  = joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_LEFT)   ? 1 : j2_override_left;
-   keyboard_data[8]  = joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_DOWN)   ? 1 : j2_override_down;
-   keyboard_data[9]  = joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_UP)     ? 1 : j2_override_up;
-   keyboard_data[10] = joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_Y)      ? 1 : 0;
-   if(joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_B)) //a2600-fire
-   	key_fire_bit = 1;
-   else if(joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_X))
-   	key_fire_bit = 1;
+   keyboard_data[6] = joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_RIGHT) ? 1 : j2_override_right;
+   keyboard_data[7] = joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_LEFT) ? 1 : j2_override_left;
+   keyboard_data[8] = joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_DOWN) ? 1 : j2_override_down;
+   keyboard_data[9] = joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_UP) ? 1 : j2_override_up;
+   keyboard_data[10] = joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_Y) ? 1 : 0;
+   if (joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_B)) // a2600-fire
+      key_fire_bit = 1;
+   else if (joypad_bits[1] & (1 << RETRO_DEVICE_ID_JOYPAD_X))
+      key_fire_bit = 1;
    else
-   	key_fire_bit = 0;
+      key_fire_bit = 0;
    keyboard_data[11] = key_fire_bit;
 
-#if 0 //allen
-   keyboard_data[12] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_X)      ? 1 : 0; //reset
-   keyboard_data[13] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_SELECT) ? 1 : 0; //select
-   keyboard_data[14] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_START)  ? 1 : 0; //pause
-   keyboard_data[15] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_L)      ? 1 : 0; //left  difficulty
-   keyboard_data[16] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_R)      ? 1 : 0; //right difficulty
+// raz TODO, set back to 0
+#if 1                                                                                 // allen
+   keyboard_data[12] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_X) ? 1 : 0;      // reset
+   keyboard_data[13] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_SELECT) ? 1 : 0; // select
+   keyboard_data[14] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_START) ? 1 : 0;  // pause
+   keyboard_data[15] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_L) ? 1 : 0;      // left  difficulty
+   keyboard_data[16] = joypad_bits[0] & (1 << RETRO_DEVICE_ID_JOYPAD_R) ? 1 : 0;      // right difficulty
 #else
-	if(SW_KEY_RST & kk)
-		keyboard_data[12] = 1;
-	else
-		keyboard_data[12] = 0;
+   if (SW_KEY_RST & kk)
+      keyboard_data[12] = 1;
+   else
+      keyboard_data[12] = 0;
 
-	if(SW_KEY_SEL & kk)
-		keyboard_data[13] = 1;
-	else
-		keyboard_data[13] = 0;
+   if (SW_KEY_SEL & kk)
+      keyboard_data[13] = 1;
+   else
+      keyboard_data[13] = 0;
 
-	keyboard_data[14] = 0; //pause
+   keyboard_data[14] = 0; // pause
 
-	if(SW_KEY_1P_A & kk)
-		keyboard_data[15] = 1;
-	else
-		keyboard_data[15] = 0;
+   if (SW_KEY_1P_A & kk)
+      keyboard_data[15] = 1;
+   else
+      keyboard_data[15] = 0;
 
-	if(SW_KEY_2P_A & kk)
-		keyboard_data[16] = 1;
-	else
-		keyboard_data[16] = 0;
+   if (SW_KEY_2P_A & kk)
+      keyboard_data[16] = 1;
+   else
+      keyboard_data[16] = 0;
 #endif
-
-#ifdef EMSCRIPTEN
+#else
    int controller1 = wrc_input_state[0];
    int controller2 = wrc_input_state[1];
 
-   keyboard_data[0]  = (controller1 & INP_RIGHT)  ? 1 : 0; //right
-   keyboard_data[1]  = (controller1 & INP_LEFT)   ? 1 : 0; //left
-   keyboard_data[2]  = (controller1 & INP_DOWN)   ? 1 : 0; //down
-   keyboard_data[3]  = (controller1 & INP_UP)     ? 1 : 0; //up
-   keyboard_data[4]  = (controller1 & INP_A)      ? 1 : 0; //a
-   keyboard_data[5]  = (controller1 & INP_B)      ? 1 : 0; //b
+   keyboard_data[0] = (controller1 & INP_RIGHT) ? 1 : 0; // right
+   keyboard_data[1] = (controller1 & INP_LEFT) ? 1 : 0;  // left
+   keyboard_data[2] = (controller1 & INP_DOWN) ? 1 : 0;  // down
+   keyboard_data[3] = (controller1 & INP_UP) ? 1 : 0;    // up
+   keyboard_data[4] = (controller1 & INP_A) ? 1 : 0;     // a
+   keyboard_data[5] = (controller1 & INP_B) ? 1 : 0;     // b
 
-   keyboard_data[6]  = (controller2 & INP_RIGHT)  ? 1 : 0;
-   keyboard_data[7]  = (controller2 & INP_LEFT)   ? 1 : 0;
-   keyboard_data[8]  = (controller2 & INP_DOWN)   ? 1 : 0;
-   keyboard_data[9]  = (controller2 & INP_UP)     ? 1 : 0;
-   keyboard_data[10] = (controller2 & INP_A)      ? 1 : 0;
-   keyboard_data[11] = (controller2 & INP_B)      ? 1 : 0;
+   keyboard_data[6] = (controller2 & INP_RIGHT) ? 1 : j2_override_right;
+   keyboard_data[7] = (controller2 & INP_LEFT) ? 1 : j2_override_left;
+   keyboard_data[8] = (controller2 & INP_DOWN) ? 1 : j2_override_down;
+   keyboard_data[9] = (controller2 & INP_UP) ? 1 : j2_override_up;
+   keyboard_data[10] = (controller2 & INP_A) ? 1 : 0;
+   keyboard_data[11] = (controller2 & INP_B) ? 1 : 0;
 
-   keyboard_data[12] = (controller1 & INP_START)     ? 1 : 0; //reset
-   keyboard_data[13] = (controller1 & INP_SELECT)    ? 1 : 0; //select
-   keyboard_data[14] = (controller1 & INP_Y)         ? 1 : 0; //pause
-   keyboard_data[15] = (controller1 & INP_LBUMP)     ? 1 : 0; //left  difficulty
-   keyboard_data[16] = (controller1 & INP_RBUMP)     ? 1 : 0; //right difficulty
+   keyboard_data[12] = (controller1 & INP_START) ? 1 : 0;  // reset
+   keyboard_data[13] = (controller1 & INP_SELECT) ? 1 : 0; // select
+   keyboard_data[14] = (controller1 & INP_Y) ? 1 : 0;      // pause
+   keyboard_data[15] = wrc_left_difficulty_b ? 1 : 0;       // left  difficulty (settings, not a button)
+   keyboard_data[16] = wrc_right_difficulty_b ? 1 : 0;      // right difficulty (settings, not a button)
 #endif
+
+   /* Bentley Bear (Force C78 controllers only) */
+   if (is_bbcq_atari)
+   {
+      if ((keyboard_data[15] == 1 && keyboard_data[16] == 1) ||
+          (keyboard_data[15] == 1 && keyboard_data[16] == 0))
+      {
+         keyboard_data[15] = 0;
+         keyboard_data[16] = 0;
+         if (keyboard_data[4])
+         {
+            keyboard_data[4] = 0;
+            keyboard_data[5] = 1;
+         }
+         if (keyboard_data[3])
+         {
+            keyboard_data[3] = 0;
+            keyboard_data[4] = 1;
+         }
+      }
+   }
 }
 
 void check_variables(bool first_run)
@@ -436,7 +519,7 @@ void check_variables(bool first_run)
    /* Only read colour depth option on first run */
    if (first_run)
    {
-      var.key   = "prosystem_color_depth";
+      var.key = "prosystem_color_depth";
       var.value = NULL;
 
       /* Set 16bpp by default */
@@ -448,7 +531,7 @@ void check_variables(bool first_run)
    }
 
    /* Read low pass audio filter settings */
-   var.key   = "prosystem_low_pass_filter";
+   var.key = "prosystem_low_pass_filter";
    var.value = NULL;
 
    low_pass_enabled = false;
@@ -457,16 +540,16 @@ void check_variables(bool first_run)
       if (strcmp(var.value, "enabled") == 0)
          low_pass_enabled = true;
 
-   var.key   = "prosystem_low_pass_range";
+   var.key = "prosystem_low_pass_range";
    var.value = NULL;
 
    low_pass_range = (60 * 0x10000) / 100;
 
-	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
-		low_pass_range = (strtol(var.value, NULL, 10) * 0x10000) / 100;
+   if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
+      low_pass_range = (strtol(var.value, NULL, 10) * 0x10000) / 100;
 
    /* Read dual stick controller setting */
-   var.key   = "prosystem_gamepad_dual_stick_hack";
+   var.key = "prosystem_gamepad_dual_stick_hack";
    var.value = NULL;
 
    gamepad_dual_stick_hack = false;
@@ -487,20 +570,20 @@ void retro_get_system_info(struct retro_system_info *info)
 #ifndef GIT_VERSION
 #define GIT_VERSION ""
 #endif
-   info->library_version  = "1.3e" GIT_VERSION;
-   info->need_fullpath    = false;
+   info->library_version = "1.3e" GIT_VERSION;
+   info->need_fullpath = false;
    info->valid_extensions = "a78|bin|cdf";
 }
 
 void retro_get_system_av_info(struct retro_system_av_info *info)
 {
    memset(info, 0, sizeof(*info));
-   info->timing.fps            = (cartridge_region == REGION_NTSC) ? 60 : 50;
-   info->timing.sample_rate    = (prosystem_frequency * prosystem_scanlines) << 1; /* 2 samples per scanline */
-   info->geometry.base_width   = videoWidth;
-   info->geometry.base_height  = (cartridge_region == REGION_NTSC) ? 223 : 272;
-   info->geometry.max_width    = 320;
-   info->geometry.max_height   = 292;
+   info->timing.fps = (cartridge_region == REGION_NTSC) ? 60 : 50;
+   info->timing.sample_rate = (prosystem_frequency * prosystem_scanlines) << 1; /* 2 samples per scanline */
+   info->geometry.base_width = videoWidth;
+   info->geometry.base_height = (cartridge_region == REGION_NTSC) ? 223 : 272;
+   info->geometry.max_width = 320;
+   info->geometry.max_height = 292;
    info->geometry.aspect_ratio = 4.0 / 3.0;
 }
 
@@ -512,21 +595,22 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
 
 size_t retro_serialize_size(void)
 {
-   return 49221;
+   return prosystem_GetStateSize();
 }
 
 bool retro_serialize(void *data, size_t size)
 {
-   return prosystem_Save((char*)data, false);
+   return prosystem_Save((char *)data, false);
 }
 
 bool retro_unserialize(const void *data, size_t size)
 {
-   return prosystem_Load((const char*)data);
+   return prosystem_Load((const char *)data);
 }
 
 void retro_cheat_reset(void)
-{}
+{
+}
 
 void retro_cheat_set(unsigned index, bool enabled, const char *code)
 {
@@ -539,7 +623,7 @@ bool retro_load_game(const struct retro_game_info *info)
 {
    enum retro_pixel_format fmt;
    char biospath[512];
-   const char *system_directory_c             = NULL;
+   const char *system_directory_c = NULL;
    const struct retro_game_info_ext *info_ext = NULL;
 #ifdef _WIN32
    char slash = '\\';
@@ -548,28 +632,28 @@ bool retro_load_game(const struct retro_game_info *info)
 #endif
 
    struct retro_input_descriptor desc[] = {
-      { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT,   "Left" },
-      { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP,     "Up" },
-      { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN,   "Down" },
-      { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT,  "Right" },
-      { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B,      "1" },
-      { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A,      "2" },
-      { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X,      "Console Reset" },
-      { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT, "Console Select" },
-      { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START,  "Console Pause" },
-      { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L,      "Left Difficulty" },
-      { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R,      "Right Difficulty" },
-      { 0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X, "(Dual Stick) P2 X-Axis" },
-      { 0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y, "(Dual Stick) P2 Y-Axis" },
+       {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left"},
+       {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "Up"},
+       {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN, "Down"},
+       {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "Right"},
+       {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B, "1"},
+       {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A, "2"},
+       {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X, "Console Reset"},
+       {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT, "Console Select"},
+       {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START, "Console Pause"},
+       {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L, "Left Difficulty"},
+       {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R, "Right Difficulty"},
+       {0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X, "(Dual Stick) P2 X-Axis"},
+       {0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y, "(Dual Stick) P2 Y-Axis"},
 
-      { 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT,   "Left" },
-      { 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP,     "Up" },
-      { 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN,   "Down" },
-      { 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT,  "Right" },
-      { 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B,      "1" },
-      { 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A,      "2" },
+       {1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left"},
+       {1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "Up"},
+       {1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN, "Down"},
+       {1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "Right"},
+       {1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B, "1"},
+       {1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A, "2"},
 
-      { 0 },
+       {0},
    };
 
    if (!info)
@@ -624,9 +708,9 @@ bool retro_load_game(const struct retro_game_info *info)
    {
       /* CDF file. */
       int ok;
-      char* lastSlash = strrchr(info->path, slash);
+      char *lastSlash = strrchr(info->path, slash);
       size_t baseSize = lastSlash == NULL ? strlen(info->path) : lastSlash - info->path;
-      char* workingDir = malloc(baseSize + 1);
+      char *workingDir = malloc(baseSize + 1);
       memcpy(workingDir, info->path, baseSize);
       workingDir[baseSize] = '\0';
 
@@ -635,13 +719,19 @@ bool retro_load_game(const struct retro_game_info *info)
       free(workingDir);
 
       if (ok == 0)
-         return false;
+          return false;
+      cartridge_type = CARTRIDGE_TYPE_SOUPER;
    }
    else if (!cartridge_Load(persistent_data,
-            (const uint8_t*)info->data, info->size))
+                            (const uint8_t *)info->data, info->size))
       return false;
 
+#if 0 // TODO raz
    database_Load(cartridge_digest);
+#endif
+
+   // Notify maria that the cartridge has loaded
+   maria_PostCartLoad();
 
 #ifdef EMSCRIPTEN
    EM_ASM({
@@ -650,7 +740,7 @@ bool retro_load_game(const struct retro_game_info *info)
 #endif
 
    environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system_directory_c);
-#if 0 //allen
+#if 0 // allen
    /* BIOS is optional */
    if (cartridge_region == REGION_PAL)
       sprintf(biospath, "%s%c%s", system_directory_c, slash, "7800 BIOS (E).rom");
@@ -685,26 +775,26 @@ void retro_unload_game(void)
 
 unsigned retro_get_region(void)
 {
-    return cartridge_region == REGION_NTSC ? RETRO_REGION_NTSC : RETRO_REGION_PAL;
+   return cartridge_region == REGION_NTSC ? RETRO_REGION_NTSC : RETRO_REGION_PAL;
 }
 
 unsigned retro_api_version(void)
 {
-    return RETRO_API_VERSION;
+   return RETRO_API_VERSION;
 }
 
 void *retro_get_memory_data(unsigned id)
 {
-    if ( id == RETRO_MEMORY_SYSTEM_RAM )
-        return memory_ram;
-    return NULL;
+   if (id == RETRO_MEMORY_SYSTEM_RAM)
+      return memory_ram;
+   return NULL;
 }
 
 size_t retro_get_memory_size(unsigned id)
 {
-    if ( id == RETRO_MEMORY_SYSTEM_RAM )
-        return MEMORY_SIZE;
-    return 0;
+   if (id == RETRO_MEMORY_SYSTEM_RAM)
+      return MEMORY_SIZE;
+   return 0;
 }
 
 void retro_init(void)
@@ -725,15 +815,15 @@ void retro_init(void)
       libretro_supports_bitmasks = true;
 
 #ifdef _3DS
-   videoBuffer = (uint8_t*)linearMemAlign(VIDEO_BUFFER_SIZE * sizeof(uint8_t), 128);
+   videoBuffer = (uint8_t *)linearMemAlign(VIDEO_BUFFER_SIZE * sizeof(uint8_t), 128);
 #else
-   videoBuffer = (uint8_t*)malloc(VIDEO_BUFFER_SIZE * sizeof(uint8_t));
+   videoBuffer = (uint8_t *)malloc(VIDEO_BUFFER_SIZE * sizeof(uint8_t));
 #endif
 
-   pokeyMixBuffer = (uint8_t*)malloc(AUDIO_SAMPLE_BUFFER_SIZE * sizeof(uint8_t));
+   pokeyMixBuffer = (uint8_t *)malloc(AUDIO_SAMPLE_BUFFER_SIZE * sizeof(uint8_t));
    /* Samples are mono, output buffer is stereo
     * (AUDIO_SAMPLE_BUFFER_SIZE * 2) */
-   audioOutBuffer = (int16_t*)malloc((AUDIO_SAMPLE_BUFFER_SIZE << 1) * sizeof(int16_t));
+   audioOutBuffer = (int16_t *)malloc((AUDIO_SAMPLE_BUFFER_SIZE << 1) * sizeof(int16_t));
 
    switchpad_init();
 }
@@ -741,9 +831,9 @@ void retro_init(void)
 void retro_deinit(void)
 {
    libretro_supports_bitmasks = false;
-   gamepad_dual_stick_hack    = false;
-   low_pass_enabled           = false;
-   low_pass_prev              = 0;
+   gamepad_dual_stick_hack = false;
+   low_pass_enabled = false;
+   low_pass_prev = 0;
 
    if (videoBuffer)
    {
@@ -772,7 +862,7 @@ void retro_deinit(void)
 
 void retro_reset(void)
 {
-    prosystem_Reset();
+   prosystem_Reset();
 }
 
 static INLINE uint32_t Rect_GetHeight(struct Rects *rect)
@@ -780,11 +870,13 @@ static INLINE uint32_t Rect_GetHeight(struct Rects *rect)
    return (rect->bottom - rect->top) + 1;
 }
 
+int ff = 0;
+
 void retro_run(void)
 {
    const uint8_t *buffer = NULL;
-   uint32_t video_pitch  = 320;
-   bool options_updated  = false;
+   uint32_t video_pitch = 320;
+   bool options_updated = false;
 
    /* Core options */
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &options_updated) && options_updated)
@@ -794,9 +886,9 @@ void retro_run(void)
 
    prosystem_ExecuteFrame(keyboard_data); /* wants input */
 
-   videoWidth  = Rect_GetLength(&maria_visibleArea);
+   videoWidth = Rect_GetLength(&maria_visibleArea);
    videoHeight = Rect_GetHeight(&maria_visibleArea);
-   buffer      = maria_surface + ((maria_visibleArea.top - maria_displayArea.top) * Rect_GetLength(&maria_visibleArea));
+   buffer = maria_surface + ((maria_visibleArea.top - maria_displayArea.top) * Rect_GetLength(&maria_visibleArea));
 
    if (videoPixelBytes == 2)
    {
@@ -814,12 +906,17 @@ void retro_run(void)
 
 #ifdef EMSCRIPTEN
 void em_cmd_savefiles() {}
-void wrc_on_set_options(int opts) {}
+void wrc_on_set_options(int opts)
+{
+   wrc_left_difficulty_b   = (opts & 0x1) ? true : false;
+   wrc_right_difficulty_b  = (opts & 0x2) ? true : false;
+   gamepad_dual_stick_hack = (opts & 0x4) ? true : false;
+}
 void wrc_on_key(int key, int down) {}
 void wrc_step() {}
-void wrc_save_state(char* file) {}
-void wrc_load_state(char* file) {}
-int wrc_start(char* arg) {}
+void wrc_save_state(char *file) {}
+void wrc_load_state(char *file) {}
+int wrc_start(char *arg) {}
 
 void chd_get_header() {}
 void chd_get_metadata() {}

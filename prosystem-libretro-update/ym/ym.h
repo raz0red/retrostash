@@ -5,7 +5,7 @@
  *
  * ----------------------------------------------------------------------------
  * Copyright 2005 Greg Stanton
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -20,38 +20,45 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * ----------------------------------------------------------------------------
- * BupChip.h
+ * PokeySound is Copyright(c) 1997 by Ron Fries
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU Library General Public License
+ * as published by the Free Software Foundation.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library
+ * General Public License for more details.
+ * To obtain a copy of the GNU Library General Public License, write to the
+ * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Any permitted reproduction of these routines, in whole or in part, must
+ * bear this legend.
+ * ----------------------------------------------------------------------------
+ * ym.h
  * ----------------------------------------------------------------------------
  */
-#ifndef BUPCHIP_H
-#define BUPCHIP_H
+#ifndef YM_H
+#define YM_H
 
 #include <stdint.h>
-#include <stddef.h>
-#include "../bupboop/types.h"
-#include "../bupboop/coretone/coretone.h"
 
-extern unsigned char bupchip_flags;
-extern unsigned char bupchip_volume;
-extern unsigned char bupchip_current_song;
-extern short bupchip_buffer[CORETONE_BUFFER_LEN * 4];
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int bupchip_InitFromCDF(const char** cdf, size_t* cdfSize, const char *workingDir);
-void bupchip_ProcessAudioCommand(unsigned char data);
-void bupchip_Process(unsigned tick);
-void bupchip_Release(void);
-void bupchip_StateLoaded(void);
+void ym_Reset();
+void ym_SetReg(int r, int v);
+void ym_Generate(int length);
+int ym_GetStatus();
 
-int bupchip_Unpack(void);
-uint8_t* bupchip_GetMusicBuffer(void);
-short* bupchip_GetBupChipBuffer(void);
-void bupchip_SetMusicBufferValue(int index, unsigned char value);
-int bupchip_GetMusicSize(void);
-uint8_t bupchip_GetFlags(void);
-void bupchip_SetFlags(uint8_t flags);
-uint8_t bupchip_GetVolumeValue(void);
-void bupchip_SetVolumeValue(uint8_t volume);
-uint8_t bupchip_GetCurrentSong(void);
-void bupchip_SetCurrentSong(uint8_t song);
+extern signed int *ym_lbuf;
+extern signed int *ym_rbuf;
+extern uint8_t ym_registers[256];
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

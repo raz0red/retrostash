@@ -34,6 +34,7 @@ extern "C" {
 #endif
 
 extern void hash_Compute(char *s, const uint8_t* source, uint32_t length);
+extern uint16_t hash_CRC16(const uint8_t* data, uint16_t length);
 
 #ifdef __cplusplus
 }

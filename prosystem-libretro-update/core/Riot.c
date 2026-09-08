@@ -5,7 +5,7 @@
  *
  * ----------------------------------------------------------------------------
  * Copyright 2005 Greg Stanton
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -23,19 +23,20 @@
  * Riot.c
  * ----------------------------------------------------------------------------
  */
+#include <stdlib.h>
 #include "Riot.h"
 #include "Equates.h"
 #include "Memory.h"
 
 bool riot_timing              = false;
-static uint16_t riot_timer    = TIM64T;
-static uint8_t riot_intervals = 0;
+uint16_t riot_timer           = TIM64T;
+uint8_t riot_intervals        = 0;
 
-static uint8_t riot_dra       = 0;
-static uint8_t riot_drb       = 0;
+uint8_t riot_dra              = 0;
+uint8_t riot_drb              = 0;
 static bool riot_elapsed      = false;
 static int riot_currentTime   = 0;
-static uint16_t riot_clocks   = 0;
+uint16_t riot_clocks          = 0;
 
 void riot_Reset(void)
 {
@@ -46,7 +47,7 @@ void riot_Reset(void)
 /* ----------------------------------------------------------------------------
  * SetInput
  * +----------+--------------+-------------------------------------------------
- * | Offset   | Controller   | Control                                         
+ * | Offset   | Controller   | Control
  * +----------+--------------+-------------------------------------------------
  * | 00       | Joystick 1   | Right
  * | 01       | Joystick 1   | Left
@@ -110,12 +111,14 @@ void riot_SetInput(const uint8_t* input)
      Some games rely on this, and don't actually store anything to SWCHB.*/
 
    memory_ram[SWCHB] = ((~memory_ram[CTLSWB]) | riot_drb);	/*SWCHB as driven by RIOT*/
-   /*now the console switches can force certain bits to ground:*/
-   if (input[0x0c])	memory_ram[SWCHB] = memory_ram[SWCHB] &~ 0x01;
-   if (input[0x0d])	memory_ram[SWCHB] = memory_ram[SWCHB] &~ 0x02;
-   if (input[0x0e])	memory_ram[SWCHB] = memory_ram[SWCHB] &~ 0x08;
-   if (input[0x0f])	memory_ram[SWCHB] = memory_ram[SWCHB] &~ 0x40;
-   if (input[0x10])	memory_ram[SWCHB] = memory_ram[SWCHB] &~ 0x80;
+   if (input != NULL) {
+      /*now the console switches can force certain bits to ground:*/
+      if (input[0x0c])	memory_ram[SWCHB] = memory_ram[SWCHB] &~ 0x01;
+      if (input[0x0d])	memory_ram[SWCHB] = memory_ram[SWCHB] &~ 0x02;
+      if (input[0x0e])	memory_ram[SWCHB] = memory_ram[SWCHB] &~ 0x08;
+      if (input[0x0f])	memory_ram[SWCHB] = memory_ram[SWCHB] &~ 0x40;
+      if (input[0x10])	memory_ram[SWCHB] = memory_ram[SWCHB] &~ 0x80;
+   }
 
    /*When in 1 button mode, only the legacy 2600 button signal is active.  The others stay off.
      When in 2 button mode, only the new signals are active.  2600 button stays off.	(tested)
@@ -188,6 +191,13 @@ void riot_SetDRA(uint8_t data)
 void riot_SetDRB(uint8_t data)
 {
 	riot_drb=data;
+
+   // Make changes to joystick buttons immediately. This was added to make
+   // The high score cart work properly with Asteroids
+   //memory_ram[SWCHB] &= (~0x14);
+   memory_ram[SWCHB] = (memory_ram[SWCHB] & (~0x14));
+   //memory_ram[SWCHB] |= (((~memory_ram[CTLSWB]) | riot_drb) & 0x14);
+   memory_ram[SWCHB] = (memory_ram[SWCHB] | (((~memory_ram[CTLSWB]) | riot_drb) & 0x14));
 }
 
 void riot_SetTimer(uint16_t timer, uint8_t intervals)
@@ -244,6 +254,7 @@ void riot_UpdateTimer(uint8_t cycles)
          riot_currentTime = riot_clocks;
          memory_Write(INTIM, 0);
          memory_ram[INTFLG] |= 0x80;
+         memory_ram[INTFLG + 16] |= 0x80;
          riot_elapsed = true;
       }
    }

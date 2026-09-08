@@ -1,2 +1,0 @@
-/emsdk/upstream/emscripten/emar qc libelf.a CMakeFiles/elf.dir/src/elf.c.o CMakeFiles/elf.dir/src/elf32.c.o CMakeFiles/elf.dir/src/elf64.c.o
-/emsdk/upstream/emscripten/emranlib libelf.a

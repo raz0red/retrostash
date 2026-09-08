@@ -203,6 +203,19 @@ void GLInfo::init() {
 	ext_fetch_arm =  Utils::isExtensionSupported(*this, "GL_ARM_shader_framebuffer_fetch") && !ext_fetch;
 
 	dual_source_blending = false; //!isGLESX || ((!isGLES2) && (Utils::isExtensionSupported(*this, "GL_EXT_blend_func_extended") && !isAnyAdreno));
+	// WRC - restored from real upstream libretro/mupen64plus-libretro-nx;
+	// missing from the EmulatorJS fork this core was vendored from. Without
+	// this, ext_fetch/ext_fetch_arm/n64DepthWithFbFetch can stay enabled
+	// even when dual_source_blending is false, letting shader combiner
+	// logic take a framebuffer-fetch codepath the driver doesn't actually
+	// support in that state - a real capability mismatch, not just a
+	// formatting difference. Testing whether this explains Jet Force
+	// Gemini's vertical-bar/geometry artifact.
+	if (!dual_source_blending) {
+		ext_fetch = false;
+		ext_fetch_arm = false;
+		n64DepthWithFbFetch = false;
+	}
 	anisotropic_filtering = Utils::isExtensionSupported(*this, "GL_EXT_texture_filter_anisotropic");
 
 #ifdef OS_ANDROID

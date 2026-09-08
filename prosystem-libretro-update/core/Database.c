@@ -5,7 +5,7 @@
  *
  * ----------------------------------------------------------------------------
  * Copyright 2005 Greg Stanton
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -23,9 +23,13 @@
  * Database.c
  * ----------------------------------------------------------------------------
  */
+#include <string.h>
 #include "Database.h"
 #include "Cartridge.h"
+#include "ProSystem.h"
+#include "CartList.h"
 
+#if 0
 void database_Initialize(void) { }
 
 typedef struct cartridge_db
@@ -43,7 +47,7 @@ typedef struct cartridge_db
    uint8_t hblank;
 } cartridge_db_t;
 
-static const struct cartridge_db db_list[] = 
+static const struct cartridge_db db_list[] =
 {
    {
       "4332c24e4f3bc72e7fe1b77adf66c2b7",         /* digest */
@@ -1755,4 +1759,212 @@ void database_Load(const char *digest)
          return;
       }
    }
+}
+#endif
+
+// Cart type word details
+
+// bit 0     = pokey at $4000
+#define CT_POKEY_AT_4000 1 << 0
+// bit 1     = supergame bank switched
+#define CT_SUPERGAME_BANK_SWITCHED 1 << 1
+// bit 2     = supergame ram at $4000
+#define CT_SUPERGAME_RAM_AT_4000 1 << 2
+// bit 3     = rom at $4000
+#define CT_ROM_AT_4000 1 << 3
+// bit 4     = bank 6 at $4000
+#define CT_BANK_6_AT_4000 1 << 4
+// bit 5     = banked ram
+#define CT_BANKED_RAM 1 << 5
+// bit 6     = pokey at $450
+#define CT_POKEY_AT_450 1 << 6
+// bit 7     = mirror ram at $4000
+#define CT_MIRROR_RAM_AT_4000 1 << 7
+// bit 8     = activision banking
+#define CT_ACTIVISION_BANKING 1 << 8
+// bit 9     = absolute banking
+#define CT_ABSOLUTE_BANKING 1 << 9
+// bit 10    = pokey at $440
+#define CT_POKEY_AT_440 1 << 10
+// bit 11    = ym2151 at $460/$461
+#define CT_YM2151_AT_460_461 1 << 11
+// bit 12    = souper
+#define CT_SOUPER 1 << 12
+// bit 13    = banksets
+#define CT_BANKSETS 1 << 13
+// bit 14    = halt banked ram
+#define CT_HALT_BANKED_RAM 1 << 14
+// bit 15    = pokey@800
+#define CT_POKEY_AT_800 1 << 15
+
+// Expansion module byte details
+
+// bit 0     = XM
+#define XM_XM 1 << 0
+
+// TV type byte details
+
+// bit 0 = PAL
+#define TV_PAL 1 << 0
+// bit 1 = composite
+#define TV_COMPOSITE 1 << 1
+
+typedef struct cartridge_db {
+    char digest[256];
+    uint16_t cart_type;
+    uint8_t expansion_module;
+    uint8_t tv_type;
+} cartridge_db_t;
+
+static const struct cartridge_db db_list[] = {
+    {// Battlezone (NTSC)
+     "a8458c510fdd71a1f9cc4c0b243b177a", 0, XM_XM, 0},
+    {// Battlezone (PAL)
+     "42fa4bd854a2813b19099da524461a64", 0, XM_XM, TV_PAL},
+    {// PETSCII
+     "f3fe526673204e1031250e20ddfab592",
+     CT_BANKSETS | CT_HALT_BANKED_RAM | CT_POKEY_AT_800 | CT_SUPERGAME_BANK_SWITCHED,
+     0, 0}};
+
+void database_Initialize(void) {}
+
+bool database_Lookup(const char* digest, uint32_t size, uint8_t* header) {
+    unsigned i;
+    size_t len = sizeof(db_list) / sizeof(db_list[0]);
+
+    for (i = 0; i < len; i++) {
+        if (!strcmp(db_list[i].digest, digest)) {
+            int index = 0;
+            int offset = 0;
+
+            for (int index = 0; index < 128; index++)
+                header[index] = 0;
+
+            // Header version
+            header[offset++] = 4;
+
+            // ATARI 7800 magic text
+            const char* magic = "ATARI7800";
+            const int magic_len = strlen(magic);
+            for (index = 0; index < 16; index++) {
+                header[offset++] = index < magic_len ? magic[index] : 0;
+            }
+
+            // Game name
+            const char* name = "Atari 7800 game";
+            const int name_len = strlen(name);
+            for (index = 0; index < 32; index++) {
+                header[offset++] = index < name_len ? name[index] : 0;
+            }
+
+            // Cartridge size
+            header[offset++] = (size >> 24) & 0xFF;
+            header[offset++] = (size >> 16) & 0xFF;
+            header[offset++] = (size >> 8) & 0xFF;
+            header[offset++] = size & 0xFF;
+
+            // Cartridge type
+            uint16_t cart_type = db_list[i].cart_type;
+            header[offset++] = (cart_type >> 8) & 0xFF;
+            header[offset++] = (cart_type) & 0xFF;
+
+            // Controller type
+            header[offset++] = 1;
+            header[offset++] = 1;
+
+            // TV type
+            header[offset++] = db_list[i].tv_type;
+
+            // Save device
+            header[offset++] = 0;
+
+            // Reserved
+            for (index = 0; index < 4; index++) {
+                header[offset++] = 0;
+            }
+
+            // XM
+            header[offset++] = db_list[i].expansion_module;
+            return true;
+        }
+    }
+    return false;
+}
+
+/* WRC: Fallback lookup against CartList.c, a comprehensive database of known
+ * commercial cartridge dumps ported from the Atari 2600+/7800+ libretro-
+ * prosystem fork. Used when db_list[] above doesn't have this cart -- this
+ * is what identifies headerless dumps (e.g. No-Intro sets) correctly.
+ * Tries the full digest first, then the trailing 64K/32K/16K digests, to
+ * handle oversized/mirrored physical ROM dumps the same way that fork does. */
+bool cartlist_Lookup(const char* digest,
+    const char* digest64k, const char* digest32k, const char* digest16k,
+    uint32_t size, uint8_t* header) {
+    unsigned i;
+    size_t len = get_cart_list_length();
+
+    for (int t = 0; t < 4; t++) {
+        for (i = 0; i < len; i++) {
+            if (
+                (t == 0 && !strcmp(cart_list[i].digest, digest)) ||
+                (t == 1 && !strcmp(cart_list[i].digest, digest64k)) ||
+                (t == 2 && !strcmp(cart_list[i].digest, digest32k)) ||
+                (t == 3 && !strcmp(cart_list[i].digest, digest16k))
+            ) {
+                int index = 0;
+                int offset = 0;
+
+                for (index = 0; index < 128; index++)
+                    header[index] = 0;
+
+                // Header version
+                header[offset++] = 4;
+
+                // ATARI 7800 magic text
+                const char* magic = "ATARI7800";
+                const int magic_len = strlen(magic);
+                for (index = 0; index < 16; index++) {
+                    header[offset++] = index < magic_len ? magic[index] : 0;
+                }
+
+                // Game name
+                const char* name = "Atari 7800 game";
+                const int name_len = strlen(name);
+                for (index = 0; index < 32; index++) {
+                    header[offset++] = index < name_len ? name[index] : 0;
+                }
+
+                // Cartridge size
+                header[offset++] = (size >> 24) & 0xFF;
+                header[offset++] = (size >> 16) & 0xFF;
+                header[offset++] = (size >> 8) & 0xFF;
+                header[offset++] = size & 0xFF;
+
+                // Cartridge type
+                header[offset++] = cart_list[i].cart_type0;
+                header[offset++] = cart_list[i].cart_type1;
+
+                // Controller type
+                header[offset++] = cart_list[i].controller0;
+                header[offset++] = cart_list[i].controller1;
+
+                // TV type
+                header[offset++] = cart_list[i].tv_type;
+
+                // Save device
+                header[offset++] = cart_list[i].save_device;
+
+                // Reserved
+                for (index = 0; index < 4; index++) {
+                    header[offset++] = 0;
+                }
+
+                // XM
+                header[offset++] = cart_list[i].xm;
+
+                return true;
+            }
+        }
+    }
+    return false;
 }

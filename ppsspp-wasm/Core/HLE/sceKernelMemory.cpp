@@ -1031,9 +1031,21 @@ static int sceKernelPrintf(const char *formatString) {
 	if (!result.empty() && result[result.size() - 1] == '\n')
 		result.resize(result.size() - 1);
 
-	if (supported)
+	if (supported) {
+#ifdef WRC
+		// WRC - some games call this every single frame with a message
+		// whose numeric arguments constantly change (e.g. "video too
+		// fast!! %u, %u" with incrementing timestamps during video
+		// playback), flooding the browser console - exact-content dedup
+		// doesn't help since the string is never actually identical twice.
+		// Throttle by call count instead: log roughly once a second (at
+		// ~60 calls/sec) rather than every single call.
+		static int callCount = 0;
+		if ((callCount++ % 60) != 0)
+			return hleNoLog(0);
+#endif
 		return hleLogInfo(Log::Printf, 0, "\"%s\"", result.c_str());
-	else
+	} else
 		return hleLogError(Log::Printf, 0, "UNIMPL fmt (%s, %08x, %08x, %08x)", format.c_str(), PARAM(1), PARAM(2), PARAM(3));
 }
 

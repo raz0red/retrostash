@@ -5,7 +5,7 @@
  *
  * ----------------------------------------------------------------------------
  * Copyright 2005 Greg Stanton
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -27,6 +27,7 @@
 #define MARIA_H
 
 #define MARIA_SURFACE_SIZE 93440
+#define MARIA_CYCLE_LIMIT 428
 
 #include <stdint.h>
 #include "Rect.h"
@@ -36,13 +37,14 @@ extern "C" {
 #endif
 
 extern void maria_Reset(void);
-extern uint32_t maria_RenderScanline(void);
+extern uint32_t maria_RenderScanline(uint16_t scanline);
 extern void maria_Clear(void);
+extern void maria_PostCartLoad(void);
 
 extern rect maria_displayArea;
 extern rect maria_visibleArea;
 extern uint8_t maria_surface[MARIA_SURFACE_SIZE];
-extern uint16_t maria_scanline;
+extern bool nmi;
 
 #ifdef __cplusplus
 }

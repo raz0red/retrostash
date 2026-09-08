@@ -5,7 +5,7 @@
  *
  * ----------------------------------------------------------------------------
  * Copyright 2005 Greg Stanton
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -34,14 +34,21 @@
 extern "C" {
 #endif
 
+// The number of cycles per scan line
+#define CYCLES_PER_SCANLINE 454
+
 extern void prosystem_Reset(void);
 extern void prosystem_ExecuteFrame(const uint8_t* input);
 extern bool prosystem_Save(char *buffer, bool compress);
 extern bool prosystem_Load(const char *buffer);
+extern uint32_t prosystem_GetStateSize(void);
 extern void prosystem_Close(bool persistent_data);
 
+extern uint32_t prosystem_cycles;
 extern uint16_t prosystem_frequency;
 extern uint16_t prosystem_scanlines;
+extern uint16_t maria_scanline;
+extern uint8_t prosystem_mstat_adjust; /* Pole Position II hack */
 
 #ifdef __cplusplus
 }

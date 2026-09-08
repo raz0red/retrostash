@@ -33,9 +33,7 @@
 #include "Core/FileSystems/ISOFileSystem.h"
 #include "Core/Util/PathUtil.h"
 
-#ifndef __EMSCRIPTEN__
 #include "libchdr/chd.h"
-#endif
 
 extern "C"
 {
@@ -253,13 +251,9 @@ BlockDevice *ConstructBlockDevice(FileLoader *fileLoader, std::string *errorStri
 		if (size == 4 && psarOffset < fileLoader->FileSize()) {
 			device = new NPDRMDemoBlockDevice(fileLoader);
 		}
-#ifndef __EMSCRIPTEN__
 	} else if (!memcmp(buffer, "MComprHD", 8)) {
 		device = new CHDFileBlockDevice(fileLoader);
 	}
-#else
-	}
-#endif
 
 	if (!device) {
 		device = new UDFFileBlockDevice(fileLoader);
@@ -953,8 +947,6 @@ bool NPDRMDemoBlockDevice::ReadBlock(int blockNumber, u8 *outPtr, bool uncached)
 	return true;
 }
 
-#ifndef __EMSCRIPTEN__
-
 // static const UINT8 nullsha1[CHD_SHA1_BYTES] = { 0 };
 
 struct CHDImpl {
@@ -1126,5 +1118,3 @@ bool CHDFileBlockDevice::ReadBlocks(u32 minBlock, int count, u8 *outPtr) {
 	}
 	return true;
 }
-
-#endif //ifndef __EMSCRIPTEN__

@@ -6,11 +6,26 @@
 
 // Actually after the rc_client rewrite, barely anything of that remains.
 
-// The PSP hash function:
-// md5_init
-// md5_hash(PSP_GAME/PARAM.SFO)
-// md5_hash(PSP_GAME/EBOOT.BIN)
-// hash = md5_finalize()
+// WRC - PSP ISO hashing (ComputePSPISOHash below): reverted back to the
+// original hand-rolled md5_init/HashISOFile(PARAM.SFO)/HashISOFile(EBOOT.BIN)
+// approach, matching real upstream PPSSPP v1.20.4's actual RetroAchievements.cpp
+// verbatim (confirmed by fetching it directly from
+// github.com/hrydgard/ppsspp/blob/v1.20.4/Core/RetroAchievements.cpp - this
+// build has no rc_hash filereader/cdreader bridge at all in that release).
+// Two custom rc_hash-callback-based rewrites were tried this session (a
+// custom cdreader, then a custom filereader + rc_hash's default cdreader,
+// modeled on a commit that turned out NOT to be what v1.20.4 actually ships)
+// and BOTH produced hashes that didn't match RA's currently-expected value -
+// but the ORIGINAL hand-rolled code here is proven correct: the user tested
+// the exact same game file against real desktop PPSSPP v1.20.4 and RA
+// correctly identified it (36 achievements, 315 points shown), and v1.20.4
+// uses this exact algorithm. So the hashing CODE was never the bug - since
+// our WASM build was already producing the wrong "[legacy]" hash with this
+// same original algorithm before any changes this session, the real bug is
+// in how this WASM build's BlockDevice/ISOFileSystem reads bytes differently
+// than desktop for the same file, not in which hash function gets called.
+// Investigate that next, don't touch this function again without new
+// evidence pointing at it specifically.
 
 #include <algorithm>
 #include <set>
@@ -62,6 +77,42 @@
 
 static const char *const RAINTEGRATION_FILENAME = "RAIntegration.dll";
 
+static std::string FormatRCheevosMD5(uint8_t digest[16]) {
+	char hashStr[33];
+	/* NOTE: sizeof(hash) is 4 because it's still treated like a pointer, despite specifying a size */
+	snprintf(hashStr, 33, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+		digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7],
+		digest[8], digest[9], digest[10], digest[11], digest[12], digest[13], digest[14], digest[15]
+	);
+	return std::string(hashStr);
+}
+
+// WRC - bridges rc_hash's disc-reading callbacks to PPSSPP's own BlockDevice.
+// PSP UMDs/ISOs are single-track, fixed-2048-byte-sector data discs (no
+// multi-track/audio-CD complexity), so this is a thin, direct mapping:
+// "track_handle" is just the already-open BlockDevice pointer itself (stashed
+// in g_hashBlockDevice right before the call, since rc_hash's open_track only
+// receives a path string, not our already-open device - there's only ever
+// one hash computation in flight at a time here, so this is safe).
+//
+// WRC - first attempt at this bridge implemented a *custom cdreader*
+// (open_track/read_sector/close_track/first_track_sector) calling
+// BlockDevice::ReadBlock() directly, one 2048-byte sector at a time. That
+// compiled and ran without crashing, but still produced the same "[legacy]"
+// hash RetroAchievements' website flags as outdated/incompatible - i.e. it
+// reproduced the exact bug this whole investigation is about, not a fix.
+// Root cause found via the actual upstream PPSSPP commit that fixed this
+// (hrydgard/ppsspp@431a0551, "RetroAchievements CSO support, delay until
+// identified"): upstream does NOT implement a custom cdreader. It provides
+// a custom *filereader* (flat seek/tell/read/close over the block device,
+// exactly mirroring real file I/O) and uses rc_hash's own DEFAULT cdreader
+// (rc_hash_get_default_cdreader(), from cdreader.c) on top of it. That
+// default cdreader does real ISO9660 sniffing (probes byte offsets looking
+// for the "CD001" signature to determine actual sector size/header offset
+// itself) rather than assuming a fixed 2048-byte sector blindly - which is
+// almost certainly what the custom-cdreader version got wrong. Replicating
+// upstream's approach exactly rather than continuing to debug the
+// custom-cdreader version further.
 static bool HashISOFile(ISOFileSystem *fs, const std::string filename, md5_context *md5) {
 	int handle = fs->OpenFile(filename, FILEACCESS_READ);
 	if (handle < 0) {
@@ -82,16 +133,6 @@ static bool HashISOFile(ISOFileSystem *fs, const std::string filename, md5_conte
 
 	ppsspp_md5_update(md5, buffer.get(), sz);
 	return true;
-}
-
-static std::string FormatRCheevosMD5(uint8_t digest[16]) {
-	char hashStr[33];
-	/* NOTE: sizeof(hash) is 4 because it's still treated like a pointer, despite specifying a size */
-	snprintf(hashStr, 33, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-		digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7],
-		digest[8], digest[9], digest[10], digest[11], digest[12], digest[13], digest[14], digest[15]
-	);
-	return std::string(hashStr);
 }
 
 // Consumes the blockDevice.

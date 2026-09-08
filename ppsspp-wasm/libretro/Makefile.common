@@ -270,8 +270,13 @@ SOURCES_C += \
 COREFLAGS += -DSTACK_LINE_READER_BUFFER_SIZE=1024
 COREFLAGS += -DHTTPS_NOT_AVAILABLE
 
-ifneq ($(platform), emscripten)
-
+# WRC - was `ifneq ($(platform), emscripten)`, excluding libchdr (CHD
+# support) from this build entirely. flycast-wasm/source's own CMake build
+# compiles this exact same libchdr version (verbatim identical source, diff
+# confirmed) cleanly for wasm32 in the same emsdk toolchain, and none of
+# these files need the Linux-arm64/Windows-x64 LZMA asm opt-ins (WITH_LZMA_ASM
+# in libchdr's own CMakeLists.txt), so there's no known wasm32-incompatibility
+# here - just re-enabling what upstream already wrote.
 COREFLAGS += -DZ7_ST
 INCFLAGS += -I$(EXTDIR)/libchdr/deps/lzma-24.05/include
 
@@ -297,7 +302,90 @@ SOURCES_C += \
 	$(EXTDIR)/libchdr/src/libchdr_flac.c \
 	$(EXTDIR)/libchdr/src/libchdr_huffman.c
 
-endif
+# WRC - RetroArch's own build (Makefile.emscripten.ppsspp) separately
+# compiles ITS OWN libretro-common/formats/libchdr (needed by cheevos.c for
+# CD-track-aware achievement hashing on .chd games - see that Makefile's own
+# comment). Both copies define the same public libchdr symbol names
+# (chd_open, bitstream_read, huffman_decode_one, etc.) - confirmed as a real
+# collision, not just a theoretical one: enabling both together linked clean
+# but crashed at runtime loading .chd (Emscripten/wasm-ld silently picked
+# one implementation for both call sites, and they're different/incompatible
+# enough internally to corrupt state). Same root cause and same fix as
+# flycast's file_path.c/word_wrap collision with RetroArch's copies
+# (Makefile.emscripten.flycast's own comment, flycast-wasm/build/
+# flycast_filepath_rename_flags.txt) - rename PPSSPP's own copy's exported
+# symbols via -D flags so PPSSPP's code never references the same symbol
+# names RetroArch's libchdr provides. List extracted via llvm-nm
+# --defined-only -g against the compiled .o files (all 5 source files above),
+# renaming everything exported rather than hand-picking only confirmed
+# collisions, matching flycast's own blanket approach for the same reason:
+# cheaper than re-auditing every time either vendored copy updates.
+COREFLAGS += \
+	-Dbitstream_flush=wrc_chdr_bitstream_flush \
+	-Dbitstream_overflow=wrc_chdr_bitstream_overflow \
+	-Dbitstream_peek=wrc_chdr_bitstream_peek \
+	-Dbitstream_read=wrc_chdr_bitstream_read \
+	-Dbitstream_read_offset=wrc_chdr_bitstream_read_offset \
+	-Dbitstream_remove=wrc_chdr_bitstream_remove \
+	-Dchd_close=wrc_chdr_chd_close \
+	-Dchd_codec_config=wrc_chdr_chd_codec_config \
+	-Dchd_core_file=wrc_chdr_chd_core_file \
+	-Dchd_error_string=wrc_chdr_chd_error_string \
+	-Dchd_get_codec_name=wrc_chdr_chd_get_codec_name \
+	-Dchd_get_header=wrc_chdr_chd_get_header \
+	-Dchd_get_metadata=wrc_chdr_chd_get_metadata \
+	-Dchd_open=wrc_chdr_chd_open \
+	-Dchd_open_core_file=wrc_chdr_chd_open_core_file \
+	-Dchd_open_file=wrc_chdr_chd_open_file \
+	-Dchd_precache=wrc_chdr_chd_precache \
+	-Dchd_read=wrc_chdr_chd_read \
+	-Dchd_read_header=wrc_chdr_chd_read_header \
+	-Dchd_read_header_core_file=wrc_chdr_chd_read_header_core_file \
+	-Dchd_read_header_file=wrc_chdr_chd_read_header_file \
+	-Dcrc16=wrc_chdr_crc16 \
+	-Dcreate_bitstream=wrc_chdr_create_bitstream \
+	-Dcreate_huffman_decoder=wrc_chdr_create_huffman_decoder \
+	-Ddelete_huffman_decoder=wrc_chdr_delete_huffman_decoder \
+	-Ddrflac_close=wrc_chdr_drflac_close \
+	-Ddrflac_free=wrc_chdr_drflac_free \
+	-Ddrflac_init_cuesheet_track_iterator=wrc_chdr_drflac_init_cuesheet_track_iterator \
+	-Ddrflac_init_vorbis_comment_iterator=wrc_chdr_drflac_init_vorbis_comment_iterator \
+	-Ddrflac_next_cuesheet_track=wrc_chdr_drflac_next_cuesheet_track \
+	-Ddrflac_next_vorbis_comment=wrc_chdr_drflac_next_vorbis_comment \
+	-Ddrflac_open=wrc_chdr_drflac_open \
+	-Ddrflac_open_and_read_pcm_frames_f32=wrc_chdr_drflac_open_and_read_pcm_frames_f32 \
+	-Ddrflac_open_and_read_pcm_frames_s16=wrc_chdr_drflac_open_and_read_pcm_frames_s16 \
+	-Ddrflac_open_and_read_pcm_frames_s32=wrc_chdr_drflac_open_and_read_pcm_frames_s32 \
+	-Ddrflac_open_memory=wrc_chdr_drflac_open_memory \
+	-Ddrflac_open_memory_and_read_pcm_frames_f32=wrc_chdr_drflac_open_memory_and_read_pcm_frames_f32 \
+	-Ddrflac_open_memory_and_read_pcm_frames_s16=wrc_chdr_drflac_open_memory_and_read_pcm_frames_s16 \
+	-Ddrflac_open_memory_and_read_pcm_frames_s32=wrc_chdr_drflac_open_memory_and_read_pcm_frames_s32 \
+	-Ddrflac_open_memory_with_metadata=wrc_chdr_drflac_open_memory_with_metadata \
+	-Ddrflac_open_relaxed=wrc_chdr_drflac_open_relaxed \
+	-Ddrflac_open_with_metadata=wrc_chdr_drflac_open_with_metadata \
+	-Ddrflac_open_with_metadata_relaxed=wrc_chdr_drflac_open_with_metadata_relaxed \
+	-Ddrflac_read_pcm_frames_f32=wrc_chdr_drflac_read_pcm_frames_f32 \
+	-Ddrflac_read_pcm_frames_s16=wrc_chdr_drflac_read_pcm_frames_s16 \
+	-Ddrflac_read_pcm_frames_s32=wrc_chdr_drflac_read_pcm_frames_s32 \
+	-Ddrflac_seek_to_pcm_frame=wrc_chdr_drflac_seek_to_pcm_frame \
+	-Ddrflac_version=wrc_chdr_drflac_version \
+	-Ddrflac_version_string=wrc_chdr_drflac_version_string \
+	-Decc_clear=wrc_chdr_ecc_clear \
+	-Decc_compute_bytes=wrc_chdr_ecc_compute_bytes \
+	-Decc_generate=wrc_chdr_ecc_generate \
+	-Decc_verify=wrc_chdr_ecc_verify \
+	-Dflac_decoder_decode_interleaved=wrc_chdr_flac_decoder_decode_interleaved \
+	-Dflac_decoder_finish=wrc_chdr_flac_decoder_finish \
+	-Dflac_decoder_free=wrc_chdr_flac_decoder_free \
+	-Dflac_decoder_init=wrc_chdr_flac_decoder_init \
+	-Dflac_decoder_reset=wrc_chdr_flac_decoder_reset \
+	-Dhuffman_assign_canonical_codes=wrc_chdr_huffman_assign_canonical_codes \
+	-Dhuffman_build_lookup_table=wrc_chdr_huffman_build_lookup_table \
+	-Dhuffman_build_tree=wrc_chdr_huffman_build_tree \
+	-Dhuffman_compute_tree_from_histo=wrc_chdr_huffman_compute_tree_from_histo \
+	-Dhuffman_decode_one=wrc_chdr_huffman_decode_one \
+	-Dhuffman_import_tree_huffman=wrc_chdr_huffman_import_tree_huffman \
+	-Dhuffman_import_tree_rle=wrc_chdr_huffman_import_tree_rle
 
 INCFLAGS += -I$(EXTDIR)/at3_standalone
 

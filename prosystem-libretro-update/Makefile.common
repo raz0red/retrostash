@@ -1,8 +1,10 @@
 LIBRETRO_COMM_DIR := $(CORE_DIR)/../libretro-common
 BUPBOOP_DIR := $(CORE_DIR)/../bupboop
+YM_DIR := $(CORE_DIR)/../ym
 
 INCFLAGS := -I$(CORE_DIR) \
-	    -I$(LIBRETRO_COMM_DIR)/include
+	    -I$(LIBRETRO_COMM_DIR)/include \
+		-I$(YM_DIR)
 
 ifneq (,$(findstring msvc2003,$(platform)))
 INCFLAGS += -I$(LIBRETRO_COMM_DIR)/include/compat/msvc
@@ -17,6 +19,7 @@ SOURCES_C := \
 	$(CORE_DIR)/switchkeypad.c \
 	$(CORE_DIR)/Bios.c \
 	$(CORE_DIR)/BupChip.c \
+	$(CORE_DIR)/CartList.c \
 	$(CORE_DIR)/Cartridge.c \
 	$(CORE_DIR)/Database.c \
 	$(CORE_DIR)/Hash.c \
@@ -28,7 +31,11 @@ SOURCES_C := \
 	$(CORE_DIR)/Region.c \
 	$(CORE_DIR)/Riot.c \
 	$(CORE_DIR)/Sally.c \
-	$(CORE_DIR)/Tia.c
+	$(CORE_DIR)/Tia.c \
+	$(CORE_DIR)/Xm.c
+
+SOURCES_C += \
+	$(YM_DIR)/ym2151.c
 
 SOURCES_C += \
 	$(BUPBOOP_DIR)/coretone/channel.c \

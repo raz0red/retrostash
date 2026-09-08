@@ -5,7 +5,7 @@
  *
  * ----------------------------------------------------------------------------
  * Copyright 2005 Greg Stanton
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -26,14 +26,18 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include <string.h>
+#include "ProSystem.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 extern void database_Initialize(void);
-extern void database_Load(const char *digest);
+// extern void database_Load(const char *digest);
+extern bool database_Lookup(const char *digest, uint32_t size, uint8_t* header);
+extern bool cartlist_Lookup(const char* digest,
+    const char* digest64k, const char* digest32k, const char* digest16k,
+    uint32_t size, uint8_t* header);
 
 #ifdef __cplusplus
 }

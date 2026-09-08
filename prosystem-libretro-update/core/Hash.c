@@ -243,3 +243,27 @@ void hash_Compute(char *s, const uint8_t* source, uint32_t length)
 
    sprintf(s, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7], digest[8], digest[9], digest[10], digest[11], digest[12], digest[13], digest[14], digest[15]);
 }
+
+uint16_t hash_CRC16(const uint8_t* data, uint16_t length)
+{
+   uint16_t num, uCRC = 0xffff;
+   uint8_t x;
+
+   for (num = 0; num < length; num++)
+   {
+      uCRC = (*data++) ^ uCRC;
+      for (x = 0; x < 8; x++)
+      {
+         if (uCRC & 0x0001)
+         {
+            uCRC = uCRC >> 1;
+            uCRC = uCRC ^ 0xA001;
+         }
+         else
+         {
+            uCRC = uCRC >> 1;
+         }
+      }
+   }
+   return uCRC;
+}

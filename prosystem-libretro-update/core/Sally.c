@@ -5,7 +5,7 @@
  *
  * ----------------------------------------------------------------------------
  * Copyright 2005 Greg Stanton
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -23,6 +23,9 @@
  * Sally.c
  * ----------------------------------------------------------------------------
  */
+#include <stdio.h>
+#include "ProSystem.h"
+#include "Equates.h"
 #include "Sally.h"
 #include "Memory.h"
 #include "Pair.h"
@@ -34,9 +37,9 @@ uint8_t sally_p = 0;
 uint8_t sally_s = 0;
 pair sally_pc = {0};
 
-static uint8_t sally_opcode;
-static pair sally_address;
-static uint32_t sally_cycles;
+static uint8_t sally_opcode = 0;
+static pair sally_address = {0};
+static uint32_t sally_cycles = 0;
 
 struct Flag
 {
@@ -60,25 +63,32 @@ struct Vector
 
 static const struct Vector SALLY_RES = {65533, 65532};
 static const struct Vector SALLY_NMI = {65531, 65530};
-static const struct Vector SALLY_IRQ = {65535, 65534}; 
+static const struct Vector SALLY_IRQ = {65535, 65534};
+
+// Whether the last operation resulted in a half cycle. (needs to be taken
+// into consideration by ProSystem when cycle counting). This can occur when
+// a TIA or RIOT are accessed (drops to 1.19Mhz when the TIA or RIOT chips
+// are accessed)
+bool half_cycle = false; // Global
+bool disable_sed = false; // Global, Knight Guy fix
 
 static const uint8_t SALLY_CYCLES[256] = {
-	7,6,0,0,0,3,5,0,3,2,2,0,0,4,6,0,
-	2,5,0,0,0,4,6,0,2,4,0,0,0,4,7,0,
-	6,6,0,0,3,3,5,0,4,2,2,0,4,4,6,0,
-	2,5,0,0,0,4,6,0,2,4,0,0,0,4,7,0,
-	6,6,0,0,0,3,5,0,3,2,2,0,3,4,6,0,
-	2,5,0,0,0,4,6,0,2,4,0,0,0,4,7,0,
-	6,6,0,0,0,3,5,0,4,2,2,0,5,4,6,0,
-	2,5,0,0,0,4,6,0,2,4,0,0,0,4,7,0,
-	0,6,0,0,3,3,3,0,2,0,2,0,4,4,4,0,
-	2,6,0,0,4,4,4,0,2,5,2,0,0,5,0,0,
-	2,6,2,0,3,3,3,0,2,2,2,0,4,4,4,0,
-	2,5,0,0,4,4,4,0,2,4,2,0,4,4,4,0,
-	2,6,0,0,3,3,5,0,2,2,2,0,4,4,6,0,
-	2,5,0,0,0,4,6,0,2,4,0,0,0,4,7,0,
-	2,6,0,0,3,3,5,0,2,2,2,0,4,4,6,0,
-	2,5,0,0,0,4,6,0,2,4,0,0,0,4,7,0,
+  7, 6, 0, 0, 2, 3, 5, 0, 3, 2, 2, 2 /* ANC */, 0, 4, 6, 0, // 0 - 15
+  2, 5, 0, 0, 0, 4, 6, 0, 2, 4, 0, 0, 0, 4, 7, 0, // 16 - 31
+  6, 6, 0, 0, 3, 3, 5, 0, 4, 2, 2, 2 /* ANC */, 4, 4, 6, 0, // 32 - 47
+  2, 5, 0, 0, 0, 4, 6, 0, 2, 4, 0, 0, 0, 4, 7, 0, // 48 - 63
+  6, 6, 0, 0, 0, 3, 5, 0, 3, 2, 2, 2 /* ALR (ASR) */, 3, 4, 6, 0, // 64 - 79
+  2, 5, 0, 0, 0, 4, 6, 0, 2, 4, 0, 0, 0, 4, 7, 0, // 80 - 95
+  6, 6, 0, 0, 0, 3, 5, 0, 4, 2, 2, 0, 5, 4, 6, 0, // 96 - 111
+  2, 5, 0, 0, 0, 4, 6, 0, 2, 4, 0, 0, 0, 4, 7, 0, // 112 - 127
+  2, 6, 0, 0, 3, 3, 3, 0, 2, 0, 2, 0, 4, 4, 4, 0, // 128 - 143
+  2, 6, 0, 0, 4, 4, 4, 4 /* SAX */, 2, 5, 2, 0, 0, 5, 0, 0, // 144 - 159
+  2, 6, 2, 0, 3, 3, 3, 0, 2, 2, 2, 0, 4, 4, 4, 4 /* LAX abs */, // 160 - 175
+  2, 5, 0, 6 /* LAX */, 4, 4, 4, 0, 2, 4, 2, 0, 4, 4, 4, 0, // 176 - 191
+  2, 6, 0, 0, 3, 3, 5, 0, 2, 2, 2, 2 /* SBX */, 4, 4, 6, 0, // 192 - 207
+  2, 5, 0, 0, 0, 4, 6, 0, 2, 4, 0, 0, 0, 4, 7, 0, // 208 - 223
+  2, 6, 0, 0, 3, 3, 5, 0, 2, 2, 2, 0, 4, 4, 6, 0, // 222 - 239
+  2, 5, 0, 0, 0, 4, 6, 0, 2, 4, 0, 0, 0, 4, 7, 0, // 240 - 255
 };
 
 static void sally_Push(uint8_t data)
@@ -215,13 +225,31 @@ static void sally_ADC(void)
          ah++;
       }
 
+      // Set Z flag properly in decimal mode
+      // Diagnosed by RevEng
+      // The 6502 Z flag doesn't seem to understand decimal mode, so it gets set
+      // as if you had added things without decimal mode enabled,
+      // where $55+$AB=$00. So A7800 and visual 6502 both set Z,
+      // but unfortunately z is clear in JS7800.
+      //
+      // banksets changes
+      pair ztemp;
+      ztemp.w = sally_a + data + (sally_p & SALLY_FLAG.C);
+      if (!ztemp.b.l) {
+         sally_p |= SALLY_FLAG.Z;
+      } else {
+         sally_p = (sally_p & ~SALLY_FLAG.Z);
+      }
+
+#if 0
       if(!(sally_a + data + (sally_p & SALLY_FLAG.C)))
          sally_p |= SALLY_FLAG.Z;
       else
          sally_p &= ~SALLY_FLAG.Z;
+#endif
 
       if((ah & 8) != 0)
-         sally_p |= SALLY_FLAG.N;      
+         sally_p |= SALLY_FLAG.N;
       else
          sally_p &= ~SALLY_FLAG.N;
 
@@ -234,7 +262,7 @@ static void sally_ADC(void)
          ah += 6;
 
       if(ah > 15)
-         sally_p |= SALLY_FLAG.C;      
+         sally_p |= SALLY_FLAG.C;
       else
          sally_p &= ~SALLY_FLAG.C;
 
@@ -318,7 +346,7 @@ static void sally_BIT(void)
       sally_p &= ~SALLY_FLAG.Z;
 
    sally_p &= ~SALLY_FLAG.V;
-   sally_p &= ~SALLY_FLAG.N;  
+   sally_p &= ~SALLY_FLAG.N;
    sally_p |= data & 64;
    sally_p |= data & 128;
 }
@@ -397,7 +425,7 @@ static void sally_CPX(void)
    uint8_t data = memory_Read(sally_address.w);
 
    if(sally_x >= data)
-      sally_p |= SALLY_FLAG.C;  
+      sally_p |= SALLY_FLAG.C;
    else
       sally_p &= ~SALLY_FLAG.C;
 
@@ -521,11 +549,16 @@ static void sally_ORA(void)
 
 static void sally_PHA(void)
 {
-   sally_Push(sally_a);    
+   sally_Push(sally_a);
 }
 
 static void sally_PHP(void)
 {
+   // sally_Push(sally_p);
+   // Diagnosed by RevEng
+   // Software instructions BRK & PHP will push the B flag as being 1
+   // banksets changes
+   sally_p |= SALLY_FLAG.B;
    sally_Push(sally_p);
 }
 
@@ -545,7 +578,7 @@ static void sally_ROLA(void)
    uint8_t temp = sally_p;
 
    if(sally_a & 128)
-      sally_p |= SALLY_FLAG.C;  
+      sally_p |= SALLY_FLAG.C;
    else
       sally_p &= ~SALLY_FLAG.C;
 
@@ -621,16 +654,27 @@ static void sally_SBC(void)
 
    if(sally_p & SALLY_FLAG.D)
    {
-      pair temp;
-      uint16_t al = (sally_a & 15) - (data & 15) - !(sally_p & SALLY_FLAG.C);
-      uint16_t ah = (sally_a >> 4) - (data >> 4);
+      // Set Z flag properly in decimal mode
+      // Diagnosed by RevEng
+      // The 6502 Z flag doesn't seem to understand decimal mode, so it gets set
+      // as if you had added things without decimal mode enabled,
+      // where $55+$AB=$00. So A7800 and visual 6502 both set Z,
+      // but unfortunately z is clear in JS7800.
+      // banksets changes
+      pair ztemp;
+      ztemp.w = sally_a - data - !(sally_p & SALLY_FLAG.C);
 
-      if(al > 9) {
+      pair temp;
+      // BCD Fix: Proper alignment w/ A7800 and hardware based on KGCD issue.
+      int16_t al = (sally_a & 15) - (data & 15) - !(sally_p & SALLY_FLAG.C);
+      int16_t ah = (sally_a >> 4) - (data >> 4);
+
+      if(al < 0) {
          al -= 6;
          ah--;
       }
 
-      if(ah > 9) {
+      if(ah < 0) {
          ah -= 6;
       }
 
@@ -647,10 +691,20 @@ static void sally_SBC(void)
          sally_p |= SALLY_FLAG.V;
       }
       else {
-         sally_p &= ~SALLY_FLAG.V;      
+         sally_p &= ~SALLY_FLAG.V;
       }
 
       sally_Flags(temp.b.l);
+
+      // Z flag
+      // banksets changes
+      if (!ztemp.b.l) {
+         sally_p |= SALLY_FLAG.Z;
+      }
+      else {
+         sally_p &= ~SALLY_FLAG.Z;
+      }
+
       sally_a = (ah << 4) | (al & 15);
    }
    else
@@ -677,9 +731,28 @@ static void sally_SBC(void)
    }
 }
 
+// SBX (AXS), via reveng
+static void sally_SBX(void)
+{
+   uint8_t data = memory_Read(sally_address.w);
+   uint8_t temp = sally_a & sally_x;
+   uint8_t result = (temp - data) & 0xFF;
+
+   sally_x = result;
+
+   if (temp >= data) {
+      sally_p |= SALLY_FLAG.C;
+   }
+   else {
+      sally_p &= ~SALLY_FLAG.C;
+   }
+
+   sally_Flags(result);
+}
+
 static void sally_SEC(void)
 {
-   sally_p |= SALLY_FLAG.C;  
+   sally_p |= SALLY_FLAG.C;
 }
 
 static void sally_SED(void)
@@ -754,116 +827,127 @@ void sally_Reset(void)
 
 uint32_t sally_ExecuteInstruction(void)
 {
+   // Reset half cycle flag
+   half_cycle = false;
+
    sally_opcode = memory_Read(sally_pc.w++);
    sally_cycles = SALLY_CYCLES[sally_opcode];
 
    switch(sally_opcode)
    {
       case 0x00:
-         sally_BRK(); 
+         sally_BRK();
          break;
 
       case 0x01:
-         sally_IndirectX(); 
-         sally_ORA(); 
+         sally_IndirectX();
+         sally_ORA();
          break;
 
       case 0x05:
-         sally_ZeroPage();  
-         sally_ORA(); 
+         sally_ZeroPage();
+         sally_ORA();
          break;
 
-      case 0x06: 
+      case 0x06:
          sally_ZeroPage();
          sally_ASL();
          break;
 
-      case 0x08: 
+      case 0x08:
          sally_PHP();
          break;
 
-      case 0x09: 
-         sally_Immediate(); 
-         sally_ORA(); 
-         break;        
-
-      case 0x0a: 
-         sally_ASLA(); 
-         break;        
-
-      case 0x0d: 
-         sally_Absolute();  
-         sally_ORA(); 
+      case 0x09:
+         sally_Immediate();
+         sally_ORA();
          break;
 
-      case 0x0e: 
-         sally_Absolute();  
-         sally_ASL(); 
+      case 0x0a:
+         sally_ASLA();
          break;
 
-      case 0x10: 
+      case 0x0d:
+         sally_Absolute();
+         sally_ORA();
+         break;
+
+      case 0x0e:
+         sally_Absolute();
+         sally_ASL();
+         break;
+
+      case 0x10:
          sally_Relative();
          sally_BPL();
-         break;        
-
-      case 0x11: 
-         sally_IndirectY(); 
-         sally_ORA(); 
-         sally_Delay(sally_y); 
          break;
 
-      case 0x15: 
-         sally_ZeroPageX(); 
-         sally_ORA(); 
+      case 0x11:
+         sally_IndirectY();
+         sally_ORA();
+         sally_Delay(sally_y);
          break;
 
-      case 0x16: 
-         sally_ZeroPageX(); 
-         sally_ASL(); 
+      case 0x15:
+         sally_ZeroPageX();
+         sally_ORA();
          break;
 
-      case 0x18: 
+      case 0x16:
+         sally_ZeroPageX();
+         sally_ASL();
+         break;
+
+      case 0x18:
          sally_CLC();
          break;
 
-      case 0x19: 
-         sally_AbsoluteY(); 
-         sally_ORA(); 
-         sally_Delay(sally_y); 
+      case 0x19:
+         sally_AbsoluteY();
+         sally_ORA();
+         sally_Delay(sally_y);
          break;
 
-      case 0x1d: 
-         sally_AbsoluteX(); 
-         sally_ORA(); 
-         sally_Delay(sally_x); 
+      case 0x1d:
+         sally_AbsoluteX();
+         sally_ORA();
+         sally_Delay(sally_x);
          break;
 
-      case 0x1e: 
-         sally_AbsoluteX(); 
-         sally_ASL(); 
+      case 0x1e:
+         sally_AbsoluteX();
+         sally_ASL();
          break;
 
-      case 0x20: 
-         sally_Absolute();  
-         sally_JSR(); 
+      case 0x20:
+         sally_Absolute();
+         sally_JSR();
          break;
 
-      case 0x21: 
+      case 0x21:
          sally_IndirectX();
          sally_AND();
          break;
 
-      case 0x24: 
+      case 0x24:
          sally_ZeroPage();
          sally_BIT();
+         // Add a half cycle if RIOT/TIA location is accessed. We only track
+         // INPT4 since it is the only one that is accessed during the lightgun
+         // hit detection loop. This should be extended to take into consideration
+         // all RIOT and TIA accesses.
+         //if (sally_address.w == INPT4) {
+         if (sally_address.w == INPT4) {
+            half_cycle = true;
+         }
          break;
 
-      case 0x25: 
+      case 0x25:
          sally_ZeroPage();
-         sally_AND(); 
+         sally_AND();
          break;
 
-      case 0x26: 
+      case 0x26:
          sally_ZeroPage();
          sally_ROL();
          break;
@@ -877,21 +961,21 @@ uint32_t sally_ExecuteInstruction(void)
          sally_AND();
          break;
 
-      case 0x2a: 
+      case 0x2a:
          sally_ROLA();
          break;
 
-      case 0x2c: 
+      case 0x2c:
          sally_Absolute();
          sally_BIT();
          break;
 
-      case 0x2d: 
+      case 0x2d:
          sally_Absolute();
          sally_AND();
          break;
 
-      case 0x2e: 
+      case 0x2e:
          sally_Absolute();
          sally_ROL();
          break;
@@ -901,613 +985,683 @@ uint32_t sally_ExecuteInstruction(void)
          sally_BMI();
          break;
 
-      case 0x31: 
+      case 0x31:
          sally_IndirectY();
          sally_AND();
          sally_Delay(sally_y);
          break;
 
-      case 0x35: 
-         sally_ZeroPageX(); 
-         sally_AND(); 
+      case 0x35:
+         sally_ZeroPageX();
+         sally_AND();
          break;
 
-      case 0x36: 
-         sally_ZeroPageX(); 
-         sally_ROL(); 
+      case 0x36:
+         sally_ZeroPageX();
+         sally_ROL();
          break;
 
-      case 0x38: 
+      case 0x38:
          sally_SEC();
          break;
 
-      case 0x39: 
+      case 0x39:
          sally_AbsoluteY();
          sally_AND();
          sally_Delay(sally_y);
          break;
 
-      case 0x3d: 
-         sally_AbsoluteX(); 
+      case 0x3d:
+         sally_AbsoluteX();
          sally_AND();
          sally_Delay(sally_x);
          break;
 
-      case 0x3e: 
+      case 0x3e:
          sally_AbsoluteX();
          sally_ROL();
          break;
 
-      case 0x40: 
+      case 0x40:
          sally_RTI();
          break;
 
-      case 0x41: 
-         sally_IndirectX(); 
-         sally_EOR(); 
+      case 0x41:
+         sally_IndirectX();
+         sally_EOR();
          break;
 
-      case 0x45: 
+      case 0x45:
          sally_ZeroPage();
          sally_EOR();
          break;
 
-      case 0x46: 
+      case 0x46:
          sally_ZeroPage();
          sally_LSR();
          break;
 
-      case 0x48: 
+      case 0x48:
          sally_PHA();
          break;
 
-      case 0x49: 
-         sally_Immediate(); 
-         sally_EOR(); 
-         break;  
-
-      case 0x4a: 
-         sally_LSRA(); 
-         break; 
-
-      case 0x4c: 
-         sally_Absolute();  
-         sally_JMP(); 
+      case 0x49:
+         sally_Immediate();
+         sally_EOR();
          break;
 
-      case 0x4d: 
-         sally_Absolute();  
-         sally_EOR(); 
+      case 0x4a:
+         sally_LSRA();
          break;
 
-      case 0x4e: 
+      case 0x4c:
+         sally_Absolute();
+         sally_JMP();
+         break;
+
+      case 0x4d:
+         sally_Absolute();
+         sally_EOR();
+         break;
+
+      case 0x4e:
          sally_Absolute();
          sally_LSR();
          break;
 
-      case 0x50: 
+      case 0x50:
          sally_Relative();
          sally_BVC();
          break;
 
-      case 0x51: 
-         sally_IndirectY(); 
-         sally_EOR(); 
-         sally_Delay(sally_y); 
-         break;      
-
-      case 0x55: 
-         sally_ZeroPageX(); 
-         sally_EOR(); 
+      case 0x51:
+         sally_IndirectY();
+         sally_EOR();
+         sally_Delay(sally_y);
          break;
 
-      case 0x56: 
-         sally_ZeroPageX(); 
-         sally_LSR(); 
+      case 0x55:
+         sally_ZeroPageX();
+         sally_EOR();
          break;
 
-      case 0x58: 
+      case 0x56:
+         sally_ZeroPageX();
+         sally_LSR();
+         break;
+
+      case 0x58:
          sally_CLI();
          break;
 
-      case 0x59: 
-         sally_AbsoluteY(); 
-         sally_EOR(); 
-         sally_Delay(sally_y); 
+      case 0x59:
+         sally_AbsoluteY();
+         sally_EOR();
+         sally_Delay(sally_y);
          break;
 
-      case 0x5d: 
-         sally_AbsoluteX(); 
-         sally_EOR(); 
-         sally_Delay(sally_x); 
+      case 0x5d:
+         sally_AbsoluteX();
+         sally_EOR();
+         sally_Delay(sally_x);
          break;
 
-      case 0x5e: 
-         sally_AbsoluteX(); 
-         sally_LSR(); 
+      case 0x5e:
+         sally_AbsoluteX();
+         sally_LSR();
          break;
 
-      case 0x60: 
+      case 0x60:
          sally_RTS();
          break;
 
-      case 0x61: 
-         sally_IndirectX(); 
-         sally_ADC(); 
+      case 0x61:
+         sally_IndirectX();
+         sally_ADC();
          break;
 
-      case 0x65: 
+      case 0x65:
          sally_ZeroPage();
-         sally_ADC(); 
+         sally_ADC();
          break;
 
-      case 0x66: 
-         sally_ZeroPage();  
-         sally_ROR(); 
+      case 0x66:
+         sally_ZeroPage();
+         sally_ROR();
          break;
 
-      case 0x68: 
+      case 0x68:
          sally_PLA();
          break;
 
-      case 0x69: 
-         sally_Immediate(); 
-         sally_ADC(); 
+      case 0x69:
+         sally_Immediate();
+         sally_ADC();
          break;
 
-      case 0x6a: 
-         sally_RORA(); 
+      case 0x6a:
+         sally_RORA();
          break;
 
-      case 0x6c: 
+      case 0x6c:
          sally_Indirect();
-         sally_JMP(); 
+         sally_JMP();
          break;
 
-      case 0x6d: 
+      case 0x6d:
          sally_Absolute();
-         sally_ADC(); 
+         sally_ADC();
          break;
 
-      case 0x6e: 
-         sally_Absolute();  
-         sally_ROR(); 
+      case 0x6e:
+         sally_Absolute();
+         sally_ROR();
          break;
 
-      case 0x70: 
-         sally_Relative();  
+      case 0x70:
+         sally_Relative();
          sally_BVS();
          break;
 
-      case 0x71: 
-         sally_IndirectY(); 
-         sally_ADC(); 
-         sally_Delay(sally_y); 
+      case 0x71:
+         sally_IndirectY();
+         sally_ADC();
+         sally_Delay(sally_y);
          break;
 
-      case 0x75: 
-         sally_ZeroPageX(); 
-         sally_ADC(); 
+      case 0x75:
+         sally_ZeroPageX();
+         sally_ADC();
          break;
 
-      case 0x76: 
-         sally_ZeroPageX(); 
-         sally_ROR(); 
+      case 0x76:
+         sally_ZeroPageX();
+         sally_ROR();
          break;
 
-      case 0x78: 
+      case 0x78:
          sally_SEI();
          break;
 
-      case 0x79: 
-         sally_AbsoluteY(); 
-         sally_ADC(); 
-         sally_Delay(sally_y); 
+      case 0x79:
+         sally_AbsoluteY();
+         sally_ADC();
+         sally_Delay(sally_y);
          break;
 
-      case 0x7d: 
-         sally_AbsoluteX(); 
-         sally_ADC(); 
-         sally_Delay(sally_x); 
+      case 0x7d:
+         sally_AbsoluteX();
+         sally_ADC();
+         sally_Delay(sally_x);
          break;
 
-      case 0x7e: 
-         sally_AbsoluteX(); 
-         sally_ROR(); 
+      case 0x7e:
+         sally_AbsoluteX();
+         sally_ROR();
          break;
 
-      case 0x81: 
-         sally_IndirectX(); 
-         sally_STA(); 
+      case 0x81:
+         sally_IndirectX();
+         sally_STA();
          break;
 
-      case 0x84: 
-         sally_ZeroPage();  
-         sally_STY(); 
+      case 0x84:
+         sally_ZeroPage();
+         sally_STY();
          break;
 
-      case 0x85: 
-         sally_ZeroPage();  
-         sally_STA(); 
+      case 0x85:
+         sally_ZeroPage();
+         sally_STA();
          break;
 
-      case 0x86: 
-         sally_ZeroPage();  
-         sally_stx(); 
+      case 0x86:
+         sally_ZeroPage();
+         sally_stx();
          break;
 
-      case 0x88: 
+      case 0x88:
          sally_DEY();
          break;
 
-      case 0x8a: 
+      case 0x8a:
          sally_TXA();
          break;
 
-      case 0x8c: 
-         sally_Absolute();  
-         sally_STY(); 
+      case 0x8c:
+         sally_Absolute();
+         sally_STY();
          break;
 
-      case 0x8d: 
-         sally_Absolute();  
-         sally_STA(); 
+      case 0x8d:
+         sally_Absolute();
+         sally_STA();
          break;
 
-      case 0x8e: 
-         sally_Absolute();  
-         sally_stx(); 
+      case 0x8e:
+         sally_Absolute();
+         sally_stx();
          break;
 
-      case 0x90: 
+      case 0x90:
          sally_Relative();
          sally_BCC();
          break;
 
-      case 0x91: 
-         sally_IndirectY(); 
-         sally_STA(); 
+      case 0x91:
+         sally_IndirectY();
+         sally_STA();
          break;
 
-      case 0x94: 
-         sally_ZeroPageX(); 
-         sally_STY(); 
+      case 0x94:
+         sally_ZeroPageX();
+         sally_STY();
          break;
 
-      case 0x95: 
-         sally_ZeroPageX(); 
-         sally_STA(); 
+      case 0x95:
+         sally_ZeroPageX();
+         sally_STA();
          break;
 
-      case 0x96: 
-         sally_ZeroPageY(); 
-         sally_stx(); 
+      case 0x96:
+         sally_ZeroPageY();
+         sally_stx();
          break;
 
-      case 0x98: 
+      case 0x98:
          sally_TYA();
          break;
 
-      case 0x99: 
-         sally_AbsoluteY(); 
-         sally_STA(); 
+      case 0x99:
+         sally_AbsoluteY();
+         sally_STA();
          break;
 
-      case 0x9a: 
+      case 0x9a:
          sally_TXS();
          break;
 
-      case 0x9d: 
-         sally_AbsoluteX(); 
-         sally_STA(); 
+      case 0x9d:
+         sally_AbsoluteX();
+         sally_STA();
          break;
 
-      case 0xa0: 
-         sally_Immediate(); 
-         sally_LDY(); 
+      case 0xa0:
+         sally_Immediate();
+         sally_LDY();
          break;
 
-      case 0xa1: 
-         sally_IndirectX(); 
-         sally_LDA(); 
+      case 0xa1:
+         sally_IndirectX();
+         sally_LDA();
          break;
 
-      case 0xa2: 
-         sally_Immediate(); 
-         sally_LDX(); 
+      case 0xa2:
+         sally_Immediate();
+         sally_LDX();
          break;
 
-      case 0xa4: 
-         sally_ZeroPage();  
-         sally_LDY(); 
+      case 0xa4:
+         sally_ZeroPage();
+         sally_LDY();
          break;
 
-      case 0xa5: 
-         sally_ZeroPage();  
-         sally_LDA(); 
+      case 0xa5:
+         sally_ZeroPage();
+         sally_LDA();
          break;
 
-      case 0xa6: 
-         sally_ZeroPage();  
-         sally_LDX(); 
+      case 0xa6:
+         sally_ZeroPage();
+         sally_LDX();
          break;
 
-      case 0xa8: 
+      case 0xa8:
          sally_TAY();
          break;
 
-      case 0xa9: 
-         sally_Immediate(); 
-         sally_LDA(); 
+      case 0xa9:
+         sally_Immediate();
+         sally_LDA();
          break;
 
-      case 0xaa: 
+      case 0xaa:
          sally_TAX();
          break;
 
-      case 0xac: 
-         sally_Absolute();  
-         sally_LDY(); 
+      case 0xac:
+         sally_Absolute();
+         sally_LDY();
          break;
 
-      case 0xad: 
-         sally_Absolute();  
-         sally_LDA(); 
+      case 0xad:
+         sally_Absolute();
+         sally_LDA();
          break;
 
-      case 0xae: 
-         sally_Absolute();  
-         sally_LDX(); 
+      case 0xae:
+         sally_Absolute();
+         sally_LDX();
          break;
 
-      case 0xb0: 
-         sally_Relative();  
+      case 0xb0:
+         sally_Relative();
          sally_BCS();
          break;
 
-      case 0xb1: 
-         sally_IndirectY(); 
-         sally_LDA(); 
-         sally_Delay(sally_y); 
+      case 0xb1:
+         sally_IndirectY();
+         sally_LDA();
+         sally_Delay(sally_y);
          break;
 
-      case 0xb4: 
-         sally_ZeroPageX(); 
-         sally_LDY(); 
+      case 0xb4:
+         sally_ZeroPageX();
+         sally_LDY();
          break;
 
-      case 0xb5: 
-         sally_ZeroPageX(); 
-         sally_LDA(); 
+      case 0xb5:
+         sally_ZeroPageX();
+         sally_LDA();
          break;
 
-      case 0xb6: 
-         sally_ZeroPageY(); 
-         sally_LDX(); 
+      case 0xb6:
+         sally_ZeroPageY();
+         sally_LDX();
          break;
 
-      case 0xb8: 
+      case 0xb8:
          sally_CLV();
          break;
 
-      case 0xb9: 
-         sally_AbsoluteY(); 
-         sally_LDA(); 
-         sally_Delay(sally_y); 
+      case 0xb9:
+         sally_AbsoluteY();
+         sally_LDA();
+         sally_Delay(sally_y);
          break;
 
-      case 0xba: 
+      case 0xba:
          sally_TSX();
          break;
 
-      case 0xbc: 
-         sally_AbsoluteX(); 
-         sally_LDY(); 
-         sally_Delay(sally_x); 
-         break;
-
-      case 0xbd: 
-         sally_AbsoluteX(); 
-         sally_LDA(); 
+      case 0xbc:
+         sally_AbsoluteX();
+         sally_LDY();
          sally_Delay(sally_x);
          break;
 
-      case 0xbe: 
-         sally_AbsoluteY(); 
-         sally_LDX(); 
-         sally_Delay(sally_y); 
+      case 0xbd:
+         sally_AbsoluteX();
+         sally_LDA();
+         sally_Delay(sally_x);
          break;
 
-      case 0xc0: 
-         sally_Immediate(); 
-         sally_CPY(); 
+      case 0xbe:
+         sally_AbsoluteY();
+         sally_LDX();
+         sally_Delay(sally_y);
          break;
 
-      case 0xc1: 
-         sally_IndirectX(); 
-         sally_CMP(); 
+      case 0xc0:
+         sally_Immediate();
+         sally_CPY();
          break;
 
-      case 0xc4: 
-         sally_ZeroPage();  
-         sally_CPY(); 
+      case 0xc1:
+         sally_IndirectX();
+         sally_CMP();
          break;
 
-      case 0xc5: 
-         sally_ZeroPage();  
-         sally_CMP(); 
+      case 0xc4:
+         sally_ZeroPage();
+         sally_CPY();
          break;
 
-      case 0xc6: 
-         sally_ZeroPage();  
-         sally_DEC(); 
+      case 0xc5:
+         sally_ZeroPage();
+         sally_CMP();
          break;
 
-      case 0xc8: 
+      case 0xc6:
+         sally_ZeroPage();
+         sally_DEC();
+         break;
+
+      case 0xc8:
          sally_INY();
          break;
 
-      case 0xc9: 
-         sally_Immediate(); 
-         sally_CMP(); 
+      case 0xc9:
+         sally_Immediate();
+         sally_CMP();
          break;
 
-      case 0xca: 
+      case 0xca:
          sally_DEX();
          break;
 
-      case 0xcc: 
-         sally_Absolute();  
-         sally_CPY(); 
+      case 0xcc:
+         sally_Absolute();
+         sally_CPY();
          break;
 
-      case 0xcd: 
-         sally_Absolute();  
-         sally_CMP(); 
+      case 0xcd:
+         sally_Absolute();
+         sally_CMP();
          break;
 
-      case 0xce: 
-         sally_Absolute();  
-         sally_DEC(); 
+      case 0xce:
+         sally_Absolute();
+         sally_DEC();
          break;
 
-      case 0xd0: 
-         sally_Relative();  
+      case 0xd0:
+         sally_Relative();
          sally_BNE();
-         break;          
-
-      case 0xd1: 
-         sally_IndirectY(); 
-         sally_CMP(); 
-         sally_Delay(sally_y); 
          break;
 
-      case 0xd5: 
-         sally_ZeroPageX(); 
-         sally_CMP(); 
+      case 0xd1:
+         sally_IndirectY();
+         sally_CMP();
+         sally_Delay(sally_y);
          break;
 
-      case 0xd6: 
-         sally_ZeroPageX(); 
-         sally_DEC(); 
+      case 0xd5:
+         sally_ZeroPageX();
+         sally_CMP();
          break;
 
-      case 0xd8: 
+      case 0xd6:
+         sally_ZeroPageX();
+         sally_DEC();
+         break;
+
+      case 0xd8:
          sally_CLD();
          break;
 
-      case 0xd9: 
-         sally_AbsoluteY(); 
-         sally_CMP(); 
-         sally_Delay(sally_y); 
+      case 0xd9:
+         sally_AbsoluteY();
+         sally_CMP();
+         sally_Delay(sally_y);
          break;
 
-      case 0xdd: 
-         sally_AbsoluteX(); 
-         sally_CMP(); 
-         sally_Delay(sally_x); 
+      case 0xdd:
+         sally_AbsoluteX();
+         sally_CMP();
+         sally_Delay(sally_x);
          break;
 
-      case 0xde: 
-         sally_AbsoluteX(); 
-         sally_DEC(); 
+      case 0xde:
+         sally_AbsoluteX();
+         sally_DEC();
          break;
 
-      case 0xe0: 
-         sally_Immediate(); 
-         sally_CPX(); 
+      case 0xe0:
+         sally_Immediate();
+         sally_CPX();
          break;
 
-      case 0xe1: 
-         sally_IndirectX(); 
-         sally_SBC(); 
+      case 0xe1:
+         sally_IndirectX();
+         sally_SBC();
          break;
 
-      case 0xe4: 
-         sally_ZeroPage();  
-         sally_CPX(); 
+      case 0xe4:
+         sally_ZeroPage();
+         sally_CPX();
          break;
 
-      case 0xe5: 
-         sally_ZeroPage();  
-         sally_SBC(); 
+      case 0xe5:
+         sally_ZeroPage();
+         sally_SBC();
          break;
 
-      case 0xe6: 
-         sally_ZeroPage();  
-         sally_INC(); 
+      case 0xe6:
+         sally_ZeroPage();
+         sally_INC();
          break;
 
-      case 0xe8: 
+      case 0xe8:
          sally_INX();
          break;
 
-      case 0xe9: 
-         sally_Immediate(); 
-         sally_SBC(); 
+      case 0xe9:
+         sally_Immediate();
+         sally_SBC();
          break;
 
       case 0xea:
          sally_NOP();
          break;
 
-      case 0xec: 
-         sally_Absolute();  
-         sally_CPX(); 
+      case 0xec:
+         sally_Absolute();
+         sally_CPX();
          break;
 
-      case 0xed: 
-         sally_Absolute();  
-         sally_SBC(); 
+      case 0xed:
+         sally_Absolute();
+         sally_SBC();
          break;
 
-      case 0xee: 
-         sally_Absolute();  
-         sally_INC(); 
+      case 0xee:
+         sally_Absolute();
+         sally_INC();
          break;
 
-      case 0xf0: 
+      case 0xf0:
          sally_Relative();
          sally_BEQ();
          break;
 
-      case 0xf1: 
-         sally_IndirectY(); 
-         sally_SBC(); 
-         sally_Delay(sally_y); 
+      case 0xf1:
+         sally_IndirectY();
+         sally_SBC();
+         sally_Delay(sally_y);
          break;
 
-      case 0xf5: 
-         sally_ZeroPageX(); 
-         sally_SBC(); 
+      case 0xf5:
+         sally_ZeroPageX();
+         sally_SBC();
          break;
 
-      case 0xf6: 
-         sally_ZeroPageX(); 
-         sally_INC(); 
+      case 0xf6:
+         sally_ZeroPageX();
+         sally_INC();
          break;
 
-      case 0xf8: 
-         sally_SED();
+      case 0xf8:
+         if (!disable_sed) sally_SED();
          break;
 
-      case 0xf9: 
-         sally_AbsoluteY(); 
-         sally_SBC(); 
-         sally_Delay(sally_y); 
+      case 0xf9:
+         sally_AbsoluteY();
+         sally_SBC();
+         sally_Delay(sally_y);
          break;
 
-      case 0xfd: 
-         sally_AbsoluteX(); 
-         sally_SBC(); 
-         sally_Delay(sally_x); 
+      case 0xfd:
+         sally_AbsoluteX();
+         sally_SBC();
+         sally_Delay(sally_x);
          break;
 
-      case 0xfe: 
-         sally_AbsoluteX(); 
-         sally_INC(); 
+      case 0xfe:
+         sally_AbsoluteX();
+         sally_INC();
          break;
 
+      case 0x4b: // ALR (ASR)
+         //console.log("ALR (ASR)");
+         sally_Immediate();
+         sally_AND();
+         sally_LSRA();
+         break;
+      case 0x0b: // ANC
+      case 0x2b: // ANC
+         sally_Immediate();
+         sally_AND();
+         uint8_t temp = sally_p;
+         if (sally_a & 128) {
+            sally_p |= SALLY_FLAG.C;
+         }
+         else {
+            sally_p &= ~SALLY_FLAG.C;
+         }
+         break;
+      // LAX
+      // banksets changes
+      case 0xb3:
+         sally_IndirectY();
+         sally_LDA();
+         sally_TAX();
+         break;
+      // LAX abs
+      case 0xaf:
+         sally_Absolute();
+         sally_LDA();
+         sally_TAX();
+         break;
+      // SBX (AXS), illegal opcode
+      case 0xcb:
+         sally_Immediate();
+         sally_SBX();
+         break;
+      // SAX
+      // banksets changes
+      case 0x97:
+         sally_ZeroPageY();
+         sally_PHP();
+         sally_PHA();
+         sally_stx();
+         sally_AND();
+         sally_STA();
+         sally_PLA();
+         sally_PLP();
+         break;
+      // UNP
+      // banksets changes
+      case 0x64:
+         // ???
+         // banksets changes
+         break;
+      case 0x89:
+         // No-op
+      // UNP
+      // banksets changes
+         break;
+      case 0x04:
+         // Fix for Popeye 2.3c, via RevEng:
+         // $04 is an illegal opcode "nop", but technically it's "nop zp",
+         // which means the following byte is part of the instruction.
+         // Nothing is done with the byte, but the PC counter must advance
+         // past it.
+         sally_pc.w++;
+         break;
+      case 0x80:
+         // Double no-op
+         break;
       default:
          break;
    }

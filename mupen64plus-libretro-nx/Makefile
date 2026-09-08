@@ -591,6 +591,10 @@ else ifeq ($(platform), emscripten)
    # this flag produced bytecode current browsers rejected outright at
    # instantiate time. Now on emsdk 3.1.74, the same toolchain generation
    # EmulatorJS's own recipe uses this flag on - safe to re-enable.
+   # WRC - bisection-tested (2026-09-01) as a possible cause of Jet Force
+   # Gemini's vertical-bar artifact (a real EmulatorJS-fork-vs-upstream
+   # build-flag divergence) - ruled out, bars persisted with this disabled.
+   # Root cause of that bug remains open; this flag is unrelated to it.
    CPUFLAGS += -msimd128 -ftree-vectorize
    HAVE_NEON = 0
 

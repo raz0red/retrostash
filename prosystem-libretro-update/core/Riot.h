@@ -41,6 +41,11 @@ extern void riot_SetTimer(uint16_t timer, uint8_t intervals);
 extern void riot_UpdateTimer(uint8_t cycles);
 
 extern bool riot_timing;
+extern uint16_t riot_timer;
+extern uint8_t riot_intervals;
+extern uint8_t riot_dra;
+extern uint8_t riot_drb;
+extern uint16_t riot_clocks;
 
 #ifdef __cplusplus
 }

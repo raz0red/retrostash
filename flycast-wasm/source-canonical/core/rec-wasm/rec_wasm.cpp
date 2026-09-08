@@ -129,7 +129,7 @@
 // Region compilation flags (design v0): LIVE primes hot-range region modules
 // into the dispatch table; SHADOW registers them unprimed and runs the
 // region-vs-singles differential on member misses (farm builds).
-#define FLY_REGIONS_LIVE 0
+#define FLY_REGIONS_LIVE 1
 #define FLY_REGION_SHADOW 0
 #define FLY_CHAINS_ANY (FLY_CHAIN_SHADOW || FLY_CHAINS_LIVE || FLY_REGION_SHADOW || FLY_REGIONS_LIVE)
 
@@ -167,6 +167,83 @@
 // + a per-chain-guard cell RMW. 1 = legacy belt-and-braces (pre-bump
 // behavior); 0 = exact contract, tick retired.
 #define FLY_SMC_INSURANCE_TICK 0
+
+// WRC POC (2026-09-01): scalar-only float register caching. Caches the 11
+// single-register FPU ops (fadd/fsub/fmul/fdiv/fabs/fneg/fsqrt/fseteq/
+// fsetgt/fmac/fsrra) into WASM locals, same as the existing integer
+// RegCache. Deliberately does NOT attempt to cache ftrv/fipr/frswap/fsca -
+// those read/write several float registers at once via raw offset
+// arithmetic against Sh4Context, not the per-register shil_param model the
+// cache keys off, so a cached local next to them could go stale. Instead,
+// scanBlock() (wasm_emit.h) excludes float caching for a WHOLE block if it
+// contains any of those four ops, so the two groups never overlap and the
+// staleness case can't occur. All new code is guarded by this flag alone -
+// 0 reverts to stock V1 behavior (floats always memory-backed) with no
+// other changes. Not yet differential-farmed; real-content eyes test only.
+#define WRC_FLOAT_REGCACHE 0
+
+// WRC POC (2026-09-01, expanded same day): warm-cache sizing AND a simple
+// save-side persistence buffer. Tracks the byte LENGTH of every compiled
+// block/chain/region module in a JS-side map (Module._flyByteCache /
+// Module._flyChainByteCache - see wasm_cache_dump_bytes() below), added at
+// the same 5 compile sites the real block/chain caches use and cleared on
+// full reset, so it always reflects the CURRENT live cache size, not a
+// cumulative session total.
+//
+// Also retains the actual compiled bytes (not just their length) for every
+// NEWLY compiled block/chain/region since the last flush, in
+// Module._flyPendingChunks (a plain object, key -> Uint8Array). JS reads
+// and clears this directly (webrcade-app-retro-flycast's saveState(),
+// already called on pause/exit) to write it into IndexedDB via
+// webrcade-app-common's shared `storage` helper. Deliberately simple for
+// this first pass, per direct instruction: no dedup against previously-
+// persisted chunks, no size-threshold flush trigger, no batching - just
+// hand whatever's pending to storage.put() and clear on success. Loading a
+// persisted cache back and re-priming the live dispatch table with it
+// (skipping recompilation) is NOT implemented here - this is the save side
+// only.
+// WRC POC - DISABLED (2026-09-01): parked alongside WRC_CACHE_LOAD_POC.
+// With load-side priming disabled after the real "SH4 exception when
+// blocked" crash, there's no consumer for what this side produces -
+// disabling it too stops the ongoing cost (bytes retained in
+// Module._flyPendingChunks all session, merged and written to IndexedDB on
+// every save) for zero current benefit. Every client-side call site
+// (flushJitCacheToStorage, the pause() size report) degrades to a no-op
+// automatically through the #else stubs already built for this flag, with
+// no client changes needed. Re-enable both flags together once the
+// exception-delivery gap in WRC_CACHE_LOAD_POC's design is actually found
+// and fixed.
+#define WRC_CACHE_DUMP_POC 0
+
+// WRC POC (2026-09-01, load side): re-primes previously-compiled blocks
+// from a persisted session (see WRC_CACHE_DUMP_POC/Module._flyPendingChunks
+// above) into the live dispatch table, so they skip recompilation entirely
+// instead of just sitting unread in IndexedDB. Deliberately scoped down
+// from a "real" load: only populates the fast-path dispatch arrays
+// (jit_dispatch_table/pc/hash/sz/pgen, via primeDispatchEntry) for BLOCK
+// chunks - no RuntimeBlockInfo/blockByVaddr entry is created, so a primed
+// block dispatches and executes correctly but won't chain with neighbors
+// (an accepted, non-fatal limitation, not a bug). Chain/region/batch
+// chunks are saved but NOT re-primed by this flag - their multi-function
+// bookkeeping is a separate, larger piece not attempted here.
+//
+// Correctness: a RAM-backed block's persisted hash is verified against
+// that address's CURRENT live content before priming - a mismatch (the
+// game's boot placed different code there than last session) means the
+// chunk is silently skipped, not force-used, so a stale chunk can never
+// execute. See wasm_try_prime_block() below.
+// WRC POC - DISABLED (2026-09-01): real crash confirmed in play. "Fatal:
+// SH4 exception when blocked" (core/hw/sh4/sh4_interrupts.cpp:233, thrown
+// when Sh4cntx.sr.BL is already set and a second exception fires - an
+// architectural double-fault flycast treats as unrecoverable) surfaced
+// after ~1800 successfully-primed blocks were in play. The dispatch-
+// table-only priming design (skip RuntimeBlockInfo/blockByVaddr, since the
+// normal hit path doesn't need them) was verified correct for NORMAL
+// execution, but exception/interrupt delivery is a different code path,
+// and this is real evidence it depends on some bookkeeping a primed entry
+// never creates - not yet identified which. Off until that's found; the
+// save side (WRC_CACHE_DUMP_POC) is unaffected and stays on.
+#define WRC_CACHE_LOAD_POC 0
 
 #if VALIDATOR_BUILD || LOCKSTEP_DIFF_BUILD || FLY_WRITE_WATCH || FLY_BRIDGE_SHADOW || FLY_CHAIN_SHADOW || FLY_REGION_SHADOW
 #define WASM_VAL_LOG_WRITES 1
@@ -277,7 +354,12 @@ DynarecCodeEntryPtr DYNACALL rdv_FailedToFindBlock(u32 pc);
 // Forward declarations for EM_JS functions (defined later, after extern "C" block)
 #ifdef __EMSCRIPTEN__
 extern "C" {
-int wasm_compile_block(const u8* bytesPtr, u32 len, u32 block_pc);
+// WRC POC: smc_hash/smc_nw added (2026-09-01) so the sync path can also
+// feed the WRC_CACHE_DUMP_POC persist buffer with a verifiable hash - see
+// wasm_compile_block_async's identical params and the flag's definition
+// above. 0/0 for non-RAM (ROM/BIOS) blocks, matching primeDispatchEntry's
+// own "0 size = skip SMC check" convention.
+int wasm_compile_block(const u8* bytesPtr, u32 len, u32 block_pc, u32 smc_hash, u32 smc_nw);
 int wasm_compile_block_batch(const u8* bytesPtr, u32 len, const u32* pcsPtr, u32 count, u32* outIdxPtr);
 int wasm_execute_block(u32 block_pc, u32 ctx_ptr, u32 ram_base);
 int wasm_has_block(u32 block_pc);
@@ -290,6 +372,12 @@ void wasm_clear_chains();
 void wasm_remove_chain(u32 head_pc);
 void wasm_compile_chain_async(const u8* bytesPtr, u32 len, u32 head_pc);
 int wasm_cache_size();
+// WRC POC: always declared/defined (both here and its non-Emscripten stub
+// below) regardless of WRC_CACHE_DUMP_POC, so the Makefile's
+// EXPORTED_FUNCTIONS entry for it never needs to change in step with this
+// flag - see the flag's definition above and wasm_cache_dump_bytes' two
+// EM_JS definitions further down for what actually toggles.
+int wasm_cache_dump_bytes();
 double wasm_prof_compile_ms();
 double wasm_prof_exec_sample_ms();
 int wasm_prof_exec_samples();
@@ -3709,7 +3797,101 @@ static void fly_region_shadow(u32 entry_pc, u32 ctx_ptr, u32 ram_ptr)
 
 #ifdef __EMSCRIPTEN__
 
-EM_JS(int, wasm_compile_block, (const u8* bytesPtr, u32 len, u32 block_pc), {
+#if WRC_CACHE_DUMP_POC
+// WRC POC: identical to the #else version below, plus tracking the
+// compiled module's byte length in Module._flyByteCache[block_pc] - see
+// the WRC_CACHE_DUMP_POC definition above for the full rationale.
+// Whole-function #if/#else duplication (not #if lines interleaved inside
+// the EM_JS(...) body) deliberately, to avoid relying on preprocessor
+// directives nested inside a macro's argument list.
+EM_JS(int, wasm_compile_block, (const u8* bytesPtr, u32 len, u32 block_pc, u32 smc_hash, u32 smc_nw), {
+	if (!Module._prof) Module._prof = { compileMs: 0, execMs: 0, execSamples: 0, execCount: 0 };
+	var t0 = performance.now();
+	try {
+		var wasmBytes = Module.HEAPU8.slice(bytesPtr, bytesPtr + len);
+		var mod = new WebAssembly.Module(wasmBytes);
+		if (!Module._jitImportsResolved) {
+			Module._wasm_mem_read8(0);
+			Module._wasm_mem_read16(0);
+			Module._wasm_mem_read32(0);
+			Module._wasm_mem_write8(0, 0);
+			Module._wasm_mem_write16(0, 0);
+			Module._wasm_mem_write32(0, 0);
+			Module._wasm_exec_ifb(0, 0);
+			Module._wasm_exec_shil_fb(0, 0);
+			Module._wasm_sq_pref(0);
+			Module._wasm_div32u(0, 0, 0);
+			Module._wasm_div32s(0, 0, 0);
+			Module._wasm_div1(0, 0, 0);
+			var isWasm = typeof WebAssembly.Function !== 'undefined'
+				? Module._wasm_mem_read32 instanceof WebAssembly.Function
+				: typeof Module._wasm_mem_read32 === 'function';
+			Module._jitImports = {
+				memory: wasmMemory,
+				read8:   Module._wasm_mem_read8,
+				read16:  Module._wasm_mem_read16,
+				read32:  Module._wasm_mem_read32,
+				write8:  Module._wasm_mem_write8,
+				write16: Module._wasm_mem_write16,
+				write32: Module._wasm_mem_write32,
+				ifb:     Module._wasm_exec_ifb,
+				shil_fb: Module._wasm_exec_shil_fb,
+				sq_pref: Module._wasm_sq_pref,
+				div32u:  Module._wasm_div32u,
+				div32s:  Module._wasm_div32s,
+				div1:    Module._wasm_div1
+			};
+			if (!Module._flyQ) console.log('[rec_wasm] JIT imports resolved (WASM native: ' + isWasm + ')');
+			Module._jitImportsResolved = true;
+		}
+		var instance = new WebAssembly.Instance(mod, { env: Module._jitImports });
+		var table = wasmTable;
+		if (!Module._jitTableBase) {
+			Module._jitTableBase = table.length;
+			Module._jitNextIdx = table.length;
+			table.grow(4096);
+		}
+		var idx = Module._jitNextIdx++;
+		if (idx >= table.length) {
+			table.grow(4096);
+		}
+		table.set(idx, instance.exports.b);
+		if (!Module._wasmBlockCache) Module._wasmBlockCache = {};
+		Module._wasmBlockCache[block_pc] = instance.exports.b;
+		if (!Module._wasmBlockIdx) Module._wasmBlockIdx = {};
+		Module._wasmBlockIdx[block_pc] = idx;
+		// WRC POC: cache-size tracking (see file top).
+		if (!Module._flyByteCache) Module._flyByteCache = {};
+		Module._flyByteCache[block_pc] = len;
+		// WRC POC: persist-side pending buffer (see file top). Carries the
+		// SMC hash/halfword-count alongside the bytes - the load side needs
+		// these to verify a persisted chunk is still safe to reuse before
+		// re-priming it (see wasm_try_prime_block below). 0/0 for non-RAM
+		// (ROM/BIOS) blocks, which can't self-modify and so are always safe.
+		if (!Module._flyPendingChunks) Module._flyPendingChunks = {};
+		Module._flyPendingChunks['b' + block_pc] = { bytes: wasmBytes, hash: smc_hash, nw: smc_nw };
+		// WRC POC: the ONE thing that actually determines whether re-priming
+		// from storage is doing anything - see file top and
+		// Module._flyPrimedPcs' definition in webrcade-app-retro-flycast's
+		// primeJitCacheFromStorage(). If this PC was just successfully
+		// primed from a persisted chunk, it should never need a real
+		// recompile again this session unless SMC genuinely changed it -
+		// this fires unconditionally (not flag-gated further) whenever that
+		// assumption is violated.
+		if (Module._flyPrimedPcs && Module._flyPrimedPcs.has(block_pc)) {
+			console.warn('[WRC persist] REGRESSION: pc=0x' + (block_pc >>> 0).toString(16) +
+				' was primed from storage but is being recompiled - priming did not prevent this');
+			Module._flyPrimedPcs.delete(block_pc);
+		}
+		Module._prof.compileMs += performance.now() - t0;
+		return idx;  // table index (>0 on success, 0 reserved for NULL)
+	} catch (e) {
+		if (!Module._flyQ) console.error('[rec_wasm] compile fail PC=0x' + (block_pc >>> 0).toString(16) + ': ' + e.message);
+		return 0;
+	}
+});
+#else
+EM_JS(int, wasm_compile_block, (const u8* bytesPtr, u32 len, u32 block_pc, u32 smc_hash, u32 smc_nw), {
 	if (!Module._prof) Module._prof = { compileMs: 0, execMs: 0, execSamples: 0, execCount: 0 };
 	var t0 = performance.now();
 	try {
@@ -3793,12 +3975,184 @@ EM_JS(int, wasm_compile_block, (const u8* bytesPtr, u32 len, u32 block_pc), {
 		return 0;
 	}
 });
+#endif
+
+#if WRC_CACHE_LOAD_POC
+// WRC POC (load side): instantiates a PERSISTED block's bytes (loaded from
+// storage - see webrcade-app-retro-flycast's loadState()) and registers it
+// in the table + JS-side caches, mirroring wasm_compile_block's mechanics
+// exactly EXCEPT it does not touch Module._flyByteCache/_flyPendingChunks
+// (it's already persisted - re-queuing it would just get it wastefully
+// re-saved verbatim on the next flush). Callers MUST have already called
+// wasm_verify_block_hash() and gotten a pass before calling this - see
+// that function's comment for why the ordering matters (wasm_execute_block
+// looks up _wasmBlockCache by PC alone, no hash check, so nothing stale
+// may ever be registered there). Returns the table index (>0 on success,
+// 0 on failure), same convention as wasm_compile_block. The caller must
+// still separately call wasm_try_prime_block() afterward to wire the
+// C++-side dispatch table - this function only handles the instantiate/
+// register side, which needs JS scope (wasmTable, Module._jitImports) the
+// C++ side doesn't have.
+// A real extern "C" function marked EMSCRIPTEN_KEEPALIVE, not an EM_JS
+// declaration - same reasoning as wasm_cache_dump_bytes above (an EM_JS
+// function with zero C++ call sites gets silently dropped by wasm-ld/LTO
+// even when listed in EXPORTED_FUNCTIONS; confirmed the hard way again
+// here before switching). The Module._jitImports object literal below is
+// built via individual property assignments rather than one `{ a: 1, b: 2
+// }` literal deliberately: EM_ASM_INT's stringifying macro only tracks ()
+// nesting for its own argument-splitting (proven separately with
+// wasm_cache_dump_bytes's comma bug), and unlike EM_JS's body (which is a
+// true variadic macro parameter and reconstructs internal commas
+// correctly), EM_ASM_INT's `code` parameter is a regular, non-final
+// parameter - a bare top-level comma inside it, even one nested only in
+// {}, would get parsed as a macro-argument separator, not JS.
+extern "C" int EMSCRIPTEN_KEEPALIVE wasm_load_block(const u8* bytesPtr, u32 len, u32 block_pc) {
+	return EM_ASM_INT({
+		var bytesPtr = $0;
+		var len = $1;
+		var block_pc = $2;
+		try {
+			var wasmBytes = Module.HEAPU8.slice(bytesPtr, bytesPtr + len);
+			var mod = new WebAssembly.Module(wasmBytes);
+			if (!Module._jitImportsResolved) {
+				Module._wasm_mem_read8(0);
+				Module._wasm_mem_read16(0);
+				Module._wasm_mem_read32(0);
+				Module._wasm_mem_write8(0, 0);
+				Module._wasm_mem_write16(0, 0);
+				Module._wasm_mem_write32(0, 0);
+				Module._wasm_exec_ifb(0, 0);
+				Module._wasm_exec_shil_fb(0, 0);
+				Module._wasm_sq_pref(0);
+				Module._wasm_div32u(0, 0, 0);
+				Module._wasm_div32s(0, 0, 0);
+				Module._wasm_div1(0, 0, 0);
+				Module._jitImports = {};
+				Module._jitImports.memory = wasmMemory;
+				Module._jitImports.read8 = Module._wasm_mem_read8;
+				Module._jitImports.read16 = Module._wasm_mem_read16;
+				Module._jitImports.read32 = Module._wasm_mem_read32;
+				Module._jitImports.write8 = Module._wasm_mem_write8;
+				Module._jitImports.write16 = Module._wasm_mem_write16;
+				Module._jitImports.write32 = Module._wasm_mem_write32;
+				Module._jitImports.ifb = Module._wasm_exec_ifb;
+				Module._jitImports.shil_fb = Module._wasm_exec_shil_fb;
+				Module._jitImports.sq_pref = Module._wasm_sq_pref;
+				Module._jitImports.div32u = Module._wasm_div32u;
+				Module._jitImports.div32s = Module._wasm_div32s;
+				Module._jitImports.div1 = Module._wasm_div1;
+				Module._jitImportsResolved = true;
+			}
+			var envObj = {};
+			envObj.env = Module._jitImports;
+			var instance = new WebAssembly.Instance(mod, envObj);
+			var table = wasmTable;
+			if (!Module._jitTableBase) {
+				Module._jitTableBase = table.length;
+				Module._jitNextIdx = table.length;
+				table.grow(4096);
+			}
+			var idx = Module._jitNextIdx++;
+			if (idx >= table.length) {
+				table.grow(4096);
+			}
+			table.set(idx, instance.exports.b);
+			if (!Module._wasmBlockCache) Module._wasmBlockCache = {};
+			Module._wasmBlockCache[block_pc] = instance.exports.b;
+			if (!Module._wasmBlockIdx) Module._wasmBlockIdx = {};
+			Module._wasmBlockIdx[block_pc] = idx;
+			return idx;
+		} catch (e) {
+			console.error('[WRC persist] load instantiate fail pc=0x' + (block_pc >>> 0).toString(16) + ': ' + (e && e.message));
+			return 0;
+		}
+	}, bytesPtr, len, block_pc);
+}
+#else
+extern "C" int EMSCRIPTEN_KEEPALIVE wasm_load_block(const u8* bytesPtr, u32 len, u32 block_pc) {
+	return 0;
+}
+#endif
 
 // ASYNC twin of wasm_compile_block (2026-07-16): copies the module bytes and
 // hands them to the browser's off-thread compiler. On resolve, registers the
 // function in table + cache and queues a ready-entry that drainCompileQueue()
 // promotes into the dispatch table after a C-side staleness check. A
 // generation counter guards against promises resolving across a cache reset.
+#if WRC_CACHE_DUMP_POC
+// WRC POC: identical to the #else version below, plus tracking the
+// compiled module's byte length in Module._flyByteCache[block_pc].
+EM_JS(void, wasm_compile_block_async, (const u8* bytesPtr, u32 len, u32 block_pc, u32 smc_hash, u32 smc_nw), {
+	var wasmBytes = Module.HEAPU8.slice(bytesPtr, bytesPtr + len);  // C buffer dies at return
+	if (!Module._flyReady) Module._flyReady = [];
+	Module._flyGen = Module._flyGen | 0;
+	var gen = Module._flyGen;
+	if (!Module._jitImportsResolved) {
+		Module._wasm_mem_read8(0);
+		Module._wasm_mem_read16(0);
+		Module._wasm_mem_read32(0);
+		Module._wasm_mem_write8(0, 0);
+		Module._wasm_mem_write16(0, 0);
+		Module._wasm_mem_write32(0, 0);
+		Module._wasm_exec_ifb(0, 0);
+		Module._wasm_exec_shil_fb(0, 0);
+		Module._wasm_sq_pref(0);
+		Module._wasm_div32u(0, 0, 0);
+		Module._wasm_div32s(0, 0, 0);
+		Module._wasm_div1(0, 0, 0);
+		Module._jitImports = {
+			memory: wasmMemory,
+			read8:   Module._wasm_mem_read8,
+			read16:  Module._wasm_mem_read16,
+			read32:  Module._wasm_mem_read32,
+			write8:  Module._wasm_mem_write8,
+			write16: Module._wasm_mem_write16,
+			write32: Module._wasm_mem_write32,
+			ifb:     Module._wasm_exec_ifb,
+			shil_fb: Module._wasm_exec_shil_fb,
+			sq_pref: Module._wasm_sq_pref,
+			div32u:  Module._wasm_div32u,
+			div32s:  Module._wasm_div32s,
+			div1:    Module._wasm_div1
+		};
+		Module._jitImportsResolved = true;
+	}
+	WebAssembly.instantiate(wasmBytes, { env: Module._jitImports }).then(function(result) {
+		if (gen !== (Module._flyGen | 0)) return;  // cache reset while compiling
+		var instance = result.instance;
+		var table = wasmTable;
+		if (!Module._jitTableBase) {
+			Module._jitTableBase = table.length;
+			Module._jitNextIdx = table.length;
+			table.grow(4096);
+		}
+		var idx = Module._jitNextIdx++;
+		if (idx >= table.length)
+			table.grow(4096);
+		table.set(idx, instance.exports.b);
+		if (!Module._wasmBlockCache) Module._wasmBlockCache = {};
+		Module._wasmBlockCache[block_pc] = instance.exports.b;
+		if (!Module._wasmBlockIdx) Module._wasmBlockIdx = {};
+		Module._wasmBlockIdx[block_pc] = idx;
+		// WRC POC: cache-size tracking (see file top).
+		if (!Module._flyByteCache) Module._flyByteCache = {};
+		Module._flyByteCache[block_pc] = len;
+		// WRC POC: persist-side pending buffer (see file top).
+		if (!Module._flyPendingChunks) Module._flyPendingChunks = {};
+		Module._flyPendingChunks['b' + block_pc] = { bytes: wasmBytes, hash: smc_hash, nw: smc_nw };
+		// WRC POC: definitive priming-worked-or-not signal - see the
+		// identical check in wasm_compile_block above for the full comment.
+		if (Module._flyPrimedPcs && Module._flyPrimedPcs.has(block_pc)) {
+			console.warn('[WRC persist] REGRESSION: pc=0x' + (block_pc >>> 0).toString(16) +
+				' was primed from storage but is being recompiled (async) - priming did not prevent this');
+			Module._flyPrimedPcs.delete(block_pc);
+		}
+		Module._flyReady.push({ pc: block_pc, idx: idx, hash: smc_hash, nw: smc_nw });
+	}, function(e) {
+		if (!Module._flyQ) console.error('[rec_wasm] async compile fail PC=0x' + (block_pc >>> 0).toString(16) + ': ' + (e && e.message));
+	});
+});
+#else
 EM_JS(void, wasm_compile_block_async, (const u8* bytesPtr, u32 len, u32 block_pc, u32 smc_hash, u32 smc_nw), {
 	var wasmBytes = Module.HEAPU8.slice(bytesPtr, bytesPtr + len);  // C buffer dies at return
 	if (!Module._flyReady) Module._flyReady = [];
@@ -3857,12 +4211,96 @@ EM_JS(void, wasm_compile_block_async, (const u8* bytesPtr, u32 len, u32 block_pc
 		if (!Module._flyQ) console.error('[rec_wasm] async compile fail PC=0x' + (block_pc >>> 0).toString(16) + ': ' + (e && e.message));
 	});
 });
+#endif
 
 // SYNC batch compile: N block functions in one Module, exported b0..bN-1.
 // Registers each in the block cache + indirect table; writes table indices to
 // outIdxPtr (0 on per-function failure). Returns count on success, 0 on module
 // failure. Legal on the main thread in all engines (Chrome's 4KB sync limit was
 // removed in ~114); cost ≈ one module overhead + Liftoff codegen.
+#if WRC_CACHE_DUMP_POC
+// WRC POC: identical to the #else version below, plus tracking each
+// compiled sub-function's approximate byte length (whole-module bytes
+// divided by function count - the batch module isn't split per-function
+// on the JS side, so this is an even-split approximation, not exact per
+// function) in Module._flyByteCache[pc].
+EM_JS(int, wasm_compile_block_batch, (const u8* bytesPtr, u32 len, const u32* pcsPtr, u32 count, u32* outIdxPtr), {
+	try {
+		if (!Module._jitImportsResolved) {
+			Module._wasm_mem_read8(0);
+			Module._wasm_mem_read16(0);
+			Module._wasm_mem_read32(0);
+			Module._wasm_mem_write8(0, 0);
+			Module._wasm_mem_write16(0, 0);
+			Module._wasm_mem_write32(0, 0);
+			Module._wasm_exec_ifb(0, 0);
+			Module._wasm_exec_shil_fb(0, 0);
+			Module._wasm_sq_pref(0);
+			Module._wasm_div32u(0, 0, 0);
+			Module._wasm_div32s(0, 0, 0);
+			Module._wasm_div1(0, 0, 0);
+			Module._jitImports = {
+				memory: wasmMemory,
+				read8:   Module._wasm_mem_read8,
+				read16:  Module._wasm_mem_read16,
+				read32:  Module._wasm_mem_read32,
+				write8:  Module._wasm_mem_write8,
+				write16: Module._wasm_mem_write16,
+				write32: Module._wasm_mem_write32,
+				ifb:     Module._wasm_exec_ifb,
+				shil_fb: Module._wasm_exec_shil_fb,
+				sq_pref: Module._wasm_sq_pref,
+				div32u:  Module._wasm_div32u,
+				div32s:  Module._wasm_div32s,
+				div1:    Module._wasm_div1
+			};
+			Module._jitImportsResolved = true;
+		}
+		var wasmBytes = Module.HEAPU8.slice(bytesPtr, bytesPtr + len);
+		var mod = new WebAssembly.Module(wasmBytes);
+		var instance = new WebAssembly.Instance(mod, { env: Module._jitImports });
+		var table = wasmTable;
+		if (!Module._jitTableBase) {
+			Module._jitTableBase = table.length;
+			Module._jitNextIdx = table.length;
+			table.grow(4096);
+		}
+		if (!Module._wasmBlockCache) Module._wasmBlockCache = {};
+		if (!Module._wasmBlockIdx) Module._wasmBlockIdx = {};
+		if (!Module._flyByteCache) Module._flyByteCache = {};
+		var approxBytesEach = count > 0 ? (len / count) : 0;
+		for (var i = 0; i < count; i++) {
+			var pc = Module.HEAPU32[(pcsPtr >> 2) + i];
+			var fn = instance.exports['b' + i];
+			if (!fn) { Module.HEAPU32[(outIdxPtr >> 2) + i] = 0; continue; }
+			var idx = Module._jitNextIdx++;
+			if (idx >= table.length)
+				table.grow(4096);
+			table.set(idx, fn);
+			Module._wasmBlockCache[pc] = fn;
+			Module._wasmBlockIdx[pc] = idx;
+			// WRC POC: cache-size tracking (see file top). Approximate -
+			// see comment above this function.
+			Module._flyByteCache[pc] = approxBytesEach;
+			Module.HEAPU32[(outIdxPtr >> 2) + i] = idx;
+		}
+		// WRC POC: persist-side pending buffer (see file top). A batch
+		// module holds count functions sharing one WASM module - can't
+		// split its bytes per-function after compilation, so the whole
+		// module is stored as one chunk under a synthetic key (a
+		// monotonic counter; the individual pcs it covers aren't needed
+		// for the save side, only for re-priming, which isn't built yet).
+		if (!Module._flyPendingChunks) Module._flyPendingChunks = {};
+		if (!Module._flyBatchCounter) Module._flyBatchCounter = 0;
+		var batchKey = 'batch' + (Module._flyBatchCounter++);
+		Module._flyPendingChunks[batchKey] = { bytes: wasmBytes, hash: 0, nw: 0 };
+		return count;
+	} catch (e) {
+		if (!Module._flyQ) console.error('[batch] compile fail n=' + count + ': ' + (e && e.message));
+		return 0;
+	}
+});
+#else
 EM_JS(int, wasm_compile_block_batch, (const u8* bytesPtr, u32 len, const u32* pcsPtr, u32 count, u32* outIdxPtr), {
 	try {
 		if (!Module._jitImportsResolved) {
@@ -3924,6 +4362,7 @@ EM_JS(int, wasm_compile_block_batch, (const u8* bytesPtr, u32 len, const u32* pc
 		return 0;
 	}
 });
+#endif
 
 EM_JS(int, wasm_execute_block, (u32 block_pc, u32 ctx_ptr, u32 ram_base), {
 	try {
@@ -3953,6 +4392,37 @@ EM_JS(int, wasm_has_block, (u32 block_pc), {
 	return (Module._wasmBlockCache && Module._wasmBlockCache[block_pc]) ? 1 : 0;
 });
 
+#if WRC_CACHE_DUMP_POC
+// WRC POC: identical to the #else version below, plus clearing
+// Module._flyByteCache alongside the real cache.
+EM_JS(void, wasm_clear_cache, (), {
+	Module._wasmBlockCache = {};
+	Module._flyByteCache = {};
+	// WRC POC: drop any not-yet-persisted chunks too - a reset means the
+	// live cache they'd re-prime is gone, so there's nothing left for them
+	// to usefully warm-start.
+	Module._flyPendingChunks = {};
+	// Null out every allocated table slot — a populated slot pins its block's
+	// WebAssembly.Instance (and Module) against GC forever. This was the
+	// ROM-switch memory accumulation the user observed (2026-07-17): resets
+	// rewound the INDEX but left thousands of instances referenced.
+	if (Module._jitTableBase) {
+		var table = wasmTable;
+		var end = Math.min(Module._jitNextIdx | 0, table.length);
+		for (var i = Module._jitTableBase | 0; i < end; i++)
+			table.set(i, null);
+	}
+	// Reset table allocation — old entries become unreachable
+	Module._jitTableBase = 0;
+	Module._jitNextIdx = 0;
+	// Invalidate in-flight async compiles + drop unpromoted ready entries
+	Module._flyGen = (Module._flyGen | 0) + 1;
+	Module._flyReady = [];
+	Module._flyChainReady = [];
+	Module._flyChainFail = [];
+	Module._wasmBlockIdx = {};
+});
+#else
 EM_JS(void, wasm_clear_cache, (), {
 	Module._wasmBlockCache = {};
 	// Null out every allocated table slot — a populated slot pins its block's
@@ -3975,6 +4445,7 @@ EM_JS(void, wasm_clear_cache, (), {
 	Module._flyChainFail = [];
 	Module._wasmBlockIdx = {};
 });
+#endif
 
 EM_JS(void, wasm_remove_block, (u32 block_pc), {
 	if (Module._wasmBlockCache) delete Module._wasmBlockCache[block_pc];
@@ -3990,6 +4461,48 @@ EM_JS(int, wasm_get_block_idx, (u32 block_pc), {
 // Chain-module cache (FLY_CHAIN_SHADOW): multi-block modules keyed by head
 // pc, kept SEPARATE from the single-block cache so production dispatch is
 // untouched while the differential exercises chains.
+#if WRC_CACHE_DUMP_POC
+// WRC POC: identical to the #else version below, plus tracking the
+// compiled chain/region module's byte length. Uses a SEPARATE map
+// (Module._flyChainByteCache) from the single-block one
+// (Module._flyByteCache), mirroring how _wasmChainCache is already kept
+// separate from _wasmBlockCache - chain head_pc and region keys share the
+// same numeric range as real block pcs (regions reuse the chain cache via
+// the existing 0xFFFF0000+ridx scheme), so a single shared map would risk
+// a genuine key collision between a block entry and a chain/region entry.
+EM_JS(int, wasm_compile_chain, (const u8* bytesPtr, u32 len, u32 head_pc), {
+	try {
+		var wasmBytes = Module.HEAPU8.slice(bytesPtr, bytesPtr + len);
+		var mod = new WebAssembly.Module(wasmBytes);
+		var instance = new WebAssembly.Instance(mod, { env: Module._jitImports });
+		if (!Module._wasmChainCache) Module._wasmChainCache = {};
+		Module._wasmChainCache[head_pc] = instance.exports.b;
+		// Table registration for production call_indirect dispatch
+		var table = wasmTable;
+		if (!Module._jitTableBase) {
+			Module._jitTableBase = table.length;
+			Module._jitNextIdx = table.length;
+			table.grow(4096);
+		}
+		var idx = Module._jitNextIdx++;
+		if (idx >= table.length)
+			table.grow(4096);
+		table.set(idx, instance.exports.b);
+		if (!Module._wasmChainIdx) Module._wasmChainIdx = {};
+		Module._wasmChainIdx[head_pc] = idx;
+		// WRC POC: cache-size tracking (see file top).
+		if (!Module._flyChainByteCache) Module._flyChainByteCache = {};
+		Module._flyChainByteCache[head_pc] = len;
+		// WRC POC: persist-side pending buffer (see file top).
+		if (!Module._flyPendingChunks) Module._flyPendingChunks = {};
+		Module._flyPendingChunks['c' + head_pc] = { bytes: wasmBytes, hash: 0, nw: 0 };
+		return idx;   // >0 on success
+	} catch (e) {
+		if (!Module._flyQ) console.error('[chain] compile fail head=0x' + (head_pc >>> 0).toString(16) + ': ' + e.message);
+		return 0;
+	}
+});
+#else
 EM_JS(int, wasm_compile_chain, (const u8* bytesPtr, u32 len, u32 head_pc), {
 	try {
 		var wasmBytes = Module.HEAPU8.slice(bytesPtr, bytesPtr + len);
@@ -4016,6 +4529,7 @@ EM_JS(int, wasm_compile_chain, (const u8* bytesPtr, u32 len, u32 head_pc), {
 		return 0;
 	}
 });
+#endif
 EM_JS(void, wasm_remove_chain, (u32 head_pc), {
 	if (Module._wasmChainCache) delete Module._wasmChainCache[head_pc];
 	if (Module._wasmChainIdx) delete Module._wasmChainIdx[head_pc];
@@ -4026,6 +4540,46 @@ EM_JS(void, wasm_remove_chain, (u32 head_pc), {
 // indirect table and queues a ready-entry; drainChainQueue() promotes it after
 // C-side fingerprint + freshness re-validation. _flyGen guards cache resets.
 // Failures queue the head pc so C can reap the pending guard_cells.
+#if WRC_CACHE_DUMP_POC
+// WRC POC: identical to the #else version below, plus tracking the
+// compiled chain/region module's byte length (see wasm_compile_chain
+// above for why this uses the separate _flyChainByteCache map).
+EM_JS(void, wasm_compile_chain_async, (const u8* bytesPtr, u32 len, u32 head_pc), {
+	var wasmBytes = Module.HEAPU8.slice(bytesPtr, bytesPtr + len);  // C buffer dies at return
+	if (!Module._flyChainReady) Module._flyChainReady = [];
+	if (!Module._flyChainFail) Module._flyChainFail = [];
+	Module._flyGen = Module._flyGen | 0;
+	var gen = Module._flyGen;
+	WebAssembly.instantiate(wasmBytes, { env: Module._jitImports }).then(function(result) {
+		if (gen !== (Module._flyGen | 0)) return;  // cache reset while compiling
+		var instance = result.instance;
+		var table = wasmTable;
+		if (!Module._jitTableBase) {
+			Module._jitTableBase = table.length;
+			Module._jitNextIdx = table.length;
+			table.grow(4096);
+		}
+		var idx = Module._jitNextIdx++;
+		if (idx >= table.length)
+			table.grow(4096);
+		table.set(idx, instance.exports.b);
+		if (!Module._wasmChainCache) Module._wasmChainCache = {};
+		Module._wasmChainCache[head_pc] = instance.exports.b;
+		if (!Module._wasmChainIdx) Module._wasmChainIdx = {};
+		Module._wasmChainIdx[head_pc] = idx;
+		// WRC POC: cache-size tracking (see file top).
+		if (!Module._flyChainByteCache) Module._flyChainByteCache = {};
+		Module._flyChainByteCache[head_pc] = len;
+		// WRC POC: persist-side pending buffer (see file top).
+		if (!Module._flyPendingChunks) Module._flyPendingChunks = {};
+		Module._flyPendingChunks['c' + head_pc] = { bytes: wasmBytes, hash: 0, nw: 0 };
+		Module._flyChainReady.push({ pc: head_pc, idx: idx });
+	}, function(e) {
+		if (!Module._flyQ) console.error('[chain] async compile fail head=0x' + (head_pc >>> 0).toString(16) + ': ' + (e && e.message));
+		Module._flyChainFail.push(head_pc);
+	});
+});
+#else
 EM_JS(void, wasm_compile_chain_async, (const u8* bytesPtr, u32 len, u32 head_pc), {
 	var wasmBytes = Module.HEAPU8.slice(bytesPtr, bytesPtr + len);  // C buffer dies at return
 	if (!Module._flyChainReady) Module._flyChainReady = [];
@@ -4055,6 +4609,7 @@ EM_JS(void, wasm_compile_chain_async, (const u8* bytesPtr, u32 len, u32 head_pc)
 		Module._flyChainFail.push(head_pc);
 	});
 });
+#endif
 EM_JS(int, wasm_execute_chain, (u32 head_pc, u32 ctx_ptr, u32 ram_base), {
 	try {
 		Module._wasmChainCache[head_pc](ctx_ptr, ram_base);
@@ -4067,13 +4622,116 @@ EM_JS(int, wasm_execute_chain, (u32 head_pc, u32 ctx_ptr, u32 ram_base), {
 EM_JS(int, wasm_has_chain, (u32 head_pc), {
 	return (Module._wasmChainCache && Module._wasmChainCache[head_pc]) ? 1 : 0;
 });
+#if WRC_CACHE_DUMP_POC
+// WRC POC: identical to the #else version below, plus clearing
+// Module._flyChainByteCache alongside the real chain/region cache.
+EM_JS(void, wasm_clear_chains, (), {
+	Module._wasmChainCache = {};
+	Module._flyChainByteCache = {};
+});
+#else
 EM_JS(void, wasm_clear_chains, (), {
 	Module._wasmChainCache = {};
 });
+#endif
 
 EM_JS(int, wasm_cache_size, (), {
 	return Module._wasmBlockCache ? Object.keys(Module._wasmBlockCache).length : 0;
 });
+
+#if WRC_CACHE_DUMP_POC
+// WRC POC: reports the CURRENT live compiled-cache size (sum of tracked
+// byte lengths across _flyByteCache + _flyChainByteCache - see the
+// WRC_CACHE_DUMP_POC definition above for what's tracked and the known
+// imprecision: individual block/chain eviction isn't mirrored into these
+// maps, only the two wholesale-reset points (wasm_clear_cache/
+// wasm_clear_chains) are, so this can be a slight OVER-estimate of the
+// truly-live set between resets - reasonable for a first "how big" sizing
+// pass, not exact). Logs a human-readable summary to the console and
+// returns the total byte count (fits comfortably in an i32 for any
+// realistic session). Called from webrcade-app-retro-flycast's pause() -
+// see that app's index.js - not wired to anything else yet.
+// A real extern "C" function marked EMSCRIPTEN_KEEPALIVE - same pattern as
+// wasm_mem_read8/wasm_div32u/etc. above - not an EM_JS declaration. Matters
+// here specifically: EM_JS-declared functions have no real function body
+// (their "body" is JS, synthesized only for symbols the linker sees an
+// actual call site for), so one with zero C++ callers gets silently
+// dropped by wasm-ld/LTO even when listed in the Makefile's
+// EXPORTED_FUNCTIONS - confirmed the hard way, see git history/session
+// notes. EMSCRIPTEN_KEEPALIVE (~__attribute__((used))) on a real function
+// avoids that class of problem entirely, matching how every other
+// JS-callable diagnostic in this file (fly_disp_count, fly_ram_ptr, etc.)
+// is done.
+extern "C" int EMSCRIPTEN_KEEPALIVE wasm_cache_dump_bytes() {
+	return EM_ASM_INT({
+		var blockCache = Module._flyByteCache || {};
+		var chainCache = Module._flyChainByteCache || {};
+		var blockKeys = Object.keys(blockCache);
+		var chainKeys = Object.keys(chainCache);
+		var blockBytes = 0;
+		var chainBytes = 0;
+		for (var i = 0; i < blockKeys.length; i++) blockBytes += blockCache[blockKeys[i]];
+		for (var i = 0; i < chainKeys.length; i++) chainBytes += chainCache[chainKeys[i]];
+		var totalBytes = Math.round(blockBytes + chainBytes);
+		console.log('[WRC cache-dump POC] blocks=' + blockKeys.length + ' (' +
+			(blockBytes / 1024).toFixed(1) + 'KB), chains/regions=' + chainKeys.length +
+			' (' + (chainBytes / 1024).toFixed(1) + 'KB), total=' +
+			(totalBytes / 1024).toFixed(1) + 'KB (' + (totalBytes / 1048576).toFixed(2) + 'MB)');
+		return totalBytes | 0;
+	});
+}
+#else
+// WRC POC: trivial always-0 stub so the Makefile's EXPORTED_FUNCTIONS
+// entry for _wasm_cache_dump_bytes keeps linking even with the flag off,
+// without needing to also edit the Makefile to flip it.
+extern "C" int EMSCRIPTEN_KEEPALIVE wasm_cache_dump_bytes() {
+	return 0;
+}
+#endif
+
+#if WRC_CACHE_LOAD_POC
+// WRC POC (load side): verify-only, no side effects. Called from JS BEFORE
+// it does anything with a persisted chunk's bytes - deciding whether it's
+// even worth instantiating. Critical ordering reason this exists as its
+// own step rather than living inside wasm_try_prime_block below: JS's own
+// wasm_execute_block() bridge looks up Module._wasmBlockCache[pc] by PC
+// ALONE, with no hash check - so a chunk must never be registered there at
+// all if it's stale, not registered-then-just-left-unprimed. Verifying
+// first and only proceeding to instantiate/register on a pass keeps a
+// stale chunk from ever becoming reachable through that path.
+extern "C" int EMSCRIPTEN_KEEPALIVE wasm_verify_block_hash(u32 vaddr, u32 stored_hash, u32 stored_nw) {
+	if (stored_nw == 0) return 1;  // ROM/BIOS - can't self-modify, always safe
+	return (hashRamBlock(vaddr, stored_nw) == stored_hash) ? 1 : 0;
+}
+
+// WRC POC (load side): called from JS (webrcade-app-retro-flycast's
+// loadState()) AFTER it has already WebAssembly.instantiate()'d a
+// persisted block's bytes and registered the result in the indirect
+// function table AND Module._wasmBlockCache/_wasmBlockIdx at table_idx -
+// which JS should only have done after wasm_verify_block_hash() above
+// already passed. This function re-verifies (cheap insurance against a
+// timing gap between the two calls, not the primary guard) and, if still
+// safe, populates the C++-side fast-path dispatch arrays so the block
+// actually gets dispatched via the hit path instead of just sitting
+// unreachable in the JS-side caches.
+extern "C" int EMSCRIPTEN_KEEPALIVE wasm_try_prime_block(u32 vaddr, u32 table_idx, u32 stored_hash, u32 stored_nw) {
+	if (stored_nw > 0) {
+		u32 liveHash = hashRamBlock(vaddr, stored_nw);
+		if (liveHash != stored_hash) {
+			return 0;
+		}
+	}
+	primeDispatchEntry(vaddr, stored_nw * 2, table_idx);
+	return 1;
+}
+#else
+extern "C" int EMSCRIPTEN_KEEPALIVE wasm_verify_block_hash(u32 vaddr, u32 stored_hash, u32 stored_nw) {
+	return 0;
+}
+extern "C" int EMSCRIPTEN_KEEPALIVE wasm_try_prime_block(u32 vaddr, u32 table_idx, u32 stored_hash, u32 stored_nw) {
+	return 0;
+}
+#endif
 
 // Profiling data readers
 EM_JS(double, wasm_prof_compile_ms, (), {
@@ -5328,7 +5986,7 @@ extern "C" void EMSCRIPTEN_KEEPALIVE fly_dump_new_pcs(u32 target_pc) {
 #endif
 
 #else
-static int wasm_compile_block(const u8*, u32, u32) { return 0; }
+static int wasm_compile_block(const u8*, u32, u32, u32, u32) { return 0; }
 static void wasm_compile_block_async(const u8*, u32, u32, u32, u32) {}
 static int wasm_compile_block_batch(const u8*, u32, const u32*, u32, u32*) { return 0; }
 static int wasm_get_block_idx(u32) { return 0; }
@@ -5343,6 +6001,7 @@ static int wasm_has_block(u32) { return 0; }
 static void wasm_remove_block(u32) {}
 static void wasm_clear_cache() {}
 static int wasm_cache_size() { return 0; }
+static int wasm_cache_dump_bytes() { return 0; }
 static double wasm_prof_compile_ms() { return 0; }
 static double wasm_prof_exec_sample_ms() { return 0; }
 static int wasm_prof_exec_samples() { return 0; }
@@ -7033,7 +7692,7 @@ public:
 			// path), then primes. No async (a drain-side promotion would
 			// prime before the shadow could run). Write-parity uses the
 			// identical interception mechanism.
-			wasm_compile_block(bytes.data(), (u32)bytes.size(), block->vaddr);
+			wasm_compile_block(bytes.data(), (u32)bytes.size(), block->vaddr, smc_hash, smc_nw);
 #else
 			if (g_compile_batch) {
 				// Queue for this frame's single multi-function Module —
@@ -7049,8 +7708,24 @@ public:
 #endif
 			g_defer_count++;
 		} else {
+			// WRC POC: same smc_hash/smc_nw computation as the g_compile_defer
+			// branch above (not in scope here - that one's local to its own
+			// if-block) - needed so this, the immediate/non-deferred sync
+			// compile path, can also feed the persist buffer with a
+			// verifiable hash. 0/0 for non-RAM blocks, same convention.
+			u32 smc_hash = 0, smc_nw = 0;
+			{
+				u32 phys = block->vaddr & 0x1FFFFFFF;
+				if ((phys >> 26) == 3) {
+					u32 nw = block->sh4_code_size / 2;
+					if (nw == 0) nw = 1;
+					if (nw > 0xFFFF) nw = 0xFFFF;
+					smc_nw = nw;
+					smc_hash = hashRamBlock(block->vaddr, nw);
+				}
+			}
 			double fly_compile_t0 = emscripten_get_now();
-			int table_idx = wasm_compile_block(bytes.data(), (u32)bytes.size(), block->vaddr);
+			int table_idx = wasm_compile_block(bytes.data(), (u32)bytes.size(), block->vaddr, smc_hash, smc_nw);
 			double fly_compile_ms = emscripten_get_now() - fly_compile_t0;
 			FLY_EVT(FLY_EVT_BLOCK_COMPILE,
 			        block->vaddr,

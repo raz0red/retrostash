@@ -84,6 +84,8 @@ void bios_Release(void)
 
 void bios_Store(void)
 {
+#if 0
    if(bios_data != NULL && bios_enabled)
       memory_WriteROM(65536 - bios_size, bios_size, bios_data);
+#endif
 }

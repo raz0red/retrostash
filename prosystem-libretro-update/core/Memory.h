@@ -5,7 +5,7 @@
  *
  * ----------------------------------------------------------------------------
  * Copyright 2005 Greg Stanton
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -37,8 +37,9 @@ extern "C" {
 
 extern void memory_Reset(void);
 extern uint8_t memory_Read(uint16_t address);
+extern uint8_t memory_ReadMaria(uint16_t address);
 extern void memory_Write(uint16_t address, uint8_t data);
-extern void memory_WriteROM(uint16_t address, uint16_t size, const uint8_t* data);
+extern void memory_WriteROM(uint16_t address, uint16_t size, const uint8_t* data, uint32_t offset);
 extern void memory_ClearROM(uint16_t address, uint16_t size);
 extern uint16_t memory_souper_GetRamAddress(uint16_t address);
 extern uint8_t memory_ram[MEMORY_SIZE];
