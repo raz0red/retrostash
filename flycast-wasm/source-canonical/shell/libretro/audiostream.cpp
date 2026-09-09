@@ -327,17 +327,23 @@ void retro_audio_upload(void)
 	int16_t *audio_out_buffer_ptr = audio_out_buffer;
 	g_aud_produced_frames += (u32)num_frames;
 #ifdef __EMSCRIPTEN__
-	/* AudioWorklet sink — RetroArch's OpenAL driver (blocking writes,
-	 * buffer-source seam scheduling) is bypassed entirely. If the worklet
-	 * cannot initialize (old Safari, odd embeds) fall back to the legacy
-	 * audio_batch_cb path permanently: degraded beats mute. */
-	static bool worklet_failed = false;
-	if (num_frames > 0 && !worklet_failed) {
-		if (fly_worklet_push(audio_out_buffer_ptr, (unsigned)num_frames) != 0)
-			worklet_failed = true;
-	}
-	if (!worklet_failed)
+	/* WRC (2026-09-08): switched from the AudioWorklet ring-buffer sink
+	 * (fly_worklet_push(), still defined above but no longer called - left
+	 * in place rather than deleted) to the same pattern used by every
+	 * other WRC libretro core (PPSSPP, fceumm, snes9x, beetle-*, etc): call
+	 * straight into window.emulator.audioCallback(), which feeds
+	 * @webrcade/app-common's ScriptAudioProcessor circular queue. Real
+	 * iOS testing (Crazy Taxi, heavy 3D scenes) showed audible dropped
+	 * chunks with the worklet that this shared, well-tested path doesn't
+	 * have elsewhere - despite AudioWorkletNode's playback running on a
+	 * separate real-time thread in theory, so main-thread stalls
+	 * shouldn't touch it as directly as they do here in practice.
+	 * See upload_output_audio_buffer() in ppsspp-wasm/libretro/libretro.cpp
+	 * for the reference implementation this mirrors. */
+	if (num_frames > 0) {
+		EM_ASM({ window.emulator.audioCallback($0, $1); }, audio_out_buffer_ptr, num_frames);
 		return;
+	}
 #endif
 	while (num_frames > 0)
 	{

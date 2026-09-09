@@ -82,6 +82,30 @@
 
 constexpr char slash = path_default_slash_c();
 
+#if defined(__EMSCRIPTEN__)
+// WRC (2026-09-08): live-apply bridge for JS-side pause-menu settings that
+// need to change while the core is already running, no reload required -
+// same mechanism webrcade-app-beetle-psx uses for disk eject/analog mode/
+// etc (see frontend/drivers/platform_emscripten.c's wrc_set_options(),
+// which stores the bitmask into wrc_options and calls this extern hook).
+// OPT1 is a pure "something changed, go read it" signal, not a value
+// encoding - reicast_frame_skipping accepts 0-6 (see
+// libretro_core_options.h), too wide a range to pack into a couple of
+// wrc_options bits alongside whatever else might use that bitmask later.
+// Setting OPT1 just flips a pending flag; retro_run() below (called every
+// frame) checks it and, only when set, calls back into JS via EM_ASM_INT
+// to fetch the actual current value and assign it straight into
+// config::SkipFrame (an Option<int>, checked live by the renderer
+// wherever frame skipping is consulted - no restart/re-init needed,
+// unlike the .opt file which is only read once at core boot).
+static bool wrc_frameskip_pending = false;
+
+extern "C" void wrc_on_set_options(int opts) {
+	if (opts & 1)
+		wrc_frameskip_pending = true;
+}
+#endif
+
 #define RETRO_DEVICE_TWINSTICK				RETRO_DEVICE_SUBCLASS( RETRO_DEVICE_JOYPAD, 1 )
 #define RETRO_DEVICE_TWINSTICK_SATURN		RETRO_DEVICE_SUBCLASS( RETRO_DEVICE_JOYPAD, 2 )
 #define RETRO_DEVICE_ASCIISTICK				RETRO_DEVICE_SUBCLASS( RETRO_DEVICE_JOYPAD, 3 )
@@ -1328,6 +1352,13 @@ static double fly_base_fps = 59.94;
 
 void retro_run()
 {
+#if defined(__EMSCRIPTEN__)
+	if (wrc_frameskip_pending) {
+		wrc_frameskip_pending = false;
+		config::SkipFrame = EM_ASM_INT({ return window.emulator.getPendingFrameSkip(); });
+	}
+#endif
+
 #if defined(__EMSCRIPTEN__) && !defined(JIT_PROD_BUILD)
 	// Auto-run SHIL op tests on first retro_run() call (dev builds only).
 	// GATED OFF: these harnesses (esp. singlestep) compile + execute synthetic
@@ -1950,6 +1981,17 @@ void retro_run()
 		is_pal = pal_check;
 		setAVInfo(avinfo);
 		environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &avinfo);
+#if defined(__EMSCRIPTEN__)
+		// WRC (2026-09-09): the auto frame-skip heuristic's FPS threshold
+		// (see emulator/index.js's onFpsUpdate()) is relative to the
+		// game's real target rate, not a fixed 60 - a native 50Hz PAL
+		// game would otherwise always read as "too slow" against a
+		// hardcoded NTSC threshold. is_pal here is the same
+		// SPG_CONTROL.isPAL()-driven, hardware-register-backed detection
+		// setAVInfo() itself uses, so this fires exactly when the real
+		// target rate changes, in either direction.
+		EM_ASM({ window.emulator.setPalMode(!!$0); }, is_pal ? 1 : 0);
+#endif
 	}
 
 #if defined(__EMSCRIPTEN__) && !defined(JIT_PROD_BUILD) && FLY_RETRO_DIAG

@@ -411,6 +411,16 @@ struct maple_sega_vmu: maple_base
 			ERROR_LOG(MAPLE, "Failed to write the VMU %s to disk", logical_port);
 			return false;
 		}
+		// WRC (2026-09-09): file is opened once in OnSetup() and only closed
+		// in the destructor (core unload) - on web, a normal pause-menu exit
+		// or tab close doesn't reliably reach that. Without an explicit
+		// flush, this write can sit in libc's stdio buffer, invisible to the
+		// underlying (Emscripten) filesystem - so an app-level save
+		// triggered mid-session (FS.readFile on this same path) can capture
+		// a stale/incomplete VMU image even though the file is the correct
+		// total size. Confirmed via real testing: a freshly-formatted VMU
+		// corrupted after exactly one save/load round-trip.
+		std::fflush(file);
 		fullSaveNeeded = false;
 		return true;
 	}
@@ -708,6 +718,13 @@ struct maple_sega_vmu: maple_base
 							{
 								ERROR_LOG(MAPLE, "Failed to save VMU %s: I/O error", logical_port);
 								return MDRE_FileError; // I/O error
+							}
+							else
+							{
+								// WRC (2026-09-09): see fullSave()'s comment above -
+								// same missing-flush issue for the incremental
+								// per-block write path.
+								std::fflush(file);
 							}
 						}
 						return MDRS_DeviceReply;
