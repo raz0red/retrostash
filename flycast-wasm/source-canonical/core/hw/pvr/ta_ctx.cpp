@@ -57,10 +57,28 @@ bool QueueRender(TA_context* ctx)
 	bool skipFrame = !rend_is_enabled();
 	if (!skipFrame)
 	{
-		RenderCount++;
-		if (RenderCount % (config::SkipFrame + 1) != 0)
-			skipFrame = true;
-		else if (config::ThreadedRendering && rqueue != nullptr
+		// WRC (2026-09-10): render-to-texture sub-renders (ctx->rend.isRTT)
+		// must never be independently skipped by the frame-skip setting.
+		// A game using RTT-based post-processing (render scene to a
+		// texture, then a separate draw using that texture as the actual
+		// displayed frame) issues these as a matched PAIR per visible
+		// frame. RenderCount was a single global counter treating every
+		// TA render request as fungible; the skip modulo is deterministic,
+		// so once its phase falls out of sync with an RTT/display pair it
+		// stays out of sync forever - silently starving one half of the
+		// pair every single cycle, with no error (just a permanently
+		// black or stale-looking screen). Confirmed live: Rez went
+		// permanently black during gameplay with any frame-skip level
+		// enabled, fixed instantly by disabling frame-skip. Only count/
+		// skip real displayable frames; always let RTT sub-renders
+		// through untouched by the skip counter.
+		if (!ctx->rend.isRTT)
+		{
+			RenderCount++;
+			if (RenderCount % (config::SkipFrame + 1) != 0)
+				skipFrame = true;
+		}
+		if (!skipFrame && config::ThreadedRendering && rqueue != nullptr
 				&& (config::AutoSkipFrame == 0 || (config::AutoSkipFrame == 1 && SH4FastEnough)))
 			// The previous render hasn't completed yet so we wait.
 			// If autoskipframe is enabled (normal level), we only do so if the CPU is running

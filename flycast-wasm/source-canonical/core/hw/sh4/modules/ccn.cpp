@@ -9,6 +9,7 @@
 #include "hw/sh4/sh4_cache.h"
 #include "cfg/option.h"
 #include "emulator.h"
+#include "build.h"
 
 CCNRegisters ccn;
 
@@ -55,7 +56,44 @@ static void CCN_MMUCR_write(u32 addr, u32 value)
 	{
 		//printf("<*******>MMU Enabled , ONLY SQ remaps work<*******>\n");
 		mmu_set_state();
+#if defined(__EMSCRIPTEN__) && HOST_CPU == CPU_GENERIC
+		// WRC (2026-09-09): same reasoning as compilePC's magic-PC skip
+		// (driver.cpp) — on our WASM backend a full ResetCache() discards
+		// every compiled WebAssembly module and forces a multi-frame
+		// interpreter spiral to recover, and per-block SMC (the inline hash
+		// check in c_dispatch_loop) already covers same-physical-address
+		// content changes. This specific trigger additionally turned out to
+		// be actively harmful: confirmed live (NBA 2K, non-WinCE — ordinary
+		// commercial titles essentially never use the SH4 MMU, so this is a
+		// BIOS/boot register write, not a real virtual-memory request) that
+		// this fires WHILE a block is still mid-dispatch, nuking the entire
+		// cache — including the RuntimeBlockInfo the in-flight SHIL-fallback
+		// bridge is actively reading — and silently drops its remaining ops
+		// (LOST-OP HAZARD #1) instead of the intended cache-consistency
+		// effect. The residual correctness gap this skip accepts is real
+		// but narrow: a block compiled for a P0/U0 virtual address BEFORE an
+		// MMU state change that remaps that same address to different
+		// physical memory could be reused incorrectly afterward, since the
+		// per-block hash check verifies physical content, not the
+		// virtual→physical mapping. P1/P2 (0x8xxxxxxx/0xAxxxxxxx) addresses
+		// — where this bug's blocks live — are always untranslated on real
+		// SH4 hardware regardless of MMU state, so they're unaffected.
+		// Permanent breadcrumb (cheap — MMU AT toggles are rare, not a hot
+		// path): if some other game ever crashes or misbehaves, check the
+		// log for this line near the failure to know whether this skip is
+		// a plausible contributor. CONFIRMED (2026-09-10) not the cause of
+		// a separate Sega GT black screen - forcing the full reset back on
+		// did not fix it, so that's a different, still-unidentified bug.
+		//
+		// WRC (2026-09-10): tried a "flush once (first occurrence), skip
+		// every occurrence after" variant - didn't work in practice.
+		// Disabled unconditionally again (unconditional skip, no
+		// first-occurrence allowance) to confirm the plain skip still
+		// works as it did originally.
+		WARN_LOG(SH4, "WRC: skipping full JIT cache reset on MMU state change (WASM backend, pc=%08x) — see ccn.cpp CCN_MMUCR_write", Sh4cntx.pc);
+#else
 		emu.getSh4Executor()->ResetCache();
+#endif
 	}
 }
 

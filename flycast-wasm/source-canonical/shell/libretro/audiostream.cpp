@@ -47,18 +47,64 @@ extern float libretro_expected_audio_samples_per_run;
 extern unsigned libretro_vsync_swap_interval;
 extern bool libretro_detect_vsync_swap_interval;
 
+// WRC (2026-09-11): flip to 0 to go back to the original fixed-size
+// (~200ms) audio_buffer with overflow-drop-and-mute, for comparison or
+// regression testing. See retro_audio_init()'s comment (in the #if 1
+// branch below) for why the unbounded version replaced it as the
+// default - short version: the fixed cap existed to avoid hanging
+// retro_run() via a blocking audio_batch_cb() call, which never applied
+// to our __EMSCRIPTEN__ path (calls straight into JS, non-blocking)
+// but was still silently dropping+muting audio on any main-thread
+// stall over ~200ms (JIT-compile spikes, scene transitions).
+#define WRC_AUDIO_UNBOUNDED_BUFFER 1
+
 static float audio_samples_per_frame_avg;
 static unsigned vsync_swap_interval_last;
 static unsigned vsync_swap_interval_conter;
 
 static std::mutex audio_buffer_mutex;
 static std::vector<int16_t> audio_buffer;
+#if WRC_AUDIO_UNBOUNDED_BUFFER
+static std::vector<int16_t> audio_out_buffer;
+#else
 static size_t audio_buffer_idx;
-static size_t audio_batch_frames_max;
 static bool drop_samples = true;
-
 static int16_t *audio_out_buffer = nullptr;
+#endif
+static size_t audio_batch_frames_max;
 
+#if WRC_AUDIO_UNBOUNDED_BUFFER
+void retro_audio_init(void)
+{
+	const std::lock_guard<std::mutex> lock(audio_buffer_mutex);
+
+	/* WRC (2026-09-11): audio_buffer used to be a FIXED-size vector
+	 * (10 frames' worth, ~200ms at 44100Hz - see the #else branch below
+	 * for the original comment), with WriteSample() dropping every
+	 * buffered sample and muting until the next retro_audio_upload() the
+	 * moment it filled. That cap existed to avoid hanging retro_run()
+	 * via a blocking audio_batch_cb() call to a native frontend if too
+	 * much got queued in one go. On the __EMSCRIPTEN__ path below,
+	 * retro_audio_upload() bypasses audio_batch_cb entirely and calls
+	 * straight into JS instead (non-blocking) - the failure mode the
+	 * cap defended against doesn't apply here, but the buffer was still
+	 * paying its cost: any main-thread stall long enough to accumulate
+	 * more than ~200ms of audio (a heavy JIT-compile spike, a scene
+	 * transition, several such frames back to back) would silently drop
+	 * everything and mute - a real, confirmed source of audible pops.
+	 * audio_buffer now just grows via push_back() as needed - no cap,
+	 * no overflow-drop, no mute. Tradeoff: if something ever stopped
+	 * draining it for a very long time, it would grow unbounded rather
+	 * than dropping - accepted deliberately, not an oversight. */
+	audio_buffer.clear();
+	audio_out_buffer.clear();
+	audio_batch_frames_max = std::numeric_limits<size_t>::max();
+
+	audio_samples_per_frame_avg = 0.0f;
+	vsync_swap_interval_last = 1;
+	vsync_swap_interval_conter = 0;
+}
+#else
 void retro_audio_init(void)
 {
 	const std::lock_guard<std::mutex> lock(audio_buffer_mutex);
@@ -87,7 +133,23 @@ void retro_audio_init(void)
 	vsync_swap_interval_last = 1;
 	vsync_swap_interval_conter = 0;
 }
+#endif
 
+#if WRC_AUDIO_UNBOUNDED_BUFFER
+void retro_audio_deinit(void)
+{
+	const std::lock_guard<std::mutex> lock(audio_buffer_mutex);
+
+	audio_buffer.clear();
+	audio_buffer.shrink_to_fit();
+	audio_out_buffer.clear();
+	audio_out_buffer.shrink_to_fit();
+
+	audio_samples_per_frame_avg = 0.0f;
+	vsync_swap_interval_last = 1;
+	vsync_swap_interval_conter = 0;
+}
+#else
 void retro_audio_deinit(void)
 {
 	const std::lock_guard<std::mutex> lock(audio_buffer_mutex);
@@ -106,7 +168,15 @@ void retro_audio_deinit(void)
 	vsync_swap_interval_last = 1;
 	vsync_swap_interval_conter = 0;
 }
+#endif
 
+#if WRC_AUDIO_UNBOUNDED_BUFFER
+void retro_audio_flush_buffer(void)
+{
+	const std::lock_guard<std::mutex> lock(audio_buffer_mutex);
+	audio_buffer.clear();
+}
+#else
 void retro_audio_flush_buffer(void)
 {
 	const std::lock_guard<std::mutex> lock(audio_buffer_mutex);
@@ -116,21 +186,31 @@ void retro_audio_flush_buffer(void)
 	 * -> any 'drop samples' lock can be released */
 	drop_samples = false;
 }
+#endif
 
 size_t retro_audio_buffer_fill(void)
 {
 	/* Returns current buffer fill in stereo frames (sample pairs).
 	 * Used by the frame pacer to sync emulation speed to audio
 	 * consumption rate. Lock-free read — approximate value is fine. */
+#if WRC_AUDIO_UNBOUNDED_BUFFER
+	return audio_buffer.size() >> 1;
+#else
 	return audio_buffer_idx >> 1;
+#endif
 }
 
-/* Audio-loss telemetry (2026-07-17): the two silent sample-loss points are
- * WriteSample overflow (drops the whole buffer + mutes until next upload)
- * and audio_batch_cb shortfalls (unwritten tail discarded). Counters feed
- * the HUD so the loss mode can be identified during real play before any
- * rate-control design. */
-u32 g_aud_overflow_events = 0;   /* WriteSample overflow occurrences */
+/* Audio-loss telemetry (2026-07-17): originally tracked two silent
+ * sample-loss points. WriteSample overflow (dropped the whole buffer +
+ * muted until next upload) is gone now that audio_buffer is unbounded
+ * (2026-09-11) - g_aud_overflow_events stays declared (the HUD in
+ * libretro.cpp still reads it) but can no longer increment, which is
+ * correct: zero overflow events is now always true. audio_batch_cb
+ * shortfalls (unwritten tail discarded) is a real, separate, native-
+ * platform-only concern (audio_batch_cb itself reporting it wrote fewer
+ * frames than asked) - unrelated to the buffer-size issue, still live
+ * for native builds. */
+u32 g_aud_overflow_events = 0;   /* no longer incrementable - kept for the HUD reader */
 u32 g_aud_shortfall_frames = 0;  /* frames the frontend refused (discarded) */
 u32 g_aud_produced_frames = 0;   /* frames handed to audio_batch_cb */
 
@@ -246,11 +326,29 @@ EM_JS(int, fly_worklet_push, (const short* ptr, unsigned frames), {
 
 size_t retro_audio_buffer_capacity(void)
 {
-	return audio_buffer.size() >> 1;
+	/* No longer a fixed ceiling - audio_buffer grows as needed. Reports
+	 * its current allocated capacity (not element count) as an
+	 * approximation. Not called from anywhere currently, kept only
+	 * because libretro.cpp still externs it. */
+	return audio_buffer.capacity() >> 1;
 }
 
 void retro_audio_upload(void)
 {
+#if WRC_AUDIO_UNBOUNDED_BUFFER
+	/* WRC (2026-09-11): swap rather than copy - O(1) pointer/size swap
+	 * instead of a per-element copy loop into a separate fixed buffer,
+	 * and it's how audio_buffer ends up genuinely unbounded: whatever
+	 * WriteSample() accumulated (however large) becomes audio_out_buffer
+	 * directly, and audio_buffer takes on audio_out_buffer's old
+	 * (already-allocated, about-to-be-cleared) storage to accumulate
+	 * into next. Minimizes time the mutex is held, too. */
+	audio_buffer_mutex.lock();
+	audio_out_buffer.swap(audio_buffer);
+	audio_buffer_mutex.unlock();
+
+	size_t num_frames = audio_out_buffer.size() >> 1;
+#else
 	audio_buffer_mutex.lock();
 
 	for (size_t i = 0; i < audio_buffer_idx; i++)
@@ -264,6 +362,7 @@ void retro_audio_upload(void)
 	drop_samples = false;
 
 	audio_buffer_mutex.unlock();
+#endif
 
 	/* Attempt to detect changes in output refresh rate */
 	if (libretro_detect_vsync_swap_interval &&
@@ -324,7 +423,11 @@ void retro_audio_upload(void)
 			vsync_swap_interval_conter = 0;
 	}
 
+#if WRC_AUDIO_UNBOUNDED_BUFFER
+	int16_t *audio_out_buffer_ptr = audio_out_buffer.data();
+#else
 	int16_t *audio_out_buffer_ptr = audio_out_buffer;
+#endif
 	g_aud_produced_frames += (u32)num_frames;
 #ifdef __EMSCRIPTEN__
 	/* WRC (2026-09-08): switched from the AudioWorklet ring-buffer sink
@@ -338,12 +441,20 @@ void retro_audio_upload(void)
 	 * have elsewhere - despite AudioWorkletNode's playback running on a
 	 * separate real-time thread in theory, so main-thread stalls
 	 * shouldn't touch it as directly as they do here in practice.
-	 * See upload_output_audio_buffer() in ppsspp-wasm/libretro/libretro.cpp
-	 * for the reference implementation this mirrors. */
+	 * Re-tried once more 2026-09-10 (after the auto frame-skip feature
+	 * landed, on the theory that less main-thread work per second might
+	 * fix the worklet's dropped-chunk issue) - confirmed worse, reverted
+	 * back to this. See upload_output_audio_buffer() in
+	 * ppsspp-wasm/libretro/libretro.cpp for the reference this mirrors. */
 	if (num_frames > 0) {
 		EM_ASM({ window.emulator.audioCallback($0, $1); }, audio_out_buffer_ptr, num_frames);
-		return;
 	}
+#if WRC_AUDIO_UNBOUNDED_BUFFER
+	// audioCallback() above reads synchronously (copies out of the WASM
+	// heap before returning), so it's safe to clear right after it.
+	audio_out_buffer.clear();
+#endif
+	return;
 #endif
 	while (num_frames > 0)
 	{
@@ -362,8 +473,19 @@ void retro_audio_upload(void)
 		num_frames -= frames_to_write;
 		audio_out_buffer_ptr += frames_to_write << 1;
 	}
+#if WRC_AUDIO_UNBOUNDED_BUFFER
+	audio_out_buffer.clear();
+#endif
 }
 
+#if WRC_AUDIO_UNBOUNDED_BUFFER
+void WriteSample(s16 r, s16 l)
+{
+	const std::lock_guard<std::mutex> lock(audio_buffer_mutex);
+	audio_buffer.push_back(l);
+	audio_buffer.push_back(r);
+}
+#else
 void WriteSample(s16 r, s16 l)
 {
 	const std::lock_guard<std::mutex> lock(audio_buffer_mutex);
@@ -386,6 +508,7 @@ void WriteSample(s16 r, s16 l)
 	audio_buffer[audio_buffer_idx++] = l;
 	audio_buffer[audio_buffer_idx++] = r;
 }
+#endif
 
 void InitAudio()
 {

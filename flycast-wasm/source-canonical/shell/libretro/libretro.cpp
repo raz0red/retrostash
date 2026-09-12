@@ -355,6 +355,38 @@ static int16_t wrc_libretro_input_state(unsigned port, unsigned device, unsigned
 
 	if (device == RETRO_DEVICE_ANALOG)
 	{
+		// WRC (2026-09-11): real Dreamcast L/R triggers are analog on the
+		// actual hardware - flycast's own controller code (get_analog_
+		// trigger(), further down this file) already queries this exact
+		// device/index/id combo for L2/R2 before falling back to a plain
+		// digital read, so this was previously a silent dead end (fell
+		// through to the `return 0` below, forcing every call back onto
+		// the digital fallback). wrc_input_state_analog[port][2]/[3] are
+		// repurposed here rather than plumbing new WASM-exported state:
+		// this app has no second analog stick to put there (Dreamcast has
+		// only one), so index 2/3 carry trigger pressure instead - the JS
+		// side (pollControls() in webrcade-app-retro-flycast) sends it
+		// through those same two argument slots. Digital LBUMP/RBUMP
+		// (still sent too, for a keyboard or a pad without analog trigger
+		// support) wins with the full value when pressed; otherwise fall
+		// through to whatever analog pressure was sent.
+		if (index == RETRO_DEVICE_INDEX_ANALOG_BUTTON)
+		{
+			if (id == RETRO_DEVICE_ID_JOYPAD_L2)
+			{
+				if (wrc_input_state[port] & (1u << RETRO_DEVICE_ID_JOYPAD_L2))
+					return 32767;
+				return (int16_t)(wrc_input_state_analog[port][2] * 32767.0f);
+			}
+			if (id == RETRO_DEVICE_ID_JOYPAD_R2)
+			{
+				if (wrc_input_state[port] & (1u << RETRO_DEVICE_ID_JOYPAD_R2))
+					return 32767;
+				return (int16_t)(wrc_input_state_analog[port][3] * 32767.0f);
+			}
+			return 0;
+		}
+
 		float v = 0.f;
 		if (index == RETRO_DEVICE_INDEX_ANALOG_LEFT)
 			v = id == RETRO_DEVICE_ID_ANALOG_X ? wrc_input_state_analog[port][0]
